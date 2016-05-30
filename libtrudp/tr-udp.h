@@ -20,62 +20,37 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- */
-
-/* 
- * File:   packet.h
- * Author: Kirill Scherba <kirill@scherba.ru>
  *
- * Created on May 30, 2016, 5:47 PM
+ * Created on May 31, 2016, 1:45 AM
  */
 
-#ifndef HEADER_H
-#define HEADER_H
+#ifndef TR_UDP_H
+#define TR_UDP_H
 
-#include <stdint.h>
+#include "timed_queue.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+typedef struct trudpData {
     
-#define TR_UDP_PROTOCOL_VERSION 1    
+    uint32_t sendId;
+    trudpTimedQueue *sendQueue;
+    uint32_t triptime;
     
-/**
- * TR-UDP message type
- */
-enum ksnTRUDP_type {
+    uint32_t receiveExpectedId;
+    trudpTimedQueue *receiveQueue;
     
-    TRU_DATA, ///< The DATA messages are carrying payload. (has payload)
-    /**
-     * The ACK messages are used to acknowledge the arrival of the DATA and 
-     * RESET messages. (has not payload) 
-     */
-    TRU_ACK,
-    TRU_RESET ///< The RESET messages reset messages counter. (has not payload)
+} trudpData;
 
-};    
+trudpData *trudpNew();
+void trudpDestroy(trudpData *td);
 
-int trudpPacketCheck(void *th, size_t packetLength);
 
-void *trudpPacketACKcreateNew(void *in_th);
-void *trudpPacketRESETcreateNew(uint32_t id);
-void *trudpPacketDATAcreateNew(uint32_t id, void *data, size_t data_length, size_t *packetLength);  
-
-size_t trudpPacketACKlength();
-size_t trudpPacketRESETlength();
-
-uint32_t trudpPacketGetId(void *packet);
-void *trudpPacketGetData(void *packet);
-uint16_t trudpPacketGetDataLength(void *packet);
-int trudpPacketGetDataType(void *packet);
-
-void trudpPacketCreatedFree(void *in_th);
-
-uint32_t trudpHeaderTimestamp();
-        
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* HEADER_H */
+#endif /* TR_UDP_H */
 

@@ -301,3 +301,37 @@ inline uint32_t trudpPacketGetId(void *packet) {
     
     return ((trudpHeader *)packet)->id;
 }
+
+/**
+ * Get packet data
+ * 
+ * @param packet
+ * @return 
+ */
+inline void *trudpPacketGetData(void *packet) {
+    
+    return packet + sizeof(trudpHeader);
+}
+
+/**
+ * Get packet data length
+ * 
+ * @param packet
+ * @return 
+ */
+inline uint16_t trudpPacketGetDataLength(void *packet) {
+    
+    return ((trudpHeader *)packet)->payload_length;
+}
+
+/**
+ * Get packet data type
+ * 
+ * @param packet
+ * @return 
+ */
+inline int trudpPacketGetDataType(void *packet) {
+    
+    return ((trudpHeader *)packet)->message_type;
+}
+
