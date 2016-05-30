@@ -67,6 +67,8 @@ size_t trudpPacketRESETlength();
 uint32_t trudpPacketGetId(void *packet);
 
 void trudpPacketCreatedFree(void *in_th);
+
+uint32_t trudpHeaderTimestamp();
         
 #ifdef __cplusplus
 }

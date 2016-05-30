@@ -4,7 +4,6 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
-      <itemPath>libtrudp/send_queue.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ResourceFiles"
                    displayName="Resource Files"
@@ -20,9 +19,10 @@
         <itemPath>libtrudp/packet.h</itemPath>
         <itemPath>libtrudp/queue.c</itemPath>
         <itemPath>libtrudp/queue.h</itemPath>
+        <itemPath>libtrudp/timed_queue.c</itemPath>
+        <itemPath>libtrudp/timed_queue.h</itemPath>
       </logicalFolder>
       <itemPath>main.cpp</itemPath>
-      <itemPath>libtrudp/send_queue.c</itemPath>
     </logicalFolder>
     <logicalFolder name="TestFiles"
                    displayName="Test Files"
@@ -34,6 +34,7 @@
                      kind="TEST">
         <itemPath>libtrudp/tests/packet_t.c</itemPath>
         <itemPath>libtrudp/tests/queue_t.c</itemPath>
+        <itemPath>libtrudp/tests/timed_queue_t.c</itemPath>
       </logicalFolder>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
@@ -72,13 +73,15 @@
       </item>
       <item path="libtrudp/queue.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="libtrudp/send_queue.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="libtrudp/send_queue.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="libtrudp/tests/packet_t.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="libtrudp/tests/queue_t.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="libtrudp/tests/timed_queue_t.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="libtrudp/timed_queue.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="libtrudp/timed_queue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="main.cpp" ex="false" tool="1" flavor2="0">
       </item>
@@ -119,13 +122,15 @@
       </item>
       <item path="libtrudp/queue.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="libtrudp/send_queue.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="libtrudp/send_queue.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="libtrudp/tests/packet_t.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="libtrudp/tests/queue_t.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="libtrudp/tests/timed_queue_t.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="libtrudp/timed_queue.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="libtrudp/timed_queue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="main.cpp" ex="false" tool="1" flavor2="0">
       </item>

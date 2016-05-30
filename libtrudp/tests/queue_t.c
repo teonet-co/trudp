@@ -287,6 +287,7 @@ int main() {
     }
     
     headerSuiteAdd();
+    timedQueueSuiteAdd();
     
 
     /* Run all tests using the CUnit Basic interface */

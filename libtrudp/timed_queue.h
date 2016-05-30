@@ -23,7 +23,7 @@
  */
 
 /* 
- * File:   send_queue.h
+ * File:   timed_queue.h
  * Author: Kirill Scherba <kirill@scherba.ru>
  *
  * Created on May 30, 2016, 8:56 PM
@@ -32,12 +32,37 @@
 #ifndef SEND_QUEUE_H
 #define SEND_QUEUE_H
 
+#include <stdint.h>
+#include "queue.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+typedef struct trudpTimedQueue {
+    
+    trudpQueue *q;
+    
+} trudpTimedQueue;
 
+typedef struct trudpTimedQueueData {
+    
+    uint32_t expected_time;
+    char packet[];
+    
+} trudpTimedQueueData;
 
+trudpTimedQueue *trudpTimedQueueNew();
+void trudpTimedQueueDestroy(trudpTimedQueue *tq);
+int trudpTimedQueueFree(trudpTimedQueue *tq);
+
+trudpQueueData *trudpTimedQueueDataToQueueData(trudpTimedQueueData *tqd);
+
+trudpTimedQueueData *trudpTimedQueueAdd(trudpTimedQueue *tq, void *packet, 
+        size_t packet_length, uint32_t expected_time);
+int trudpTimedQueueDelete(trudpTimedQueue *tq, trudpTimedQueueData *tqd);
+trudpTimedQueueData *trudpTimedQueueFindById(trudpTimedQueue *tq, uint32_t id);
+trudpTimedQueueData *trudpTimedQueueFindByTime(trudpTimedQueue *tq, uint32_t t);
 
 #ifdef __cplusplus
 }

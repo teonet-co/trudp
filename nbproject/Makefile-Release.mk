@@ -37,7 +37,7 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 OBJECTFILES= \
 	${OBJECTDIR}/libtrudp/packet.o \
 	${OBJECTDIR}/libtrudp/queue.o \
-	${OBJECTDIR}/libtrudp/send_queue.o \
+	${OBJECTDIR}/libtrudp/timed_queue.o \
 	${OBJECTDIR}/main.o
 
 # Test Directory
@@ -50,7 +50,8 @@ TESTFILES= \
 # Test Object Files
 TESTOBJECTFILES= \
 	${TESTDIR}/libtrudp/tests/packet_t.o \
-	${TESTDIR}/libtrudp/tests/queue_t.o
+	${TESTDIR}/libtrudp/tests/queue_t.o \
+	${TESTDIR}/libtrudp/tests/timed_queue_t.o
 
 # C Compiler Flags
 CFLAGS=
@@ -86,10 +87,10 @@ ${OBJECTDIR}/libtrudp/queue.o: libtrudp/queue.c
 	${RM} "$@.d"
 	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/queue.o libtrudp/queue.c
 
-${OBJECTDIR}/libtrudp/send_queue.o: libtrudp/send_queue.c 
+${OBJECTDIR}/libtrudp/timed_queue.o: libtrudp/timed_queue.c 
 	${MKDIR} -p ${OBJECTDIR}/libtrudp
 	${RM} "$@.d"
-	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/send_queue.o libtrudp/send_queue.c
+	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/timed_queue.o libtrudp/timed_queue.c
 
 ${OBJECTDIR}/main.o: main.cpp 
 	${MKDIR} -p ${OBJECTDIR}
@@ -103,7 +104,7 @@ ${OBJECTDIR}/main.o: main.cpp
 .build-tests-conf: .build-tests-subprojects .build-conf ${TESTFILES}
 .build-tests-subprojects:
 
-${TESTDIR}/TestFiles/f1: ${TESTDIR}/libtrudp/tests/packet_t.o ${TESTDIR}/libtrudp/tests/queue_t.o ${OBJECTFILES:%.o=%_nomain.o}
+${TESTDIR}/TestFiles/f1: ${TESTDIR}/libtrudp/tests/packet_t.o ${TESTDIR}/libtrudp/tests/queue_t.o ${TESTDIR}/libtrudp/tests/timed_queue_t.o ${OBJECTFILES:%.o=%_nomain.o}
 	${MKDIR} -p ${TESTDIR}/TestFiles
 	${LINK.cc}   -o ${TESTDIR}/TestFiles/f1 $^ ${LDLIBSOPTIONS} -lcunit 
 
@@ -118,6 +119,12 @@ ${TESTDIR}/libtrudp/tests/queue_t.o: libtrudp/tests/queue_t.c
 	${MKDIR} -p ${TESTDIR}/libtrudp/tests
 	${RM} "$@.d"
 	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${TESTDIR}/libtrudp/tests/queue_t.o libtrudp/tests/queue_t.c
+
+
+${TESTDIR}/libtrudp/tests/timed_queue_t.o: libtrudp/tests/timed_queue_t.c 
+	${MKDIR} -p ${TESTDIR}/libtrudp/tests
+	${RM} "$@.d"
+	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${TESTDIR}/libtrudp/tests/timed_queue_t.o libtrudp/tests/timed_queue_t.c
 
 
 ${OBJECTDIR}/libtrudp/packet_nomain.o: ${OBJECTDIR}/libtrudp/packet.o libtrudp/packet.c 
@@ -146,17 +153,17 @@ ${OBJECTDIR}/libtrudp/queue_nomain.o: ${OBJECTDIR}/libtrudp/queue.o libtrudp/que
 	    ${CP} ${OBJECTDIR}/libtrudp/queue.o ${OBJECTDIR}/libtrudp/queue_nomain.o;\
 	fi
 
-${OBJECTDIR}/libtrudp/send_queue_nomain.o: ${OBJECTDIR}/libtrudp/send_queue.o libtrudp/send_queue.c 
+${OBJECTDIR}/libtrudp/timed_queue_nomain.o: ${OBJECTDIR}/libtrudp/timed_queue.o libtrudp/timed_queue.c 
 	${MKDIR} -p ${OBJECTDIR}/libtrudp
-	@NMOUTPUT=`${NM} ${OBJECTDIR}/libtrudp/send_queue.o`; \
+	@NMOUTPUT=`${NM} ${OBJECTDIR}/libtrudp/timed_queue.o`; \
 	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
 	   (echo "$$NMOUTPUT" | ${GREP} 'T main$$') || \
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.c) -O2 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/send_queue_nomain.o libtrudp/send_queue.c;\
+	    $(COMPILE.c) -O2 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/timed_queue_nomain.o libtrudp/timed_queue.c;\
 	else  \
-	    ${CP} ${OBJECTDIR}/libtrudp/send_queue.o ${OBJECTDIR}/libtrudp/send_queue_nomain.o;\
+	    ${CP} ${OBJECTDIR}/libtrudp/timed_queue.o ${OBJECTDIR}/libtrudp/timed_queue_nomain.o;\
 	fi
 
 ${OBJECTDIR}/main_nomain.o: ${OBJECTDIR}/main.o main.cpp 

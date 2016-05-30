@@ -23,25 +23,24 @@ void create_headers() {
     uint32_t id = 0;
     #define GET_ID() ++id
     
-    // Create DATA packet
+    // Create & check DATA packet
     char *data = "Header with Hello!";
     size_t packetLength, data_length = strlen(data) + 1;
     void *packetDATA = trudpPacketDATAcreateNew(GET_ID(), data, data_length, &packetLength);
     CU_ASSERT(trudpPacketCheck(packetDATA, packetLength));
     
+    // Create & check ACK packet
     void *packetACK = trudpPacketACKcreateNew(packetDATA);
     CU_ASSERT(trudpPacketCheck(packetACK, trudpPacketACKlength()));
     
+    // Create & check RESET packet
     void *packetRESET = trudpPacketRESETcreateNew(GET_ID());
     CU_ASSERT(trudpPacketCheck(packetRESET, trudpPacketRESETlength()));    
     
+    // Free packets
     trudpPacketCreatedFree(packetRESET); 
     trudpPacketCreatedFree(packetACK);        
     trudpPacketCreatedFree(packetDATA);
-}
-
-void test2() {
-    CU_ASSERT(2 * 2 == 5);
 }
 
 int headerSuiteAdd() {

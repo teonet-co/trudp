@@ -126,7 +126,7 @@ static inline int trudpHeaderChecksumCheck(trudpHeader *th) {
  *
  * @return
  */
-static uint32_t trudpHeaderTimestamp() {
+uint32_t trudpHeaderTimestamp() {
 
     struct timeval te;
     gettimeofday(&te, NULL); // get current time
