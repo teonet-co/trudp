@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <CUnit/Basic.h>
+#include "../tr-udp.h"
 
 /*
  * CUnit Test Suite
@@ -16,28 +17,71 @@
 int init_suite(void);
 int clean_suite(void);
 
-void trudpTest1() {
-    CU_ASSERT(2 * 2 == 4);
+/**
+ * Create and Destroy TR-UDP
+ */
+void create_test() {
+    
+    // Create TR-UDP
+    trudpData *td = trudpNew();
+    CU_ASSERT_PTR_NOT_NULL(td);
+    
+    // Destroy TR-UDP
+    trudpDestroy(td);
 }
 
-void trudpTest2() {
-    CU_ASSERT(2 * 2 == 5);
+/**
+ * Send data test
+ */
+void send_data_test() {
+
+    // Create TR-UDP
+    trudpData *td = trudpNew();
+    CU_ASSERT_PTR_NOT_NULL(td);
+
+    // Send data
+    char *data = "HelloTR-UDP!";
+    size_t data_length = strlen(data) + 1;
+    CU_ASSERT(trudpSendData(td, data, data_length) > 0);
+    CU_ASSERT(trudpQueueSize(td->sendQueue->q) == 1);
+    CU_ASSERT_PTR_NOT_NULL(trudpTimedQueueFindById(td->sendQueue, 1));
+    
+    // Destroy TR-UDP
+    trudpDestroy(td);
 }
+
+/**
+ * Process received packet
+ */
+void process_received_packet_test() {
+
+    // Create TR-UDP
+    trudpData *td = trudpNew();
+    CU_ASSERT_PTR_NOT_NULL(td);
+
+    // \todo process received packet test
+    
+    // Destroy TR-UDP
+    trudpDestroy(td);
+}
+
 
 int trUdpSuiteAdd() {
     
     CU_pSuite pSuite = NULL;
 
     /* Add a suite to the registry */
-    pSuite = CU_add_suite("TR-UDP main cUnit test", init_suite, clean_suite);
+    pSuite = CU_add_suite("TR-UDP main module", init_suite, clean_suite);
     if (NULL == pSuite) {
         CU_cleanup_registry();
         return CU_get_error();
     }
 
     /* Add the tests to the suite */
-    if ((NULL == CU_add_test(pSuite, "test1", trudpTest1)) 
-     //|| (NULL == CU_add_test(pSuite, "test2", trudpTest2))
+    if ((NULL == CU_add_test(pSuite, "create test", create_test)) 
+     || (NULL == CU_add_test(pSuite, "send data test", send_data_test))
+     || (NULL == CU_add_test(pSuite, "process received packet test", process_received_packet_test))       
+    
             ) {
         CU_cleanup_registry();
         return CU_get_error();

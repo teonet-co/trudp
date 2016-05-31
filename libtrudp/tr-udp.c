@@ -86,7 +86,7 @@ static inline uint32_t trudpGetNewId(trudpData *td) {
 }
 
 // \todo Send data (add to write queue)
-static size_t trudpWriteQueueAdd() {
+static size_t trudpWriteQueueAdd(trudpData *td, void *packet, size_t  packetLength) {
 
     return 0;
 }
@@ -112,7 +112,7 @@ size_t trudpSendData(trudpData *td, void *data, size_t data_length) {
     // Send data (add to write queue)
     trudpWriteQueueAdd(td, packetDATA, packetLength);
 
-    return 0;
+    return packetLength;
 }
 
 /**
@@ -152,6 +152,7 @@ void *trudpProcessReceivedPacket(trudpData *td, void *packet,
 
             // DATA packet received
             case TRU_DATA: {
+                
                 // Create ACK packet and send it
                 void *packetACK = trudpPacketACKcreateNew(packet);
                 trudpWriteQueueAdd(td, packetACK, trudpPacketACKlength());
@@ -164,21 +165,24 @@ void *trudpProcessReceivedPacket(trudpData *td, void *packet,
                     // \todo check received queue for saved packet with expected id
                     td->receiveExpectedId++;
                 }
-                // \todo Save packet to receiveQueue
+                // Save packet to receiveQueue
                 else {
-                    // ...
+                    trudpTimedQueueAdd(td->receiveQueue, packet, packet_length, 0);
                 }
 
             } break;
 
             // RESET packet received
             case TRU_RESET:
+                
                 // Reset TR-UDP
                 trudpFree(td);
                 break;
 
             // An undefined type of packet (skip it)
             default:
+                
+                // Return error code
                 data = (void *)-1;
                 break;
         }
