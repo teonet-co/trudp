@@ -37,6 +37,7 @@
         <itemPath>libtrudp/tests/packet_t.c</itemPath>
         <itemPath>libtrudp/tests/queue_t.c</itemPath>
         <itemPath>libtrudp/tests/timed_queue_t.c</itemPath>
+        <itemPath>libtrudp/tests/tr-udp_t.c</itemPath>
       </logicalFolder>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
@@ -80,6 +81,8 @@
       <item path="libtrudp/tests/queue_t.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="libtrudp/tests/timed_queue_t.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="libtrudp/tests/tr-udp_t.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="libtrudp/timed_queue.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -133,6 +136,8 @@
       <item path="libtrudp/tests/queue_t.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="libtrudp/tests/timed_queue_t.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="libtrudp/tests/tr-udp_t.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="libtrudp/timed_queue.c" ex="false" tool="0" flavor2="0">
       </item>

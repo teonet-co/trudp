@@ -289,7 +289,7 @@ int main() {
     
     headerSuiteAdd();
     timedQueueSuiteAdd();
-    
+    trUdpSuiteAdd();
 
     /* Run all tests using the CUnit Basic interface */
     CU_basic_set_mode(CU_BRM_VERBOSE);

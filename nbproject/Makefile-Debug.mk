@@ -52,7 +52,8 @@ TESTFILES= \
 TESTOBJECTFILES= \
 	${TESTDIR}/libtrudp/tests/packet_t.o \
 	${TESTDIR}/libtrudp/tests/queue_t.o \
-	${TESTDIR}/libtrudp/tests/timed_queue_t.o
+	${TESTDIR}/libtrudp/tests/timed_queue_t.o \
+	${TESTDIR}/libtrudp/tests/tr-udp_t.o
 
 # C Compiler Flags
 CFLAGS=
@@ -110,7 +111,7 @@ ${OBJECTDIR}/main.o: main.cpp
 .build-tests-conf: .build-tests-subprojects .build-conf ${TESTFILES}
 .build-tests-subprojects:
 
-${TESTDIR}/TestFiles/f1: ${TESTDIR}/libtrudp/tests/packet_t.o ${TESTDIR}/libtrudp/tests/queue_t.o ${TESTDIR}/libtrudp/tests/timed_queue_t.o ${OBJECTFILES:%.o=%_nomain.o}
+${TESTDIR}/TestFiles/f1: ${TESTDIR}/libtrudp/tests/packet_t.o ${TESTDIR}/libtrudp/tests/queue_t.o ${TESTDIR}/libtrudp/tests/timed_queue_t.o ${TESTDIR}/libtrudp/tests/tr-udp_t.o ${OBJECTFILES:%.o=%_nomain.o}
 	${MKDIR} -p ${TESTDIR}/TestFiles
 	${LINK.cc}   -o ${TESTDIR}/TestFiles/f1 $^ ${LDLIBSOPTIONS} -lcunit 
 
@@ -131,6 +132,12 @@ ${TESTDIR}/libtrudp/tests/timed_queue_t.o: libtrudp/tests/timed_queue_t.c
 	${MKDIR} -p ${TESTDIR}/libtrudp/tests
 	${RM} "$@.d"
 	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${TESTDIR}/libtrudp/tests/timed_queue_t.o libtrudp/tests/timed_queue_t.c
+
+
+${TESTDIR}/libtrudp/tests/tr-udp_t.o: libtrudp/tests/tr-udp_t.c 
+	${MKDIR} -p ${TESTDIR}/libtrudp/tests
+	${RM} "$@.d"
+	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${TESTDIR}/libtrudp/tests/tr-udp_t.o libtrudp/tests/tr-udp_t.c
 
 
 ${OBJECTDIR}/libtrudp/packet_nomain.o: ${OBJECTDIR}/libtrudp/packet.o libtrudp/packet.c 
