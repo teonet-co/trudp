@@ -52,8 +52,10 @@ inline trudpTimedQueue *trudpTimedQueueNew() {
  */
 inline void trudpTimedQueueDestroy(trudpTimedQueue *tq) {
 
-    trudpQueueDestroy(tq->q);
-    free(tq);
+    if(tq) {
+        trudpQueueDestroy(tq->q);
+        free(tq);
+    }
 }
 
 /**
@@ -64,7 +66,7 @@ inline void trudpTimedQueueDestroy(trudpTimedQueue *tq) {
  */
 inline int trudpTimedQueueFree(trudpTimedQueue *tq) {
 
-    return trudpQueueFree(tq->q);
+    return tq && tq->q ? trudpQueueFree(tq->q) : -1;
 }
 
 /**
@@ -73,7 +75,7 @@ inline int trudpTimedQueueFree(trudpTimedQueue *tq) {
  * @return 
  */
 inline trudpQueueData *trudpTimedQueueDataToQueueData(trudpTimedQueueData *tqd) {
-    return (trudpQueueData *)((void*)tqd - sizeof(trudpQueueData));
+    return tqd ? (trudpQueueData *)((void*)tqd - sizeof(trudpQueueData)) : NULL;
 }
 
 /**

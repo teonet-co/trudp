@@ -47,10 +47,12 @@ trudpQueue *trudpQueueNew() {
  * 
  * @return Zero at success
  */
-int trudpQueueDestroy(trudpQueue *q) {
+inline int trudpQueueDestroy(trudpQueue *q) {
     
-    trudpQueueFree(q);
-    free(q);
+    if(q) {
+        trudpQueueFree(q);
+        free(q);
+    }
     
     return 0;    
 }
@@ -64,6 +66,8 @@ int trudpQueueDestroy(trudpQueue *q) {
  */
 int trudpQueueFree(trudpQueue *q) {
     
+    if(!q) return -1;
+    
     // Remove all elements
     trudpQueueData *qd = q->first;
     while(qd) {
@@ -71,9 +75,6 @@ int trudpQueueFree(trudpQueue *q) {
         qd = qd->next;
     }
     
-    //q->length = 0;
-    //q->first = NULL;
-    //q->last = NULL;
     memset(q, 0, sizeof(trudpQueue));
     
     return 0;
@@ -87,7 +88,7 @@ int trudpQueueFree(trudpQueue *q) {
  */
 inline size_t trudpQueueSize(trudpQueue *q) {
     
-    return q->length;
+    return q ? q->length : -1;
 }
 
 /**
@@ -101,20 +102,23 @@ inline size_t trudpQueueSize(trudpQueue *q) {
  */
 trudpQueueData *trudpQueueAdd(trudpQueue *q, void *data, size_t data_length) {
     
-    trudpQueueData *qd = (trudpQueueData *) malloc(sizeof(trudpQueueData) + data_length);
+    trudpQueueData *qd = NULL;
     
-    // Fill Queue data structure
-    qd->prev = q->last;
-    qd->next = NULL;
-    qd->data_length = data_length;
-    if(data && data_length > 0) memcpy(qd->data, data, data_length);
+    if(q) {
+        qd = (trudpQueueData *) malloc(sizeof(trudpQueueData) + data_length);
 
-    // Change fields in queue structure
-    if(q->last) q->last->next = qd; // Set next in existing last element to this element
-    if(!q->first) q->first = qd; // Set this element as first if first does not exists
-    q->last = qd; // Set this element as last
-    q->length++; // Increment length
-    
+        // Fill Queue data structure
+        qd->prev = q->last;
+        qd->next = NULL;
+        qd->data_length = data_length;
+        if(data && data_length > 0) memcpy(qd->data, data, data_length);
+
+        // Change fields in queue structure
+        if(q->last) q->last->next = qd; // Set next in existing last element to this element
+        if(!q->first) q->first = qd; // Set this element as first if first does not exists
+        q->last = qd; // Set this element as last
+        q->length++; // Increment length
+    }
     return qd;
 }
 
@@ -127,9 +131,11 @@ trudpQueueData *trudpQueueAdd(trudpQueue *q, void *data, size_t data_length) {
  */
 inline trudpQueueData *trudpQueueRemove(trudpQueue *q, trudpQueueData *qd) {
         
-    if(!qd->prev) q->first = qd->next;
-    else qd->prev->next = qd->next;
-    q->length--;
+    if(q && qd) {
+        if(!qd->prev) q->first = qd->next;
+        else qd->prev->next = qd->next;
+        q->length--;
+    }
     
     return qd;
 }
@@ -143,7 +149,7 @@ inline trudpQueueData *trudpQueueRemove(trudpQueue *q, trudpQueueData *qd) {
  */
 inline int trudpQueueDelete(trudpQueue *q, trudpQueueData *qd) {
        
-    if(qd) free(trudpQueueRemove(q, qd));
+    if(q && qd) free(trudpQueueRemove(q, qd));
     
     return 0;
 }
@@ -156,9 +162,12 @@ inline int trudpQueueDelete(trudpQueue *q, trudpQueueData *qd) {
  */
 trudpQueueIterator *trudpQueueIteratorNew(trudpQueue *q) {
     
-    trudpQueueIterator *it = (trudpQueueIterator *) malloc(sizeof(trudpQueueIterator));
-    it->qd = NULL;
-    it->q = q;
+    trudpQueueIterator *it = NULL;
+    if(q) {
+        it = (trudpQueueIterator *) malloc(sizeof(trudpQueueIterator));
+        it->qd = NULL;
+        it->q = q;
+    }
     
     return it; 
 }
@@ -171,6 +180,8 @@ trudpQueueIterator *trudpQueueIteratorNew(trudpQueue *q) {
  * @return Pointer to the trudpQueueData or NULL if not exists
  */
 trudpQueueData *trudpQueueIteratorNext(trudpQueueIterator *it) {
+    
+    if(!it) return NULL;
     
     if(!it->qd) it->qd = it->q->first;
     else it->qd = it->qd->next;
@@ -186,7 +197,7 @@ trudpQueueData *trudpQueueIteratorNext(trudpQueueIterator *it) {
  */
 inline trudpQueueData *trudpQueueIteratorElement(trudpQueueIterator *it) {
     
-    return it->qd;
+    return it ? it->qd : NULL;
 }
 
 /**
@@ -197,6 +208,6 @@ inline trudpQueueData *trudpQueueIteratorElement(trudpQueueIterator *it) {
  */
 int trudpQueueIteratorFree(trudpQueueIterator *it) {
     
-    free(it);
+    if(it) free(it);
     return 0;
 }
