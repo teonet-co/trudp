@@ -263,6 +263,7 @@ void delete_elements_from_queue() {
 }
 
 int main() {
+    
     CU_pSuite pSuite = NULL;
 
     /* Initialize the CUnit test registry */

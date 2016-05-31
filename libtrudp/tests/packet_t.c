@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <CUnit/Basic.h>
 
 #include "../packet.h"
@@ -26,8 +27,16 @@ void create_headers() {
     // Create & check DATA packet
     char *data = "Header with Hello!";
     size_t packetLength, data_length = strlen(data) + 1;
-    void *packetDATA = trudpPacketDATAcreateNew(GET_ID(), data, data_length, &packetLength);
+    uint32_t packetDATAid = GET_ID();
+    void *packetDATA = trudpPacketDATAcreateNew(packetDATAid, data, data_length, &packetLength);
     CU_ASSERT(trudpPacketCheck(packetDATA, packetLength));
+    
+    // Check getter functions
+    CU_ASSERT_EQUAL(packetDATAid, trudpPacketGetId(packetDATA));
+    CU_ASSERT(!memcmp(data, trudpPacketGetData(packetDATA), data_length));
+    CU_ASSERT_EQUAL(data_length, trudpPacketGetDataLength(packetDATA));
+    CU_ASSERT_EQUAL(TRU_DATA, trudpPacketGetDataType(packetDATA));
+    CU_ASSERT(trudpPacketGetTimestamp(packetDATA) <= trudpHeaderTimestamp());
     
     // Create & check ACK packet
     void *packetACK = trudpPacketACKcreateNew(packetDATA);

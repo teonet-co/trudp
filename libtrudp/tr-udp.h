@@ -46,7 +46,10 @@ typedef struct trudpData {
 
 trudpData *trudpNew();
 void trudpDestroy(trudpData *td);
+void trudpFree(trudpData *td);
 
+size_t trudpSendData(trudpData *td, void *data, size_t data_length);
+void *trudpProcessReceivedPacket(trudpData *td, void *packet, size_t packet_length, size_t *data_length);
 
 #ifdef __cplusplus
 }

@@ -335,3 +335,13 @@ inline int trudpPacketGetDataType(void *packet) {
     return ((trudpHeader *)packet)->message_type;
 }
 
+/**
+ * Get packet data type
+ * 
+ * @param packet
+ * @return 
+ */
+inline uint32_t trudpPacketGetTimestamp(void *packet) {
+    
+    return ((trudpHeader *)packet)->timestamp;
+}

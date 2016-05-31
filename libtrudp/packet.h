@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-/* 
+/*
  * File:   packet.h
  * Author: Kirill Scherba <kirill@scherba.ru>
  *
@@ -37,29 +37,33 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-    
-#define TR_UDP_PROTOCOL_VERSION 1    
-    
+
+#define TR_UDP_PROTOCOL_VERSION 1
+#define MIN_ACK_WAIT 0.000732  // 000.732 MS
+#define MAX_ACK_WAIT 0.500  // 500 MS
+#define MAX_MAX_ACK_WAIT (MAX_ACK_WAIT * 20.0) // 10 sec
+#define MAX_ATTEMPT 5 // maximum attempt with MAX_MAX_ACK_WAIT wait value
+
 /**
  * TR-UDP message type
  */
 enum ksnTRUDP_type {
-    
+
     TRU_DATA, ///< The DATA messages are carrying payload. (has payload)
     /**
-     * The ACK messages are used to acknowledge the arrival of the DATA and 
-     * RESET messages. (has not payload) 
+     * The ACK messages are used to acknowledge the arrival of the DATA and
+     * RESET messages. (has not payload)
      */
     TRU_ACK,
     TRU_RESET ///< The RESET messages reset messages counter. (has not payload)
 
-};    
+};
 
 int trudpPacketCheck(void *th, size_t packetLength);
 
 void *trudpPacketACKcreateNew(void *in_th);
 void *trudpPacketRESETcreateNew(uint32_t id);
-void *trudpPacketDATAcreateNew(uint32_t id, void *data, size_t data_length, size_t *packetLength);  
+void *trudpPacketDATAcreateNew(uint32_t id, void *data, size_t data_length, size_t *packetLength);
 
 size_t trudpPacketACKlength();
 size_t trudpPacketRESETlength();
@@ -68,11 +72,12 @@ uint32_t trudpPacketGetId(void *packet);
 void *trudpPacketGetData(void *packet);
 uint16_t trudpPacketGetDataLength(void *packet);
 int trudpPacketGetDataType(void *packet);
+uint32_t trudpPacketGetTimestamp(void *packet);
 
 void trudpPacketCreatedFree(void *in_th);
 
 uint32_t trudpHeaderTimestamp();
-        
+
 #ifdef __cplusplus
 }
 #endif

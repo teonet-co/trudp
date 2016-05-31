@@ -119,19 +119,31 @@ trudpQueueData *trudpQueueAdd(trudpQueue *q, void *data, size_t data_length) {
 }
 
 /**
- * Delete element from queue
+ * Delete element from queue but not free it
+ * 
+ * @param q Pointer to trudpQueue
+ * @param qd Pointer to trudpQueueData
+ * @return Pointer to trudpQueueData
+ */
+inline trudpQueueData *trudpQueueRemove(trudpQueue *q, trudpQueueData *qd) {
+        
+    if(!qd->prev) q->first = qd->next;
+    else qd->prev->next = qd->next;
+    q->length--;
+    
+    return qd;
+}
+
+/**
+ * Delete element from queue and free it
  * 
  * @param q
  * @param qd
  * @return Zero at success
  */
-int trudpQueueDelete(trudpQueue *q, trudpQueueData *qd) {
-        
-    if(!qd->prev) q->first = qd->next;
-    else qd->prev->next = qd->next;
-    
-    q->length--;
-    free(qd);
+inline int trudpQueueDelete(trudpQueue *q, trudpQueueData *qd) {
+       
+    if(qd) free(trudpQueueRemove(q, qd));
     
     return 0;
 }

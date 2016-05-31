@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-/* 
+/*
  * File:   timed_queue.h
  * Author: Kirill Scherba <kirill@scherba.ru>
  *
@@ -40,16 +40,16 @@ extern "C" {
 #endif
 
 typedef struct trudpTimedQueue {
-    
+
     trudpQueue *q;
-    
+
 } trudpTimedQueue;
 
 typedef struct trudpTimedQueueData {
-    
+
     uint32_t expected_time;
     char packet[];
-    
+
 } trudpTimedQueueData;
 
 trudpTimedQueue *trudpTimedQueueNew();
@@ -58,7 +58,7 @@ int trudpTimedQueueFree(trudpTimedQueue *tq);
 
 trudpQueueData *trudpTimedQueueDataToQueueData(trudpTimedQueueData *tqd);
 
-trudpTimedQueueData *trudpTimedQueueAdd(trudpTimedQueue *tq, void *packet, 
+trudpTimedQueueData *trudpTimedQueueAdd(trudpTimedQueue *tq, void *packet,
         size_t packet_length, uint32_t expected_time);
 int trudpTimedQueueDelete(trudpTimedQueue *tq, trudpTimedQueueData *tqd);
 trudpTimedQueueData *trudpTimedQueueFindById(trudpTimedQueue *tq, uint32_t id);
@@ -69,4 +69,3 @@ trudpTimedQueueData *trudpTimedQueueFindByTime(trudpTimedQueue *tq, uint32_t t);
 #endif
 
 #endif /* SEND_QUEUE_H */
-
