@@ -48,6 +48,8 @@ typedef struct trudpTimedQueue {
 typedef struct trudpTimedQueueData {
 
     uint32_t expected_time;
+    uint32_t packet_length;
+    uint32_t retrieves;
     char packet[];
 
 } trudpTimedQueueData;

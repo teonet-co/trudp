@@ -130,7 +130,7 @@ uint32_t trudpHeaderTimestamp() {
 
     struct timeval te;
     gettimeofday(&te, NULL); // get current time
-    long long tmilliseconds = te.tv_sec*1000000LL + te.tv_usec; // calculate thousands of milliseconds
+    unsigned long long tmilliseconds = te.tv_sec*1000000LL + te.tv_usec; // calculate thousands of milliseconds
     return (uint32_t) (tmilliseconds & 0xFFFFFFFF);
 }
 
@@ -246,8 +246,9 @@ inline void *trudpPacketRESETcreateNew(uint32_t id) {
  * @param id Packet ID
  * @param data Pointer to package data
  * @param data_length Package data length
+ * @param packetLength
  * 
- * @return Pointer to allocated RESET package, it should be free after use
+ * @return Pointer to allocated and filled DATA package, it should be free after use
  */
 inline void *trudpPacketDATAcreateNew(uint32_t id, void *data, size_t data_length, 
         size_t *packetLength) {
@@ -311,6 +312,17 @@ inline uint32_t trudpPacketGetId(void *packet) {
 inline void *trudpPacketGetData(void *packet) {
     
     return packet + sizeof(trudpHeader);
+}
+
+/**
+ * Get pointer to packet from it's data
+ * 
+ * @param data
+ * @return 
+ */
+inline void *trudpPacketGetPacket(void *data) {
+    
+    return data - sizeof(trudpHeader);
 }
 
 /**

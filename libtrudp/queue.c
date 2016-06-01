@@ -132,9 +132,13 @@ trudpQueueData *trudpQueueAdd(trudpQueue *q, void *data, size_t data_length) {
 inline trudpQueueData *trudpQueueRemove(trudpQueue *q, trudpQueueData *qd) {
         
     if(q && qd) {
-        if(!qd->prev) q->first = qd->next;
-        else qd->prev->next = qd->next;
+        
+        if(!qd->prev) q->first = qd->next; // if this element is first
+        else qd->prev->next = qd->next;    // if this element is not first
         q->length--;
+        
+        if(!q->length) { q->first = q->last = NULL; } // if this element was one in list
+        else if(q->last == qd) q->last = qd->prev;    // if element was last
     }
     
     return qd;

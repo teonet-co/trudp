@@ -94,7 +94,9 @@ trudpTimedQueueData *trudpTimedQueueAdd(trudpTimedQueue *tq, void *packet,
     size_t tqd_length = sizeof(trudpTimedQueueData) + packet_length;    
     trudpTimedQueueData *tqd = (trudpTimedQueueData *)((trudpQueueData *)trudpQueueAdd(tq->q, NULL, tqd_length))->data;
     tqd->expected_time = expected_time;
+    tqd->retrieves = 0;
     memcpy(tqd->packet, packet, packet_length);
+    tqd->packet_length = packet_length;
     
     return tqd;
 }

@@ -32,24 +32,41 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+    
+/**
+ * Data received/write callback
+ */
+typedef void (*trudpDataCb)(void *data, size_t data_length, void *user_data);
 
+/**
+ * Trudp Data Structure
+ */
 typedef struct trudpData {
     
     uint32_t sendId;
     trudpTimedQueue *sendQueue;
     uint32_t triptime;
     
+    
     uint32_t receiveExpectedId;
     trudpTimedQueue *receiveQueue;
+
+    trudpDataCb processDataCb;
+    trudpDataCb processAckCb;
+    trudpDataCb writeCb;
+    
+    void* user_data;
     
 } trudpData;
 
-trudpData *trudpNew();
+trudpData *trudpNew(void *user_data, trudpDataCb processDataCb, trudpDataCb writeCb);
 void trudpDestroy(trudpData *td);
 void trudpFree(trudpData *td);
 
 size_t trudpSendData(trudpData *td, void *data, size_t data_length);
-void *trudpProcessReceivedPacket(trudpData *td, void *packet, size_t packet_length, size_t *data_length);
+int trudpProcessSendQueue(trudpData *td);
+void *trudpProcessReceivedPacket(trudpData *td, void *packet, 
+        size_t packet_length, size_t *data_length);
 
 #ifdef __cplusplus
 }

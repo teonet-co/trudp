@@ -70,6 +70,7 @@ size_t trudpPacketRESETlength();
 
 uint32_t trudpPacketGetId(void *packet);
 void *trudpPacketGetData(void *packet);
+void *trudpPacketGetPacket(void *data);
 uint16_t trudpPacketGetDataLength(void *packet);
 int trudpPacketGetDataType(void *packet);
 uint32_t trudpPacketGetTimestamp(void *packet);
