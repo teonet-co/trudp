@@ -27,7 +27,15 @@
             </formatting>
         </data>
         <spellchecker-wordlist xmlns="http://www.netbeans.org/ns/spellchecker-wordlist/1">
+            <word>ioctlsocket</word>
+            <word>Kirill</word>
+            <word>recvfrom</word>
+            <word>Scherba</word>
+            <word>sendto</word>
+            <word>triptime</word>
             <word>trudp</word>
+            <word>trudpcat</word>
+            <word>Unhandled</word>
         </spellchecker-wordlist>
     </configuration>
 </project>

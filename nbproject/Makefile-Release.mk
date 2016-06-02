@@ -39,7 +39,9 @@ OBJECTFILES= \
 	${OBJECTDIR}/libtrudp/queue.o \
 	${OBJECTDIR}/libtrudp/timed_queue.o \
 	${OBJECTDIR}/libtrudp/tr-udp.o \
-	${OBJECTDIR}/main.o
+	${OBJECTDIR}/libtrudp/udp.o \
+	${OBJECTDIR}/main.o \
+	${OBJECTDIR}/trudpcat.o
 
 # Test Directory
 TESTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}/tests
@@ -99,10 +101,20 @@ ${OBJECTDIR}/libtrudp/tr-udp.o: libtrudp/tr-udp.c
 	${RM} "$@.d"
 	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/tr-udp.o libtrudp/tr-udp.c
 
+${OBJECTDIR}/libtrudp/udp.o: libtrudp/udp.c 
+	${MKDIR} -p ${OBJECTDIR}/libtrudp
+	${RM} "$@.d"
+	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/udp.o libtrudp/udp.c
+
 ${OBJECTDIR}/main.o: main.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.cc) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/main.o main.cpp
+
+${OBJECTDIR}/trudpcat.o: trudpcat.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/trudpcat.o trudpcat.c
 
 # Subprojects
 .build-subprojects:
@@ -192,6 +204,19 @@ ${OBJECTDIR}/libtrudp/tr-udp_nomain.o: ${OBJECTDIR}/libtrudp/tr-udp.o libtrudp/t
 	    ${CP} ${OBJECTDIR}/libtrudp/tr-udp.o ${OBJECTDIR}/libtrudp/tr-udp_nomain.o;\
 	fi
 
+${OBJECTDIR}/libtrudp/udp_nomain.o: ${OBJECTDIR}/libtrudp/udp.o libtrudp/udp.c 
+	${MKDIR} -p ${OBJECTDIR}/libtrudp
+	@NMOUTPUT=`${NM} ${OBJECTDIR}/libtrudp/udp.o`; \
+	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
+	then  \
+	    ${RM} "$@.d";\
+	    $(COMPILE.c) -O2 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/udp_nomain.o libtrudp/udp.c;\
+	else  \
+	    ${CP} ${OBJECTDIR}/libtrudp/udp.o ${OBJECTDIR}/libtrudp/udp_nomain.o;\
+	fi
+
 ${OBJECTDIR}/main_nomain.o: ${OBJECTDIR}/main.o main.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	@NMOUTPUT=`${NM} ${OBJECTDIR}/main.o`; \
@@ -203,6 +228,19 @@ ${OBJECTDIR}/main_nomain.o: ${OBJECTDIR}/main.o main.cpp
 	    $(COMPILE.cc) -O2 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/main_nomain.o main.cpp;\
 	else  \
 	    ${CP} ${OBJECTDIR}/main.o ${OBJECTDIR}/main_nomain.o;\
+	fi
+
+${OBJECTDIR}/trudpcat_nomain.o: ${OBJECTDIR}/trudpcat.o trudpcat.c 
+	${MKDIR} -p ${OBJECTDIR}
+	@NMOUTPUT=`${NM} ${OBJECTDIR}/trudpcat.o`; \
+	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
+	then  \
+	    ${RM} "$@.d";\
+	    $(COMPILE.c) -O2 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/trudpcat_nomain.o trudpcat.c;\
+	else  \
+	    ${CP} ${OBJECTDIR}/trudpcat.o ${OBJECTDIR}/trudpcat_nomain.o;\
 	fi
 
 # Run Test Targets

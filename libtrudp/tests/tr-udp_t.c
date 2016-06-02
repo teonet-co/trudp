@@ -65,7 +65,7 @@ static void send_data_test() {
  * @param data_length
  * @param user_data
  */
-static void trudpProcessDataCb(void *data, size_t data_length, void *user_data) {
+static void trudpProcessDataCb(void *td, void *data, size_t data_length, void *user_data) {
     
     void *packet = trudpPacketGetPacket(data);
     double tt = (trudpHeaderTimestamp() - trudpPacketGetTimestamp(packet) )/1000.0;
@@ -82,7 +82,7 @@ static void trudpProcessDataCb(void *data, size_t data_length, void *user_data) 
  * @param data_length
  * @param user_data
  */
-static void trudpProcessAckCb(void *data, size_t data_length, void *user_data) {
+static void trudpProcessAckCb(void *td, void *data, size_t data_length, void *user_data) {
     
     void *packet = trudpPacketGetPacket(data);
     double tt = (trudpHeaderTimestamp() - trudpPacketGetTimestamp(packet) )/1000.0;
@@ -177,7 +177,7 @@ static void process_received_packet_test() {
 
 trudpData *td_A, *td_B;
 
-void td_A_writeCb(void *packet, size_t packet_length, void *user_data) {
+void td_A_writeCb(void *td, void *packet, size_t packet_length, void *user_data) {
     
     int type = trudpPacketGetDataType(packet);
     #if !NO_MESSAGES
@@ -192,7 +192,7 @@ void td_A_writeCb(void *packet, size_t packet_length, void *user_data) {
     
 }
 
-void td_B_writeCb(void *packet, size_t packet_length, void *user_data) {
+void td_B_writeCb(void *td, void *packet, size_t packet_length, void *user_data) {
     
     int type = trudpPacketGetDataType(packet);
     #if !NO_MESSAGES

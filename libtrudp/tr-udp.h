@@ -28,6 +28,8 @@
 #define TR_UDP_H
 
 #include "timed_queue.h"
+#include "packet.h"
+#include "udp.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,7 +38,7 @@ extern "C" {
 /**
  * Data received/write callback
  */
-typedef void (*trudpDataCb)(void *data, size_t data_length, void *user_data);
+typedef void (*trudpDataCb)(void *td, void *data, size_t data_length, void *user_data);
 
 /**
  * Trudp Data Structure
@@ -46,8 +48,7 @@ typedef struct trudpData {
     uint32_t sendId;
     trudpTimedQueue *sendQueue;
     uint32_t triptime;
-    
-    
+        
     uint32_t receiveExpectedId;
     trudpTimedQueue *receiveQueue;
 
@@ -56,6 +57,13 @@ typedef struct trudpData {
     trudpDataCb writeCb;
     
     void* user_data;
+    
+    //__SOCKADDR_ARG remaddr;
+    // UDP connection depended variables
+    int connected_f;            // connected (remote address valid)
+    struct sockaddr_in remaddr; // remote address
+    socklen_t addrlen;          // remote address length
+    int fd;
     
 } trudpData;
 
