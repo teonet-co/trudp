@@ -250,7 +250,7 @@ int main(int argc, char** argv) {
     if(!o_listen && (!o_remote_port || !o_remote_address)) usage(argv[0]);
 
     // Show logo
-    fprintf(stderr, "TR-UDP cat example application ver 0.0.1\n");
+    fprintf(stderr, "TR-UDP two node connect sample application ver 0.0.1\n");
     
     // Show execution mode
     if(o_listen) 
@@ -259,31 +259,6 @@ int main(int argc, char** argv) {
         o_remote_port_i = atoi(o_remote_port);
         fprintf(stderr, "Client start connection to %s:%d\n", o_remote_address, o_remote_port_i);
     }
-    
-//    setup();
-//    while (!quit_flag)
-//            network_loop();
-//
-//    if(buf_len) {
-//            fprintf(stderr, "Warning: send buffer not empty\n");
-//            exit_code++;
-//    }
-//
-//    utp_context_stats *stats = utp_get_context_stats(ctx);
-//
-//    if(stats) {
-//            debug("           Bucket size:    <23    <373    <723    <1400    >1400\n");
-//            debug("Number of packets sent:  %5d   %5d   %5d    %5d    %5d\n",
-//                    stats->_nraw_send[0], stats->_nraw_send[1], stats->_nraw_send[2], stats->_nraw_send[3], stats->_nraw_send[4]);
-//            debug("Number of packets recv:  %5d   %5d   %5d    %5d    %5d\n",
-//                    stats->_nraw_recv[0], stats->_nraw_recv[1], stats->_nraw_recv[2], stats->_nraw_recv[3], stats->_nraw_recv[4]);
-//    }
-//    else {
-//            debug("utp_get_context_stats() failed?\n");
-//    }
-//
-//    debug("Destorying context\n");
-//    utp_destroy(ctx);
     
     // Create read buffer
     buffer = malloc(o_buf_size);
