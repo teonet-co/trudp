@@ -88,8 +88,9 @@ int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr,
         socklen_t *addr_length) {
 
     if(*addr_length < sizeof(struct sockaddr_in)) return -3;
+    
     *addr_length = sizeof(struct sockaddr_in); // length of addresses
-    memset((char *) remaddr, 0, *addr_length);
+    memset((void *)remaddr, 0, *addr_length);
     ((struct sockaddr_in*)remaddr)->sin_family = AF_INET;
     ((struct sockaddr_in*)remaddr)->sin_port = htons(port);
     #ifndef HAVE_MINGW
@@ -99,7 +100,7 @@ int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr,
     #else
     ((struct sockaddr_in*)remaddr)->sin_addr.s_addr = inet_addr(addr);
     #endif
-
+    
     return 0;
 }
 

@@ -92,7 +92,7 @@ void debug(char *fmt, ...)
     va_list ap;
     if (o_debug) {
             fflush(stdout);
-            fprintf(stderr, "%lu debug: ", ++idx);
+            fprintf(stderr, "%lu %.3f debug: ", ++idx, trudpHeaderTimestamp() / 1000.0);
             va_start(ap, fmt);
             vfprintf(stderr, fmt, ap);
             va_end(ap);
@@ -135,13 +135,13 @@ static void processAckCb(void *td_ptr, void *data, size_t data_length, void *use
 }
 
 /**
- * TR-UDP write callback
+ * TR-UDP send callback
  * 
  * @param packet
  * @param packet_length
  * @param user_data
  */
-static void writeCb(void *td_ptr, void *packet, size_t packet_length, void *user_data) {
+static void sendPacketCb(void *td_ptr, void *packet, size_t packet_length, void *user_data) {
     
     trudpData *td = (trudpData *)td_ptr;
     int type = trudpPacketGetDataType(packet);
@@ -149,11 +149,13 @@ static void writeCb(void *td_ptr, void *packet, size_t packet_length, void *user
     // Write to UDP
     if(td->connected_f) {
         trudpUdpSendto(td->fd, packet, packet_length, (__CONST_SOCKADDR_ARG) &td->remaddr, sizeof(td->remaddr));
+        int port;
         uint32_t id = trudpPacketGetId(packet);
+        char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&td->remaddr, &port);
         if(!type)
-            debug("send %d bytes, id=%u\n", (int)packet_length, id);
+            debug("send %d bytes, id=%u, to %s:%d\n", (int)packet_length, id, addr, port);
         else 
-            debug("send %d bytes %s id=%u\n", (int)packet_length, type == 1 ? "ACK":"RESET",  id);
+            debug("send %d bytes %s id=%u, to %s:%d\n", (int)packet_length, type == 1 ? "ACK":"RESET", id, addr, port);
     }
 }
 
@@ -270,7 +272,7 @@ int main(int argc, char** argv) {
     #endif     
     
     // Initialize TR-UDP
-    trudpData *td = trudpNew(NULL, processDataCb, writeCb);
+    trudpData *td = trudpNew(NULL, processDataCb, sendPacketCb);
     trudpSetProcessAckCb(td, processAckCb);
     
     // Bind UDP port and get FD
