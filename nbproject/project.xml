@@ -21,14 +21,6 @@
                     <name>Release</name>
                     <type>1</type>
                 </confElem>
-                <confElem>
-                    <name>MinGW-w64-Debug</name>
-                    <type>1</type>
-                </confElem>
-                <confElem>
-                    <name>MinGW-w64-Win32-Debug</name>
-                    <type>1</type>
-                </confElem>
             </confList>
             <formatting>
                 <project-formatting-style>false</project-formatting-style>
@@ -37,6 +29,8 @@
         <spellchecker-wordlist xmlns="http://www.netbeans.org/ns/spellchecker-wordlist/1">
             <word>ioctlsocket</word>
             <word>Kirill</word>
+            <word>lu</word>
+            <word>outrunning</word>
             <word>recvfrom</word>
             <word>Scherba</word>
             <word>sendto</word>

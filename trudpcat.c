@@ -36,6 +36,8 @@
 #include <unistd.h>
 #include <string.h>
 
+#include <sys/timerfd.h>
+
 // C11 present
 #if __STDC_VERSION__ >= 201112L
 extern int usleep (__useconds_t __useconds);
@@ -86,7 +88,7 @@ static void die(char *fmt, ...)
  * @param fmt
  * @param ...
  */
-void debug(char *fmt, ...)
+static void debug(char *fmt, ...)
 {
     static unsigned long idx = 0;
     va_list ap;
@@ -141,52 +143,182 @@ static void processAckCb(void *td_ptr, void *data, size_t data_length, void *use
  * @param packet_length
  * @param user_data
  */
-static void sendPacketCb(void *td_ptr, void *packet, size_t packet_length, void *user_data) {
+static void sendPacketCb(void *td_ptr, void *packet, size_t packet_length, 
+        void *user_data) {
     
     trudpData *td = (trudpData *)td_ptr;
-    int type = trudpPacketGetDataType(packet);
     
     // Write to UDP
     if(td->connected_f) {
+
         trudpUdpSendto(td->fd, packet, packet_length, (__CONST_SOCKADDR_ARG) &td->remaddr, sizeof(td->remaddr));
-        int port;
+        
+        int port,type;
         uint32_t id = trudpPacketGetId(packet);
         char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&td->remaddr, &port);
-        if(!type)
-            debug("send %d bytes, id=%u, to %s:%d\n", (int)packet_length, id, addr, port);
-        else 
-            debug("send %d bytes %s id=%u, to %s:%d\n", (int)packet_length, type == 1 ? "ACK":"RESET", id, addr, port);
+        if(!(type = trudpPacketGetDataType(packet))) {
+            debug("send %d bytes, id=%u, to %s:%d\n", 
+                (int)packet_length, id, addr, port);
+        }    
+        else { 
+            debug("send %d bytes %s id=%u, to %s:%d\n", 
+                (int)packet_length, type == 1 ? "ACK":"RESET", id, addr, port);
+        }
     }
 }
 
 /**
- * The TR-UDP cat network loop
+ * Save remote address to trudpData variable
+ * @param td
+ * @param remaddr
+ * @param addr_length
  */
-void network_loop(trudpData *td, int delay) {
+static inline void saveRemoteAddr(trudpData *td, struct sockaddr_in *remaddr, 
+        socklen_t addr_length) {
+    
+    if(!td->connected_f) {
+        memcpy(&td->remaddr, remaddr, addr_length);
+        td->addrlen = addr_length;
+        td->connected_f = 1;
+    }    
+}
+
+/**
+ * The TR-UDP cat network loop
+ * 
+ * @param td Pointer to trudpData
+ */
+static void network_loop(trudpData *td) {
     
     // Read from UDP
     struct sockaddr_in remaddr; // remote address
     socklen_t addr_len = sizeof(remaddr);
-    //ssize_t recvlen = trudpUdpRecvfrom(td->fd, buffer, o_buf_size, (__SOCKADDR_ARG)&remaddr, &addr_len);    
-    ssize_t recvlen = trudpUdpReadEventLoop(td->fd, buffer, o_buf_size, (__SOCKADDR_ARG)&remaddr, &addr_len, delay); 
-//    ssize_t trudpUdpReadEventLoop(int fd, void *buffer, size_t buffer_size, 
-//        __SOCKADDR_ARG remaddr, socklen_t *addr_len, int timeout)
+    ssize_t recvlen = trudpUdpRecvfrom(td->fd, buffer, o_buf_size, (__SOCKADDR_ARG)&remaddr, &addr_len);    
     
     // Process received packet
-    if(recvlen > 0) {
-        
-        if(!td->connected_f) {
-            memcpy(&td->remaddr, &remaddr, addr_len);
-            td->addrlen = addr_len;
-            td->connected_f = 1;
-        }
-        
+    if(recvlen > 0) {        
         size_t data_length;
+        saveRemoteAddr(td, &remaddr,addr_len);
         void *rv = trudpProcessReceivedPacket(td, buffer, recvlen, &data_length);
     }
     
     // Process send queue
     trudpProcessSendQueue(td);
+}
+
+/**
+ * The TR-UDP cat network loop with select function
+ * 
+ * @param td
+ * @param delay
+ */
+static void network_select_loop(trudpData *td, int timeout) {
+    
+    int rv; 
+    fd_set rfds;
+    struct timeval tv;
+    ssize_t recvlen = 0;
+    
+    int fd_sq = timerfd_create(CLOCK_REALTIME, 0);
+    if(fd_sq == -1) {
+        fprintf(stderr, "timerfd_create\n");
+        return;
+    }
+    
+    // Watch server_socket to see when it has input.
+    FD_ZERO(&rfds);
+    FD_SET(td->fd, &rfds);
+
+    // Set sendQueue timer
+    if(td->sendQueue->q->first) {
+        
+        uint32_t et = ((trudpTimedQueueData *)td->sendQueue->q->first->data)->expected_time,
+                 ct = trudpHeaderTimestamp();
+    
+        if(ct < et) {
+        
+            uint32_t nv = et - ct;
+            
+            struct itimerspec new_value;
+            new_value.it_interval.tv_sec = 0;
+            new_value.it_interval.tv_nsec = 0;
+            new_value.it_value.tv_sec = nv / 1000000;
+            new_value.it_value.tv_nsec = nv % 1000000; 
+            if (timerfd_settime(fd_sq, TFD_TIMER_ABSTIME, &new_value, NULL) == -1) {
+                fprintf(stderr, "timerfd_settime\n");
+                close(fd_sq);
+                return;
+            }
+            
+            FD_SET(fd_sq, &rfds);
+        }
+        else {
+            
+            // Process send queue
+            trudpProcessSendQueue(td);
+            close(fd_sq);
+            return;
+        }
+    }
+
+    // Wait up to ~50 ms. */
+    tv.tv_sec = 0;
+    tv.tv_usec = timeout; // * 1000;
+
+    rv = select((int)td->fd + 1, &rfds, NULL, NULL, &tv);
+    
+    // Error
+    if (rv == -1) {
+        fprintf(stderr, "select() handle error\n");
+        return;
+    }
+    
+    // Timeout
+    else if(!rv) { // Idle or Timeout event
+
+        //send_l0_event(con, EV_L_IDLE, NULL, 0);
+    }
+    // There is a data in fd
+    else {
+        
+        if(FD_ISSET(td->fd, &rfds)) {
+        //printf("Data in fd\n");
+//        ssize_t rc;
+//        while((rc = teoLNullRecv(con)) != -1) {
+//            
+//            if(rc > 0) {
+//                send_l0_event(con, EV_L_RECEIVED, con->read_buffer, rc);
+//            } else if(rc == 0) {
+//                send_l0_event(con, EV_L_DISCONNECTED, NULL, 0);
+//                retval = 0;
+//                break;
+//            }
+//        }
+            struct sockaddr_in remaddr; // remote address
+            socklen_t addr_len = sizeof(remaddr);
+            ssize_t recvlen = trudpUdpRecvfrom(td->fd, buffer, o_buf_size, 
+                    (__SOCKADDR_ARG)&remaddr, &addr_len);    
+
+            // Process received packet
+            if(recvlen > 0) {        
+                size_t data_length;
+                saveRemoteAddr(td, &remaddr,addr_len);
+                //void *rv = 
+                trudpProcessReceivedPacket(td, buffer, recvlen, &data_length);
+            }        
+        }
+        
+        if(FD_ISSET(fd_sq, &rfds)) {
+            
+            // Process send queue
+            trudpProcessSendQueue(td);
+        }
+    }
+        
+    close(fd_sq);
+    
+    // Send Tick event    
+    //send_l0_event(con, EV_L_TICK, NULL, 0);        
 }
 
 /**
@@ -308,16 +440,24 @@ int main(int argc, char** argv) {
     uint32_t tt, tt_s = 0;
     while (!quit_flag) {
         
-        network_loop(td, delay);
+        #define USE_SELECT 1
+        
+        #if !USE_SELECT
+        network_loop(td);
+        #else
+        network_select_loop(td, delay * 1000);
+        #endif
 
         // Send message
         tt = trudpHeaderTimestamp();
-        if((!o_listen || o_listen && td->connected_f) && (tt - tt_s)>1000000) {                    
+        if((!o_listen || o_listen && td->connected_f) && (tt - tt_s)>100000) {                    
           trudpSendData(td, message, message_length);
           tt_s = tt; 
         }
         
+        #if !USE_SELECT
         usleep(delay);
+        #endif
         i++;
     }    
     
