@@ -237,9 +237,9 @@ static void send_process_received_packet_test() {
     
     idx = 1;
     // Test send queue retrieves
-      void *wc = td_A->writeCb; td_A->writeCb = NULL; // Stop write callback
+      void *wc = td_A->sendCb; td_A->sendCb = NULL; // Stop write callback
       CU_ASSERT(trudpSendData(td_A, data[idx], data_length[idx]) > 0);
-      usleep(td_A->triptime); td_A->writeCb = wc; // Sleep and restore calback
+      usleep(td_A->triptime); td_A->sendCb = wc; // Sleep and restore calback
       #if !NO_MESSAGES
       printf("\ntrudpProcessSendQueue begin");
       #endif    

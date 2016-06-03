@@ -55,7 +55,7 @@ typedef struct trudpData {
 
     trudpDataCb processDataCb;
     trudpDataCb processAckCb;
-    trudpDataCb writeCb;
+    trudpDataCb sendCb;
     
     void* user_data;
     
@@ -68,7 +68,7 @@ typedef struct trudpData {
     
 } trudpData;
 
-trudpData *trudpNew(void *user_data, trudpDataCb processDataCb, trudpDataCb writeCb);
+trudpData *trudpNew(void *user_data, trudpDataCb processDataCb, trudpDataCb sendPacketCb);
 void trudpDestroy(trudpData *td);
 void trudpFree(trudpData *td);
 

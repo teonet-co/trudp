@@ -72,8 +72,8 @@ inline int trudpTimedQueueFree(trudpTimedQueue *tq) {
 
 /**
  * Get pointer to trudpQueueData from trudpTimedQueusData pointer
- * @param tqd
- * @return 
+ * @param tqd Pointer to trudpTimedQueueData
+ * @return Pointer to trudpQueueData or NULL if tqd is NULL
  */
 inline trudpQueueData *trudpTimedQueueDataToQueueData(trudpTimedQueueData *tqd) {
     return tqd ? (trudpQueueData *)((void*)tqd - sizeof(trudpQueueData)) : NULL;

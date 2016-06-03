@@ -48,10 +48,11 @@ static void trudpSetDefaults(trudpData *td) {
  *
  * @param user_data Pointer to user data
  * @param processDataCb DATA callback function or NULL if not used
- * @param writeCb Write callback function
+ * @param sendPacketCb Send packet callback function
  * @return 
  */
-trudpData *trudpNew(void *user_data, trudpDataCb processDataCb, trudpDataCb writeCb ) {
+trudpData *trudpNew(void *user_data, trudpDataCb processDataCb, 
+        trudpDataCb sendPacketCb ) {
 
     trudpData *td = (trudpData *) malloc(sizeof(trudpData));
     memset(td, 0, sizeof(trudpData));
@@ -62,11 +63,13 @@ trudpData *trudpNew(void *user_data, trudpDataCb processDataCb, trudpDataCb writ
     
     td->processDataCb = processDataCb;
     td->processAckCb = NULL;
-    td->writeCb = writeCb;
+    td->sendCb = sendPacketCb;
     
+    // Set UDP connection depended defaults
     td->fd = 0;
     td->addrlen = sizeof(td->remaddr);
     
+    // Set other defaults
     trudpSetDefaults(td);
 
     return td;
@@ -117,10 +120,10 @@ static inline uint32_t trudpGetNewId(trudpData *td) {
     return td->sendId++;
 }
 
-// \todo Send data (add to write queue)
-static inline size_t trudpWriteQueueAdd(trudpData *td, void *packet, size_t  packetLength) {
+// Send data (add to write queue)
+static inline size_t execSendPacketCallback(trudpData *td, void *packet, size_t  packetLength) {
 
-    if(td->writeCb) td->writeCb(td, packet, packetLength, td->user_data);
+    if(td->sendCb) td->sendCb(td, packet, packetLength, td->user_data);
         
     return 0;
 }
@@ -144,7 +147,7 @@ size_t trudpSendData(trudpData *td, void *data, size_t data_length) {
     trudpTimedQueueAdd(td->sendQueue, packetDATA, packetLength, trudpHeaderTimestamp() + td->triptimeMidle);
 
     // Send data (add to write queue)
-    trudpWriteQueueAdd(td, packetDATA, packetLength);
+    execSendPacketCallback(td, packetDATA, packetLength);
     
     // Free created packet
     trudpPacketCreatedFree(packetDATA);
@@ -161,7 +164,7 @@ size_t trudpSendData(trudpData *td, void *data, size_t data_length) {
  * @param user_data
  * @param cb
  */
-static void execCallback(trudpData *td, void *packet, void **data, size_t *data_length, 
+static void execProcessDataCallback(trudpData *td, void *packet, void **data, size_t *data_length, 
         void *user_data, trudpDataCb cb) {
 
     *data = trudpPacketGetData(packet);  
@@ -204,7 +207,7 @@ void *trudpProcessReceivedPacket(trudpData *td, void *packet,
                 );
                 td->triptime = trudpHeaderTimestamp() - trudpPacketGetTimestamp(packet);
                 td->triptimeMidle = (td->triptimeMidle + td->triptime) / 2;
-                execCallback(td, packet, &data, data_length, td->user_data, td->processAckCb);
+                execProcessDataCallback(td, packet, &data, data_length, td->user_data, td->processAckCb);
                 break;
 
             // DATA packet received
@@ -212,25 +215,27 @@ void *trudpProcessReceivedPacket(trudpData *td, void *packet,
                 
                 // Create ACK packet and send it back to sender
                 void *packetACK = trudpPacketACKcreateNew(packet);
-                trudpWriteQueueAdd(td, packetACK, trudpPacketACKlength());
+                execSendPacketCallback(td, packetACK, trudpPacketACKlength());
                 trudpPacketCreatedFree(packetACK);
 
                 // Check expected Id and return data
                 if(trudpPacketGetId(packet) == td->receiveExpectedId) {
                     
                     // Execute trudpDataReceivedCb Callback with pointer to data
-                    execCallback(td, packet, &data, data_length, td->user_data, td->processDataCb);
+                    execProcessDataCallback(td, packet, &data, data_length, td->user_data, td->processDataCb);
                     
                     // Check received queue for saved packet with expected id
                     trudpTimedQueueData *tqd;
                     while( (tqd = trudpTimedQueueFindById(td->receiveQueue, ++td->receiveExpectedId)) ) {                    
-                        execCallback(td, tqd->packet, &data, data_length, td->user_data, td->processDataCb);
+                        execProcessDataCallback(td, tqd->packet, &data, data_length, td->user_data, td->processDataCb);
                     }
                 }
-                // Save packet to receiveQueue
-                else {
+                // Save outrunning packet to receiveQueue
+                else if(trudpPacketGetId(packet) > td->receiveExpectedId) {
                     trudpTimedQueueAdd(td->receiveQueue, packet, packet_length, 0);
                 }
+                // Skip already processed packet
+                else;
 
             } break;
 
@@ -271,7 +276,7 @@ int trudpProcessSendQueue(trudpData *td) {
     while((tqd = trudpTimedQueueFindByTime(td->sendQueue, ts))) {
         
         // Resend data (add to write queue) and change it expected time
-        trudpWriteQueueAdd(td, tqd->packet, tqd->packet_length);
+        execSendPacketCallback(td, tqd->packet, tqd->packet_length);
         tqd->expected_time = ts + td->triptime;
         tqd->retrieves++;
         rv++;
