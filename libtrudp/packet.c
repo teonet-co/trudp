@@ -29,6 +29,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <time.h>
 
 #include "packet.h"
 
@@ -128,10 +129,31 @@ static inline int trudpHeaderChecksumCheck(trudpHeader *th) {
  */
 uint32_t trudpHeaderTimestamp() {
 
+// C11 present
+#if __STDC_VERSION__ >= 201112L    
+    
+    struct timespec ts;
+    timespec_get(&ts, TIME_UTC);
+    
+    unsigned long long tmilliseconds = ts.tv_sec*1000000LL + ts.tv_nsec/1000; // calculate thousands of milliseconds
+    return (uint32_t) (tmilliseconds & 0xFFFFFFFF);    
+    
+#else    
+    
     struct timeval te;
     gettimeofday(&te, NULL); // get current time
+    
     unsigned long long tmilliseconds = te.tv_sec*1000000LL + te.tv_usec; // calculate thousands of milliseconds
     return (uint32_t) (tmilliseconds & 0xFFFFFFFF);
+    
+//    struct timespec tp;
+//    clock_gettime(CLOCK_REALTIME, &tp);
+//    
+//    unsigned long long tmilliseconds = tp.tv_sec*1000000LL + tp.tv_nsec/1000; // calculate thousands of milliseconds
+//    return (uint32_t) (tmilliseconds & 0xFFFFFFFF);
+
+#endif
+
 }
 
 /**

@@ -31,6 +31,7 @@
 #include <string.h>
 
 #include "timed_queue.h"
+#include "packet.h"
 
 /**
  * Create new Timed queue

@@ -112,7 +112,7 @@ void trudpFree(trudpData *td) {
  * @param td Pointer to trudpData
  * @return New send Id
  */
-inline uint32_t trudpGetNewId(trudpData *td) {
+static inline uint32_t trudpGetNewId(trudpData *td) {
 
     return td->sendId++;
 }

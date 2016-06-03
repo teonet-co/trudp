@@ -76,15 +76,17 @@ static void set_nonblock(int fd) {
  * @param addr
  * @param port
  * @param remaddr
- * @param addr_len
+ * @param addr_length
  * @return
  */
 int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr,
-        socklen_t *addr_len) {
+        socklen_t *addr_length) {
+    
+    extern int inet_aton (const char *__cp, struct in_addr *__inp) __THROW;
 
-    if(*addr_len < sizeof(struct sockaddr_in)) return -3;
-    *addr_len = sizeof(struct sockaddr_in); // length of addresses
-    memset((char *) remaddr, 0, *addr_len);
+    if(*addr_length < sizeof(struct sockaddr_in)) return -3;
+    *addr_length = sizeof(struct sockaddr_in); // length of addresses
+    memset((char *) remaddr, 0, *addr_length);
     ((struct sockaddr_in*)remaddr)->sin_family = AF_INET;
     ((struct sockaddr_in*)remaddr)->sin_port = htons(port);
     #ifndef HAVE_MINGW
@@ -167,7 +169,7 @@ int trudpUdpBindRaw(int *port, int allow_port_increment_f) {
  * @param buffer_size
  * @return 
  */
-ssize_t trudpUdpRecvfrom(int fd, void *buffer, size_t buffer_size, 
+inline ssize_t trudpUdpRecvfrom(int fd, void *buffer, size_t buffer_size, 
         __SOCKADDR_ARG remaddr, socklen_t *addr_len) {
 
     int flags = 0;
@@ -187,7 +189,7 @@ ssize_t trudpUdpRecvfrom(int fd, void *buffer, size_t buffer_size,
  * @param port
  * @return 
  */
-ssize_t trudpUdpSendto(int fd, void *buffer, size_t buffer_size, 
+inline ssize_t trudpUdpSendto(int fd, void *buffer, size_t buffer_size, 
         __CONST_SOCKADDR_ARG remaddr, socklen_t addrlen) {
     
     int flags = 0;

@@ -36,6 +36,11 @@
 #include <unistd.h>
 #include <string.h>
 
+// C11 present
+#if __STDC_VERSION__ >= 201112L
+extern int usleep (__useconds_t __useconds);
+#endif
+
 #include "libtrudp/tr-udp.h"
 
 // Integer options
@@ -210,7 +215,7 @@ static void usage(char *name) {
  * @return 
  */
 int main(int argc, char** argv) {
-
+    
     int i;
     o_local_port = "8000"; // Default local port
     o_local_address = "0.0.0.0"; // Default local address
