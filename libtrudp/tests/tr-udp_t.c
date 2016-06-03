@@ -12,7 +12,9 @@
 #include "../packet.h"    
 
 // For tests use only
-uint32_t trudpGetNewId(trudpData *td);
+static inline uint32_t trudpGetNewId(trudpData *td) {
+    return td->sendId++;
+}
 
 #undef NO_MESSAGES
 #define NO_MESSAGES 0

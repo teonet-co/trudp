@@ -31,7 +31,7 @@ DEFAULTCONF=Debug
 CONF=${DEFAULTCONF}
 
 # All Configurations
-ALLCONFS=Debug Release 
+ALLCONFS=Debug Release MinGW-w64-Debug MinGW-w64-Win32-Debug 
 
 
 # build

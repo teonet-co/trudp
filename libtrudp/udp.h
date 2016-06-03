@@ -36,10 +36,23 @@
 #define WIN32_LEAN_AND_MEAN
 #include <winsock2.h>
 typedef int socklen_t;
+
+# define __SOCKADDR_ARG		struct sockaddr *__restrict
+# define __CONST_SOCKADDR_ARG	const struct sockaddr *
+
 #else
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
+#endif
+
+#ifndef _SSIZE_T_DEFINED
+#ifdef  _WIN64
+typedef unsigned __int64    ssize_t;
+#else
+typedef _W64 unsigned int   ssize_t;
+#endif
+#define _SSIZE_T_DEFINED
 #endif
 
 #ifdef __cplusplus

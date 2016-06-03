@@ -263,6 +263,12 @@ int main(int argc, char** argv) {
     // Create read buffer
     buffer = malloc(o_buf_size);
     
+    // Startup windows socket library
+    #if defined(HAVE_MINGW) || defined(_WIN32) || defined(_WIN64)
+    WSADATA wsaData;
+    WSAStartup(0x0202, &wsaData);
+    #endif     
+    
     // Initialize TR-UDP
     trudpData *td = trudpNew(NULL, processDataCb, writeCb);
     trudpSetProcessAckCb(td, processAckCb);
@@ -314,6 +320,11 @@ int main(int argc, char** argv) {
     free(buffer);
     
     printf("Executed!\n");
+    
+    // Cleanup socket library
+    #if defined(HAVE_MINGW) || defined(_WIN32) || defined(_WIN64)
+    WSACleanup();
+    #endif        
     
     return (EXIT_SUCCESS);
 }

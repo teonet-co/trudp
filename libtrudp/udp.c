@@ -30,6 +30,11 @@
 #include <string.h>
 #include <fcntl.h>
 
+// C11 present
+#if __STDC_VERSION__ >= 201112L    
+extern int inet_aton (const char *__cp, struct in_addr *__inp) __THROW;
+#endif
+
 #include "udp.h"
 
 
@@ -81,8 +86,6 @@ static void set_nonblock(int fd) {
  */
 int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr,
         socklen_t *addr_length) {
-    
-    extern int inet_aton (const char *__cp, struct in_addr *__inp) __THROW;
 
     if(*addr_length < sizeof(struct sockaddr_in)) return -3;
     *addr_length = sizeof(struct sockaddr_in); // length of addresses

@@ -277,6 +277,7 @@ int trudpProcessSendQueue(trudpData *td) {
         
         // Resend data (add to write queue) and change it expected time
         execSendPacketCallback(td, tqd->packet, tqd->packet_length);
+        trudpQueueMoveToEnd(td->sendQueue->q, trudpTimedQueueDataToQueueData(tqd));
         tqd->expected_time = ts + td->triptime;
         tqd->retrieves++;
         rv++;

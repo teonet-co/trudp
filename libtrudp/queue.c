@@ -147,8 +147,8 @@ inline trudpQueueData *trudpQueueRemove(trudpQueue *q, trudpQueueData *qd) {
 /**
  * Delete element from queue and free it
  * 
- * @param q
- * @param qd
+ * @param q Pointer to trudpQueue
+ * @param qd Pointer to trudpQueueData
  * @return Zero at success
  */
 inline int trudpQueueDelete(trudpQueue *q, trudpQueueData *qd) {
@@ -156,6 +156,21 @@ inline int trudpQueueDelete(trudpQueue *q, trudpQueueData *qd) {
     if(q && qd) free(trudpQueueRemove(q, qd));
     
     return 0;
+}
+
+/**
+ * Move element to the end of list
+ * 
+ * @param q Pointer to trudpQueue
+ * @param qd Pointer to trudpQueueData
+ * @return Zero at success
+ */
+int trudpQueueMoveToEnd(trudpQueue *q, trudpQueueData *qd) {
+   
+    if(qd && qd->next) {
+        
+        // \todo move the element ...
+    }
 }
 
 /**
