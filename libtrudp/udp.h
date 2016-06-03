@@ -33,18 +33,13 @@
 #define UDP_H
 
 #if defined(HAVE_MINGW) || defined(_WIN32) || defined(_WIN64)
+
 #define WIN32_LEAN_AND_MEAN
 #include <winsock2.h>
 typedef int socklen_t;
 
 # define __SOCKADDR_ARG		struct sockaddr *__restrict
 # define __CONST_SOCKADDR_ARG	const struct sockaddr *
-
-#else
-#include <netdb.h>
-#include <arpa/inet.h>
-#include <sys/socket.h>
-#endif
 
 #ifndef _SSIZE_T_DEFINED
 #ifdef  _WIN64
@@ -53,6 +48,12 @@ typedef unsigned __int64    ssize_t;
 typedef _W64 unsigned int   ssize_t;
 #endif
 #define _SSIZE_T_DEFINED
+#endif
+
+#else
+#include <netdb.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
 #endif
 
 #ifdef __cplusplus
