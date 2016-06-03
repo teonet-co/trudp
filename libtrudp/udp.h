@@ -53,6 +53,7 @@ ssize_t trudpUdpSendto(int fd, void *buffer, size_t buffer_size,
         __CONST_SOCKADDR_ARG remaddr, socklen_t addrlen);
 int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr,
         socklen_t *addr_len);
+char *trudpUdpGetAddr(__CONST_SOCKADDR_ARG remaddr, int *port);
 
 
 #ifdef __cplusplus

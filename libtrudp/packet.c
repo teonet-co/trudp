@@ -186,7 +186,8 @@ static inline void trudpHeaderDATAcreate(trudpHeader *out_th, uint32_t id,
         void *data, size_t data_length) {
     
     trudpHeaderCreate(out_th, id, TRU_DATA, data_length, trudpHeaderTimestamp());
-    memcpy((void *)out_th + sizeof(trudpHeader), data, data_length);
+    if(data && data_length) 
+        memcpy((void *)out_th + sizeof(trudpHeader), data, data_length);
 }
 
 /*****************************************************************************
@@ -294,8 +295,7 @@ inline void trudpPacketCreatedFree(void *in_th) {
 /**
  * Get packet Id
  * 
- * @param packet Pointer to packet data. Packet should be checked with 
- *               trudpPacketCheck function first
+ * @param packet Pointer to packet
  * @return Packet Id
  */
 inline uint32_t trudpPacketGetId(void *packet) {
@@ -306,8 +306,8 @@ inline uint32_t trudpPacketGetId(void *packet) {
 /**
  * Get packet data
  * 
- * @param packet
- * @return 
+ * @param packet Pointer to packet
+ * @return Pointer to packet data
  */
 inline void *trudpPacketGetData(void *packet) {
     
@@ -317,8 +317,8 @@ inline void *trudpPacketGetData(void *packet) {
 /**
  * Get pointer to packet from it's data
  * 
- * @param data
- * @return 
+ * @param data Pointer to packet data
+ * @return Pointer to packet
  */
 inline void *trudpPacketGetPacket(void *data) {
     
@@ -328,8 +328,8 @@ inline void *trudpPacketGetPacket(void *data) {
 /**
  * Get packet data length
  * 
- * @param packet
- * @return 
+ * @param packet Pointer to packet
+ * @return Payload length defines the number of bytes in the message payload
  */
 inline uint16_t trudpPacketGetDataLength(void *packet) {
     
@@ -339,8 +339,8 @@ inline uint16_t trudpPacketGetDataLength(void *packet) {
 /**
  * Get packet data type
  * 
- * @param packet
- * @return 
+ * @param packet Pointer to packet
+ * @return Message type could be of type DATA(0x0), ACK(0x1) and RESET(0x2)
  */
 inline int trudpPacketGetDataType(void *packet) {
     
@@ -348,10 +348,10 @@ inline int trudpPacketGetDataType(void *packet) {
 }
 
 /**
- * Get packet data type
+ * Get packet timestamp
  * 
- * @param packet
- * @return 
+ * @param packet Pointer to packet
+ * @return Timestamp (32 byte) contains sending time of DATA and RESET messages
  */
 inline uint32_t trudpPacketGetTimestamp(void *packet) {
     

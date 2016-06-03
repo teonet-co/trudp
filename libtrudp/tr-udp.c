@@ -39,7 +39,8 @@ static void trudpSetDefaults(trudpData *td) {
 
     td->sendId = 0;
     td->receiveExpectedId = 0;
-    td->triptime = MAX_ACK_WAIT * 1000000;
+    td->triptime = (MAX_ACK_WAIT/5) * 1000000;
+    td->triptimeMidle = td->triptime;
 }
 
 /**
@@ -77,8 +78,8 @@ trudpData *trudpNew(void *user_data, trudpDataCb processDataCb, trudpDataCb writ
  * @param td Pointer to trudpData
  * @param processAckCb
  */
-void trudpSetProcessAckCb(trudpData *td, trudpDataCb processAckCb) {
-    
+inline void trudpSetProcessAckCb(trudpData *td, trudpDataCb processAckCb) {
+    td->processAckCb = processAckCb;
 }
 
 /**
@@ -140,7 +141,7 @@ size_t trudpSendData(trudpData *td, void *data, size_t data_length) {
     void *packetDATA = trudpPacketDATAcreateNew(trudpGetNewId(td), data, data_length, &packetLength);
 
     // Save packet to send queue
-    trudpTimedQueueAdd(td->sendQueue, packetDATA, packetLength, trudpHeaderTimestamp() + td->triptime);
+    trudpTimedQueueAdd(td->sendQueue, packetDATA, packetLength, trudpHeaderTimestamp() + td->triptimeMidle);
 
     // Send data (add to write queue)
     trudpWriteQueueAdd(td, packetDATA, packetLength);
@@ -201,6 +202,8 @@ void *trudpProcessReceivedPacket(trudpData *td, void *packet,
                     td->sendQueue,
                     trudpTimedQueueFindById(td->sendQueue, trudpPacketGetId(packet))
                 );
+                td->triptime = trudpHeaderTimestamp() - trudpPacketGetTimestamp(packet);
+                td->triptimeMidle = (td->triptimeMidle + td->triptime) / 2;
                 execCallback(td, packet, &data, data_length, td->user_data, td->processAckCb);
                 break;
 

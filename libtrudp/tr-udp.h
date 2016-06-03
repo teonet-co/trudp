@@ -48,6 +48,7 @@ typedef struct trudpData {
     uint32_t sendId;
     trudpTimedQueue *sendQueue;
     uint32_t triptime;
+    uint32_t triptimeMidle;
         
     uint32_t receiveExpectedId;
     trudpTimedQueue *receiveQueue;
@@ -75,6 +76,7 @@ size_t trudpSendData(trudpData *td, void *data, size_t data_length);
 int trudpProcessSendQueue(trudpData *td);
 void *trudpProcessReceivedPacket(trudpData *td, void *packet, 
         size_t packet_length, size_t *data_length);
+void trudpSetProcessAckCb(trudpData *td, trudpDataCb processAckCb);
 
 #ifdef __cplusplus
 }

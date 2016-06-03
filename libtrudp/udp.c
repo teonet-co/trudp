@@ -99,6 +99,20 @@ int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr,
 }
 
 /**
+ * Get address and port from address structure
+ * 
+ * @param port Pointer to port to get port integer
+ * @return Pointer to address string
+ */
+inline char *trudpUdpGetAddr(__CONST_SOCKADDR_ARG remaddr, int *port) {
+    
+    char *addr = inet_ntoa(((struct sockaddr_in*)remaddr)->sin_addr); // IP to string
+    *port = ntohs(((struct sockaddr_in*)remaddr)->sin_port); // Port to integer    
+    
+    return addr;
+}
+
+/**
  * Create and bind UDP socket for client/server
  * 
  * @param[in][out] port Pointer to Port number
@@ -161,11 +175,6 @@ ssize_t trudpUdpRecvfrom(int fd, void *buffer, size_t buffer_size,
     // Read UDP data
     ssize_t recvlen = recvfrom(fd, buffer, buffer_size, flags, (__SOCKADDR_ARG)remaddr, addr_len);
     
-//    if(recvlen > 0) {
-//        *addr = strdup(inet_ntoa(((struct sockaddr_in)remaddr).sin_addr)); // IP to string
-//        *port = ntohs(((struct sockaddr_in)remaddr).sin_port); // Port to integer
-//    }
-    
     return recvlen;
 }    
 
@@ -182,9 +191,6 @@ ssize_t trudpUdpSendto(int fd, void *buffer, size_t buffer_size,
         __CONST_SOCKADDR_ARG remaddr, socklen_t addrlen) {
     
     int flags = 0;
-//    struct sockaddr_in remaddr;         // remote address
-//    socklen_t addrlen = sizeof(remaddr);// length of addresses
-//    trudpUdpMakeAddr(addr, port, (__SOCKADDR_ARG) &remaddr, &addrlen);
     
     // Write UDP data
     ssize_t sendlen = sendto(fd, buffer, buffer_size, flags, remaddr, addrlen);
