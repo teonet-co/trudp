@@ -162,12 +162,15 @@ static void sendPacketCb(void *td_ptr, void *packet, size_t packet_length, void 
 /**
  * The TR-UDP cat network loop
  */
-void network_loop(trudpData *td) {
+void network_loop(trudpData *td, int delay) {
     
     // Read from UDP
     struct sockaddr_in remaddr; // remote address
     socklen_t addr_len = sizeof(remaddr);
-    ssize_t recvlen = trudpUdpRecvfrom(td->fd, buffer, o_buf_size, (__SOCKADDR_ARG)&remaddr, &addr_len);    
+    //ssize_t recvlen = trudpUdpRecvfrom(td->fd, buffer, o_buf_size, (__SOCKADDR_ARG)&remaddr, &addr_len);    
+    ssize_t recvlen = trudpUdpReadEventLoop(td->fd, buffer, o_buf_size, (__SOCKADDR_ARG)&remaddr, &addr_len, delay); 
+//    ssize_t trudpUdpReadEventLoop(int fd, void *buffer, size_t buffer_size, 
+//        __SOCKADDR_ARG remaddr, socklen_t *addr_len, int timeout)
     
     // Process received packet
     if(recvlen > 0) {
@@ -305,9 +308,10 @@ int main(int argc, char** argv) {
     uint32_t tt, tt_s = 0;
     while (!quit_flag) {
         
-        network_loop(td);
-        tt = trudpHeaderTimestamp();
+        network_loop(td, delay);
+
         // Send message
+        tt = trudpHeaderTimestamp();
         if((!o_listen || o_listen && td->connected_f) && (tt - tt_s)>1000000) {                    
           trudpSendData(td, message, message_length);
           tt_s = tt; 

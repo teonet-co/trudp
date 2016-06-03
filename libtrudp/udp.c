@@ -203,3 +203,61 @@ inline ssize_t trudpUdpSendto(int fd, void *buffer, size_t buffer_size,
     
     return sendlen;
 }    
+
+/**
+ * Wait socket data during timeout and call callback if data received
+ * 
+ * @param con Pointer to teoLNullConnectData
+ * @param timeout Timeout of wait socket read event in ms
+ * 
+ * @return 0 - if disconnected or 1 other way
+ */
+ssize_t trudpUdpReadEventLoop(int fd, void *buffer, size_t buffer_size, 
+        __SOCKADDR_ARG remaddr, socklen_t *addr_len, int timeout) {
+    
+    int rv; 
+    fd_set rfds;
+    struct timeval tv;
+    ssize_t recvlen = 0;
+
+    // Watch server_socket to see when it has input.
+    FD_ZERO(&rfds);
+    FD_SET(fd, &rfds);
+
+    // Wait up to 50 ms. */
+    tv.tv_sec = 0;
+    tv.tv_usec = timeout * 1000;
+
+	rv = select((int)fd + 1, &rfds, NULL, NULL, &tv);
+    
+    // Error
+    if (rv == -1) printf("select() handle error\n");
+    
+    // Timeout
+    else if(!rv) { // Idle or Timeout event
+
+        //send_l0_event(con, EV_L_IDLE, NULL, 0);
+    }
+    // There is a data in fd
+    else {
+        
+        //printf("Data in fd\n");
+//        ssize_t rc;
+//        while((rc = teoLNullRecv(con)) != -1) {
+//            
+//            if(rc > 0) {
+//                send_l0_event(con, EV_L_RECEIVED, con->read_buffer, rc);
+//            } else if(rc == 0) {
+//                send_l0_event(con, EV_L_DISCONNECTED, NULL, 0);
+//                retval = 0;
+//                break;
+//            }
+//        }
+        ssize_t recvlen = trudpUdpRecvfrom(fd, buffer, buffer_size, (__SOCKADDR_ARG)remaddr, addr_len);
+    }
+    
+    // Send Tick event    
+    //send_l0_event(con, EV_L_TICK, NULL, 0);
+    
+    return recvlen;
+}

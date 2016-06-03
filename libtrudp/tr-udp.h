@@ -78,6 +78,9 @@ void *trudpProcessReceivedPacket(trudpData *td, void *packet,
         size_t packet_length, size_t *data_length);
 void trudpSetProcessAckCb(trudpData *td, trudpDataCb processAckCb);
 
+ssize_t trudpUdpReadEventLoop(int fd, void *buffer, size_t buffer_size, 
+        __SOCKADDR_ARG remaddr, socklen_t *addr_len, int timeout);
+
 #ifdef __cplusplus
 }
 #endif
