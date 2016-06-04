@@ -53,19 +53,19 @@ void add_elements_to_queue() {
     CU_ASSERT_PTR_NOT_NULL_FATAL(q);
     
     int i;
-    trudpQueueData *qd;
+    trudpQueueData *qd, *qd2;
     size_t data_length;
-    const size_t num = 3;
+    const size_t num_elements = 3;
     const char *data_format = "Hello-%u!";
     size_t data_buf_length = strlen(data_format) + 1 + 10;
-    char data[num][data_buf_length];
+    char data[num_elements][data_buf_length];
     
     // Add elements to queue
     #if !NO_MESSAGES
     printf("\n");
-    printf("    Add %u elements to Queue:\n", (unsigned long)num);
+    printf("    Add %u elements to Queue:\n", (unsigned long)num_elements);
     #endif
-    for(i = 0; i < num; i++) {
+    for(i = 0; i < num_elements; i++) {
         //char *data = "Hello-1!";
         snprintf(data[i], data_buf_length, data_format, i+1);
         data_length = strlen(data[i]) + 1;
@@ -74,16 +74,22 @@ void add_elements_to_queue() {
         printf("      data_length: %u, pointer: %p, data: %s\n", 
                 (unsigned long)data_length, data[i], data[i]);
         #endif
+        CU_ASSERT(q->length); // length not null
+        CU_ASSERT(q->last == qd); // last element equal to this
+        CU_ASSERT(q->first && q->last); // first and last element are present
+        CU_ASSERT(i || !i && q->first == qd); // for fist added: first element equal to this
+        CU_ASSERT(i || !i && !qd->prev); // for fist added: previous is null
+        CU_ASSERT(!i || i && qd->prev); // for non fist added: previous is not null
+        CU_ASSERT(!qd->next); // next is null
         CU_ASSERT_PTR_NOT_NULL_FATAL(qd);
         CU_ASSERT_STRING_EQUAL_FATAL(data[i], qd->data);
         CU_ASSERT_EQUAL_FATAL(data_length, qd->data_length);
         CU_ASSERT_EQUAL_FATAL(trudpQueueSize(q), i+1);
     }
-
     
     // Loop through all queue elements
     #if !NO_MESSAGES
-    printf("    Retrieve %d elements from Queue:\n", (unsigned long)num);
+    printf("    Retrieve %d elements from Queue:\n", (unsigned long)num_elements);
     #endif
     i = 0;
     qd = q->first;
@@ -97,6 +103,31 @@ void add_elements_to_queue() {
     #if !NO_MESSAGES
     printf("    ");
     #endif
+
+    // Move first element to the end of queue
+    qd = q->first;
+    qd2 = qd->next;
+    trudpQueueMoveToEnd(q, qd);
+    CU_ASSERT(q->last == qd);
+    CU_ASSERT(q->first == qd2);
+    CU_ASSERT(q->length == num_elements);
+    
+    // Delete first
+    qd = q->first->next;
+    trudpQueueDeleteFirst(q);
+    CU_ASSERT(q->length == num_elements-1);
+    CU_ASSERT(qd == q->first);
+    
+    // Delete last
+    qd = q->last->prev;
+    trudpQueueDeleteLast(q);
+    CU_ASSERT(q->length == num_elements-2);
+    CU_ASSERT(qd == q->last);
+    
+    // Delete all by deleting first
+    while(!trudpQueueDeleteFirst(q));
+    CU_ASSERT(!q->length);
+    CU_ASSERT(!q->first && !q->last);
     
     // Destroy queue
     int rv = trudpQueueDestroy(q);

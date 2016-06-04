@@ -73,8 +73,7 @@ int trudpQueueFree(trudpQueue *q) {
     while(qd) {
         free(qd);
         qd = qd->next;
-    }
-    
+    }    
     memset(q, 0, sizeof(trudpQueue));
     
     return 0;
@@ -92,7 +91,7 @@ inline size_t trudpQueueSize(trudpQueue *q) {
 }
 
 /**
- * Add new element to the TR-UPD queue
+ * Add new element to the end of TR-UPD queue
  * 
  * @param q Pointer to existing TR-UDP Queue
  * @param data
@@ -133,12 +132,16 @@ inline trudpQueueData *trudpQueueRemove(trudpQueue *q, trudpQueueData *qd) {
         
     if(q && qd) {
         
-        if(!qd->prev) q->first = qd->next; // if this element is first
-        else qd->prev->next = qd->next;    // if this element is not first
-        q->length--;
-        
+        q->length--;        
         if(!q->length) { q->first = q->last = NULL; } // if this element was one in list
-        else if(q->last == qd) q->last = qd->prev;    // if element was last
+        else {
+            if(q->first == qd) q->first = qd->next;    // if this element is first
+            else qd->prev->next = qd->next;           // if this element is not first
+
+            if(q->last == qd) q->last = qd->prev;     // if this element is last
+            else qd->next->prev = qd->prev;           // if this element is not last
+        }
+        qd->prev = qd->next = NULL;
     }
     
     return qd;
@@ -153,9 +156,31 @@ inline trudpQueueData *trudpQueueRemove(trudpQueue *q, trudpQueueData *qd) {
  */
 inline int trudpQueueDelete(trudpQueue *q, trudpQueueData *qd) {
        
-    if(q && qd) free(trudpQueueRemove(q, qd));
-    
-    return 0;
+    if(q && qd) {
+        free(trudpQueueRemove(q, qd));    
+        return 0;
+    }
+    else return -1;
+}
+
+/**
+ * Delete first element from queue and free it
+ * 
+ * @param q Pointer to trudpQueue
+ * @return Zero at success
+ */
+inline int trudpQueueDeleteFirst(trudpQueue *q) {
+    return q && q->first ? trudpQueueDelete(q, q->first) : -1;
+}
+
+/**
+ * Delete last element from queue and free it
+ * 
+ * @param q Pointer to trudpQueue
+ * @return Zero at success
+ */
+inline int trudpQueueDeleteLast(trudpQueue *q) {
+    return q && q->last ? trudpQueueDelete(q, q->last) : -1;
 }
 
 /**
@@ -165,12 +190,24 @@ inline int trudpQueueDelete(trudpQueue *q, trudpQueueData *qd) {
  * @param qd Pointer to trudpQueueData
  * @return Zero at success
  */
-int trudpQueueMoveToEnd(trudpQueue *q, trudpQueueData *qd) {
+trudpQueueData *trudpQueueMoveToEnd(trudpQueue *q, trudpQueueData *qd) {
    
     if(qd && qd->next) {
         
-        // \todo move the element ...
+        if(q->length > 1) {
+            
+            // Remove element
+            trudpQueueRemove(q, qd);
+            
+            // Add to the end
+            q->last->next = qd;
+            qd->prev = q->last;
+            q->last = qd;
+            q->length++;
+        }
     }
+    
+    return qd;
 }
 
 /**

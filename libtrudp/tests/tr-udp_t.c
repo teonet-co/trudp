@@ -17,7 +17,7 @@ static inline uint32_t trudpGetNewId(trudpData *td) {
 }
 
 #undef NO_MESSAGES
-#define NO_MESSAGES 0
+#define NO_MESSAGES 1
 
 /*
  * CUnit Test Suite

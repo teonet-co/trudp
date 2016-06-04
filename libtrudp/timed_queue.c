@@ -173,3 +173,15 @@ trudpTimedQueueData *trudpTimedQueueFindByTime(trudpTimedQueue *tq, uint32_t t) 
     
     return rv;
 }
+
+/**
+ * Move element to the end of list
+ * 
+ * @param q Pointer to trudpTimedQueue
+ * @param qd Pointer to trudpTimedQueueData
+ * @return Zero at success
+ */
+inline trudpTimedQueueData *trudpTimedQueueMoveToEnd(trudpTimedQueue *tq, trudpTimedQueueData *tqd) {
+
+    return (trudpTimedQueueData *)trudpQueueMoveToEnd(tq->q, trudpTimedQueueDataToQueueData(tqd))->data;
+}
