@@ -32,7 +32,7 @@ int clean_suite(void);
 static void create_test() {
     
     // Create TR-UDP
-    trudpData *td = trudpNew(NULL, NULL, NULL);
+    trudpData *td = trudpNew(NULL);
     CU_ASSERT_PTR_NOT_NULL(td);
     
     // Destroy TR-UDP
@@ -45,7 +45,7 @@ static void create_test() {
 static void send_data_test() {
 
     // Create TR-UDP
-    trudpData *td = trudpNew(NULL, NULL, NULL);
+    trudpData *td = trudpNew(NULL);
     CU_ASSERT_PTR_NOT_NULL(td);
 
     // Send data
@@ -70,7 +70,7 @@ static void send_data_test() {
 static void trudpProcessDataCb(void *td, void *data, size_t data_length, void *user_data) {
     
     void *packet = trudpPacketGetPacket(data);
-    double tt = (trudpHeaderTimestamp() - trudpPacketGetTimestamp(packet) )/1000.0;
+    double tt = (trudpGetTimestamp() - trudpPacketGetTimestamp(packet) )/1000.0;
     #if !NO_MESSAGES
     printf("\n%s DATA: \"%s\" processed %.3f ms ...", user_data ? (char*)user_data : "", (char*)data, tt);
     printf("\n");
@@ -87,7 +87,7 @@ static void trudpProcessDataCb(void *td, void *data, size_t data_length, void *u
 static void trudpProcessAckCb(void *td, void *data, size_t data_length, void *user_data) {
     
     void *packet = trudpPacketGetPacket(data);
-    double tt = (trudpHeaderTimestamp() - trudpPacketGetTimestamp(packet) )/1000.0;
+    double tt = (trudpGetTimestamp() - trudpPacketGetTimestamp(packet) )/1000.0;
     #if !NO_MESSAGES
     printf("\n%s ACK processed %.3f ms ...", (char*)user_data, tt );
     #endif
@@ -114,7 +114,8 @@ static void _showProcessResult(void *rv, void* user_data) {
 static void process_received_packet_test() {
 
     // Create TR-UDP
-    trudpData *td = trudpNew(NULL, trudpProcessDataCb, NULL);
+    trudpData *td = trudpNew(NULL);
+    trudpSetCallback(td, PROCESS_DATA, (trudpCb)trudpProcessDataCb);
     CU_ASSERT_PTR_NOT_NULL(td);
     
     // Create DATA packets 
@@ -179,7 +180,7 @@ static void process_received_packet_test() {
 
 trudpData *td_A, *td_B;
 
-void td_A_writeCb(void *td, void *packet, size_t packet_length, void *user_data) {
+void td_A_sendCb(void *td, void *packet, size_t packet_length, void *user_data) {
     
     int type = trudpPacketGetDataType(packet);
     #if !NO_MESSAGES
@@ -194,7 +195,7 @@ void td_A_writeCb(void *td, void *packet, size_t packet_length, void *user_data)
     
 }
 
-void td_B_writeCb(void *td, void *packet, size_t packet_length, void *user_data) {
+void td_B_sendCb(void *td, void *packet, size_t packet_length, void *user_data) {
     
     int type = trudpPacketGetDataType(packet);
     #if !NO_MESSAGES
@@ -214,13 +215,17 @@ void td_B_writeCb(void *td, void *packet, size_t packet_length, void *user_data)
 static void send_process_received_packet_test() {
 
     // Create sender TR-UDP
-    td_A = trudpNew("td_A", trudpProcessDataCb, td_A_writeCb);
-    td_A->processAckCb = trudpProcessAckCb;
+    td_A = trudpNew("td_A");
+    trudpSetCallback(td_A, PROCESS_DATA, (trudpCb)trudpProcessDataCb);
+    trudpSetCallback(td_A, SEND, (trudpCb)td_A_sendCb);
+    trudpSetCallback(td_A, PROCESS_ACK, (trudpCb)trudpProcessAckCb);
     CU_ASSERT_PTR_NOT_NULL(td_A);
     
     // Create receiver TR-UDP
-    td_B = trudpNew("td_B", trudpProcessDataCb, td_B_writeCb);
-    td_B->processAckCb = trudpProcessAckCb;
+    td_B = trudpNew("td_B");
+    trudpSetCallback(td_B, PROCESS_DATA, (trudpCb)trudpProcessDataCb);
+    trudpSetCallback(td_B, SEND, (trudpCb)td_B_sendCb);
+    trudpSetCallback(td_B, PROCESS_ACK, (trudpCb)trudpProcessAckCb);
     CU_ASSERT_PTR_NOT_NULL(td_B);
     
     // Create DATA packets 

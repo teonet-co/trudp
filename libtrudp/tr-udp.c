@@ -26,6 +26,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "tr-udp.h"
 #include "packet.h"
@@ -39,20 +40,17 @@ static void trudpSetDefaults(trudpData *td) {
 
     td->sendId = 0;
     td->receiveExpectedId = 0;
-    td->triptime = (MAX_ACK_WAIT/5) * 1000000;
-    td->triptimeMidle = td->triptime;
+    td->triptime = 0; 
+    td->triptimeMiddle = START_MIDDLE_TIME;
 }
 
 /**
  * Create trudp chanel
  *
  * @param user_data Pointer to user data
- * @param processDataCb DATA callback function or NULL if not used
- * @param sendPacketCb Send packet callback function
  * @return 
  */
-trudpData *trudpNew(void *user_data, trudpDataCb processDataCb, 
-        trudpDataCb sendPacketCb ) {
+trudpData *trudpNew(void *user_data) {
 
     trudpData *td = (trudpData *) malloc(sizeof(trudpData));
     memset(td, 0, sizeof(trudpData));
@@ -60,10 +58,6 @@ trudpData *trudpNew(void *user_data, trudpDataCb processDataCb,
     td->user_data = user_data;
     td->sendQueue = trudpTimedQueueNew();
     td->receiveQueue = trudpTimedQueueNew();
-    
-    td->processDataCb = processDataCb;
-    td->processAckCb = NULL;
-    td->sendCb = sendPacketCb;
     
     // Set UDP connection depended defaults
     td->fd = 0;
@@ -76,13 +70,44 @@ trudpData *trudpNew(void *user_data, trudpDataCb processDataCb,
 }
 
 /**
- * Set process ACK callback function
+ * Set TR-UDP callback
  * 
- * @param td Pointer to trudpData
- * @param processAckCb
+ * @param type
+ * @param cb
+ * @return 
  */
-inline void trudpSetProcessAckCb(trudpData *td, trudpDataCb processAckCb) {
-    td->processAckCb = processAckCb;
+trudpCb trudpSetCallback(trudpData *td, trudpCallbsckType type, trudpCb cb) {
+    
+    trudpCb oldCb;
+    
+    switch(type) {
+        
+        case PROCESS_DATA: 
+            oldCb.data = td->processDataCb; 
+            td->processDataCb = cb.data; 
+            break;
+            
+        case PROCESS_ACK: 
+            oldCb.data = td->processAckCb; 
+            td->processAckCb = cb.data; 
+            break;
+            
+        case EVENT:  
+            oldCb.event = td->evendCb; 
+            td->evendCb = cb.event; 
+            break;
+            
+        case SEND: 
+            oldCb.send = td->sendCb; 
+            td->sendCb = cb.send; 
+            break;
+            
+        default: 
+            oldCb.ptr = NULL; 
+            break;
+    }
+            
+    return oldCb;
 }
 
 /**
@@ -120,13 +145,35 @@ static inline uint32_t trudpGetNewId(trudpData *td) {
     return td->sendId++;
 }
 
-// Send data (add to write queue)
+/**
+ * Call Send data callback
+ * 
+ * @param td Pointer to trudpData
+ * @param packet Pointer to packet
+ * @param packetLength Packet length
+ * 
+ * @return 
+ */
 static inline size_t execSendPacketCallback(trudpData *td, void *packet,
         size_t  packetLength) {
 
     if(td->sendCb) td->sendCb(td, packet, packetLength, td->user_data);
         
     return 0;
+}
+
+/**
+ * Calculate Expected Time
+ * 
+ * @param td Pointer to trudpData
+ * @param current_time Current time (nsec)
+ * 
+ * @return Current time plus 
+ */
+static inline uint32_t trudpCalculateExpectedTime(trudpData *td, 
+        uint32_t current_time) {
+    
+    return current_time + td->triptimeMiddle;
 }
 
 /**
@@ -146,8 +193,8 @@ size_t trudpSendData(trudpData *td, void *data, size_t data_length) {
             data_length, &packetLength);
 
     // Save packet to send queue
-    trudpTimedQueueAdd(td->sendQueue, packetDATA, packetLength, 
-            trudpHeaderTimestamp() + td->triptimeMidle);
+    trudpTimedQueueAdd(td->sendQueue, packetDATA, packetLength,
+            trudpCalculateExpectedTime(td, trudpGetTimestamp()));
 
     // Send data (add to write queue)
     execSendPacketCallback(td, packetDATA, packetLength);
@@ -213,10 +260,13 @@ void *trudpProcessReceivedPacket(trudpData *td, void *packet,
                 );
                 
                 // Set triptime
-                td->triptime = trudpHeaderTimestamp() - 
+                td->triptime = trudpGetTimestamp() - 
                     trudpPacketGetTimestamp(packet);
-                td->triptimeMidle = td->triptime > td->triptimeMidle ? 
-                    td->triptime : (td->triptimeMidle + td->triptime) / 2;
+                
+                // Calculate and set middle triptime value
+                td->triptimeMiddle = td->triptimeMiddle == START_MIDDLE_TIME ? td->triptime * 1.5 : // Set first middle time
+                    td->triptime > td->triptimeMiddle ? td->triptime : // Set middle time to max triptime
+                        (td->triptimeMiddle * 9 + td->triptime) / 10.0; // Calculate middle value
                 
                 // Process ACK data
                 execProcessDataCallback(td, packet, &data, data_length, 
@@ -289,17 +339,40 @@ int trudpProcessSendQueue(trudpData *td) {
     int rv = 0;
     
     trudpTimedQueueData *tqd;
-    uint32_t ts = trudpHeaderTimestamp();
+    uint32_t ts = trudpGetTimestamp();
     while((tqd = trudpTimedQueueFindByTime(td->sendQueue, ts))) {
         
-        // Resend data (add to write queue) and change it expected time
+        // Resend data and change it expected time
         execSendPacketCallback(td, tqd->packet, tqd->packet_length);
         trudpTimedQueueMoveToEnd(td->sendQueue, tqd);
-        tqd->expected_time = ts + td->triptimeMidle;
-        td->triptimeMidle *= 1.5;
+        tqd->expected_time = trudpCalculateExpectedTime(td, ts); 
+        td->triptimeMiddle *= 2;
         tqd->retrieves++;
         rv++;
+        
+        // \todo Stop at match retrieves
+        if(tqd->retrieves > MAX_RETRIEVES) {
+            fprintf(stderr, "To match retrieves! Stop executing ...\n");
+            exit(-11);
+        }
     }
     
     return rv;
+}
+
+/**
+ * Save remote address to trudpData variable
+ * 
+ * @param td Pointer to trudpData
+ * @param remaddr Pointer to sockaddr_in remote address
+ * @param addr_length Remote address length
+ */
+inline void saveRemoteAddr(trudpData *td, struct sockaddr_in *remaddr, 
+        socklen_t addr_length) {
+    
+    if(!td->connected_f) {
+        memcpy(&td->remaddr, remaddr, addr_length);
+        td->addrlen = addr_length;
+        td->connected_f = 1;
+    }    
 }

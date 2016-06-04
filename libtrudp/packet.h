@@ -77,7 +77,7 @@ uint32_t trudpPacketGetTimestamp(void *packet);
 
 void trudpPacketCreatedFree(void *in_th);
 
-uint32_t trudpHeaderTimestamp();
+uint32_t trudpGetTimestamp();
 
 #ifdef __cplusplus
 }

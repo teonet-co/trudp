@@ -35,10 +35,42 @@
 extern "C" {
 #endif
     
+#define MAX_RETRIEVES 10
+#define START_MIDDLE_TIME (MAX_ACK_WAIT/5) * 1000000    
+    
 /**
- * Data received/write callback
+ * Data received/send callback
  */
 typedef void (*trudpDataCb)(void *td, void *data, size_t data_length, void *user_data);
+
+/**
+ * Event callback
+ */
+typedef void (*trudpEventCb)(void *td, int event, void *data, size_t data_length, void *user_data);
+
+/**
+ * Union of TR-UDP callback
+ */
+typedef union trudpCb {
+    
+    trudpDataCb data;
+    trudpDataCb send;
+    trudpEventCb event;
+    void *ptr;
+    
+} trudpCb;
+
+/**
+ * Enumeration of callback types
+ */
+typedef enum trudpCallbsckType {
+    
+    PROCESS_DATA,
+    PROCESS_ACK,
+    EVENT,
+    SEND
+            
+} trudpCallbsckType;
 
 /**
  * Trudp Data Structure
@@ -48,27 +80,28 @@ typedef struct trudpData {
     uint32_t sendId;
     trudpTimedQueue *sendQueue;
     uint32_t triptime;
-    uint32_t triptimeMidle;
+    uint32_t triptimeMiddle;
         
     uint32_t receiveExpectedId;
     trudpTimedQueue *receiveQueue;
 
     trudpDataCb processDataCb;
     trudpDataCb processAckCb;
+    trudpEventCb evendCb;
     trudpDataCb sendCb;
     
     void* user_data;
     
-    //__SOCKADDR_ARG remaddr;
     // UDP connection depended variables
-    int connected_f;            // connected (remote address valid)
     struct sockaddr_in remaddr; // remote address
     socklen_t addrlen;          // remote address length
+    int connected_f;            // connected (remote address valid)
     int fd;
     
 } trudpData;
 
-trudpData *trudpNew(void *user_data, trudpDataCb processDataCb, trudpDataCb sendPacketCb);
+trudpData *trudpNew(void *user_data); //, trudpDataCb processDataCb, trudpDataCb sendPacketCb);
+trudpCb trudpSetCallback(trudpData *td, trudpCallbsckType type, trudpCb cb);
 void trudpDestroy(trudpData *td);
 void trudpFree(trudpData *td);
 
@@ -76,10 +109,8 @@ size_t trudpSendData(trudpData *td, void *data, size_t data_length);
 int trudpProcessSendQueue(trudpData *td);
 void *trudpProcessReceivedPacket(trudpData *td, void *packet, 
         size_t packet_length, size_t *data_length);
-void trudpSetProcessAckCb(trudpData *td, trudpDataCb processAckCb);
-
-ssize_t trudpUdpReadEventLoop(int fd, void *buffer, size_t buffer_size, 
-        __SOCKADDR_ARG remaddr, socklen_t *addr_len, int timeout);
+inline void saveRemoteAddr(trudpData *td, struct sockaddr_in *remaddr, 
+        socklen_t addr_length);
 
 #ifdef __cplusplus
 }

@@ -127,7 +127,7 @@ static inline int trudpHeaderChecksumCheck(trudpHeader *th) {
  *
  * @return
  */
-uint32_t trudpHeaderTimestamp() {
+uint32_t trudpGetTimestamp() {
 
 // C11 present
 #if __STDC_VERSION__ >= 201112L    
@@ -195,7 +195,7 @@ static inline void *trudpHeaderACKcreate(trudpHeader *out_th, trudpHeader *in_th
  */
 static inline void trudpHeaderRESETcreate(trudpHeader *out_th, uint32_t id) {
     
-    trudpHeaderCreate(out_th, id, TRU_RESET, 0, trudpHeaderTimestamp());
+    trudpHeaderCreate(out_th, id, TRU_RESET, 0, trudpGetTimestamp());
 }
 
 /**
@@ -207,7 +207,7 @@ static inline void trudpHeaderRESETcreate(trudpHeader *out_th, uint32_t id) {
 static inline void trudpHeaderDATAcreate(trudpHeader *out_th, uint32_t id, 
         void *data, size_t data_length) {
     
-    trudpHeaderCreate(out_th, id, TRU_DATA, data_length, trudpHeaderTimestamp());
+    trudpHeaderCreate(out_th, id, TRU_DATA, data_length, trudpGetTimestamp());
     if(data && data_length) 
         memcpy((void *)out_th + sizeof(trudpHeader), data, data_length);
 }

@@ -36,7 +36,7 @@ void create_headers() {
     CU_ASSERT(!memcmp(data, trudpPacketGetData(packetDATA), data_length));
     CU_ASSERT_EQUAL(data_length, trudpPacketGetDataLength(packetDATA));
     CU_ASSERT_EQUAL(TRU_DATA, trudpPacketGetDataType(packetDATA));
-    CU_ASSERT(trudpPacketGetTimestamp(packetDATA) <= trudpHeaderTimestamp());
+    CU_ASSERT(trudpPacketGetTimestamp(packetDATA) <= trudpGetTimestamp());
     
     // Create & check ACK packet
     void *packetACK = trudpPacketACKcreateNew(packetDATA);
@@ -57,7 +57,7 @@ int headerSuiteAdd() {
     CU_pSuite pSuite = NULL;
 
     /* Add a suite to the registry */
-    pSuite = CU_add_suite("TR-UDP header", init_suite, clean_suite);
+    pSuite = CU_add_suite("TR-UDP packet", init_suite, clean_suite);
     if (NULL == pSuite) {
         CU_cleanup_registry();
         return CU_get_error();

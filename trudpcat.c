@@ -94,7 +94,7 @@ static void debug(char *fmt, ...)
     va_list ap;
     if (o_debug) {
             fflush(stdout);
-            fprintf(stderr, "%lu %.3f debug: ", ++idx, trudpHeaderTimestamp() / 1000.0);
+            fprintf(stderr, "%lu %.3f debug: ", ++idx, trudpGetTimestamp() / 1000.0);
             va_start(ap, fmt);
             vfprintf(stderr, fmt, ap);
             va_end(ap);
@@ -112,8 +112,18 @@ static void debug(char *fmt, ...)
 static void processDataCb(void *td_ptr, void *data, size_t data_length, 
         void *user_data) {
     
+    trudpData *td = (trudpData *)td_ptr;
+    
+    
     debug("got %d byte data, id=%u: ", (int)data_length, 
                 trudpPacketGetId(trudpPacketGetPacket(data)));
+    
+    if(!o_debug) 
+        printf("#%u at %.3f [%.3f(%.3f) ms] ", 
+               td->receiveExpectedId-1, 
+               (double)trudpGetTimestamp() / 1000.0, 
+               (double)td->triptime / 1000.0, 
+               (double)td->triptimeMiddle / 1000.0);
     
     printf("%s\n",(char*)data);    
     debug("\n");
@@ -133,7 +143,7 @@ static void processAckCb(void *td_ptr, void *data, size_t data_length, void *use
     
     debug("got ACK id=%u processed %.3f(%.3f) ms\n", 
            trudpPacketGetId(trudpPacketGetPacket(data)), 
-           (td->triptime)/1000.0, (td->triptimeMidle)/1000.0  );
+           (td->triptime)/1000.0, (td->triptimeMiddle)/1000.0  );
 }
 
 /**
@@ -157,30 +167,15 @@ static void sendPacketCb(void *td_ptr, void *packet, size_t packet_length,
         uint32_t id = trudpPacketGetId(packet);
         char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&td->remaddr, &port);
         if(!(type = trudpPacketGetDataType(packet))) {
-            debug("send %d bytes, id=%u, to %s:%d\n", 
-                (int)packet_length, id, addr, port);
+            debug("send %d bytes, id=%u, to %s:%d, %.3f(%.3f) ms\n", 
+                (int)packet_length, id, addr, port, 
+                td->triptime / 1000.0, td->triptimeMiddle / 1000.0);
         }    
         else { 
             debug("send %d bytes %s id=%u, to %s:%d\n", 
                 (int)packet_length, type == 1 ? "ACK":"RESET", id, addr, port);
         }
     }
-}
-
-/**
- * Save remote address to trudpData variable
- * @param td
- * @param remaddr
- * @param addr_length
- */
-static inline void saveRemoteAddr(trudpData *td, struct sockaddr_in *remaddr, 
-        socklen_t addr_length) {
-    
-    if(!td->connected_f) {
-        memcpy(&td->remaddr, remaddr, addr_length);
-        td->addrlen = addr_length;
-        td->connected_f = 1;
-    }    
 }
 
 /**
@@ -233,7 +228,7 @@ static void network_select_loop(trudpData *td, int timeout) {
     if(td->sendQueue->q->first) {
         
         uint32_t et = ((trudpTimedQueueData *)td->sendQueue->q->first->data)->expected_time,
-                 ct = trudpHeaderTimestamp();
+                 ct = trudpGetTimestamp();
     
         if(ct < et) {
         
@@ -303,7 +298,6 @@ static void network_select_loop(trudpData *td, int timeout) {
             if(recvlen > 0) {        
                 size_t data_length;
                 saveRemoteAddr(td, &remaddr,addr_len);
-                //void *rv = 
                 trudpProcessReceivedPacket(td, buffer, recvlen, &data_length);
             }        
         }
@@ -407,8 +401,10 @@ int main(int argc, char** argv) {
     #endif     
     
     // Initialize TR-UDP
-    trudpData *td = trudpNew(NULL, processDataCb, sendPacketCb);
-    trudpSetProcessAckCb(td, processAckCb);
+    trudpData *td = trudpNew(NULL); //, processDataCb, sendPacketCb);
+    trudpSetCallback(td, PROCESS_DATA, (trudpCb)processDataCb);
+    trudpSetCallback(td, SEND, (trudpCb)sendPacketCb);
+    trudpSetCallback(td, PROCESS_ACK, (trudpCb)processAckCb);
     
     // Bind UDP port and get FD
     int port = atoi(o_local_port);
@@ -449,8 +445,8 @@ int main(int argc, char** argv) {
         #endif
 
         // Send message
-        tt = trudpHeaderTimestamp();
-        if((!o_listen || o_listen && td->connected_f) && (tt - tt_s)>100000) {                    
+        tt = trudpGetTimestamp();
+        if((!o_listen || o_listen && td->connected_f) && (tt - tt_s)>10000) {                    
           trudpSendData(td, message, message_length);
           tt_s = tt; 
         }

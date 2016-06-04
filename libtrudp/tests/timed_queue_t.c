@@ -49,12 +49,12 @@ void timed_queue() {
     CU_ASSERT_EQUAL(trudpPacketGetId(packetDATA2), packet_id2);
     
     // Add 1 DATA packet to timed queue
-    tqd = trudpTimedQueueAdd(tq, packetDATA, packetLength, trudpHeaderTimestamp() + 10000);
+    tqd = trudpTimedQueueAdd(tq, packetDATA, packetLength, trudpGetTimestamp() + 10000);
     CU_ASSERT_PTR_NOT_NULL_FATAL(tqd);
     CU_ASSERT_EQUAL_FATAL(trudpPacketGetId(tqd->packet), packet_id);    
     
     // Add 2 DATA packet to timed queue
-    tqd = trudpTimedQueueAdd(tq, packetDATA2, packetLength2, trudpHeaderTimestamp() + 10000);
+    tqd = trudpTimedQueueAdd(tq, packetDATA2, packetLength2, trudpGetTimestamp() + 10000);
     CU_ASSERT_PTR_NOT_NULL_FATAL(tqd);
     CU_ASSERT_EQUAL_FATAL(trudpPacketGetId(tqd->packet), packet_id2);    
     
@@ -64,10 +64,10 @@ void timed_queue() {
     // Find DATA packet by time
     usleep(10000);
     tqd = trudpTimedQueueFindById(tq, packet_id); // Get packet with Id 1
-    CU_ASSERT_PTR_EQUAL_FATAL(tqd, trudpTimedQueueFindByTime(tq, trudpHeaderTimestamp()));
+    CU_ASSERT_PTR_EQUAL_FATAL(tqd, trudpTimedQueueFindByTime(tq, trudpGetTimestamp()));
     
     // Delete packet from timed queue
-    tqd = trudpTimedQueueFindByTime(tq, trudpHeaderTimestamp());
+    tqd = trudpTimedQueueFindByTime(tq, trudpGetTimestamp());
     trudpTimedQueueDelete(tq, tqd);
     CU_ASSERT_FATAL(trudpQueueSize(tq->q) == 1);
     
