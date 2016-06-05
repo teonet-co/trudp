@@ -15,6 +15,8 @@
       <logicalFolder name="libtrudp" displayName="libtrudp" projectFiles="true">
         <logicalFolder name="tests" displayName="tests" projectFiles="true">
         </logicalFolder>
+        <itemPath>libtrudp/hash.c</itemPath>
+        <itemPath>libtrudp/hash.h</itemPath>
         <itemPath>libtrudp/packet.c</itemPath>
         <itemPath>libtrudp/packet.h</itemPath>
         <itemPath>libtrudp/queue.c</itemPath>
@@ -37,6 +39,7 @@
                      displayName="TR-UDP Queue CUnit Test"
                      projectFiles="true"
                      kind="TEST">
+        <itemPath>libtrudp/tests/hash_t.c</itemPath>
         <itemPath>libtrudp/tests/packet_t.c</itemPath>
         <itemPath>libtrudp/tests/queue_t.c</itemPath>
         <itemPath>libtrudp/tests/timed_queue_t.c</itemPath>
@@ -74,6 +77,10 @@
           </linkerLibItems>
         </linkerTool>
       </folder>
+      <item path="libtrudp/hash.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="libtrudp/hash.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="libtrudp/packet.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="libtrudp/packet.h" ex="false" tool="3" flavor2="0">
@@ -81,6 +88,8 @@
       <item path="libtrudp/queue.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="libtrudp/queue.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/tests/hash_t.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="libtrudp/tests/packet_t.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -135,6 +144,10 @@
           </linkerLibItems>
         </linkerTool>
       </folder>
+      <item path="libtrudp/hash.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="libtrudp/hash.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="libtrudp/packet.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="libtrudp/packet.h" ex="false" tool="3" flavor2="0">
@@ -142,6 +155,8 @@
       <item path="libtrudp/queue.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="libtrudp/queue.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/tests/hash_t.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="libtrudp/tests/packet_t.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -187,6 +202,10 @@
           </linkerLibItems>
         </linkerTool>
       </folder>
+      <item path="libtrudp/hash.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="libtrudp/hash.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="libtrudp/packet.c" ex="false" tool="0" flavor2="9">
       </item>
       <item path="libtrudp/packet.h" ex="false" tool="3" flavor2="0">
@@ -194,6 +213,8 @@
       <item path="libtrudp/queue.c" ex="false" tool="0" flavor2="9">
       </item>
       <item path="libtrudp/queue.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/tests/hash_t.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="libtrudp/tests/packet_t.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -247,6 +268,10 @@
           </linkerLibItems>
         </linkerTool>
       </folder>
+      <item path="libtrudp/hash.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="libtrudp/hash.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="libtrudp/packet.c" ex="false" tool="0" flavor2="9">
       </item>
       <item path="libtrudp/packet.h" ex="false" tool="3" flavor2="0">
@@ -254,6 +279,8 @@
       <item path="libtrudp/queue.c" ex="false" tool="0" flavor2="9">
       </item>
       <item path="libtrudp/queue.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/tests/hash_t.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="libtrudp/tests/packet_t.c" ex="false" tool="0" flavor2="0">
       </item>

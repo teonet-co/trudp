@@ -52,7 +52,7 @@ void create_headers() {
     trudpPacketCreatedFree(packetDATA);
 }
 
-int headerSuiteAdd() {
+int packetSuiteAdd() {
     
     CU_pSuite pSuite = NULL;
 
