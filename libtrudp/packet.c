@@ -188,6 +188,17 @@ static inline void *trudpHeaderACKcreate(trudpHeader *out_th, trudpHeader *in_th
 }
 
 /**
+ * Create ACK to RESET package in buffer
+ * 
+ * @param out_th Output buffer to create ACK header
+ * @param in_th Input buffer with received TR-UDP package (header)
+ */
+static inline void *trudpHeaderACKtoRESETcreate(trudpHeader *out_th, trudpHeader *in_th) {
+    
+    trudpHeaderCreate(out_th, in_th->id, TRU_ACK | TRU_RESET, 0, in_th->timestamp);
+}
+
+/**
  * Create RESET packages header in buffer
  * 
  * @param out_th Output buffer to create RESET package (header)
@@ -244,6 +255,21 @@ inline void *trudpPacketACKcreateNew(void *in_th) {
         
     trudpHeader *out_th = (trudpHeader *) malloc(sizeof(trudpHeader));
     trudpHeaderACKcreate(out_th, (trudpHeader *)in_th);
+            
+    return (void *)out_th;
+}
+
+/**
+ * Create ACK to RESET package
+ * 
+ * @param in_th Pointer to received TR-UDP package (header)
+ * 
+ * @return Pointer to allocated ACK package, it should be free after use
+ */
+inline void *trudpPacketACKtoRESETcreateNew(void *in_th) {
+        
+    trudpHeader *out_th = (trudpHeader *) malloc(sizeof(trudpHeader));
+    trudpHeaderACKtoRESETcreate(out_th, (trudpHeader *)in_th);
             
     return (void *)out_th;
 }
@@ -364,7 +390,7 @@ inline uint16_t trudpPacketGetDataLength(void *packet) {
  * @param packet Pointer to packet
  * @return Message type could be of type DATA(0x0), ACK(0x1) and RESET(0x2)
  */
-inline int trudpPacketGetDataType(void *packet) {
+inline trudpPacketType trudpPacketGetType(void *packet) {
     
     return ((trudpHeader *)packet)->message_type;
 }

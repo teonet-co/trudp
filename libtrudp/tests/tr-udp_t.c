@@ -182,7 +182,7 @@ trudpData *td_A, *td_B;
 
 void td_A_sendCb(void *td, void *packet, size_t packet_length, void *user_data) {
     
-    int type = trudpPacketGetDataType(packet);
+    int type = trudpPacketGetType(packet);
     #if !NO_MESSAGES
     printf("\n%s_writeCb %s %s ...", user_data ? (char*)user_data : "", type == 0x0 ? "DATA" : type == 0x1 ? "ACK" : "RESET", type == 0x0 ? (char*)trudpPacketGetData(packet) : "");
     #endif
@@ -197,7 +197,7 @@ void td_A_sendCb(void *td, void *packet, size_t packet_length, void *user_data) 
 
 void td_B_sendCb(void *td, void *packet, size_t packet_length, void *user_data) {
     
-    int type = trudpPacketGetDataType(packet);
+    int type = trudpPacketGetType(packet);
     #if !NO_MESSAGES
     printf("\n%s_writeCb %s %s ...", user_data ? (char*)user_data : "", type == 0x0 ? "DATA" : type == 0x1 ? "ACK" : "RESET", type == 0x0 ? (char*)trudpPacketGetData(packet) : "");
     #endif

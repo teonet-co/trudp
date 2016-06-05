@@ -35,7 +35,7 @@ void create_headers() {
     CU_ASSERT_EQUAL(packetDATAid, trudpPacketGetId(packetDATA));
     CU_ASSERT(!memcmp(data, trudpPacketGetData(packetDATA), data_length));
     CU_ASSERT_EQUAL(data_length, trudpPacketGetDataLength(packetDATA));
-    CU_ASSERT_EQUAL(TRU_DATA, trudpPacketGetDataType(packetDATA));
+    CU_ASSERT_EQUAL(TRU_DATA, trudpPacketGetType(packetDATA));
     CU_ASSERT(trudpPacketGetTimestamp(packetDATA) <= trudpGetTimestamp());
     
     // Create & check ACK packet

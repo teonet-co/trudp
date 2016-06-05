@@ -120,7 +120,7 @@ static void processDataCb(void *td_ptr, void *data, size_t data_length,
     
     if(!o_debug) 
         printf("#%u at %.3f [%.3f(%.3f) ms] ", 
-               td->receiveExpectedId-1, 
+               td->receiveExpectedId, 
                (double)trudpGetTimestamp() / 1000.0, 
                (double)td->triptime / 1000.0, 
                (double)td->triptimeMiddle / 1000.0);
@@ -166,7 +166,7 @@ static void sendPacketCb(void *td_ptr, void *packet, size_t packet_length,
         int port,type;
         uint32_t id = trudpPacketGetId(packet);
         char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&td->remaddr, &port);
-        if(!(type = trudpPacketGetDataType(packet))) {
+        if(!(type = trudpPacketGetType(packet))) {
             debug("send %d bytes, id=%u, to %s:%d, %.3f(%.3f) ms\n", 
                 (int)packet_length, id, addr, port, 
                 td->triptime / 1000.0, td->triptimeMiddle / 1000.0);
@@ -193,7 +193,7 @@ static void network_loop(trudpData *td) {
     // Process received packet
     if(recvlen > 0) {        
         size_t data_length;
-        saveRemoteAddr(td, &remaddr,addr_len);
+        trudpSaveRemoteAddr(td, &remaddr,addr_len);
         void *rv = trudpProcessReceivedPacket(td, buffer, recvlen, &data_length);
     }
     
@@ -297,7 +297,7 @@ static void network_select_loop(trudpData *td, int timeout) {
             // Process received packet
             if(recvlen > 0) {        
                 size_t data_length;
-                saveRemoteAddr(td, &remaddr,addr_len);
+                trudpSaveRemoteAddr(td, &remaddr,addr_len);
                 trudpProcessReceivedPacket(td, buffer, recvlen, &data_length);
             }        
         }
@@ -344,7 +344,7 @@ static void usage(char *name) {
  * @param argc
  * @param argv
  * @return 
- */
+ */     
 int main(int argc, char** argv) {
     
     int i;
@@ -428,9 +428,10 @@ int main(int argc, char** argv) {
     size_t hello_s_length = strlen(hello_s) + 1;
     
     i = 0; 
-    int delay = 50;
     char *message;
     size_t message_length;
+    const int DELAY = 50; // mSec
+    const int SEND_MESSAGE_AFTER = 100000; // nSec
     if(!o_listen) { message = hello_c; message_length = hello_c_length; }    
     else { message = hello_s; message_length = hello_s_length; }
     uint32_t tt, tt_s = 0;
@@ -441,18 +442,18 @@ int main(int argc, char** argv) {
         #if !USE_SELECT
         network_loop(td);
         #else
-        network_select_loop(td, delay * 1000);
+        network_select_loop(td, DELAY * 1000);
         #endif
 
         // Send message
         tt = trudpGetTimestamp();
-        if((!o_listen || o_listen && td->connected_f) && (tt - tt_s)>10000) {                    
+        if((!o_listen || o_listen && td->connected_f) && (tt - tt_s) > SEND_MESSAGE_AFTER) {                    
           trudpSendData(td, message, message_length);
           tt_s = tt; 
         }
         
         #if !USE_SELECT
-        usleep(delay);
+        usleep(DELAY);
         #endif
         i++;
     }    

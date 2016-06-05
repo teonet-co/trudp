@@ -47,7 +47,7 @@ extern "C" {
 /**
  * TR-UDP message type
  */
-enum ksnTRUDP_type {
+typedef enum trudpPacketType {
 
     TRU_DATA, ///< The DATA messages are carrying payload. (has payload)
     /**
@@ -57,11 +57,12 @@ enum ksnTRUDP_type {
     TRU_ACK,
     TRU_RESET ///< The RESET messages reset messages counter. (has not payload)
 
-};
+} trudpPacketType;
 
 int trudpPacketCheck(void *th, size_t packetLength);
 
 void *trudpPacketACKcreateNew(void *in_th);
+void *trudpPacketACKtoRESETcreateNew(void *in_th);
 void *trudpPacketRESETcreateNew(uint32_t id);
 void *trudpPacketDATAcreateNew(uint32_t id, void *data, size_t data_length, size_t *packetLength);
 
@@ -72,7 +73,7 @@ uint32_t trudpPacketGetId(void *packet);
 void *trudpPacketGetData(void *packet);
 void *trudpPacketGetPacket(void *data);
 uint16_t trudpPacketGetDataLength(void *packet);
-int trudpPacketGetDataType(void *packet);
+trudpPacketType trudpPacketGetType(void *packet);
 uint32_t trudpPacketGetTimestamp(void *packet);
 
 void trudpPacketCreatedFree(void *in_th);

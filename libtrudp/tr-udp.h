@@ -36,6 +36,7 @@ extern "C" {
 #endif
     
 #define MAX_RETRIEVES 10
+#define MAX_OUTRUNNING 10    
 #define START_MIDDLE_TIME (MAX_ACK_WAIT/5) * 1000000    
     
 /**
@@ -84,6 +85,7 @@ typedef struct trudpData {
         
     uint32_t receiveExpectedId;
     trudpTimedQueue *receiveQueue;
+    int outrunning_cnt; ///< Receive queue outrunning count
 
     trudpDataCb processDataCb;
     trudpDataCb processAckCb;
@@ -104,12 +106,13 @@ trudpData *trudpNew(void *user_data); //, trudpDataCb processDataCb, trudpDataCb
 trudpCb trudpSetCallback(trudpData *td, trudpCallbsckType type, trudpCb cb);
 void trudpDestroy(trudpData *td);
 void trudpFree(trudpData *td);
+void trudpReset(trudpData *td);
 
 size_t trudpSendData(trudpData *td, void *data, size_t data_length);
 int trudpProcessSendQueue(trudpData *td);
 void *trudpProcessReceivedPacket(trudpData *td, void *packet, 
         size_t packet_length, size_t *data_length);
-inline void saveRemoteAddr(trudpData *td, struct sockaddr_in *remaddr, 
+inline void trudpSaveRemoteAddr(trudpData *td, struct sockaddr_in *remaddr, 
         socklen_t addr_length);
 
 #ifdef __cplusplus
