@@ -94,8 +94,8 @@ inline size_t trudpQueueSize(trudpQueue *q) {
  * Add new element to the end of TR-UPD queue
  * 
  * @param q Pointer to existing TR-UDP Queue
- * @param data
- * @param data_length
+ * @param data Pointer to data of new element
+ * @param data_length Length of new element data 
  * 
  * @return Pointer to trudpQueueData of added element
  */
@@ -104,6 +104,7 @@ trudpQueueData *trudpQueueAdd(trudpQueue *q, void *data, size_t data_length) {
     trudpQueueData *qd = NULL;
     
     if(q) {
+        // Create new trudpQueueData
         qd = (trudpQueueData *) malloc(sizeof(trudpQueueData) + data_length);
 
         // Fill Queue data structure
@@ -119,6 +120,42 @@ trudpQueueData *trudpQueueAdd(trudpQueue *q, void *data, size_t data_length) {
         q->length++; // Increment length
     }
     return qd;
+}
+
+/**
+ * Add new element after selected in qd field
+ * 
+ * @param q Pointer to existing TR-UDP Queue
+ * @param data Pointer to data of new element
+ * @param data_length Length of new element data 
+ * @param qd Pointer to trudpQueueData of existing element
+ * @return 
+ */
+trudpQueueData *trudpQueueAddAfter(trudpQueue *q, void *data, size_t data_length, 
+        trudpQueueData *qd) {
+    
+    trudpQueueData *new_qd = NULL;
+            
+    if(q && qd) {
+        if(!q->last || qd == q->last) trudpQueueAdd(q, data, data_length);
+        else {
+            // Create new trudpQueueData
+            trudpQueueData *new_qd = (trudpQueueData *) malloc(sizeof(trudpQueueData) + data_length);
+
+            // Fill Queue data structure
+            new_qd->data_length = data_length;
+            if(data && data_length > 0) memcpy(new_qd->data, data, data_length); 
+            
+            // Change fields in queue structure
+            if(q->last == qd) q->last = new_qd; 
+            new_qd->prev = qd; // Set previous of new element to existing element
+            new_qd->next = qd->next; // Set next of new element to next of existing
+            qd->next = new_qd; // Set next of existing element to new element
+            q->length++; // Increment length
+        }
+    }
+    
+    return new_qd;
 }
 
 /**
