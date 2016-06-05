@@ -381,7 +381,7 @@ int main(int argc, char** argv) {
     if(!o_listen && (!o_remote_port || !o_remote_address)) usage(argv[0]);
 
     // Show logo
-    fprintf(stderr, "TR-UDP two node connect sample application ver 0.0.1\n");
+    fprintf(stderr, "TR-UDP two node connect sample application ver 0.0.2\n");
     
     // Show execution mode
     if(o_listen) 
