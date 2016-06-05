@@ -53,7 +53,7 @@ static void send_data_test() {
     size_t data_length = strlen(data) + 1;
     CU_ASSERT(trudpSendData(td, data, data_length) > 0);
     CU_ASSERT(trudpQueueSize(td->sendQueue->q) == 1); // Send Queue should contain 1 element
-    CU_ASSERT_PTR_NOT_NULL(trudpTimedQueueFindById(td->sendQueue, 0)); // Send Queue should contain an element with ID 0
+    CU_ASSERT_PTR_NOT_NULL(trudpPacketQueueFindById(td->sendQueue, 0)); // Send Queue should contain an element with ID 0
     
     // Destroy TR-UDP
     trudpDestroy(td);

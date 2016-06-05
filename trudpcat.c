@@ -227,7 +227,7 @@ static void network_select_loop(trudpData *td, int timeout) {
     // Set sendQueue timer
     if(td->sendQueue->q->first) {
         
-        uint32_t et = ((trudpTimedQueueData *)td->sendQueue->q->first->data)->expected_time,
+        uint32_t et = ((trudpPacketQueueData *)td->sendQueue->q->first->data)->expected_time,
                  ct = trudpGetTimestamp();
     
         if(ct < et) {

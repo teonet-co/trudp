@@ -30,17 +30,17 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "timed_queue.h"
+#include "packet_queue.h"
 #include "packet.h"
 
 /**
- * Create new Timed queue
+ * Create new Packet queue
  * 
- * @return Pointer to trudpTimedQueue
+ * @return Pointer to trudpPacketQueue
  */
-inline trudpTimedQueue *trudpTimedQueueNew() {
+inline trudpPacketQueue *trudpPacketQueueNew() {
     
-    trudpTimedQueue *tq = (trudpTimedQueue *)malloc(sizeof(trudpTimedQueue));
+    trudpPacketQueue *tq = (trudpPacketQueue *)malloc(sizeof(trudpPacketQueue));
     tq->q = trudpQueueNew();
     
     return tq;
@@ -49,9 +49,9 @@ inline trudpTimedQueue *trudpTimedQueueNew() {
 /**
  * Destroy Timed queue
  * 
- * @param tq Pointer to trudpTimedQueue
+ * @param tq Pointer to trudpPacketQueue
  */
-inline void trudpTimedQueueDestroy(trudpTimedQueue *tq) {
+inline void trudpPacketQueueDestroy(trudpPacketQueue *tq) {
 
     if(tq) {
         trudpQueueDestroy(tq->q);
@@ -62,38 +62,38 @@ inline void trudpTimedQueueDestroy(trudpTimedQueue *tq) {
 /**
  * Remove all elements from Timed queue
  * 
- * @param tq Pointer to trudpTimedQueue
+ * @param tq Pointer to trudpPacketQueue
  * @return Zero at success
  */
-inline int trudpTimedQueueFree(trudpTimedQueue *tq) {
+inline int trudpPacketQueueFree(trudpPacketQueue *tq) {
 
     return tq && tq->q ? trudpQueueFree(tq->q) : -1;
 }
 
 /**
  * Get pointer to trudpQueueData from trudpTimedQueusData pointer
- * @param tqd Pointer to trudpTimedQueueData
+ * @param tqd Pointer to trudpPacketQueueData
  * @return Pointer to trudpQueueData or NULL if tqd is NULL
  */
-inline trudpQueueData *trudpTimedQueueDataToQueueData(trudpTimedQueueData *tqd) {
+inline trudpQueueData *trudpPacketQueueDataToQueueData(trudpPacketQueueData *tqd) {
     return tqd ? (trudpQueueData *)((void*)tqd - sizeof(trudpQueueData)) : NULL;
 }
 
 /**
  * Add packet to Timed queue
  * 
- * @param tq Pointer to trudpTimedQueue
+ * @param tq Pointer to trudpPacketQueue
  * @param packet Packet to add to queue
  * @param packet_length Packet length
  * @param expected_time Packet expected time
  * 
- * @return Pointer to added trudpTimedQueueData
+ * @return Pointer to added trudpPacketQueueData
  */
-trudpTimedQueueData *trudpTimedQueueAdd(trudpTimedQueue *tq, void *packet, 
+trudpPacketQueueData *trudpPacketQueueAdd(trudpPacketQueue *tq, void *packet, 
         size_t packet_length, uint32_t expected_time) {
     
-    size_t tqd_length = sizeof(trudpTimedQueueData) + packet_length;    
-    trudpTimedQueueData *tqd = (trudpTimedQueueData *)((trudpQueueData *)trudpQueueAdd(tq->q, NULL, tqd_length))->data;
+    size_t tqd_length = sizeof(trudpPacketQueueData) + packet_length;    
+    trudpPacketQueueData *tqd = (trudpPacketQueueData *)((trudpQueueData *)trudpQueueAdd(tq->q, NULL, tqd_length))->data;
     tqd->expected_time = expected_time;
     tqd->retrieves = 0;
     memcpy(tqd->packet, packet, packet_length);
@@ -105,34 +105,34 @@ trudpTimedQueueData *trudpTimedQueueAdd(trudpTimedQueue *tq, void *packet,
 /**
  * Remove element from Timed queue
  * 
- * @param tq Pointer to trudpTimedQueue
- * @param tqd Pointer to trudpTimedQueueData to delete it
+ * @param tq Pointer to trudpPacketQueue
+ * @param tqd Pointer to trudpPacketQueueData to delete it
  * 
  * @return Zero at success
  */
-inline int trudpTimedQueueDelete(trudpTimedQueue *tq, trudpTimedQueueData *tqd) {
+inline int trudpPacketQueueDelete(trudpPacketQueue *tq, trudpPacketQueueData *tqd) {
     
-    return trudpQueueDelete(tq->q, trudpTimedQueueDataToQueueData(tqd));
+    return trudpQueueDelete(tq->q, trudpPacketQueueDataToQueueData(tqd));
 }
 
 /**
  * Find Timed queue data by Id
  * 
- * @param tq Pointer to trudpTimedQueue
+ * @param tq Pointer to trudpPacketQueue
  * @param id Id to find in send queue
  * 
- * @return Pointer to trudpTimedQueueData or NULL if not found
+ * @return Pointer to trudpPacketQueueData or NULL if not found
  */
-trudpTimedQueueData *trudpTimedQueueFindById(trudpTimedQueue *tq, uint32_t id) {
+trudpPacketQueueData *trudpPacketQueueFindById(trudpPacketQueue *tq, uint32_t id) {
     
-    trudpTimedQueueData *rv = NULL;
+    trudpPacketQueueData *rv = NULL;
             
     trudpQueueIterator *it = trudpQueueIteratorNew(tq->q);
     if(it != NULL) {
         
         while(trudpQueueIteratorNext(it)) {
             
-            trudpTimedQueueData *tqd = (trudpTimedQueueData *)((trudpQueueData *)trudpQueueIteratorElement(it))->data;
+            trudpPacketQueueData *tqd = (trudpPacketQueueData *)((trudpQueueData *)trudpQueueIteratorElement(it))->data;
             if(trudpPacketGetId(tqd->packet) == id) {
                 rv = tqd;
                 break;
@@ -147,22 +147,22 @@ trudpTimedQueueData *trudpTimedQueueFindById(trudpTimedQueue *tq, uint32_t id) {
 /**
  * Find Timed queue data by time
  * 
- * @param tq Pointer to trudpTimedQueue
+ * @param tq Pointer to trudpPacketQueue
  * @param t Time to find (current time usually). This function will find first 
  *          record with expected_time less or equal then this time.
  * 
- * @return  Pointer to trudpTimedQueueData or NULL if not found
+ * @return  Pointer to trudpPacketQueueData or NULL if not found
  */
-trudpTimedQueueData *trudpTimedQueueFindByTime(trudpTimedQueue *tq, uint32_t t) {
+trudpPacketQueueData *trudpPacketQueueFindByTime(trudpPacketQueue *tq, uint32_t t) {
     
-    trudpTimedQueueData *rv = NULL;
+    trudpPacketQueueData *rv = NULL;
             
     trudpQueueIterator *it = trudpQueueIteratorNew(tq->q);
     if(it != NULL) {
         
         while(trudpQueueIteratorNext(it)) {
             
-            trudpTimedQueueData *tqd = (trudpTimedQueueData *)((trudpQueueData *)trudpQueueIteratorElement(it))->data;
+            trudpPacketQueueData *tqd = (trudpPacketQueueData *)((trudpQueueData *)trudpQueueIteratorElement(it))->data;
             if(tqd->expected_time <= t) {
                 rv = tqd;
                 break;
@@ -177,11 +177,11 @@ trudpTimedQueueData *trudpTimedQueueFindByTime(trudpTimedQueue *tq, uint32_t t) 
 /**
  * Move element to the end of list
  * 
- * @param q Pointer to trudpTimedQueue
- * @param qd Pointer to trudpTimedQueueData
+ * @param q Pointer to trudpPacketQueue
+ * @param qd Pointer to trudpPacketQueueData
  * @return Zero at success
  */
-inline trudpTimedQueueData *trudpTimedQueueMoveToEnd(trudpTimedQueue *tq, trudpTimedQueueData *tqd) {
+inline trudpPacketQueueData *trudpPacketQueueMoveToEnd(trudpPacketQueue *tq, trudpPacketQueueData *tqd) {
 
-    return (trudpTimedQueueData *)trudpQueueMoveToEnd(tq->q, trudpTimedQueueDataToQueueData(tqd))->data;
+    return (trudpPacketQueueData *)trudpQueueMoveToEnd(tq->q, trudpPacketQueueDataToQueueData(tqd))->data;
 }

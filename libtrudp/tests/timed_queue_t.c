@@ -11,7 +11,7 @@
 #include <CUnit/Basic.h>
 
 #include "../packet.h"
-#include "../timed_queue.h"
+#include "../packet_queue.h"
 
 /*
  * CUnit Test Suite
@@ -27,10 +27,10 @@ void timed_queue() {
     
     uint32_t id = 0;
     #define GET_ID() ++id
-    trudpTimedQueueData *tqd;
+    trudpPacketQueueData *tqd;
     
     // Create timed queue
-    trudpTimedQueue *tq = trudpTimedQueueNew();
+    trudpPacketQueue *tq = trudpPacketQueueNew();
     
     // Create 1 DATA packet
     char *data = "Header with Hello!";
@@ -49,37 +49,37 @@ void timed_queue() {
     CU_ASSERT_EQUAL(trudpPacketGetId(packetDATA2), packet_id2);
     
     // Add 1 DATA packet to timed queue
-    tqd = trudpTimedQueueAdd(tq, packetDATA, packetLength, trudpGetTimestamp() + 10000);
+    tqd = trudpPacketQueueAdd(tq, packetDATA, packetLength, trudpGetTimestamp() + 10000);
     CU_ASSERT_PTR_NOT_NULL_FATAL(tqd);
     CU_ASSERT_EQUAL_FATAL(trudpPacketGetId(tqd->packet), packet_id);    
     
     // Add 2 DATA packet to timed queue
-    tqd = trudpTimedQueueAdd(tq, packetDATA2, packetLength2, trudpGetTimestamp() + 10000);
+    tqd = trudpPacketQueueAdd(tq, packetDATA2, packetLength2, trudpGetTimestamp() + 10000);
     CU_ASSERT_PTR_NOT_NULL_FATAL(tqd);
     CU_ASSERT_EQUAL_FATAL(trudpPacketGetId(tqd->packet), packet_id2);    
     
     // Find DATA packet by Id
-    CU_ASSERT_PTR_EQUAL_FATAL(tqd, trudpTimedQueueFindById(tq, packet_id2));
+    CU_ASSERT_PTR_EQUAL_FATAL(tqd, trudpPacketQueueFindById(tq, packet_id2));
 
     // Find DATA packet by time
     usleep(10000);
-    tqd = trudpTimedQueueFindById(tq, packet_id); // Get packet with Id 1
-    CU_ASSERT_PTR_EQUAL_FATAL(tqd, trudpTimedQueueFindByTime(tq, trudpGetTimestamp()));
+    tqd = trudpPacketQueueFindById(tq, packet_id); // Get packet with Id 1
+    CU_ASSERT_PTR_EQUAL_FATAL(tqd, trudpPacketQueueFindByTime(tq, trudpGetTimestamp()));
     
     // Delete packet from timed queue
-    tqd = trudpTimedQueueFindByTime(tq, trudpGetTimestamp());
-    trudpTimedQueueDelete(tq, tqd);
+    tqd = trudpPacketQueueFindByTime(tq, trudpGetTimestamp());
+    trudpPacketQueueDelete(tq, tqd);
     CU_ASSERT_FATAL(trudpQueueSize(tq->q) == 1);
     
     // Free timed queue
-    trudpTimedQueueFree(tq);
+    trudpPacketQueueFree(tq);
     CU_ASSERT_FATAL(trudpQueueSize(tq->q) == 0);
     
     // Free DATA packet
     trudpPacketCreatedFree(packetDATA);
     
     // Destroy timed queue
-    trudpTimedQueueDestroy(tq);
+    trudpPacketQueueDestroy(tq);
 }
 
 void test2() {

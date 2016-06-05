@@ -19,10 +19,10 @@
         <itemPath>libtrudp/hash.h</itemPath>
         <itemPath>libtrudp/packet.c</itemPath>
         <itemPath>libtrudp/packet.h</itemPath>
+        <itemPath>libtrudp/packet_queue.c</itemPath>
+        <itemPath>libtrudp/packet_queue.h</itemPath>
         <itemPath>libtrudp/queue.c</itemPath>
         <itemPath>libtrudp/queue.h</itemPath>
-        <itemPath>libtrudp/timed_queue.c</itemPath>
-        <itemPath>libtrudp/timed_queue.h</itemPath>
         <itemPath>libtrudp/tr-udp.c</itemPath>
         <itemPath>libtrudp/tr-udp.h</itemPath>
         <itemPath>libtrudp/udp.c</itemPath>
@@ -85,6 +85,10 @@
       </item>
       <item path="libtrudp/packet.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="libtrudp/packet_queue.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="libtrudp/packet_queue.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="libtrudp/queue.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="libtrudp/queue.h" ex="false" tool="3" flavor2="0">
@@ -98,10 +102,6 @@
       <item path="libtrudp/tests/timed_queue_t.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="libtrudp/tests/tr-udp_t.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="libtrudp/timed_queue.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="libtrudp/timed_queue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="libtrudp/tr-udp.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -152,6 +152,10 @@
       </item>
       <item path="libtrudp/packet.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="libtrudp/packet_queue.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="libtrudp/packet_queue.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="libtrudp/queue.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="libtrudp/queue.h" ex="false" tool="3" flavor2="0">
@@ -165,10 +169,6 @@
       <item path="libtrudp/tests/timed_queue_t.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="libtrudp/tests/tr-udp_t.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="libtrudp/timed_queue.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="libtrudp/timed_queue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="libtrudp/tr-udp.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -210,6 +210,10 @@
       </item>
       <item path="libtrudp/packet.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="libtrudp/packet_queue.c" ex="false" tool="0" flavor2="9">
+      </item>
+      <item path="libtrudp/packet_queue.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="libtrudp/queue.c" ex="false" tool="0" flavor2="9">
       </item>
       <item path="libtrudp/queue.h" ex="false" tool="3" flavor2="0">
@@ -223,10 +227,6 @@
       <item path="libtrudp/tests/timed_queue_t.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="libtrudp/tests/tr-udp_t.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="libtrudp/timed_queue.c" ex="false" tool="0" flavor2="9">
-      </item>
-      <item path="libtrudp/timed_queue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="libtrudp/tr-udp.c" ex="false" tool="0" flavor2="9">
       </item>
@@ -276,6 +276,10 @@
       </item>
       <item path="libtrudp/packet.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="libtrudp/packet_queue.c" ex="false" tool="0" flavor2="9">
+      </item>
+      <item path="libtrudp/packet_queue.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="libtrudp/queue.c" ex="false" tool="0" flavor2="9">
       </item>
       <item path="libtrudp/queue.h" ex="false" tool="3" flavor2="0">
@@ -289,10 +293,6 @@
       <item path="libtrudp/tests/timed_queue_t.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="libtrudp/tests/tr-udp_t.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="libtrudp/timed_queue.c" ex="false" tool="0" flavor2="9">
-      </item>
-      <item path="libtrudp/timed_queue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="libtrudp/tr-udp.c" ex="false" tool="0" flavor2="9">
       </item>

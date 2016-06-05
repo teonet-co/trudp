@@ -27,7 +27,7 @@
 #ifndef TR_UDP_H
 #define TR_UDP_H
 
-#include "timed_queue.h"
+#include "packet_queue.h"
 #include "packet.h"
 #include "udp.h"
 
@@ -79,12 +79,12 @@ typedef enum trudpCallbsckType {
 typedef struct trudpData {
     
     uint32_t sendId;
-    trudpTimedQueue *sendQueue;
+    trudpPacketQueue *sendQueue;
     uint32_t triptime;
     uint32_t triptimeMiddle;
         
     uint32_t receiveExpectedId;
-    trudpTimedQueue *receiveQueue;
+    trudpPacketQueue *receiveQueue;
     int outrunning_cnt; ///< Receive queue outrunning count
 
     trudpDataCb processDataCb;

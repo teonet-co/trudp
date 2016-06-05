@@ -37,8 +37,8 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 OBJECTFILES= \
 	${OBJECTDIR}/libtrudp/hash.o \
 	${OBJECTDIR}/libtrudp/packet.o \
+	${OBJECTDIR}/libtrudp/packet_queue.o \
 	${OBJECTDIR}/libtrudp/queue.o \
-	${OBJECTDIR}/libtrudp/timed_queue.o \
 	${OBJECTDIR}/libtrudp/tr-udp.o \
 	${OBJECTDIR}/libtrudp/udp.o \
 	${OBJECTDIR}/main.o \
@@ -93,15 +93,15 @@ ${OBJECTDIR}/libtrudp/packet.o: libtrudp/packet.c
 	${RM} "$@.d"
 	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/packet.o libtrudp/packet.c
 
+${OBJECTDIR}/libtrudp/packet_queue.o: libtrudp/packet_queue.c 
+	${MKDIR} -p ${OBJECTDIR}/libtrudp
+	${RM} "$@.d"
+	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/packet_queue.o libtrudp/packet_queue.c
+
 ${OBJECTDIR}/libtrudp/queue.o: libtrudp/queue.c 
 	${MKDIR} -p ${OBJECTDIR}/libtrudp
 	${RM} "$@.d"
 	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/queue.o libtrudp/queue.c
-
-${OBJECTDIR}/libtrudp/timed_queue.o: libtrudp/timed_queue.c 
-	${MKDIR} -p ${OBJECTDIR}/libtrudp
-	${RM} "$@.d"
-	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/timed_queue.o libtrudp/timed_queue.c
 
 ${OBJECTDIR}/libtrudp/tr-udp.o: libtrudp/tr-udp.c 
 	${MKDIR} -p ${OBJECTDIR}/libtrudp
@@ -191,6 +191,19 @@ ${OBJECTDIR}/libtrudp/packet_nomain.o: ${OBJECTDIR}/libtrudp/packet.o libtrudp/p
 	    ${CP} ${OBJECTDIR}/libtrudp/packet.o ${OBJECTDIR}/libtrudp/packet_nomain.o;\
 	fi
 
+${OBJECTDIR}/libtrudp/packet_queue_nomain.o: ${OBJECTDIR}/libtrudp/packet_queue.o libtrudp/packet_queue.c 
+	${MKDIR} -p ${OBJECTDIR}/libtrudp
+	@NMOUTPUT=`${NM} ${OBJECTDIR}/libtrudp/packet_queue.o`; \
+	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
+	then  \
+	    ${RM} "$@.d";\
+	    $(COMPILE.c) -g -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/packet_queue_nomain.o libtrudp/packet_queue.c;\
+	else  \
+	    ${CP} ${OBJECTDIR}/libtrudp/packet_queue.o ${OBJECTDIR}/libtrudp/packet_queue_nomain.o;\
+	fi
+
 ${OBJECTDIR}/libtrudp/queue_nomain.o: ${OBJECTDIR}/libtrudp/queue.o libtrudp/queue.c 
 	${MKDIR} -p ${OBJECTDIR}/libtrudp
 	@NMOUTPUT=`${NM} ${OBJECTDIR}/libtrudp/queue.o`; \
@@ -202,19 +215,6 @@ ${OBJECTDIR}/libtrudp/queue_nomain.o: ${OBJECTDIR}/libtrudp/queue.o libtrudp/que
 	    $(COMPILE.c) -g -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/queue_nomain.o libtrudp/queue.c;\
 	else  \
 	    ${CP} ${OBJECTDIR}/libtrudp/queue.o ${OBJECTDIR}/libtrudp/queue_nomain.o;\
-	fi
-
-${OBJECTDIR}/libtrudp/timed_queue_nomain.o: ${OBJECTDIR}/libtrudp/timed_queue.o libtrudp/timed_queue.c 
-	${MKDIR} -p ${OBJECTDIR}/libtrudp
-	@NMOUTPUT=`${NM} ${OBJECTDIR}/libtrudp/timed_queue.o`; \
-	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
-	   (echo "$$NMOUTPUT" | ${GREP} 'T main$$') || \
-	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
-	then  \
-	    ${RM} "$@.d";\
-	    $(COMPILE.c) -g -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/timed_queue_nomain.o libtrudp/timed_queue.c;\
-	else  \
-	    ${CP} ${OBJECTDIR}/libtrudp/timed_queue.o ${OBJECTDIR}/libtrudp/timed_queue_nomain.o;\
 	fi
 
 ${OBJECTDIR}/libtrudp/tr-udp_nomain.o: ${OBJECTDIR}/libtrudp/tr-udp.o libtrudp/tr-udp.c 

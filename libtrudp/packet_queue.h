@@ -23,7 +23,7 @@
  */
 
 /*
- * File:   timed_queue.h
+ * File:   packet_queue.h
  * Author: Kirill Scherba <kirill@scherba.ru>
  *
  * Created on May 30, 2016, 8:56 PM
@@ -39,32 +39,32 @@
 extern "C" {
 #endif
 
-typedef struct trudpTimedQueue {
+typedef struct trudpPacketQueue {
 
     trudpQueue *q;
 
-} trudpTimedQueue;
+} trudpPacketQueue;
 
-typedef struct trudpTimedQueueData {
+typedef struct trudpPacketQueueData {
 
     uint32_t expected_time;
     uint32_t packet_length;
     uint32_t retrieves;
     char packet[];
 
-} trudpTimedQueueData;
+} trudpPacketQueueData;
 
-trudpTimedQueue *trudpTimedQueueNew();
-void trudpTimedQueueDestroy(trudpTimedQueue *tq);
-int trudpTimedQueueFree(trudpTimedQueue *tq);
+trudpPacketQueue *trudpPacketQueueNew();
+void trudpPacketQueueDestroy(trudpPacketQueue *tq);
+int trudpPacketQueueFree(trudpPacketQueue *tq);
 
-trudpQueueData *trudpTimedQueueDataToQueueData(trudpTimedQueueData *tqd);
+trudpQueueData *trudpPacketQueueDataToQueueData(trudpPacketQueueData *tqd);
 
-trudpTimedQueueData *trudpTimedQueueAdd(trudpTimedQueue *tq, void *packet,
+trudpPacketQueueData *trudpPacketQueueAdd(trudpPacketQueue *tq, void *packet,
         size_t packet_length, uint32_t expected_time);
-int trudpTimedQueueDelete(trudpTimedQueue *tq, trudpTimedQueueData *tqd);
-trudpTimedQueueData *trudpTimedQueueFindById(trudpTimedQueue *tq, uint32_t id);
-trudpTimedQueueData *trudpTimedQueueFindByTime(trudpTimedQueue *tq, uint32_t t);
+int trudpPacketQueueDelete(trudpPacketQueue *tq, trudpPacketQueueData *tqd);
+trudpPacketQueueData *trudpPacketQueueFindById(trudpPacketQueue *tq, uint32_t id);
+trudpPacketQueueData *trudpPacketQueueFindByTime(trudpPacketQueue *tq, uint32_t t);
 
 #ifdef __cplusplus
 }
