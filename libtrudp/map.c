@@ -165,6 +165,8 @@ void *trudpMapAdd(trudpMapData *map, void *key, size_t key_length, void *data,
     
     void *r_data = (void*)-1;
 
+    if(!data) data_length = 0;
+    
     // Create and fill Data structure
     size_t htd_length = sizeof(trudpMapValueData) + key_length + data_length;    
     trudpMapValueData *htd = (trudpMapValueData *) malloc(htd_length);
@@ -172,7 +174,7 @@ void *trudpMapAdd(trudpMapData *map, void *key, size_t key_length, void *data,
     htd->key_length = key_length;
     htd->data_length = data_length;
     memcpy(htd->data, key, key_length);
-    memcpy(htd->data + htd->key_length, data, data_length);
+    if(data_length) memcpy(htd->data + htd->key_length, data, data_length);
     
     // Check that key exist and add data to map if not exists
     void *tqd_data = NULL;
