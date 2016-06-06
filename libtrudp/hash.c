@@ -265,10 +265,12 @@ void *trudpHashTGet(trudpHashTdata *ht, void *key, size_t key_length,
     uint32_t hash = hash_f(key, key_length, HASH_TABLE_INITVAL);
     int idx = hash % ht->size;
     trudpHashTvalueData *htd;
+    trudpQueueData *tqd;
     trudpQueueIterator *it = trudpQueueIteratorNew(ht->q[idx]);
     if(it != NULL) {
-      while((htd = (trudpHashTvalueData *)trudpQueueIteratorNext(it))) {
+      while((tqd = trudpQueueIteratorNext(it))) {
         
+        htd = (trudpHashTvalueData *)tqd->data;  
         if(htd->hash == hash) {
             
             if(key_length == htd->key_length && 
