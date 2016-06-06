@@ -5,13 +5,10 @@
  * Created on June 5, 2016, 4:29 PM
  */
 
-#include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include <string.h>
 
 #include "hash.h"
-#include "queue.h"
 
 #undef get16bits
 #if (defined(__GNUC__) && defined(__i386__)) || defined(__WATCOMC__) \
@@ -186,104 +183,4 @@ register ub4 initval; /* the previous hash, or an arbitrary value */
     mix(a, b, c);
     /*-------------------------------------------- report the result */
     return c;
-}
-
-// -----------------------------------------------------------------------------
-
-trudpHashTdata *trudpHashTnew(size_t size) {
-
-    int i;
-    trudpHashTdata *ht = (trudpHashTdata *)malloc(sizeof(trudpHashTdata) + 
-            size * sizeof(trudpQueue*));
-    ht->size = size;
-    
-    for(i = 0; i < size; i++) {
-        ht->q[i] = trudpQueueNew();
-    }
-    
-    return ht;
-}
-
-void trudpHashTdestroy(trudpHashTdata *ht) {
-    
-    if(ht) {
-        
-        int i;
-        for(i = 0; i < ht->size; i++) {
-            trudpQueueDestroy(ht->q[i]);
-        }
-        free(ht);
-    }
-}
-
-typedef struct trudpHashTvalueData {
-    
-    uint32_t hash;
-    size_t key_length;
-    size_t data_length;
-    char data[];
-    
-} trudpHashTvalueData;
-
-
-void *trudpHashTAdd(trudpHashTdata *ht, void *key, size_t key_length, void *data, 
-        size_t data_length) {
-
-    size_t htd_length = sizeof(trudpHashTvalueData) + key_length + data_length;    
-    trudpHashTvalueData *htd = (trudpHashTvalueData *) malloc(htd_length);
-    htd->hash = hash_f(key, key_length, HASH_TABLE_INITVAL);
-    htd->key_length = key_length;
-    htd->data_length = data_length;
-    memcpy(htd->data, key, key_length);
-    memcpy(htd->data + htd->key_length, data, data_length);
-    
-    int idx = htd->hash % ht->size;    
-    trudpQueueData *tqd = trudpQueueAdd(ht->q[idx], (void*)htd, htd_length);
-    free(htd);
-    
-    htd = (trudpHashTvalueData *)tqd->data;
-            
-    return htd->data + htd->key_length;
-}
-
-/**
- * Get key data from hash table
- * 
- * @param ht Pointer to trudpHashTdata
- * @param key Key
- * @param key_length Key length
- * @param data_length [out] Pointer to data length
- * 
- * @return Data of selected key or (void*)-1 if not found
- */
-void *trudpHashTGet(trudpHashTdata *ht, void *key, size_t key_length, 
-        size_t *data_length) {
-    
-    void *data = (void*)-1;
-    *data_length = 0;
-            
-    uint32_t hash = hash_f(key, key_length, HASH_TABLE_INITVAL);
-    int idx = hash % ht->size;
-    trudpHashTvalueData *htd;
-    trudpQueueData *tqd;
-    trudpQueueIterator *it = trudpQueueIteratorNew(ht->q[idx]);
-    if(it != NULL) {
-      while((tqd = trudpQueueIteratorNext(it))) {
-        
-        htd = (trudpHashTvalueData *)tqd->data;  
-        if(htd->hash == hash) {
-            
-            if(key_length == htd->key_length && 
-               !memcmp(htd->data, key, key_length)) {
-            
-                data = htd->data + htd->key_length;
-                *data_length = htd->data_length;
-                break;
-            }
-        }
-      }
-      trudpQueueIteratorFree(it);
-    }
-    
-    return data;
 }

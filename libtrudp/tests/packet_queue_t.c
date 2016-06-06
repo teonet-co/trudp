@@ -91,14 +91,14 @@ int timedQueueSuiteAdd() {
     CU_pSuite pSuite = NULL;
 
     /* Add a suite to the registry */
-    pSuite = CU_add_suite("TR-UDP timed queue", init_suite, clean_suite);
+    pSuite = CU_add_suite("TR-UDP packet queue", init_suite, clean_suite);
     if (NULL == pSuite) {
         CU_cleanup_registry();
         return CU_get_error();
     }
 
     /* Add the tests to the suite */
-    if ((NULL == CU_add_test(pSuite, "add/delete/find packets in timed queue", timed_queue)) 
+    if ((NULL == CU_add_test(pSuite, "add/delete/find packets in packet queue", timed_queue)) 
       //||(NULL == CU_add_test(pSuite, "test2", test2))
             ) {
         CU_cleanup_registry();

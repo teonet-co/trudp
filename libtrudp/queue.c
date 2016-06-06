@@ -136,23 +136,59 @@ trudpQueueData *trudpQueueAddAfter(trudpQueue *q, void *data, size_t data_length
     
     trudpQueueData *new_qd = NULL;
             
-    if(q && qd) {
-        if(!q->last || qd == q->last) trudpQueueAdd(q, data, data_length);
+    if(q) {
+        // Add to last position
+        if(!q->last || qd && qd == q->last) new_qd = trudpQueueAdd(q, data, data_length);
         else {
             // Create new trudpQueueData
-            trudpQueueData *new_qd = (trudpQueueData *) malloc(sizeof(trudpQueueData) + data_length);
+            new_qd = (trudpQueueData *) malloc(sizeof(trudpQueueData) + data_length);
 
             // Fill Queue data structure
             new_qd->data_length = data_length;
             if(data && data_length > 0) memcpy(new_qd->data, data, data_length); 
+
+            // Add inside of queue
+            if(qd) {
+                // Change fields in queue structure
+                if(q->last == qd) q->last = new_qd; 
+                new_qd->prev = qd; // Set previous of new element to existing element
+                new_qd->next = qd->next; // Set next of new element to next of existing
+                qd->next = new_qd; // Set next of existing element to new element
+            }
+            // Add to the first position
+            else {
+                new_qd->prev = NULL; // Set this element previous to null
+                new_qd->next = q->first; // Set this element next to first in queue
+                if(q->first) q->first->prev = new_qd; // Set previous of first in queue to this element
+                q->first = new_qd; // Set previous of first in queue to this element
+            }
             
-            // Change fields in queue structure
-            if(q->last == qd) q->last = new_qd; 
-            new_qd->prev = qd; // Set previous of new element to existing element
-            new_qd->next = qd->next; // Set next of new element to next of existing
-            qd->next = new_qd; // Set next of existing element to new element
             q->length++; // Increment length
-        }
+        }        
+    }
+    
+    return new_qd;
+}
+
+/**
+ * Update element: remove selected and set new one to it place
+ * 
+ * @param q
+ * @param data
+ * @param data_length
+ * @param qd
+ * @return 
+ */
+trudpQueueData *trudpQueueUpdate(trudpQueue *q, void *data, size_t data_length, 
+        trudpQueueData *qd) {
+    
+    trudpQueueData *new_qd = NULL;
+    
+    if(q && qd) {
+        
+        trudpQueueData *qd_after = qd->prev;
+        trudpQueueDelete(q, qd);
+        new_qd = trudpQueueAddAfter(q, data, data_length, qd_after);
     }
     
     return new_qd;
@@ -247,6 +283,8 @@ trudpQueueData *trudpQueueMoveToEnd(trudpQueue *q, trudpQueueData *qd) {
     return qd;
 }
 
+
+
 /**
  * Create new TR-UPD Queue iterator
  * 
@@ -263,6 +301,23 @@ trudpQueueIterator *trudpQueueIteratorNew(trudpQueue *q) {
     }
     
     return it; 
+}
+
+/**
+ * Reset iterator (or swith to new Queue)
+ * 
+ * @param it
+ * @param q
+ * @return 
+ */
+trudpQueueIterator *trudpQueueIteratorReset(trudpQueueIterator *it, trudpQueue *q) {
+    
+    if(q) {
+        it->qd = NULL;
+        it->q = q;
+    }
+    
+    return it;
 }
 
 /**

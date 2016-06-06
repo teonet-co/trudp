@@ -36,6 +36,7 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 # Object Files
 OBJECTFILES= \
 	${OBJECTDIR}/libtrudp/hash.o \
+	${OBJECTDIR}/libtrudp/map.o \
 	${OBJECTDIR}/libtrudp/packet.o \
 	${OBJECTDIR}/libtrudp/packet_queue.o \
 	${OBJECTDIR}/libtrudp/queue.o \
@@ -53,10 +54,10 @@ TESTFILES= \
 
 # Test Object Files
 TESTOBJECTFILES= \
-	${TESTDIR}/libtrudp/tests/hash_t.o \
+	${TESTDIR}/libtrudp/tests/map_t.o \
+	${TESTDIR}/libtrudp/tests/packet_queue_t.o \
 	${TESTDIR}/libtrudp/tests/packet_t.o \
 	${TESTDIR}/libtrudp/tests/queue_t.o \
-	${TESTDIR}/libtrudp/tests/timed_queue_t.o \
 	${TESTDIR}/libtrudp/tests/tr-udp_t.o
 
 # C Compiler Flags
@@ -87,6 +88,11 @@ ${OBJECTDIR}/libtrudp/hash.o: libtrudp/hash.c
 	${MKDIR} -p ${OBJECTDIR}/libtrudp
 	${RM} "$@.d"
 	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/hash.o libtrudp/hash.c
+
+${OBJECTDIR}/libtrudp/map.o: libtrudp/map.c 
+	${MKDIR} -p ${OBJECTDIR}/libtrudp
+	${RM} "$@.d"
+	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/map.o libtrudp/map.c
 
 ${OBJECTDIR}/libtrudp/packet.o: libtrudp/packet.c 
 	${MKDIR} -p ${OBJECTDIR}/libtrudp
@@ -130,15 +136,21 @@ ${OBJECTDIR}/trudpcat.o: trudpcat.c
 .build-tests-conf: .build-tests-subprojects .build-conf ${TESTFILES}
 .build-tests-subprojects:
 
-${TESTDIR}/TestFiles/f1: ${TESTDIR}/libtrudp/tests/hash_t.o ${TESTDIR}/libtrudp/tests/packet_t.o ${TESTDIR}/libtrudp/tests/queue_t.o ${TESTDIR}/libtrudp/tests/timed_queue_t.o ${TESTDIR}/libtrudp/tests/tr-udp_t.o ${OBJECTFILES:%.o=%_nomain.o}
+${TESTDIR}/TestFiles/f1: ${TESTDIR}/libtrudp/tests/map_t.o ${TESTDIR}/libtrudp/tests/packet_queue_t.o ${TESTDIR}/libtrudp/tests/packet_t.o ${TESTDIR}/libtrudp/tests/queue_t.o ${TESTDIR}/libtrudp/tests/tr-udp_t.o ${OBJECTFILES:%.o=%_nomain.o}
 	${MKDIR} -p ${TESTDIR}/TestFiles
 	${LINK.cc}   -o ${TESTDIR}/TestFiles/f1 $^ ${LDLIBSOPTIONS} -lcunit 
 
 
-${TESTDIR}/libtrudp/tests/hash_t.o: libtrudp/tests/hash_t.c 
+${TESTDIR}/libtrudp/tests/map_t.o: libtrudp/tests/map_t.c 
 	${MKDIR} -p ${TESTDIR}/libtrudp/tests
 	${RM} "$@.d"
-	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${TESTDIR}/libtrudp/tests/hash_t.o libtrudp/tests/hash_t.c
+	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${TESTDIR}/libtrudp/tests/map_t.o libtrudp/tests/map_t.c
+
+
+${TESTDIR}/libtrudp/tests/packet_queue_t.o: libtrudp/tests/packet_queue_t.c 
+	${MKDIR} -p ${TESTDIR}/libtrudp/tests
+	${RM} "$@.d"
+	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${TESTDIR}/libtrudp/tests/packet_queue_t.o libtrudp/tests/packet_queue_t.c
 
 
 ${TESTDIR}/libtrudp/tests/packet_t.o: libtrudp/tests/packet_t.c 
@@ -151,12 +163,6 @@ ${TESTDIR}/libtrudp/tests/queue_t.o: libtrudp/tests/queue_t.c
 	${MKDIR} -p ${TESTDIR}/libtrudp/tests
 	${RM} "$@.d"
 	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${TESTDIR}/libtrudp/tests/queue_t.o libtrudp/tests/queue_t.c
-
-
-${TESTDIR}/libtrudp/tests/timed_queue_t.o: libtrudp/tests/timed_queue_t.c 
-	${MKDIR} -p ${TESTDIR}/libtrudp/tests
-	${RM} "$@.d"
-	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${TESTDIR}/libtrudp/tests/timed_queue_t.o libtrudp/tests/timed_queue_t.c
 
 
 ${TESTDIR}/libtrudp/tests/tr-udp_t.o: libtrudp/tests/tr-udp_t.c 
@@ -176,6 +182,19 @@ ${OBJECTDIR}/libtrudp/hash_nomain.o: ${OBJECTDIR}/libtrudp/hash.o libtrudp/hash.
 	    $(COMPILE.c) -O2 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/hash_nomain.o libtrudp/hash.c;\
 	else  \
 	    ${CP} ${OBJECTDIR}/libtrudp/hash.o ${OBJECTDIR}/libtrudp/hash_nomain.o;\
+	fi
+
+${OBJECTDIR}/libtrudp/map_nomain.o: ${OBJECTDIR}/libtrudp/map.o libtrudp/map.c 
+	${MKDIR} -p ${OBJECTDIR}/libtrudp
+	@NMOUTPUT=`${NM} ${OBJECTDIR}/libtrudp/map.o`; \
+	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
+	then  \
+	    ${RM} "$@.d";\
+	    $(COMPILE.c) -O2 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/map_nomain.o libtrudp/map.c;\
+	else  \
+	    ${CP} ${OBJECTDIR}/libtrudp/map.o ${OBJECTDIR}/libtrudp/map_nomain.o;\
 	fi
 
 ${OBJECTDIR}/libtrudp/packet_nomain.o: ${OBJECTDIR}/libtrudp/packet.o libtrudp/packet.c 

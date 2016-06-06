@@ -35,9 +35,11 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
+	${OBJECTDIR}/libtrudp/hash.o \
+	${OBJECTDIR}/libtrudp/map.o \
 	${OBJECTDIR}/libtrudp/packet.o \
+	${OBJECTDIR}/libtrudp/packet_queue.o \
 	${OBJECTDIR}/libtrudp/queue.o \
-	${OBJECTDIR}/libtrudp/timed_queue.o \
 	${OBJECTDIR}/libtrudp/tr-udp.o \
 	${OBJECTDIR}/libtrudp/udp.o \
 	${OBJECTDIR}/main.o \
@@ -52,9 +54,10 @@ TESTFILES= \
 
 # Test Object Files
 TESTOBJECTFILES= \
+	${TESTDIR}/libtrudp/tests/map_t.o \
+	${TESTDIR}/libtrudp/tests/packet_queue_t.o \
 	${TESTDIR}/libtrudp/tests/packet_t.o \
 	${TESTDIR}/libtrudp/tests/queue_t.o \
-	${TESTDIR}/libtrudp/tests/timed_queue_t.o \
 	${TESTDIR}/libtrudp/tests/tr-udp_t.o
 
 # C Compiler Flags
@@ -81,20 +84,30 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/trudpcat.exe: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
 	${LINK.cc} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/trudpcat.exe ${OBJECTFILES} ${LDLIBSOPTIONS}
 
+${OBJECTDIR}/libtrudp/hash.o: libtrudp/hash.c 
+	${MKDIR} -p ${OBJECTDIR}/libtrudp
+	${RM} "$@.d"
+	$(COMPILE.c) -g -DHAVE_MINGW -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/hash.o libtrudp/hash.c
+
+${OBJECTDIR}/libtrudp/map.o: libtrudp/map.c 
+	${MKDIR} -p ${OBJECTDIR}/libtrudp
+	${RM} "$@.d"
+	$(COMPILE.c) -g -DHAVE_MINGW -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/map.o libtrudp/map.c
+
 ${OBJECTDIR}/libtrudp/packet.o: libtrudp/packet.c 
 	${MKDIR} -p ${OBJECTDIR}/libtrudp
 	${RM} "$@.d"
 	$(COMPILE.c) -g -DHAVE_MINGW -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/packet.o libtrudp/packet.c
 
+${OBJECTDIR}/libtrudp/packet_queue.o: libtrudp/packet_queue.c 
+	${MKDIR} -p ${OBJECTDIR}/libtrudp
+	${RM} "$@.d"
+	$(COMPILE.c) -g -DHAVE_MINGW -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/packet_queue.o libtrudp/packet_queue.c
+
 ${OBJECTDIR}/libtrudp/queue.o: libtrudp/queue.c 
 	${MKDIR} -p ${OBJECTDIR}/libtrudp
 	${RM} "$@.d"
 	$(COMPILE.c) -g -DHAVE_MINGW -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/queue.o libtrudp/queue.c
-
-${OBJECTDIR}/libtrudp/timed_queue.o: libtrudp/timed_queue.c 
-	${MKDIR} -p ${OBJECTDIR}/libtrudp
-	${RM} "$@.d"
-	$(COMPILE.c) -g -DHAVE_MINGW -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/timed_queue.o libtrudp/timed_queue.c
 
 ${OBJECTDIR}/libtrudp/tr-udp.o: libtrudp/tr-udp.c 
 	${MKDIR} -p ${OBJECTDIR}/libtrudp
@@ -123,34 +136,66 @@ ${OBJECTDIR}/trudpcat.o: trudpcat.c
 .build-tests-conf: .build-tests-subprojects .build-conf ${TESTFILES}
 .build-tests-subprojects:
 
-${TESTDIR}/TestFiles/f1: ${TESTDIR}/libtrudp/tests/packet_t.o ${TESTDIR}/libtrudp/tests/queue_t.o ${TESTDIR}/libtrudp/tests/timed_queue_t.o ${TESTDIR}/libtrudp/tests/tr-udp_t.o ${OBJECTFILES:%.o=%_nomain.o}
+${TESTDIR}/TestFiles/f1: ${TESTDIR}/libtrudp/tests/map_t.o ${TESTDIR}/libtrudp/tests/packet_queue_t.o ${TESTDIR}/libtrudp/tests/packet_t.o ${TESTDIR}/libtrudp/tests/queue_t.o ${TESTDIR}/libtrudp/tests/tr-udp_t.o ${OBJECTFILES:%.o=%_nomain.o}
 	${MKDIR} -p ${TESTDIR}/TestFiles
 	${LINK.cc}   -o ${TESTDIR}/TestFiles/f1 $^ ${LDLIBSOPTIONS} -lcunit 
+
+
+${TESTDIR}/libtrudp/tests/map_t.o: libtrudp/tests/map_t.c 
+	${MKDIR} -p ${TESTDIR}/libtrudp/tests
+	${RM} "$@.d"
+	$(COMPILE.c) -g -DHAVE_MINGW -MMD -MP -MF "$@.d" -o ${TESTDIR}/libtrudp/tests/map_t.o libtrudp/tests/map_t.c
+
+
+${TESTDIR}/libtrudp/tests/packet_queue_t.o: libtrudp/tests/packet_queue_t.c 
+	${MKDIR} -p ${TESTDIR}/libtrudp/tests
+	${RM} "$@.d"
+	$(COMPILE.c) -g -DHAVE_MINGW -MMD -MP -MF "$@.d" -o ${TESTDIR}/libtrudp/tests/packet_queue_t.o libtrudp/tests/packet_queue_t.c
 
 
 ${TESTDIR}/libtrudp/tests/packet_t.o: libtrudp/tests/packet_t.c 
 	${MKDIR} -p ${TESTDIR}/libtrudp/tests
 	${RM} "$@.d"
-	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${TESTDIR}/libtrudp/tests/packet_t.o libtrudp/tests/packet_t.c
+	$(COMPILE.c) -g -DHAVE_MINGW -MMD -MP -MF "$@.d" -o ${TESTDIR}/libtrudp/tests/packet_t.o libtrudp/tests/packet_t.c
 
 
 ${TESTDIR}/libtrudp/tests/queue_t.o: libtrudp/tests/queue_t.c 
 	${MKDIR} -p ${TESTDIR}/libtrudp/tests
 	${RM} "$@.d"
-	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${TESTDIR}/libtrudp/tests/queue_t.o libtrudp/tests/queue_t.c
-
-
-${TESTDIR}/libtrudp/tests/timed_queue_t.o: libtrudp/tests/timed_queue_t.c 
-	${MKDIR} -p ${TESTDIR}/libtrudp/tests
-	${RM} "$@.d"
-	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${TESTDIR}/libtrudp/tests/timed_queue_t.o libtrudp/tests/timed_queue_t.c
+	$(COMPILE.c) -g -DHAVE_MINGW -MMD -MP -MF "$@.d" -o ${TESTDIR}/libtrudp/tests/queue_t.o libtrudp/tests/queue_t.c
 
 
 ${TESTDIR}/libtrudp/tests/tr-udp_t.o: libtrudp/tests/tr-udp_t.c 
 	${MKDIR} -p ${TESTDIR}/libtrudp/tests
 	${RM} "$@.d"
-	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${TESTDIR}/libtrudp/tests/tr-udp_t.o libtrudp/tests/tr-udp_t.c
+	$(COMPILE.c) -g -DHAVE_MINGW -MMD -MP -MF "$@.d" -o ${TESTDIR}/libtrudp/tests/tr-udp_t.o libtrudp/tests/tr-udp_t.c
 
+
+${OBJECTDIR}/libtrudp/hash_nomain.o: ${OBJECTDIR}/libtrudp/hash.o libtrudp/hash.c 
+	${MKDIR} -p ${OBJECTDIR}/libtrudp
+	@NMOUTPUT=`${NM} ${OBJECTDIR}/libtrudp/hash.o`; \
+	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
+	then  \
+	    ${RM} "$@.d";\
+	    $(COMPILE.c) -g -DHAVE_MINGW -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/hash_nomain.o libtrudp/hash.c;\
+	else  \
+	    ${CP} ${OBJECTDIR}/libtrudp/hash.o ${OBJECTDIR}/libtrudp/hash_nomain.o;\
+	fi
+
+${OBJECTDIR}/libtrudp/map_nomain.o: ${OBJECTDIR}/libtrudp/map.o libtrudp/map.c 
+	${MKDIR} -p ${OBJECTDIR}/libtrudp
+	@NMOUTPUT=`${NM} ${OBJECTDIR}/libtrudp/map.o`; \
+	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
+	then  \
+	    ${RM} "$@.d";\
+	    $(COMPILE.c) -g -DHAVE_MINGW -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/map_nomain.o libtrudp/map.c;\
+	else  \
+	    ${CP} ${OBJECTDIR}/libtrudp/map.o ${OBJECTDIR}/libtrudp/map_nomain.o;\
+	fi
 
 ${OBJECTDIR}/libtrudp/packet_nomain.o: ${OBJECTDIR}/libtrudp/packet.o libtrudp/packet.c 
 	${MKDIR} -p ${OBJECTDIR}/libtrudp
@@ -165,6 +210,19 @@ ${OBJECTDIR}/libtrudp/packet_nomain.o: ${OBJECTDIR}/libtrudp/packet.o libtrudp/p
 	    ${CP} ${OBJECTDIR}/libtrudp/packet.o ${OBJECTDIR}/libtrudp/packet_nomain.o;\
 	fi
 
+${OBJECTDIR}/libtrudp/packet_queue_nomain.o: ${OBJECTDIR}/libtrudp/packet_queue.o libtrudp/packet_queue.c 
+	${MKDIR} -p ${OBJECTDIR}/libtrudp
+	@NMOUTPUT=`${NM} ${OBJECTDIR}/libtrudp/packet_queue.o`; \
+	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
+	then  \
+	    ${RM} "$@.d";\
+	    $(COMPILE.c) -g -DHAVE_MINGW -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/packet_queue_nomain.o libtrudp/packet_queue.c;\
+	else  \
+	    ${CP} ${OBJECTDIR}/libtrudp/packet_queue.o ${OBJECTDIR}/libtrudp/packet_queue_nomain.o;\
+	fi
+
 ${OBJECTDIR}/libtrudp/queue_nomain.o: ${OBJECTDIR}/libtrudp/queue.o libtrudp/queue.c 
 	${MKDIR} -p ${OBJECTDIR}/libtrudp
 	@NMOUTPUT=`${NM} ${OBJECTDIR}/libtrudp/queue.o`; \
@@ -176,19 +234,6 @@ ${OBJECTDIR}/libtrudp/queue_nomain.o: ${OBJECTDIR}/libtrudp/queue.o libtrudp/que
 	    $(COMPILE.c) -g -DHAVE_MINGW -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/queue_nomain.o libtrudp/queue.c;\
 	else  \
 	    ${CP} ${OBJECTDIR}/libtrudp/queue.o ${OBJECTDIR}/libtrudp/queue_nomain.o;\
-	fi
-
-${OBJECTDIR}/libtrudp/timed_queue_nomain.o: ${OBJECTDIR}/libtrudp/timed_queue.o libtrudp/timed_queue.c 
-	${MKDIR} -p ${OBJECTDIR}/libtrudp
-	@NMOUTPUT=`${NM} ${OBJECTDIR}/libtrudp/timed_queue.o`; \
-	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
-	   (echo "$$NMOUTPUT" | ${GREP} 'T main$$') || \
-	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
-	then  \
-	    ${RM} "$@.d";\
-	    $(COMPILE.c) -g -DHAVE_MINGW -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/timed_queue_nomain.o libtrudp/timed_queue.c;\
-	else  \
-	    ${CP} ${OBJECTDIR}/libtrudp/timed_queue.o ${OBJECTDIR}/libtrudp/timed_queue_nomain.o;\
 	fi
 
 ${OBJECTDIR}/libtrudp/tr-udp_nomain.o: ${OBJECTDIR}/libtrudp/tr-udp.o libtrudp/tr-udp.c 
