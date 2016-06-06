@@ -170,7 +170,7 @@ void *trudpMapAdd(trudpMapData *map, void *key, size_t key_length, void *data,
     // Create and fill Data structure
     size_t htd_length = sizeof(trudpMapValueData) + key_length + data_length;    
     trudpMapValueData *htd = (trudpMapValueData *) malloc(htd_length);
-    uint32_t hash = htd->hash = trudpMapHash(key, key_length);
+    htd->hash = trudpMapHash(key, key_length);
     htd->key_length = key_length;
     htd->data_length = data_length;
     memcpy(htd->data, key, key_length);
