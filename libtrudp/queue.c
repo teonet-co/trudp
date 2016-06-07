@@ -69,10 +69,11 @@ int trudpQueueFree(trudpQueue *q) {
     if(!q) return -1;
     
     // Remove all elements
-    trudpQueueData *qd = q->first;
+    trudpQueueData *qd_next, *qd = q->first;
     while(qd) {
+        qd_next = qd->next;
         free(qd);
-        qd = qd->next;
+        qd = qd_next;
     }    
     memset(q, 0, sizeof(trudpQueue));
     
@@ -88,6 +89,49 @@ int trudpQueueFree(trudpQueue *q) {
 inline size_t trudpQueueSize(trudpQueue *q) {
     
     return q ? q->length : -1;
+}
+
+/**
+ * Put (add, copy) existing queue record to the end of selected queue
+ * 
+ * @param q Pointer to trudpQueue
+ * @param qd Pointer to trudpQueueData
+ * @return Zero at success
+ */
+trudpQueueData *trudpQueuePut(trudpQueue *q, trudpQueueData *qd) {
+   
+//    if(qd) {        
+//        // Add to the end
+//        if(q->last) {
+//            q->last->next = qd;
+//            qd->prev = q->last;
+//        }
+//        // Add to the beginning
+//        else {
+//            qd->prev = NULL;
+//            q->first = qd;
+//        }
+//        qd->next = NULL; 
+//        q->last = qd;
+//        
+//        q->length++;
+//    }
+    
+    if(q) {
+        if(qd) {
+            // Fill Queue data structure
+            qd->prev = q->last;
+            qd->next = NULL;
+
+            // Change fields in queue structure
+            if(q->last) q->last->next = qd; // Set next in existing last element to this element
+            if(!q->first) q->first = qd; // Set this element as first if first does not exists
+            q->last = qd; // Set this element as last
+            q->length++; // Increment length
+        }
+    }
+    
+    return qd;
 }
 
 /**
@@ -107,17 +151,17 @@ trudpQueueData *trudpQueueAdd(trudpQueue *q, void *data, size_t data_length) {
         // Create new trudpQueueData
         qd = (trudpQueueData *) malloc(sizeof(trudpQueueData) + data_length);
         if(qd) {
-            // Fill Queue data structure
-            qd->prev = q->last;
-            qd->next = NULL;
+//            // Fill Queue data structure
+//            qd->prev = q->last;
+//            qd->next = NULL;
             qd->data_length = data_length;
             if(data && data_length > 0) memcpy(qd->data, data, data_length);
-
-            // Change fields in queue structure
-            if(q->last) q->last->next = qd; // Set next in existing last element to this element
-            if(!q->first) q->first = qd; // Set this element as first if first does not exists
-            q->last = qd; // Set this element as last
-            q->length++; // Increment length
+            trudpQueuePut(q, qd);
+//            // Change fields in queue structure
+//            if(q->last) q->last->next = qd; // Set next in existing last element to this element
+//            if(!q->first) q->first = qd; // Set this element as first if first does not exists
+//            q->last = qd; // Set this element as last
+//            q->length++; // Increment length
         }
     }
     return qd;
@@ -196,7 +240,7 @@ trudpQueueData *trudpQueueUpdate(trudpQueue *q, void *data, size_t data_length,
 }
 
 /**
- * Delete element from queue but not free it
+ * Remove element from queue but not free it
  * 
  * @param q Pointer to trudpQueue
  * @param qd Pointer to trudpQueueData
@@ -279,36 +323,6 @@ trudpQueueData *trudpQueueMoveToEnd(trudpQueue *q, trudpQueueData *qd) {
             q->last = qd;
             q->length++;
         }
-    }
-    
-    return qd;
-}
-
-/**
- * Put (add, copy) an element to the end of queue
- * 
- * @param q Pointer to trudpQueue
- * @param qd Pointer to trudpQueueData
- * @return Zero at success
- */
-trudpQueueData *trudpQueuePut(trudpQueue *q, trudpQueueData *qd) {
-   
-    if(qd) {
-        
-        // Add to the end
-        if(q->last) {
-            q->last->next = qd;
-            qd->prev = q->last;
-        }
-        // Add to the beginning
-        else {
-            qd->prev = NULL;
-            q->first = qd;
-        }
-        qd->next = NULL; 
-        q->last = qd;
-        
-        q->length++;
     }
     
     return qd;

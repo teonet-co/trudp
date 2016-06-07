@@ -30,8 +30,14 @@
 #include "map.h"
 
 // Local functions
-static inline trudpQueueData *_trudpMapValueDataToQueueData(trudpMapValueData *mvd);
+static inline trudpQueueData *_trudpMapValueDataToQueueData(trudpMapElementData *mvd);
 
+/**
+ * Create new map
+ * 
+ * @param size Size of hash map (hash map resized automatically) 
+ * @return Pointer to trudpMapData
+ */
 trudpMapData *trudpMapNew(size_t size) {
 
     int i;
@@ -49,6 +55,13 @@ trudpMapData *trudpMapNew(size_t size) {
     return map;
 }
 
+/**
+ * Resize hash table
+ * 
+ * @param map Pointer to trudpMapData
+ * @param size New hash map size
+ * @return Pointer to the same trudpMapData
+ */
 trudpMapData *trudpMapResize(trudpMapData *map, size_t size) {
 
     // Show mime of  resize for testing
@@ -59,46 +72,52 @@ trudpMapData *trudpMapResize(trudpMapData *map, size_t size) {
     #endif
 
     int i = 0;
-    trudpMapData *map_new = trudpMapNew(size); // (trudpMapData *)malloc(sizeof(trudpMapData));
+    trudpMapData *map_new = trudpMapNew(size); 
 
     // Loop through existing map and add it elements to new map
     trudpMapIterator *it = trudpMapIteratorNew(map);
     while(trudpMapIteratorNext(it)) {
-        trudpMapValueData *el = trudpMapIteratorElement(it);
+        trudpMapElementData *el = trudpMapIteratorElement(it);
 
-        // \todo Show 9-n records instead of 31
-        printf("\n #%d hash: %010u, key: %s, value: %s ", i, el->hash, el->data, el->data + el->key_length);
-//        i++;
-//        continue;
+        #define _SHOW_RESIZED_MSG_ 0
+        #if _SHOW_RESIZED_MSG_
+        printf("\n #%d hash: %010u, key: %s, value: %s ", 
+               i, el->hash, (char*)el->data, (char*)el->data + el->key_length);
+        #endif
         
-        trudpQueueData *qd = _trudpMapValueDataToQueueData(el);
+        trudpQueueData *qd_new, *qd = _trudpMapValueDataToQueueData(el);
         int idx = el->hash % map_new->hash_map_size;
-        trudpQueuePut(map_new->q[idx], qd);
-        map_new->length++;
         
-
-//        size_t key_length;
-//        void *key = trudpMapIteratorElementKey(el, &key_length);
-//        size_t data_length;
-//        void *data = trudpMapIteratorElementData(el, &data_length);
-//        trudpMapAdd(map_new, key, key_length, data, data_length);
-
+        #define _USE_PUT_ 1
+        #if _USE_PUT_
+        size_t qd_new_data_length = sizeof(trudpQueueData) + qd->data_length;
+        qd_new = (trudpQueueData *)malloc(qd_new_data_length);
+        memcpy(qd_new, qd, qd_new_data_length);
+        trudpQueuePut(map_new->q[idx], qd_new);
+        map_new->length++;
+        #else
+        size_t key_length;
+        void *key = trudpMapIteratorElementKey(el, &key_length);
+        size_t data_length;
+        void *data = trudpMapIteratorElementData(el, &data_length);
+        trudpMapAdd(map_new, key, key_length, data, data_length);
+        #endif
+        
         i++;
     }
-
     // Destroy map iterator
     trudpMapIteratorDestroy(it);
 
     // Free existing queues and move queues pointer of new map to existing
     for(i = 0; i < map->hash_map_size; i++) {
-        //trudpQueueFree(map->q[i]);
+        trudpQueueFree(map->q[i]);
         free(map->q[i]);
     }
     free(map->q);
     map->q = map_new->q;
     map->hash_map_size = size;
-    map->collisions = 0;
     map->length = map_new->length;
+    map->collisions = 0;
     free(map_new);
 
     #if _SHOW_MSG_
@@ -109,6 +128,11 @@ trudpMapData *trudpMapResize(trudpMapData *map, size_t size) {
     return map;
 }
 
+/**
+ * Destroy map
+ * 
+ * @param map Pointer to trudpMapData
+ */
 void trudpMapDestroy(trudpMapData *map) {
 
     if(map) {
@@ -123,7 +147,7 @@ void trudpMapDestroy(trudpMapData *map) {
 }
 
 /**
- * Calculate hash for the key
+ * Calculate hash for selected key
  *
  * @param key Pointer to key
  * @param key_length Key length
@@ -160,13 +184,13 @@ static void *_trudpMapGet(trudpMapData *map, void *key, size_t key_length,
     *data_length = 0;
 
     int idx = hash % map->hash_map_size;
-    trudpMapValueData *htd;
+    trudpMapElementData *htd;
     trudpQueueData *tqd;
     trudpQueueIterator *it = trudpQueueIteratorNew(map->q[idx]);
     if(it != NULL) {
       while((tqd = trudpQueueIteratorNext(it))) {
 
-        htd = (trudpMapValueData *)tqd->data;
+        htd = (trudpMapElementData *)tqd->data;
         if(htd->hash == hash) {
 
             if(key_length == htd->key_length &&
@@ -187,32 +211,34 @@ static void *_trudpMapGet(trudpMapData *map, void *key, size_t key_length,
 
 /**
  * Get pointer to trudpMapValueData from data pointer returned by trudpMapGet
- * @param tqd_data
- * @return
+ * 
+ * @param tqd_data Pointer to map data returned by trudpMapGet function
+ * @return Pointer to trudpMapValueData
  */
-static inline trudpMapValueData *_trudpMapGetValueData(void *tqd_data,
+static inline trudpMapElementData *_trudpMapGetValueData(void *tqd_data,
         uint32_t key_length) {
 
-    return tqd_data - key_length - sizeof(trudpMapValueData);
+    return tqd_data - key_length - sizeof(trudpMapElementData);
 }
 
 /**
  * Get pointer to maps queue data from pointer to trudpMapValueData
- * @param mvd
- * @return
+ * 
+ * @param mvd Pointer to trudpMapValueData
+ * @return Pointer to maps queue data
  */
-static inline trudpQueueData *_trudpMapValueDataToQueueData(trudpMapValueData *mvd) {
+static inline trudpQueueData *_trudpMapValueDataToQueueData(trudpMapElementData *mvd) {
     return mvd ? (trudpQueueData *)((void*)mvd - sizeof(trudpQueueData)) : NULL;
 }
 
 /**
  * Add (or update) key data to the map
  *
- * @param map
- * @param key
- * @param key_length
- * @param data
- * @param data_length
+ * @param map Pointer to trudpMapData
+ * @param key Pointer to key
+ * @param key_length Key length
+ * @param data Pointer to data
+ * @param data_length Data length
  * @return Data of added key or (void*)-1 at error
  */
 void *trudpMapAdd(trudpMapData *map, void *key, size_t key_length, void *data,
@@ -223,8 +249,8 @@ void *trudpMapAdd(trudpMapData *map, void *key, size_t key_length, void *data,
     if(!data) data_length = 0;
 
     // Create and fill Data structure
-    size_t htd_length = sizeof(trudpMapValueData) + key_length + data_length;
-    trudpMapValueData *htd = (trudpMapValueData *) malloc(htd_length);
+    size_t htd_length = sizeof(trudpMapElementData) + key_length + data_length;
+    trudpMapElementData *htd = (trudpMapElementData *) malloc(htd_length);
     htd->hash = trudpMapHash(key, key_length);
     htd->key_length = key_length;
     htd->data_length = data_length;
@@ -249,7 +275,7 @@ void *trudpMapAdd(trudpMapData *map, void *key, size_t key_length, void *data,
     }
     // Update existing key data
     else {
-        trudpMapValueData *htd_existing = _trudpMapGetValueData(tqd_data, key_length);
+        trudpMapElementData *htd_existing = _trudpMapGetValueData(tqd_data, key_length);
         tqd = _trudpMapValueDataToQueueData(htd_existing);
         int idx = htd->hash % map->hash_map_size;
         tqd = trudpQueueUpdate(map->q[idx], (void*)htd, htd_length, tqd);
@@ -260,7 +286,7 @@ void *trudpMapAdd(trudpMapData *map, void *key, size_t key_length, void *data,
 
     // Set pointers to trudpMapValueData and returned data
     if(tqd) {
-        htd = (trudpMapValueData *)tqd->data;
+        htd = (trudpMapElementData *)tqd->data;
         r_data = htd->data_length ? htd->data + htd->key_length : NULL;
     }
 
@@ -271,7 +297,7 @@ void *trudpMapAdd(trudpMapData *map, void *key, size_t key_length, void *data,
  * Get key data from hash table
  *
  * @param map Pointer to trudpMapData
- * @param key Key
+ * @param key Pointer to key
  * @param key_length Key length
  * @param data_length [out] Pointer to data length
  *
@@ -284,15 +310,14 @@ void *trudpMapGet(trudpMapData *map, void *key, size_t key_length,
     void *data = _trudpMapGet(map, key, key_length, hash, data_length);
 
     return (void*)-1 || _trudpMapGetValueData(data, key_length)->data_length ? data : NULL;
-
 }
 
 /**
  * Delete keys element from map
  *
- * @param map
- * @param key
- * @param key_length
+ * @param map Pointer to trudpMapData
+ * @param key Pointer to key
+ * @param key_length Key length
  * @return Zero at success, or errors: -1 - keys element not found
  */
 int trudpMapDelete(trudpMapData *map, void *key, size_t key_length) {
@@ -303,7 +328,7 @@ int trudpMapDelete(trudpMapData *map, void *key, size_t key_length) {
     uint32_t hash = trudpMapHash(key, key_length);
     void *data = _trudpMapGet(map, key, key_length, hash, &data_length);
     if(data != (void*)-1) {
-        trudpMapValueData *mvd = _trudpMapGetValueData(data, key_length);
+        trudpMapElementData *mvd = _trudpMapGetValueData(data, key_length);
         trudpQueueData *tqd = _trudpMapValueDataToQueueData(mvd);
         int idx = mvd->hash % map->hash_map_size;
         rv = trudpQueueDelete(map->q[idx], tqd);
@@ -313,7 +338,6 @@ int trudpMapDelete(trudpMapData *map, void *key, size_t key_length) {
             // Resize if needed
             if(map->hash_map_size > 10 && map->length < (map->hash_map_size / 10) * 3)
                 trudpMapResize(map, map->hash_map_size / 10);
-
         }
     }
 
@@ -324,7 +348,6 @@ int trudpMapDelete(trudpMapData *map, void *key, size_t key_length) {
  * Get number of elements in TR-UPD map
  *
  * @param map Pointer to trudpMapData
- *
  * @return Number of elements in TR-UPD map
  */
 inline size_t trudpMapSize(trudpMapData *map) {
@@ -332,6 +355,12 @@ inline size_t trudpMapSize(trudpMapData *map) {
     return map ? map->length : -1;
 }
 
+/**
+ * Create new map iterator
+ * 
+ * @param map Pointer to trudpMapData
+ * @return Pointer to trudpMapIterator or NULL at memory allocate error
+ */
 trudpMapIterator *trudpMapIteratorNew(trudpMapData *map) {
 
     trudpMapIterator *map_it = (trudpMapIterator*)malloc(sizeof(trudpMapIterator));
@@ -345,6 +374,12 @@ trudpMapIterator *trudpMapIteratorNew(trudpMapData *map) {
     return map_it;
 }
 
+/**
+ * Destroy map iterator
+ * 
+ * @param map_it Pointer to trudpMapIterator
+ * @return Zero at success
+ */
 int trudpMapIteratorDestroy(trudpMapIterator *map_it) {
 
     if(map_it) {
@@ -355,12 +390,18 @@ int trudpMapIteratorDestroy(trudpMapIterator *map_it) {
     return 0;
 }
 
-trudpMapValueData *trudpMapIteratorNext(trudpMapIterator *map_it) {
+/**
+ * Get next maps element
+ * 
+ * @param map_it Pointer to trudpMapIterator
+ * @return Pointer to map element data trudpMapValueData
+ */
+trudpMapElementData *trudpMapIteratorNext(trudpMapIterator *map_it) {
 
     if(!map_it) return NULL;
 
     trudpQueueData *tqd;
-    trudpMapValueData *tmv = NULL;
+    trudpMapElementData *tmv = NULL;
 
     while(!(tqd = trudpQueueIteratorNext(map_it->it))) {
         if(++map_it->idx < map_it->map->hash_map_size) {
@@ -370,25 +411,47 @@ trudpMapValueData *trudpMapIteratorNext(trudpMapIterator *map_it) {
     }
 
     if(tqd) {
-        tmv = (trudpMapValueData *)tqd->data;
+        tmv = (trudpMapElementData *)tqd->data;
         map_it->tmv = tmv;
     }
 
     return tmv;
 }
 
-inline trudpMapValueData *trudpMapIteratorElement(trudpMapIterator *map_it) {
+/**
+ * Get element selected last map net or map previous iterator function
+ * 
+ * @param map_it Pointer to trudpMapIterator
+ * @return Pointer to map element data trudpMapValueData
+ */
+inline trudpMapElementData *trudpMapIteratorElement(trudpMapIterator *map_it) {
     return map_it ? map_it->tmv : NULL;
 }
 
-inline void *trudpMapIteratorElementKey(trudpMapValueData *tmv, size_t *key_length) {
+/**
+ * Get key from map element data
+ * 
+ * @param el Pointer to trudpMapElementData
+ * @param key_length [out] Key length
+ * @return Pointer to key
+ */
+inline void *trudpMapIteratorElementKey(trudpMapElementData *el, 
+        size_t *key_length) {
 
-    *key_length = tmv->key_length;
-    return tmv->data;
+    *key_length = el->key_length;
+    return el->data;
 }
 
-inline void *trudpMapIteratorElementData(trudpMapValueData *tmv, size_t *data_length) {
+/**
+ * Get data from map element data
+ * 
+ * @param el Pointer to trudpMapElementData
+ * @param data_length [out] Data length
+ * @return Pointer to data
+ */
+inline void *trudpMapIteratorElementData(trudpMapElementData *el, 
+        size_t *data_length) {
 
-    *data_length = tmv->data_length;
-    return tmv->data + tmv->key_length;
+    *data_length = el->data_length;
+    return el->data + el->key_length;
 }

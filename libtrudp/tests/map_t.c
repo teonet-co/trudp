@@ -75,7 +75,7 @@ static char* randIpPort() {
 void check_map() {
     
     int i, j;
-    const size_t NUM_KEYS = 100000;
+    const size_t NUM_KEYS = 10000;
 
     srand(trudpGetTimestamp());
 
@@ -153,7 +153,7 @@ void check_map() {
     //printf("\n display %d records by iterator loop: \n", (int)map->length);
     while(trudpMapIteratorNext(it)) {
         i++;
-        trudpMapValueData *el = trudpMapIteratorElement(it);
+        trudpMapElementData *el = trudpMapIteratorElement(it);
         size_t key_lenth;
         void *key = trudpMapIteratorElementKey(el, &key_lenth);
         size_t data_lenth;
