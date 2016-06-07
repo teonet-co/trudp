@@ -58,15 +58,6 @@ void trudpMapDestroy(trudpMapData *map) {
     }
 }
 
-typedef struct trudpMapValueData {
-    
-    uint32_t hash;
-    size_t key_length;
-    size_t data_length;
-    char data[];
-    
-} trudpMapValueData;
-
 /**
  * Calculate hash for the key
  * 
@@ -262,4 +253,66 @@ int trudpMapDelete(trudpMapData *map, void *key, size_t key_length) {
 inline size_t trudpMapSize(trudpMapData *map) {
     
     return map ? map->length : -1;
+}
+
+trudpMapIterator *trudpMapIteratorNew(trudpMapData *map) {
+    
+    trudpMapIterator *map_it = (trudpMapIterator*)malloc(sizeof(trudpMapIterator));
+    if(map_it) {
+        map_it->it = trudpQueueIteratorNew(map->q[0]);
+        map_it->idx = 0;
+        map_it->map = map;
+        map_it->tmv = NULL;
+    }
+    
+    return map_it;
+}
+
+int trudpMapIteratorDestroy(trudpMapIterator *map_it) {
+    
+    if(map_it) {
+        trudpQueueIteratorFree(map_it->it);
+        free(map_it);
+    }
+    
+    return 0;
+}
+
+trudpMapValueData *trudpMapIteratorNext(trudpMapIterator *map_it) {
+    
+    if(!map_it) return NULL;
+
+    trudpQueueData *tqd;
+    trudpMapValueData *tmv = NULL;
+    
+    while(!(tqd = trudpQueueIteratorNext(map_it->it))) {
+        if(++map_it->idx < map_it->map->length) {
+//            printf("\n idx %d ", map_it->idx);
+            trudpQueueIteratorReset(map_it->it, map_it->map->q[map_it->idx]);
+        } 
+        else break;
+    }
+    
+    if(tqd) {
+        tmv = (trudpMapValueData *)tqd->data;
+        map_it->tmv = tmv;
+    }
+    
+    return tmv;
+}
+
+inline trudpMapValueData *trudpMapIteratorElement(trudpMapIterator *map_it) {
+    return map_it ? map_it->tmv : NULL;
+}
+
+inline void *trudpMapIteratorElementKey(trudpMapValueData *tmv, size_t *key_length) {
+    
+    *key_length = tmv->key_length;
+    return tmv->data;
+}
+
+inline void *trudpMapIteratorElementData(trudpMapValueData *tmv, size_t *data_length) {
+    
+    *data_length = tmv->data_length;
+    return tmv->data + tmv->key_length;
 }

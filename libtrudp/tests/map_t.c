@@ -44,7 +44,7 @@ void check_hash() {
     hash = SuperFastHash(key, strlen(key) + 1);
     printf("\nHash1 of key %s = %010u ", key, hash);
     hash = hash_f(key, strlen(key) + 1, 0);
-    printf("\nHash2 of key %s = %010u ", key, hash);
+    printf("\nHash2 of key %s = %010u \n   ", key, hash);
     
     CU_ASSERT(2 * 2 == 4);
 }
@@ -75,7 +75,7 @@ static char* randIpPort() {
 void check_map() {
     
     int i, j;
-    const size_t NUM_KEYS = 30000;
+    const size_t NUM_KEYS = 1000;
 
     srand(trudpGetTimestamp());
 
@@ -119,7 +119,7 @@ void check_map() {
         CU_ASSERT_STRING_EQUAL(d, data[i]);
     }
     CU_ASSERT_EQUAL(NUM_KEYS, trudpMapSize(map));
-    printf("\n %d records write/read time: %.3f ms, number of collisions: %u \n", 
+    printf("\n %d records add/get, time: %.3f ms, number of collisions: %u ", 
             (int)NUM_KEYS, (trudpGetTimestamp() - t_beg) / 1000.0, map->collisions );
     
     // Update data of existing key value (add existing key)
@@ -136,9 +136,37 @@ void check_map() {
     CU_ASSERT_STRING_EQUAL(d, data_new);
     
     // Delete key from map
-    int rv = trudpMapDelete(map, key[11], key_length[11]);
+    int rv = trudpMapDelete(map, key[1], key_length[1]);
     CU_ASSERT(!rv);
     CU_ASSERT_EQUAL(NUM_KEYS - 1, trudpMapSize(map));
+    
+    // Add deleted key
+    trudpMapAdd(map, key[1], key_length[1], data[1], data_length[1]);
+    
+    // Loop through map using iterator
+    t_beg = trudpGetTimestamp();
+    // Create map iterator
+    trudpMapIterator *it = trudpMapIteratorNew(map);
+    CU_ASSERT_PTR_NOT_NULL_FATAL(it);
+    
+    i = 0;
+    //printf("\n display %d records by iterator loop: \n", (int)map->length);
+    while(trudpMapIteratorNext(it)) {
+        i++;
+        trudpMapValueData *el = trudpMapIteratorElement(it);
+        size_t key_lenth;
+        void *key = trudpMapIteratorElementKey(el, &key_lenth);
+        size_t data_lenth;
+        void *data = trudpMapIteratorElementData(el, &key_lenth);
+        //printf("\n #%d, idx: %u, hash: %010u, key: %s, data: %s ", 
+        //       i, it->idx, el->hash, (char*)key, (char*)data);        
+    }
+    CU_ASSERT(i == map->length);
+    // Destroy map iterator
+    trudpMapIteratorDestroy(it);
+    
+    printf("\n %d records read in iterator loop, time: %.3f ms \n   ", 
+            (int)map->length, (trudpGetTimestamp() - t_beg) / 1000.0);
         
     // Destroy map
     trudpMapDestroy(map);

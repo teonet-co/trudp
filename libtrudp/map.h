@@ -51,6 +51,24 @@ typedef struct trudpMapData {
     
 } trudpMapData;    
 
+typedef struct trudpMapValueData {
+    
+    uint32_t hash;
+    size_t key_length;
+    size_t data_length;
+    char data[];
+    
+} trudpMapValueData;
+
+typedef struct trudpMapIterator {
+    
+    uint32_t idx;
+    trudpMapData *map;
+    trudpQueueIterator *it;
+    trudpMapValueData *tmv;
+    
+} trudpMapIterator;
+
 trudpMapData *trudpMapNew(size_t size);
 void trudpMapDestroy(trudpMapData *ht);
 void *trudpMapAdd(trudpMapData *ht, void *key, size_t key_length, void *data, size_t data_length);
@@ -59,6 +77,12 @@ int trudpMapDelete(trudpMapData *map, void *key, size_t key_length);
 
 size_t trudpMapSize(trudpMapData *ht);
 
+trudpMapIterator *trudpMapIteratorNew(trudpMapData *map);
+int trudpMapIteratorDestroy(trudpMapIterator *map_it);
+trudpMapValueData *trudpMapIteratorNext(trudpMapIterator *map_it);
+trudpMapValueData *trudpMapIteratorElement(trudpMapIterator *map_it);
+void *trudpMapIteratorElementKey(trudpMapValueData *tmv, size_t *key_length);
+void *trudpMapIteratorElementData(trudpMapValueData *tmv, size_t *data_length);
 
 #ifdef __cplusplus
 }
