@@ -75,7 +75,7 @@ static char* randIpPort() {
 void check_map() {
     
     int i, j;
-    const size_t NUM_KEYS = 1000;
+    const size_t NUM_KEYS = 100000;
 
     srand(trudpGetTimestamp());
 
@@ -101,7 +101,7 @@ void check_map() {
     }
     
     // Create new map
-    trudpMapData *map = trudpMapNew(NUM_KEYS);
+    trudpMapData *map = trudpMapNew(10);
     CU_ASSERT_PTR_NOT_NULL(map);
     
     // Add and Get data from map

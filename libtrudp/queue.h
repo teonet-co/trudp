@@ -90,6 +90,7 @@ int trudpQueueDelete(trudpQueue *q, trudpQueueData *qd);
 int trudpQueueDeleteFirst(trudpQueue *q);
 int trudpQueueDeleteLast(trudpQueue *q);
 trudpQueueData *trudpQueueMoveToEnd(trudpQueue *q, trudpQueueData *qd);
+trudpQueueData *trudpQueuePut(trudpQueue *q, trudpQueueData *qd);
 size_t trudpQueueSize(trudpQueue *q);
 
 trudpQueueIterator *trudpQueueIteratorNew(trudpQueue *q);

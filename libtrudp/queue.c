@@ -106,18 +106,19 @@ trudpQueueData *trudpQueueAdd(trudpQueue *q, void *data, size_t data_length) {
     if(q) {
         // Create new trudpQueueData
         qd = (trudpQueueData *) malloc(sizeof(trudpQueueData) + data_length);
+        if(qd) {
+            // Fill Queue data structure
+            qd->prev = q->last;
+            qd->next = NULL;
+            qd->data_length = data_length;
+            if(data && data_length > 0) memcpy(qd->data, data, data_length);
 
-        // Fill Queue data structure
-        qd->prev = q->last;
-        qd->next = NULL;
-        qd->data_length = data_length;
-        if(data && data_length > 0) memcpy(qd->data, data, data_length);
-
-        // Change fields in queue structure
-        if(q->last) q->last->next = qd; // Set next in existing last element to this element
-        if(!q->first) q->first = qd; // Set this element as first if first does not exists
-        q->last = qd; // Set this element as last
-        q->length++; // Increment length
+            // Change fields in queue structure
+            if(q->last) q->last->next = qd; // Set next in existing last element to this element
+            if(!q->first) q->first = qd; // Set this element as first if first does not exists
+            q->last = qd; // Set this element as last
+            q->length++; // Increment length
+        }
     }
     return qd;
 }
@@ -257,7 +258,7 @@ inline int trudpQueueDeleteLast(trudpQueue *q) {
 }
 
 /**
- * Move element to the end of list
+ * Move element from this queue to the end of queue
  * 
  * @param q Pointer to trudpQueue
  * @param qd Pointer to trudpQueueData
@@ -283,7 +284,35 @@ trudpQueueData *trudpQueueMoveToEnd(trudpQueue *q, trudpQueueData *qd) {
     return qd;
 }
 
-
+/**
+ * Put (add, copy) an element to the end of queue
+ * 
+ * @param q Pointer to trudpQueue
+ * @param qd Pointer to trudpQueueData
+ * @return Zero at success
+ */
+trudpQueueData *trudpQueuePut(trudpQueue *q, trudpQueueData *qd) {
+   
+    if(qd) {
+        
+        // Add to the end
+        if(q->last) {
+            q->last->next = qd;
+            qd->prev = q->last;
+        }
+        // Add to the beginning
+        else {
+            qd->prev = NULL;
+            q->first = qd;
+        }
+        qd->next = NULL; 
+        q->last = qd;
+        
+        q->length++;
+    }
+    
+    return qd;
+}
 
 /**
  * Create new TR-UPD Queue iterator
