@@ -35,8 +35,19 @@
 #include <getopt.h>
 #include <unistd.h>
 #include <string.h>
+#include <time.h>
 
+#if defined(HAVE_MINGW) || defined(_WIN32) || defined(_WIN64)
+/* Bits to be set in the FLAGS parameter of `timerfd_settime'.  */
+enum
+  {
+    TFD_TIMER_ABSTIME = 1 << 0
+#define TFD_TIMER_ABSTIME TFD_TIMER_ABSTIME
+  };
+#else
 #include <sys/timerfd.h>
+#endif
+
 
 // C11 present
 #if __STDC_VERSION__ >= 201112L
@@ -277,18 +288,7 @@ static void network_select_loop(trudpData *td, int timeout) {
     else {
         
         if(FD_ISSET(td->fd, &rfds)) {
-        //printf("Data in fd\n");
-//        ssize_t rc;
-//        while((rc = teoLNullRecv(con)) != -1) {
-//            
-//            if(rc > 0) {
-//                send_l0_event(con, EV_L_RECEIVED, con->read_buffer, rc);
-//            } else if(rc == 0) {
-//                send_l0_event(con, EV_L_DISCONNECTED, NULL, 0);
-//                retval = 0;
-//                break;
-//            }
-//        }
+            
             struct sockaddr_in remaddr; // remote address
             socklen_t addr_len = sizeof(remaddr);
             ssize_t recvlen = trudpUdpRecvfrom(td->fd, buffer, o_buf_size, 
@@ -309,10 +309,7 @@ static void network_select_loop(trudpData *td, int timeout) {
         }
     }
         
-    close(fd_sq);
-    
-    // Send Tick event    
-    //send_l0_event(con, EV_L_TICK, NULL, 0);        
+    close(fd_sq);    
 }
 
 /**
