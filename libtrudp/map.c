@@ -36,15 +36,17 @@ static inline trudpQueueData *_trudpMapValueDataToQueueData(trudpMapElementData 
  * Create new map
  * 
  * @param size Size of hash map (hash map resized automatically) 
+ * @param auto_resize_f Auto resize hash map
  * @return Pointer to trudpMapData
  */
-trudpMapData *trudpMapNew(size_t size) {
+trudpMapData *trudpMapNew(size_t size, int auto_resize_f) {
 
     int i;
     trudpMapData *map = (trudpMapData *)malloc(sizeof(trudpMapData));
 
     // Fill parameters
     map->q = (trudpQueue **)malloc(size * sizeof(trudpQueue*));
+    map->auto_resize_f = auto_resize_f;
     map->hash_map_size = size;
     map->collisions = 0;
     map->length = 0;
@@ -72,7 +74,7 @@ trudpMapData *trudpMapResize(trudpMapData *map, size_t size) {
     #endif
 
     int i = 0;
-    trudpMapData *map_new = trudpMapNew(size); 
+    trudpMapData *map_new = trudpMapNew(size, map->auto_resize_f); 
 
     // Loop through existing map and add it elements to new map
     trudpMapIterator *it = trudpMapIteratorNew(map);
@@ -269,7 +271,7 @@ void *trudpMapAdd(trudpMapData *map, void *key, size_t key_length, void *data,
             map->length++;
 
             // Resize if needed
-            if(map->length > map->hash_map_size * 3)
+            if(map->auto_resize_f && map->length > map->hash_map_size * 3)
                 trudpMapResize(map, map->hash_map_size * 10);
         }
     }
@@ -336,7 +338,8 @@ int trudpMapDelete(trudpMapData *map, void *key, size_t key_length) {
             map->length--;
 
             // Resize if needed
-            if(map->hash_map_size > 10 && map->length < (map->hash_map_size / 10) * 3)
+            if(map->auto_resize_f && 
+               map->hash_map_size > 10 && map->length < (map->hash_map_size / 10) * 3)
                 trudpMapResize(map, map->hash_map_size / 10);
         }
     }

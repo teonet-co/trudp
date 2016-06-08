@@ -46,6 +46,7 @@ typedef struct trudpMapData {
     
     size_t length;
     trudpQueue **q;
+    int auto_resize_f;
     uint32_t collisions;
     size_t hash_map_size;
     
@@ -56,7 +57,7 @@ typedef struct trudpMapElementData {
     uint32_t hash;
     size_t key_length;
     size_t data_length;
-    char data[];
+    char data[]; // Key + Data
     
 } trudpMapElementData;
 
@@ -69,7 +70,7 @@ typedef struct trudpMapIterator {
     
 } trudpMapIterator;
 
-trudpMapData *trudpMapNew(size_t size);
+trudpMapData *trudpMapNew(size_t size, int auto_resize_f);
 void trudpMapDestroy(trudpMapData *ht);
 void *trudpMapAdd(trudpMapData *ht, void *key, size_t key_length, void *data, size_t data_length);
 void *trudpMapGet(trudpMapData *ht, void *key, size_t key_length, size_t *data_length);
