@@ -92,12 +92,12 @@ static void debug(char *fmt, ...)
     static unsigned long idx = 0;
     va_list ap;
     if (o_debug) {
-            fflush(stdout);
-            fprintf(stderr, "%lu %.3f debug: ", ++idx, trudpGetTimestamp() / 1000.0);
-            va_start(ap, fmt);
-            vfprintf(stderr, fmt, ap);
-            va_end(ap);
-            fflush(stderr);
+        fflush(stdout);
+        fprintf(stderr, "%lu %.3f debug: ", ++idx, trudpGetTimestamp() / 1000.0);
+        va_start(ap, fmt);
+        vfprintf(stderr, fmt, ap);
+        va_end(ap);
+        fflush(stderr);
     }
 }
 
@@ -377,7 +377,7 @@ int main(int argc, char** argv) {
         size_t connect_length = strlen(connect) + 1;
         trudpChannelData *tcd = trudpNewChannel(td, o_remote_address, o_remote_port_i, 0);
         trudpSendData(tcd, connect, connect_length);
-        //connected_f = 1;
+        fprintf(stderr, "Connecting to %s:%u:%u\n", o_remote_address, o_remote_port_i, 0);
     }
 
     // Create messages
