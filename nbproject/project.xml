@@ -40,6 +40,7 @@
             <word>recvfrom</word>
             <word>Scherba</word>
             <word>sendto</word>
+            <word>sockaddr</word>
             <word>triptime</word>
             <word>trudp</word>
             <word>trudpcat</word>

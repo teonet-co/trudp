@@ -29,6 +29,7 @@
 
 #include "packet_queue.h"
 #include "packet.h"
+#include "map.h"
 #include "udp.h"
 
 #ifdef __cplusplus
@@ -38,6 +39,8 @@ extern "C" {
 #define MAX_RETRIEVES 10
 #define MAX_OUTRUNNING 10    
 #define START_MIDDLE_TIME (MAX_ACK_WAIT/5) * 1000000    
+    
+#define TD(tcd) ((trudpData*)tcd->td)    
     
 /**
  * Data received/send callback
@@ -74,9 +77,9 @@ typedef enum trudpCallbsckType {
 } trudpCallbsckType;
 
 /**
- * Trudp Data Structure
+ * Trudp channel Data Structure
  */
-typedef struct trudpData {
+typedef struct trudpChannelData {
     
     uint32_t sendId;
     trudpPacketQueue *sendQueue;
@@ -87,33 +90,53 @@ typedef struct trudpData {
     trudpPacketQueue *receiveQueue;
     int outrunning_cnt; ///< Receive queue outrunning count
 
-    trudpDataCb processDataCb;
-    trudpDataCb processAckCb;
-    trudpEventCb evendCb;
-    trudpDataCb sendCb;
+    // User data
+    //void* user_data;
     
-    void* user_data;
+    // Link to parent trudpData
+    void *td; ///< Pointer to trudpData
     
     // UDP connection depended variables
     struct sockaddr_in remaddr; // remote address
     socklen_t addrlen;          // remote address length
     int connected_f;            // connected (remote address valid)
+    int channel;                // TR-UDP channel
+    
+} trudpChannelData;
+
+/**
+ * Trudp Data Structure
+ */
+typedef struct trudpData {
+
+    trudpMapData *map; ///< Channels map (key: ip:port:channel)
+    void* user_data; ///< User data
+    int port;
     int fd;
+    
+    // Callback
+    trudpDataCb processDataCb;
+    trudpDataCb processAckCb;
+    trudpEventCb evendCb;
+    trudpDataCb sendCb;       
     
 } trudpData;
 
-trudpData *trudpNew(void *user_data); //, trudpDataCb processDataCb, trudpDataCb sendPacketCb);
+trudpData *trudpInit(int fd, int port, void *user_data);
+void trudpDestroy(trudpData* trudp);
 trudpCb trudpSetCallback(trudpData *td, trudpCallbsckType type, trudpCb cb);
-void trudpDestroy(trudpData *td);
-void trudpFree(trudpData *td);
-void trudpReset(trudpData *td);
-
-size_t trudpSendData(trudpData *td, void *data, size_t data_length);
+trudpChannelData *trudpCheckRemoteAddr(trudpData *td, struct sockaddr_in *remaddr, 
+        socklen_t addr_length, int channel);
 int trudpProcessSendQueue(trudpData *td);
-void *trudpProcessReceivedPacket(trudpData *td, void *packet, 
+
+trudpChannelData *trudpNewChannel(trudpData *td, char *remote_address, int remote_port_i, int channel); // void *user_data, trudpDataCb processDataCb, trudpDataCb sendPacketCb);
+void trudpDestroyChannel(trudpChannelData *tcd);
+void trudpFree(trudpChannelData *tcd);
+void trudpReset(trudpChannelData *tcd);
+size_t trudpSendData(trudpChannelData *tcd, void *data, size_t data_length);
+void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet, 
         size_t packet_length, size_t *data_length);
-inline void trudpSaveRemoteAddr(trudpData *td, struct sockaddr_in *remaddr, 
-        socklen_t addr_length);
+char *trudpMakeKey(char *addr, int port, int channel, size_t *key_length);
 
 #ifdef __cplusplus
 }

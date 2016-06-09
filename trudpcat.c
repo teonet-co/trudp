@@ -111,7 +111,7 @@ static void debug(char *fmt, ...)
 static void processDataCb(void *td_ptr, void *data, size_t data_length,
         void *user_data) {
 
-    trudpData *td = (trudpData *)td_ptr;
+    trudpChannelData *td = (trudpChannelData *)td_ptr;
 
 
     debug("got %d byte data, id=%u: ", (int)data_length,
@@ -139,7 +139,7 @@ static void processDataCb(void *td_ptr, void *data, size_t data_length,
 static void processAckCb(void *td_ptr, void *data, size_t data_length, 
         void *user_data) {
 
-    trudpData *td = (trudpData *)td_ptr;
+    trudpChannelData *td = (trudpChannelData *)td_ptr;
 
     debug("got ACK id=%u processed %.3f(%.3f) ms\n",
            trudpPacketGetId(trudpPacketGetPacket(data)),
@@ -153,30 +153,30 @@ static void processAckCb(void *td_ptr, void *data, size_t data_length,
  * @param packet_length
  * @param user_data
  */
-static void sendPacketCb(void *td_ptr, void *packet, size_t packet_length,
+static void sendPacketCb(void *tcd_ptr, void *packet, size_t packet_length,
         void *user_data) {
 
-    trudpData *td = (trudpData *)td_ptr;
+    trudpChannelData *tcd = (trudpChannelData *)tcd_ptr;
 
     // Write to UDP
-    if(td->connected_f) {
+    //if(tcd->connected_f) {
 
-        trudpUdpSendto(td->fd, packet, packet_length, 
-                (__CONST_SOCKADDR_ARG) &td->remaddr, sizeof(td->remaddr));
+        trudpUdpSendto(TD(tcd)->fd, packet, packet_length, 
+                (__CONST_SOCKADDR_ARG) &tcd->remaddr, sizeof(tcd->remaddr));
 
         int port,type;
         uint32_t id = trudpPacketGetId(packet);
-        char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&td->remaddr, &port);
+        char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd->remaddr, &port);
         if(!(type = trudpPacketGetType(packet))) {
             debug("send %d bytes, id=%u, to %s:%d, %.3f(%.3f) ms\n",
                 (int)packet_length, id, addr, port,
-                td->triptime / 1000.0, td->triptimeMiddle / 1000.0);
+                tcd->triptime / 1000.0, tcd->triptimeMiddle / 1000.0);
         }
         else {
             debug("send %d bytes %s id=%u, to %s:%d\n",
                 (int)packet_length, type == 1 ? "ACK":"RESET", id, addr, port);
         }
-    }
+    //}
 }
 
 /**
@@ -195,8 +195,8 @@ static void network_loop(trudpData *td) {
     // Process received packet
     if(recvlen > 0) {
         size_t data_length;
-        trudpSaveRemoteAddr(td, &remaddr,addr_len);
-        void *rv = trudpProcessReceivedPacket(td, buffer, recvlen, &data_length);
+        trudpChannelData *tcd = trudpCheckRemoteAddr(td, &remaddr, addr_len, 0);
+        trudpProcessChannelReceivedPacket(tcd, buffer, recvlen, &data_length);
     }
 
     // Process send queue
@@ -206,8 +206,8 @@ static void network_loop(trudpData *td) {
 /**
  * The TR-UDP cat network loop with select function
  *
- * @param td
- * @param delay
+ * @param td Pointer to trudpData
+ * @param delay Default read data timeout
  */
 static void network_select_loop(trudpData *td, int timeout) {
 
@@ -262,8 +262,8 @@ static void network_select_loop(trudpData *td, int timeout) {
             // Process received packet
             if(recvlen > 0) {
                 size_t data_length;
-                trudpSaveRemoteAddr(td, &remaddr,addr_len);
-                trudpProcessReceivedPacket(td, buffer, recvlen, &data_length);
+                trudpChannelData *tcd = trudpCheckRemoteAddr(td, &remaddr, addr_len, 0);
+                trudpProcessChannelReceivedPacket(tcd, buffer, recvlen, &data_length);
             }
         }
     }
@@ -302,9 +302,9 @@ static void usage(char *name) {
 int main(int argc, char** argv) {
 
     // Show logo
-    fprintf(stderr, "TR-UDP two node connect sample application ver 0.0.4\n");
+    fprintf(stderr, "TR-UDP two node connect sample application ver 0.0.5\n");
 
-    int i;
+    int i/*, connected_f = 0*/;
     o_local_port = "8000"; // Default local port
     o_local_address = "0.0.0.0"; // Default local address
 
@@ -356,34 +356,38 @@ int main(int argc, char** argv) {
     WSAStartup(0x0202, &wsaData);
     #endif
 
+    // Bind UDP port and get FD (start listening at port)
+    int port = atoi(o_local_port);
+    int fd = trudpUdpBindRaw(&port, 1);
+    if(fd <= 0) die("Can't bind UDP port ...\n");
+    else fprintf(stderr, "Start listening at port %d\n", port);
+
     // Initialize TR-UDP
-    trudpData *td = trudpNew(NULL); //, processDataCb, sendPacketCb);
+    trudpData *td = trudpInit(fd, port, NULL); 
+    //trudpChannelData *td = trudpNewChannel(NULL); //, processDataCb, sendPacketCb);
+    
+    // Set callback functions
     trudpSetCallback(td, PROCESS_DATA, (trudpCb)processDataCb);
     trudpSetCallback(td, SEND, (trudpCb)sendPacketCb);
     trudpSetCallback(td, PROCESS_ACK, (trudpCb)processAckCb);
-
-    // Bind UDP port and get FD
-    int port = atoi(o_local_port);
-    td->fd = trudpUdpBindRaw(&port, 1);
-    if(td->fd <= 0) die("Can't bind UDP port ...\n");
-    else fprintf(stderr, "Start listening at port %d\n", port);
 
     // Create remote address and Send "connect" packet
     if(!o_listen) {
         char *connect = "Connect with TR-UDP!";
         size_t connect_length = strlen(connect) + 1;
-        trudpUdpMakeAddr(o_remote_address, o_remote_port_i, 
-                (__SOCKADDR_ARG) &td->remaddr, &td->addrlen);
-        td->connected_f = 1;
-        trudpSendData(td, connect, connect_length);
+        trudpChannelData *tcd = trudpNewChannel(td, o_remote_address, o_remote_port_i, 0);
+        trudpSendData(tcd, connect, connect_length);
+        //connected_f = 1;
     }
 
+    // Create messages
     char *hello_c = "Hello TR-UDP from client!";
     size_t hello_c_length = strlen(hello_c) + 1;
-
+    //
     char *hello_s = "Hello TR-UDP from server!";
     size_t hello_s_length = strlen(hello_s) + 1;
 
+    // Process networking
     i = 0;
     char *message;
     size_t message_length;
@@ -404,10 +408,10 @@ int main(int argc, char** argv) {
 
         // Send message
         tt = trudpGetTimestamp();
-        if((!o_listen || o_listen && td->connected_f) &&
+        if(/*(!o_listen || o_listen && connected_f) &&*/
            (tt - tt_s) > SEND_MESSAGE_AFTER) {
 
-          trudpSendData(td, message, message_length);
+          trudpSendDataToAll(td, message, message_length);
           tt_s = tt;
         }
 
@@ -419,6 +423,7 @@ int main(int argc, char** argv) {
 
     // Destroy TR-UDP
     trudpDestroy(td);
+    //trudpDestroyChannel(td);
     free(buffer);
 
     printf("Executed!\n");

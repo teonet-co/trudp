@@ -157,7 +157,7 @@ void check_map() {
         size_t key_lenth;
         void *key = trudpMapIteratorElementKey(el, &key_lenth);
         size_t data_lenth;
-        void *data = trudpMapIteratorElementData(el, &key_lenth);
+        void *data = trudpMapIteratorElementData(el, &data_lenth);
         //printf("\n #%d, idx: %u, hash: %010u, key: %s, data: %s ", 
         //       i, it->idx, el->hash, (char*)key, (char*)data);        
     }
