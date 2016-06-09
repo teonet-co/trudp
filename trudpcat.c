@@ -220,21 +220,17 @@ static void network_select_loop(trudpData *td, int timeout) {
     FD_ZERO(&rfds);
     FD_SET(td->fd, &rfds);
 
-    // Set sendQueue timer
-    uint32_t timeout_sq = 0;
-    if(td->sendQueue->q->first) {
-
-        uint32_t 
-        et = ((trudpPacketQueueData *)td->sendQueue->q->first->data)->expected_time,
-        ct = trudpGetTimestamp();
-        if(ct < et) timeout_sq = et - ct;
-
-        debug("timeout: %d, timeout_sq: %u\n", timeout, timeout_sq);
-    }
+    uint32_t timeout_sq = trudpGetSendQueueTimeout(td);
+    debug("set timeout: %.3f ms; default: %.3f ms, send_queue: %.3f ms%s\n", 
+            (timeout_sq < timeout ? timeout_sq : timeout) / 1000.0, 
+            timeout / 1000.0, 
+            timeout_sq / 1000.0,
+            timeout_sq == UINT32_MAX ? "(queue is empty)" : ""
+    );
 
     // Wait up to ~50 ms. */
     tv.tv_sec = 0;
-    tv.tv_usec = !timeout_sq | timeout_sq > timeout ? timeout : timeout_sq;
+    tv.tv_usec = timeout_sq < timeout ? timeout_sq : timeout;
 
     rv = select((int)td->fd + 1, &rfds, NULL, NULL, &tv);
 
@@ -248,7 +244,7 @@ static void network_select_loop(trudpData *td, int timeout) {
     else if(!rv) { // Idle or Timeout event
 
         // Process send queue
-        if(timeout_sq && timeout_sq < timeout) {
+        if(timeout_sq != UINT32_MAX) {
             int rv = trudpProcessSendQueue(td);
             debug("process send queue ... %d\n", rv);
         }

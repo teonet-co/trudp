@@ -455,3 +455,24 @@ inline void trudpSaveRemoteAddr(trudpData *td, struct sockaddr_in *remaddr,
         td->connected_f = 1;
     }    
 }
+
+/**
+ * Get send queue timeout
+ * 
+ * @param td Pointer to trudpData
+ * @return Send queue timeout (may by 0) or UINT32_MAX if send queue is empty
+ */
+uint32_t trudpGetSendQueueTimeout(trudpData *td) {
+    
+    // Get sendQueue timeout
+    uint32_t timeout_sq = UINT32_MAX;
+    if(td->sendQueue->q->first) {
+
+        uint32_t 
+        expected_t = ((trudpPacketQueueData *)td->sendQueue->q->first->data)->expected_time,
+        current_t = trudpGetTimestamp();
+        timeout_sq = current_t < expected_t ? expected_t - current_t : 0;
+    }    
+    
+    return timeout_sq;
+}
