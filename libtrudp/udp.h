@@ -75,4 +75,3 @@ char *trudpUdpGetAddr(__CONST_SOCKADDR_ARG remaddr, int *port);
 #endif
 
 #endif /* UDP_H */
-
