@@ -45,12 +45,12 @@ extern "C" {
 /**
  * Data received/send callback
  */
-typedef void (*trudpDataCb)(void *td, void *data, size_t data_length, void *user_data);
+typedef void (*trudpDataCb)(void *tcd, void *data, size_t data_length, void *user_data);
 
 /**
  * Event callback
  */
-typedef void (*trudpEventCb)(void *td, int event, void *data, size_t data_length, void *user_data);
+typedef void (*trudpEventCb)(void *tcd, int event, void *data, size_t data_length, void *user_data);
 
 /**
  * Union of TR-UDP callback
@@ -75,6 +75,17 @@ typedef enum trudpCallbsckType {
     SEND
             
 } trudpCallbsckType;
+
+/**
+ * Enumeration of TR-UDP events
+ */
+typedef enum trudpEvent {
+    
+    CONNECTED,
+    DISCONNECTED
+            
+} trudpEvent;
+
 
 /**
  * Trudp channel Data Structure
@@ -137,6 +148,7 @@ size_t trudpSendData(trudpChannelData *tcd, void *data, size_t data_length);
 void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet, 
         size_t packet_length, size_t *data_length);
 char *trudpMakeKey(char *addr, int port, int channel, size_t *key_length);
+char *trudpMakeKeyCannel(trudpChannelData *tcd);
 
 #ifdef __cplusplus
 }
