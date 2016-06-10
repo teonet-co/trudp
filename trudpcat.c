@@ -179,6 +179,12 @@ static void sendPacketCb(void *tcd_ptr, void *packet, size_t packet_length,
     //}
 }
 
+static void eventCb(void *tcd_ptr, int event, void *data, size_t data_size,
+        void *user_data) {
+    
+    printf("eventCb\n");
+}
+
 /**
  * The TR-UDP cat network loop
  *
@@ -302,7 +308,7 @@ static void usage(char *name) {
 int main(int argc, char** argv) {
 
     // Show logo
-    fprintf(stderr, "TR-UDP two node connect sample application ver 0.0.5\n");
+    fprintf(stderr, "TR-UDP two node connect sample application ver 0.0.6\n");
 
     int i/*, connected_f = 0*/;
     o_local_port = "8000"; // Default local port
@@ -364,12 +370,12 @@ int main(int argc, char** argv) {
 
     // Initialize TR-UDP
     trudpData *td = trudpInit(fd, port, NULL); 
-    //trudpChannelData *td = trudpNewChannel(NULL); //, processDataCb, sendPacketCb);
     
     // Set callback functions
     trudpSetCallback(td, PROCESS_DATA, (trudpCb)processDataCb);
     trudpSetCallback(td, SEND, (trudpCb)sendPacketCb);
     trudpSetCallback(td, PROCESS_ACK, (trudpCb)processAckCb);
+    trudpSetCallback(td, EVENT, (trudpCb)eventCb);
 
     // Create remote address and Send "connect" packet
     if(!o_listen) {
@@ -423,7 +429,6 @@ int main(int argc, char** argv) {
 
     // Destroy TR-UDP
     trudpDestroy(td);
-    //trudpDestroyChannel(td);
     free(buffer);
 
     printf("Executed!\n");

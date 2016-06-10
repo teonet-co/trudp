@@ -20,7 +20,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- * 
+ *
  * \file   tr-udp.c
  * \author Kirill Scherba <kirill@scherba.ru>
  *
@@ -265,65 +265,82 @@ size_t trudpSendData(trudpChannelData *tcd, void *data, size_t data_length) {
 }
 
 /**
- * Execute trudpProcessReceivedPacket callback
+ * Execute trudpDataCb callback
  *
- * @param packet Pointer to trudpChannelData
+ * @param tcd
+ * @param packet
  * @param data
  * @param data_length
  * @param user_data
  * @param cb
  */
-static void trudpExecProcessDataCallback(trudpChannelData *td, void *packet, void **data,
+static void trudpExecProcessDataCallback(trudpChannelData *tcd, void *packet, void **data,
         size_t *data_length, void *user_data, trudpDataCb cb) {
 
     *data = trudpPacketGetData(packet);
     *data_length = (size_t)trudpPacketGetDataLength(packet);
-    if(cb != NULL) cb(td, *data, *data_length, user_data);
+    if(cb != NULL) cb(tcd, *data, *data_length, user_data);
+}
+
+/**
+ * Execute trudpEventCb callback
+ *
+ * @param tcd
+ * @param event
+ * @param data
+ * @param data_length
+ * @param user_data
+ * @param cb
+ */
+static void trudpExecEventCallback(trudpChannelData *tcd, int event, void *data,
+        size_t data_length, void *user_data, trudpEventCb cb) {
+
+    if(cb != NULL) cb((void*)tcd, event, data, data_length, user_data);
 }
 
 /**
  * Create ACK packet and send it back to sender
  *
- * @param td Pointer to trudpChannelData
+ * @param tcd Pointer to trudpChannelData
  * @param packet Pointer to received packet
  */
-static inline void trudpSendACK(trudpChannelData *td, void *packet) {
+static inline void trudpSendACK(trudpChannelData *tcd, void *packet) {
 
     void *packetACK = trudpPacketACKcreateNew(packet);
-    trudpExecSendPacketCallback(td, packetACK, trudpPacketACKlength());
+    trudpExecSendPacketCallback(tcd, packetACK, trudpPacketACKlength());
     trudpPacketCreatedFree(packetACK);
 }
 
 /**
  * Create ACK to RESET packet and send it back to sender
  *
- * @param td Pointer to trudpChannelData
+ * @param tcd Pointer to trudpChannelData
  * @param packet Pointer to received packet
  */
-static inline void trudpSendACKtoRESET(trudpChannelData *td, void *packet) {
+static inline void trudpSendACKtoRESET(trudpChannelData *tcd, void *packet) {
 
     void *packetACK = trudpPacketACKtoRESETcreateNew(packet);
-    trudpExecSendPacketCallback(td, packetACK, trudpPacketACKlength());
+    trudpExecSendPacketCallback(tcd, packetACK, trudpPacketACKlength());
     trudpPacketCreatedFree(packetACK);
 }
 
 /**
  * Create RESET packet and send it to sender
  *
- * @param td Pointer to trudpChannelData
+ * @param tcd Pointer to trudpChannelData
  * @param packet Pointer to received packet
  */
-static inline void trudpSendRESET(trudpChannelData *td) {
+static inline void trudpSendRESET(trudpChannelData *tcd) {
 
-    void *packetRESET = trudpPacketRESETcreateNew(trudpGetNewId(td));
-    trudpExecSendPacketCallback(td, packetRESET, trudpPacketRESETlength());
+    void *packetRESET = trudpPacketRESETcreateNew(trudpGetNewId(tcd));
+    trudpExecSendPacketCallback(tcd, packetRESET, trudpPacketRESETlength());
     trudpPacketCreatedFree(packetRESET);
 }
 
 /**
  * Process received packet
  *
- * @param td Pointer to trudpChannelData
+ * @param tcd Pointer to trudpChannelData
  * @param packet Pointer to received packet
  * @param packet_length Packet length
  * @param data_length Pointer to variable to return packets data length
@@ -478,12 +495,15 @@ int trudpProcessChannelSendQueue(trudpChannelData *tcd) {
         tqd->retrieves++;
         rv++;
 
-        // \todo Stop at match retrieves
+        // Stop at match retrieves
         if(tqd->retrieves > MAX_RETRIEVES) {
-            fprintf(stderr, "To match TR-UDP channel retrieves! Disconnect channel ...\n");
+            char *key = trudpMakeKeyCannel(tcd);
+            fprintf(stderr, "Disconnect channel %s\n", key);
+            trudpExecEventCallback(tcd, DISCONNECTED, key, strlen(key) + 1,
+                    TD(tcd)->user_data, TD(tcd)->evendCb);
             trudpDestroyChannel(tcd);
+
             return -1;
-            //exit(-11);
         }
     }
 
@@ -493,7 +513,7 @@ int trudpProcessChannelSendQueue(trudpChannelData *tcd) {
 /**
  * Check all peers send Queue elements and resend elements with expired time
  *
- * @param tcd Pointer to trudpData
+ * @param td Pointer to trudpData
  *
  * @return Number of resend packets
  */
@@ -571,6 +591,20 @@ char *trudpMakeKey(char *addr, int port, int channel, size_t *key_length) {
 }
 
 /**
+ * Make key from channel data
+ * @param tcd Pointer to trudpChannelData
+ *
+ * @return Static buffer with key ip:port:channel
+ */
+char *trudpMakeKeyCannel(trudpChannelData *tcd) {
+
+    int port;
+    size_t key_length;
+    char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd->remaddr, &port);
+    return trudpMakeKey(addr, port, tcd->channel, &key_length);
+}
+
+/**
  * Save check remote address and select or create new trudpChannelData
  *
  * @param td Pointer to trudpData
@@ -587,6 +621,7 @@ trudpChannelData *trudpCheckRemoteAddr(trudpData *td, struct sockaddr_in *remadd
     trudpChannelData *tcd = (trudpChannelData *)trudpMapGet(td->map, key, key_length, &data_length);
     if(tcd == (void*)-1) {
         tcd = trudpNewChannel(td, addr, port, channel);
+        fprintf(stderr, "Connect channel %s\n", trudpMakeKeyCannel(tcd) );
     }
 
     return tcd;
