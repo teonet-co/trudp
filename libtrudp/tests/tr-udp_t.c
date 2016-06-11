@@ -129,10 +129,10 @@ static void process_received_packet_test() {
            data_length[] = { strlen(data[0]) + 1, strlen(data[1]) + 1, strlen(data[2]) + 1, strlen(data[3]) + 1 };
     void *rv,
          *packetDATA[] = { 
-            trudpPacketDATAcreateNew(trudpGetNewId(tcd), (void*)data[0], data_length[0], &packetLength[0]), 
-            trudpPacketDATAcreateNew(trudpGetNewId(tcd), (void*)data[1], data_length[1], &packetLength[1]),
-            trudpPacketDATAcreateNew(trudpGetNewId(tcd), (void*)data[2], data_length[2], &packetLength[2]),
-            trudpPacketDATAcreateNew(trudpGetNewId(tcd), (void*)data[3], data_length[3], &packetLength[3])
+            trudpPacketDATAcreateNew(trudpGetNewId(tcd), 0, (void*)data[0], data_length[0], &packetLength[0]), 
+            trudpPacketDATAcreateNew(trudpGetNewId(tcd), 0, (void*)data[1], data_length[1], &packetLength[1]),
+            trudpPacketDATAcreateNew(trudpGetNewId(tcd), 0, (void*)data[2], data_length[2], &packetLength[2]),
+            trudpPacketDATAcreateNew(trudpGetNewId(tcd), 0, (void*)data[3], data_length[3], &packetLength[3])
          };
     CU_ASSERT(trudpPacketCheck(packetDATA[0], packetLength[0]));
     CU_ASSERT(trudpPacketCheck(packetDATA[1], packetLength[1]));

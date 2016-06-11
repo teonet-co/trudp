@@ -28,7 +28,7 @@ void create_headers() {
     char *data = "Header with Hello!";
     size_t packetLength, data_length = strlen(data) + 1;
     uint32_t packetDATAid = GET_ID();
-    void *packetDATA = trudpPacketDATAcreateNew(packetDATAid, data, data_length, &packetLength);
+    void *packetDATA = trudpPacketDATAcreateNew(packetDATAid, 0, data, data_length, &packetLength);
     CU_ASSERT(trudpPacketCheck(packetDATA, packetLength));
     
     // Check getter functions
@@ -43,7 +43,7 @@ void create_headers() {
     CU_ASSERT(trudpPacketCheck(packetACK, trudpPacketACKlength()));
     
     // Create & check RESET packet
-    void *packetRESET = trudpPacketRESETcreateNew(GET_ID());
+    void *packetRESET = trudpPacketRESETcreateNew(GET_ID(),0);
     CU_ASSERT(trudpPacketCheck(packetRESET, trudpPacketRESETlength()));    
     
     // Free packets

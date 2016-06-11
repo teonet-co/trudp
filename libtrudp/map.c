@@ -77,38 +77,40 @@ trudpMapData *trudpMapResize(trudpMapData *map, size_t size) {
     trudpMapData *map_new = trudpMapNew(size, map->auto_resize_f); 
 
     // Loop through existing map and add it elements to new map
-    trudpMapIterator *it = trudpMapIteratorNew(map);
-    while(trudpMapIteratorNext(it)) {
-        trudpMapElementData *el = trudpMapIteratorElement(it);
+    trudpMapIterator *it;
+    if((it = trudpMapIteratorNew(map))) {
+        while(trudpMapIteratorNext(it)) {
+            trudpMapElementData *el = trudpMapIteratorElement(it);
 
-        #define _SHOW_RESIZED_MSG_ 0
-        #if _SHOW_RESIZED_MSG_
-        printf("\n #%d hash: %010u, key: %s, value: %s ", 
-               i, el->hash, (char*)el->data, (char*)el->data + el->key_length);
-        #endif
-        
-        trudpQueueData *qd_new, *qd = _trudpMapValueDataToQueueData(el);
-        int idx = el->hash % map_new->hash_map_size;
-        
-        #define _USE_PUT_ 1
-        #if _USE_PUT_
-        size_t qd_new_data_length = sizeof(trudpQueueData) + qd->data_length;
-        qd_new = (trudpQueueData *)malloc(qd_new_data_length);
-        memcpy(qd_new, qd, qd_new_data_length);
-        trudpQueuePut(map_new->q[idx], qd_new);
-        map_new->length++;
-        #else
-        size_t key_length;
-        void *key = trudpMapIteratorElementKey(el, &key_length);
-        size_t data_length;
-        void *data = trudpMapIteratorElementData(el, &data_length);
-        trudpMapAdd(map_new, key, key_length, data, data_length);
-        #endif
-        
-        i++;
+            #define _SHOW_RESIZED_MSG_ 0
+            #if _SHOW_RESIZED_MSG_
+            printf("\n #%d hash: %010u, key: %s, value: %s ", 
+                   i, el->hash, (char*)el->data, (char*)el->data + el->key_length);
+            #endif
+
+            trudpQueueData *qd_new, *qd = _trudpMapValueDataToQueueData(el);
+            int idx = el->hash % map_new->hash_map_size;
+
+            #define _USE_PUT_ 1
+            #if _USE_PUT_
+            size_t qd_new_data_length = sizeof(trudpQueueData) + qd->data_length;
+            qd_new = (trudpQueueData *)malloc(qd_new_data_length);
+            memcpy(qd_new, qd, qd_new_data_length);
+            trudpQueuePut(map_new->q[idx], qd_new);
+            map_new->length++;
+            #else
+            size_t key_length;
+            void *key = trudpMapIteratorElementKey(el, &key_length);
+            size_t data_length;
+            void *data = trudpMapIteratorElementData(el, &data_length);
+            trudpMapAdd(map_new, key, key_length, data, data_length);
+            #endif
+
+            i++;
+        }
+        // Destroy map iterator
+        trudpMapIteratorDestroy(it);
     }
-    // Destroy map iterator
-    trudpMapIteratorDestroy(it);
 
     // Free existing queues and move queues pointer of new map to existing
     for(i = 0; i < map->hash_map_size; i++) {

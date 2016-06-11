@@ -527,7 +527,6 @@ int trudpProcessSendQueue(trudpData *td) {
         trudpMapIterator *it;
         if((it = trudpMapIteratorNew(td->map))) {
             while((el = trudpMapIteratorNext(it))) {
-
                 size_t data_lenth;
                 trudpChannelData *tcd = (
                     trudpChannelData *)trudpMapIteratorElementData(el,
@@ -556,17 +555,19 @@ size_t trudpSendDataToAll(trudpData *td, void *data, size_t data_length) {
 
     int rv = 0;
 
+    trudpMapIterator *it;
     trudpMapElementData *el;
-    trudpMapIterator *it = trudpMapIteratorNew(td->map);
-    while((el = trudpMapIteratorNext(it))) {
-        size_t data_lenth;
-        trudpChannelData *tcd = (trudpChannelData *)trudpMapIteratorElementData(
-                el, &data_lenth
-        );
-        trudpSendData(tcd, data, data_length);
-        rv++;
+    if((it = trudpMapIteratorNew(td->map))) {
+        while((el = trudpMapIteratorNext(it))) {
+            size_t data_lenth;
+            trudpChannelData *tcd = (trudpChannelData *)
+                    trudpMapIteratorElementData(el, &data_lenth
+            );
+            trudpSendData(tcd, data, data_length);
+            rv++;
+        }
+        trudpMapIteratorDestroy(it);
     }
-    trudpMapIteratorDestroy(it);
 
     return rv;
 }
@@ -657,18 +658,19 @@ uint32_t trudpGetChannelSendQueueTimeout(trudpChannelData *tcd) {
  */
 uint32_t trudpGetSendQueueTimeout(trudpData *td) {
 
-    uint32_t timeout_sq = UINT32_MAX;
+    trudpMapIterator *it; 
     trudpMapElementData *el;
-    trudpMapIterator *it = trudpMapIteratorNew(td->map);
-    while((el = trudpMapIteratorNext(it))) {
-
-        size_t data_lenth;
-        trudpChannelData *tcd = (trudpChannelData *)trudpMapIteratorElementData(el, &data_lenth);
-        uint32_t ts = trudpGetChannelSendQueueTimeout(tcd);
-        if(ts < timeout_sq) timeout_sq = ts;
-        if(!timeout_sq) break;
+    uint32_t timeout_sq = UINT32_MAX;
+    if((it = trudpMapIteratorNew(td->map))) {
+        while((el = trudpMapIteratorNext(it))) {
+            size_t data_lenth;
+            trudpChannelData *tcd = (trudpChannelData *)trudpMapIteratorElementData(el, &data_lenth);
+            uint32_t ts = trudpGetChannelSendQueueTimeout(tcd);
+            if(ts < timeout_sq) timeout_sq = ts;
+            if(!timeout_sq) break;
+        }
+        trudpMapIteratorDestroy(it);
     }
-    trudpMapIteratorDestroy(it);
 
     return timeout_sq;
 }

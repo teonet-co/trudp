@@ -36,7 +36,7 @@ void timed_queue() {
     char *data = "Header with Hello!";
     size_t packetLength, data_length = strlen(data) + 1;
     uint32_t packet_id = GET_ID();
-    void *packetDATA = trudpPacketDATAcreateNew(packet_id, data, data_length, &packetLength);
+    void *packetDATA = trudpPacketDATAcreateNew(packet_id, 0, data, data_length, &packetLength);
     CU_ASSERT_FATAL(trudpPacketCheck(packetDATA, packetLength));
     CU_ASSERT_EQUAL(trudpPacketGetId(packetDATA), packet_id);
     
@@ -44,7 +44,7 @@ void timed_queue() {
     char *data2 = "Header with Hello 2!";
     size_t packetLength2, data_length2 = strlen(data2) + 1;
     uint32_t packet_id2 = GET_ID();
-    void *packetDATA2 = trudpPacketDATAcreateNew(packet_id2, data2, data_length2, &packetLength2);
+    void *packetDATA2 = trudpPacketDATAcreateNew(packet_id2, 0, data2, data_length2, &packetLength2);
     CU_ASSERT_FATAL(trudpPacketCheck(packetDATA2, packetLength2));
     CU_ASSERT_EQUAL(trudpPacketGetId(packetDATA2), packet_id2);
     

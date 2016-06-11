@@ -21,7 +21,7 @@ FC=gfortran
 AS=x86_64-w64-mingw32-as
 
 # Macros
-CND_PLATFORM=GNU-MinGW-64-Win32-Linux
+CND_PLATFORM=MinGW-w64-Win32-Debug-Linux
 CND_DLIB_EXT=so
 CND_CONF=MinGW-w64-Win32-Debug
 CND_DISTDIR=dist
