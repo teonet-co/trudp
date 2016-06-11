@@ -27,6 +27,8 @@
         <itemPath>libtrudp/queue.h</itemPath>
         <itemPath>libtrudp/tr-udp.c</itemPath>
         <itemPath>libtrudp/tr-udp.h</itemPath>
+        <itemPath>libtrudp/tr-udp_stat.c</itemPath>
+        <itemPath>libtrudp/tr-udp_stat.h</itemPath>
         <itemPath>libtrudp/udp.c</itemPath>
         <itemPath>libtrudp/udp.h</itemPath>
       </logicalFolder>
@@ -114,6 +116,10 @@
       </item>
       <item path="libtrudp/tr-udp.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="libtrudp/tr-udp_stat.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="libtrudp/tr-udp_stat.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="libtrudp/udp.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="libtrudp/udp.h" ex="false" tool="3" flavor2="0">
@@ -185,6 +191,10 @@
       </item>
       <item path="libtrudp/tr-udp.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="libtrudp/tr-udp_stat.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="libtrudp/tr-udp_stat.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="libtrudp/udp.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="libtrudp/udp.h" ex="false" tool="3" flavor2="0">
@@ -246,6 +256,10 @@
       <item path="libtrudp/tr-udp.c" ex="false" tool="0" flavor2="9">
       </item>
       <item path="libtrudp/tr-udp.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/tr-udp_stat.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="libtrudp/tr-udp_stat.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="libtrudp/udp.c" ex="false" tool="0" flavor2="9">
       </item>
@@ -316,6 +330,10 @@
       <item path="libtrudp/tr-udp.c" ex="false" tool="0" flavor2="9">
       </item>
       <item path="libtrudp/tr-udp.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/tr-udp_stat.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="libtrudp/tr-udp_stat.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="libtrudp/udp.c" ex="false" tool="0" flavor2="9">
       </item>
