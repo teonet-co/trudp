@@ -20,52 +20,27 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- *
- * \file   packet_queue.h
+ * 
+ * \file   utils.h
  * \author Kirill Scherba <kirill@scherba.ru>
  *
- * Created on May 30, 2016, 8:56 PM
+ * Created on June 12, 2016, 12:45 AM
  */
 
-#ifndef SEND_QUEUE_H
-#define SEND_QUEUE_H
-
-#include <stdint.h>
-#include "queue.h"
+#ifndef UTILS_H
+#define UTILS_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef struct trudpPacketQueue {
+char *formatMessage(const char *fmt, ...);
+char *sformatMessage(char *str_to_free, const char *fmt, ...);
 
-    trudpQueue *q;
-
-} trudpPacketQueue;
-
-typedef struct trudpPacketQueueData {
-
-    uint32_t expected_time;
-    uint32_t packet_length;
-    uint32_t retrieves;
-    char packet[];
-
-} trudpPacketQueueData;
-
-trudpPacketQueue *trudpPacketQueueNew();
-void trudpPacketQueueDestroy(trudpPacketQueue *tq);
-int trudpPacketQueueFree(trudpPacketQueue *tq);
-
-trudpQueueData *trudpPacketQueueDataToQueueData(trudpPacketQueueData *tqd);
-
-trudpPacketQueueData *trudpPacketQueueAdd(trudpPacketQueue *tq, void *packet,
-        size_t packet_length, uint32_t expected_time);
-int trudpPacketQueueDelete(trudpPacketQueue *tq, trudpPacketQueueData *tqd);
-trudpPacketQueueData *trudpPacketQueueFindById(trudpPacketQueue *tq, uint32_t id);
-trudpPacketQueueData *trudpPacketQueueFindByTime(trudpPacketQueue *tq, uint32_t t);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* SEND_QUEUE_H */
+#endif /* UTILS_H */
+

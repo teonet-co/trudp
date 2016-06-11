@@ -20,11 +20,9 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- */
-
-/* 
- * File:   map.h
- * Author: Kirill Scherba <kirill@scherba.ru>
+ * 
+ * \file   map.h
+ * \author Kirill Scherba <kirill@scherba.ru>
  *
  * Created on June 6, 2016, 12:26 PM
  */
@@ -82,8 +80,8 @@ trudpMapIterator *trudpMapIteratorNew(trudpMapData *map);
 int trudpMapIteratorDestroy(trudpMapIterator *map_it);
 trudpMapElementData *trudpMapIteratorNext(trudpMapIterator *map_it);
 trudpMapElementData *trudpMapIteratorElement(trudpMapIterator *map_it);
-void *trudpMapIteratorElementKey(trudpMapElementData *tmv, size_t *key_length);
-void *trudpMapIteratorElementData(trudpMapElementData *tmv, size_t *data_length);
+void *trudpMapIteratorElementKey(trudpMapElementData *el, size_t *key_length);
+void *trudpMapIteratorElementData(trudpMapElementData *el, size_t *data_length);
 
 #ifdef __cplusplus
 }

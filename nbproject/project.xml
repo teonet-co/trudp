@@ -48,6 +48,7 @@
             <word>trudp</word>
             <word>trudpcat</word>
             <word>Unhandled</word>
+            <word>utils</word>
         </spellchecker-wordlist>
     </configuration>
 </project>

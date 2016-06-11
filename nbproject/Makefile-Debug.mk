@@ -43,6 +43,7 @@ OBJECTFILES= \
 	${OBJECTDIR}/libtrudp/tr-udp.o \
 	${OBJECTDIR}/libtrudp/tr-udp_stat.o \
 	${OBJECTDIR}/libtrudp/udp.o \
+	${OBJECTDIR}/libtrudp/utils.o \
 	${OBJECTDIR}/main.o \
 	${OBJECTDIR}/trudpcat.o
 
@@ -124,6 +125,11 @@ ${OBJECTDIR}/libtrudp/udp.o: libtrudp/udp.c
 	${MKDIR} -p ${OBJECTDIR}/libtrudp
 	${RM} "$@.d"
 	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/udp.o libtrudp/udp.c
+
+${OBJECTDIR}/libtrudp/utils.o: libtrudp/utils.c 
+	${MKDIR} -p ${OBJECTDIR}/libtrudp
+	${RM} "$@.d"
+	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/utils.o libtrudp/utils.c
 
 ${OBJECTDIR}/main.o: main.cpp 
 	${MKDIR} -p ${OBJECTDIR}
@@ -279,6 +285,19 @@ ${OBJECTDIR}/libtrudp/udp_nomain.o: ${OBJECTDIR}/libtrudp/udp.o libtrudp/udp.c
 	    $(COMPILE.c) -g -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/udp_nomain.o libtrudp/udp.c;\
 	else  \
 	    ${CP} ${OBJECTDIR}/libtrudp/udp.o ${OBJECTDIR}/libtrudp/udp_nomain.o;\
+	fi
+
+${OBJECTDIR}/libtrudp/utils_nomain.o: ${OBJECTDIR}/libtrudp/utils.o libtrudp/utils.c 
+	${MKDIR} -p ${OBJECTDIR}/libtrudp
+	@NMOUTPUT=`${NM} ${OBJECTDIR}/libtrudp/utils.o`; \
+	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
+	then  \
+	    ${RM} "$@.d";\
+	    $(COMPILE.c) -g -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/utils_nomain.o libtrudp/utils.c;\
+	else  \
+	    ${CP} ${OBJECTDIR}/libtrudp/utils.o ${OBJECTDIR}/libtrudp/utils_nomain.o;\
 	fi
 
 ${OBJECTDIR}/main_nomain.o: ${OBJECTDIR}/main.o main.cpp 
