@@ -48,9 +48,13 @@ typedef struct trudpHeader {
      */
     unsigned int message_type : 4;
     /**
+     * TR-UDP channel number
+     */
+    unsigned int channel : 4;
+    /**
      * Payload length defines the number of bytes in the message payload
      */
-    uint16_t payload_length;
+    unsigned int payload_length : 12;
     /**
      * ID  is a message serial number that sender assigns to DATA and RESET 
      * messages. The ACK messages must copy the ID from the corresponding DATA 
@@ -166,10 +170,12 @@ uint32_t trudpGetTimestamp() {
  * @param timestamp Sending time of DATA or RESET messages
  */
 static void trudpHeaderCreate(trudpHeader *th, uint32_t id, 
-      unsigned int message_type, uint16_t payload_length, uint32_t timestamp) {
+      unsigned int message_type, unsigned int channel, uint16_t payload_length, 
+        uint32_t timestamp) {
     
     th->id = id;
-    th->message_type = message_type; //TRU_ACK;
+    th->message_type = message_type; 
+    th->channel = channel;
     th->payload_length = payload_length;
     th->timestamp = timestamp; //trudpHeaderTimestamp();
     th->version = TR_UDP_PROTOCOL_VERSION;
@@ -184,7 +190,7 @@ static void trudpHeaderCreate(trudpHeader *th, uint32_t id,
  */
 static inline void *trudpHeaderACKcreate(trudpHeader *out_th, trudpHeader *in_th) {
     
-    trudpHeaderCreate(out_th, in_th->id, TRU_ACK, 0, in_th->timestamp);
+    trudpHeaderCreate(out_th, in_th->id, TRU_ACK, in_th->channel, 0, in_th->timestamp);
 }
 
 /**
@@ -195,7 +201,7 @@ static inline void *trudpHeaderACKcreate(trudpHeader *out_th, trudpHeader *in_th
  */
 static inline void *trudpHeaderACKtoRESETcreate(trudpHeader *out_th, trudpHeader *in_th) {
     
-    trudpHeaderCreate(out_th, in_th->id, TRU_ACK | TRU_RESET, 0, in_th->timestamp);
+    trudpHeaderCreate(out_th, in_th->id, TRU_ACK | TRU_RESET, in_th->channel, 0, in_th->timestamp);
 }
 
 /**
@@ -204,9 +210,10 @@ static inline void *trudpHeaderACKtoRESETcreate(trudpHeader *out_th, trudpHeader
  * @param out_th Output buffer to create RESET package (header)
  * @param id Packet serial number
  */
-static inline void trudpHeaderRESETcreate(trudpHeader *out_th, uint32_t id) {
+static inline void trudpHeaderRESETcreate(trudpHeader *out_th, uint32_t id, 
+        unsigned int channel) {
     
-    trudpHeaderCreate(out_th, id, TRU_RESET, 0, trudpGetTimestamp());
+    trudpHeaderCreate(out_th, id, TRU_RESET, channel, 0, trudpGetTimestamp());
 }
 
 /**
@@ -216,9 +223,9 @@ static inline void trudpHeaderRESETcreate(trudpHeader *out_th, uint32_t id) {
  * @param id Packet serial number
  */
 static inline void trudpHeaderDATAcreate(trudpHeader *out_th, uint32_t id, 
-        void *data, size_t data_length) {
+        unsigned int channel, void *data, size_t data_length) {
     
-    trudpHeaderCreate(out_th, id, TRU_DATA, data_length, trudpGetTimestamp());
+    trudpHeaderCreate(out_th, id, TRU_DATA, channel, data_length, trudpGetTimestamp());
     if(data && data_length) 
         memcpy((void *)out_th + sizeof(trudpHeader), data, data_length);
 }
@@ -278,13 +285,14 @@ inline void *trudpPacketACKtoRESETcreateNew(void *in_th) {
  * Create RESET package
  * 
  * @param id Packet ID
+ * @param channel Channel number
  * 
  * @return Pointer to allocated RESET package, it should be free after use
  */
-inline void *trudpPacketRESETcreateNew(uint32_t id) {
+inline void *trudpPacketRESETcreateNew(uint32_t id, unsigned int channel) {
         
     trudpHeader *out_th = (trudpHeader *) malloc(sizeof(trudpHeader));
-    trudpHeaderRESETcreate(out_th, id);
+    trudpHeaderRESETcreate(out_th, id, channel);
             
     return (void *)out_th;
 }
@@ -299,12 +307,12 @@ inline void *trudpPacketRESETcreateNew(uint32_t id) {
  * 
  * @return Pointer to allocated and filled DATA package, it should be free after use
  */
-inline void *trudpPacketDATAcreateNew(uint32_t id, void *data, size_t data_length, 
-        size_t *packetLength) {
+inline void *trudpPacketDATAcreateNew(uint32_t id, unsigned int channel, 
+        void *data, size_t data_length, size_t *packetLength) {
     
     *packetLength = sizeof(trudpHeader) + data_length;
     trudpHeader *out_th = (trudpHeader *) malloc(*packetLength);
-    trudpHeaderDATAcreate(out_th, id, data, data_length);
+    trudpHeaderDATAcreate(out_th, id, channel, data, data_length);
     
     return (void *)out_th;
 }
@@ -349,6 +357,29 @@ inline void trudpPacketCreatedFree(void *in_th) {
 inline uint32_t trudpPacketGetId(void *packet) {
     
     return ((trudpHeader *)packet)->id;
+}
+
+/**
+ * Get channel number
+ * 
+ * @param packet Pointer to packet
+ * @return Packet Id
+ */
+inline int trudpPacketGetChannel(void *packet) {
+    
+    return ((trudpHeader *)packet)->channel;
+}
+
+/**
+ * Set channel number
+ * 
+ * @param packet Pointer to packet
+ * @param channel Channel number
+ * @return Packet Id
+ */
+inline int trudpPacketSetChannel(void *packet, int channel) {
+    
+    return ((trudpHeader *)packet)->channel;
 }
 
 /**

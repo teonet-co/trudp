@@ -38,7 +38,7 @@
 extern "C" {
 #endif
 
-#define TR_UDP_PROTOCOL_VERSION 1
+#define TR_UDP_PROTOCOL_VERSION 2
 #define MIN_ACK_WAIT 0.000732  // 000.732 MS
 #define MAX_ACK_WAIT 0.500  // 500 MS
 #define MAX_MAX_ACK_WAIT (MAX_ACK_WAIT * 20.0) // 10 sec
@@ -63,13 +63,15 @@ int trudpPacketCheck(void *th, size_t packetLength);
 
 void *trudpPacketACKcreateNew(void *in_th);
 void *trudpPacketACKtoRESETcreateNew(void *in_th);
-void *trudpPacketRESETcreateNew(uint32_t id);
-void *trudpPacketDATAcreateNew(uint32_t id, void *data, size_t data_length, size_t *packetLength);
+void *trudpPacketRESETcreateNew(uint32_t id, unsigned int channel);
+void *trudpPacketDATAcreateNew(uint32_t id, unsigned int channel, void *data, size_t data_length, size_t *packetLength);
 
 size_t trudpPacketACKlength();
 size_t trudpPacketRESETlength();
 
 uint32_t trudpPacketGetId(void *packet);
+int trudpPacketGetChannel(void *packet);
+int trudpPacketSetChannel(void *packet, int channel);
 void *trudpPacketGetData(void *packet);
 void *trudpPacketGetPacket(void *data);
 uint16_t trudpPacketGetDataLength(void *packet);
