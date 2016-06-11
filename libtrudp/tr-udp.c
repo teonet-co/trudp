@@ -248,8 +248,8 @@ size_t trudpSendData(trudpChannelData *tcd, void *data, size_t data_length) {
 
     // Create DATA package
     size_t packetLength;
-    void *packetDATA = trudpPacketDATAcreateNew(trudpGetNewId(tcd), data,
-            data_length, &packetLength);
+    void *packetDATA = trudpPacketDATAcreateNew(trudpGetNewId(tcd), tcd->channel,
+            data, data_length, &packetLength);
 
     // Save packet to send queue
     trudpPacketQueueAdd(tcd->sendQueue, packetDATA, packetLength,
@@ -332,7 +332,7 @@ static inline void trudpSendACKtoRESET(trudpChannelData *tcd, void *packet) {
  */
 static inline void trudpSendRESET(trudpChannelData *tcd) {
 
-    void *packetRESET = trudpPacketRESETcreateNew(trudpGetNewId(tcd));
+    void *packetRESET = trudpPacketRESETcreateNew(trudpGetNewId(tcd), tcd->channel);
     trudpExecSendPacketCallback(tcd, packetRESET, trudpPacketRESETlength());
     trudpPacketCreatedFree(packetRESET);
 }
