@@ -43,9 +43,12 @@ extern int usleep (__useconds_t __useconds);
 #endif
 
 #include "libtrudp/tr-udp.h"
+#include "libtrudp/utils_r.h"
+#include "libtrudp/tr-udp_stat.h"
 
 // Integer options
 int o_debug = 0,
+    o_statistic = 0,    
     o_listen = 0,
     o_numeric = 0,
     o_buf_size = 4096;
@@ -111,20 +114,28 @@ static void debug(char *fmt, ...)
 static void processDataCb(void *td_ptr, void *data, size_t data_length,
         void *user_data) {
 
-    trudpChannelData *td = (trudpChannelData *)td_ptr;
+    trudpChannelData *tcd = (trudpChannelData *)td_ptr;
 
 
     debug("got %d byte data, id=%u: ", (int)data_length,
                 trudpPacketGetId(trudpPacketGetPacket(data)));
 
-    if(!o_debug)
-        printf("#%u at %.3f [%.3f(%.3f) ms] ",
-               td->receiveExpectedId,
-               (double)trudpGetTimestamp() / 1000.0,
-               (double)td->triptime / 1000.0,
-               (double)td->triptimeMiddle / 1000.0);
+    if(!o_statistic) {
+        if(!o_debug)
+            printf("#%u at %.3f [%.3f(%.3f) ms] ",
+                   tcd->receiveExpectedId,
+                   (double)trudpGetTimestamp() / 1000.0,
+                   (double)tcd->triptime / 1000.0,
+                   (double)tcd->triptimeMiddle / 1000.0);       
 
-    printf("%s\n",(char*)data);
+        printf("%s\n",(char*)data);
+    }
+    else {
+        gotoxy(0,0);
+        char *stat_str = ksnTRUDPstatShowStr(TD(tcd));
+        puts(stat_str);
+        free(stat_str);
+    }
     debug("\n");
 }
 
@@ -158,25 +169,22 @@ static void sendPacketCb(void *tcd_ptr, void *packet, size_t packet_length,
 
     trudpChannelData *tcd = (trudpChannelData *)tcd_ptr;
 
-    // Write to UDP
-    //if(tcd->connected_f) {
+    // Send to UDP
+    trudpUdpSendto(TD(tcd)->fd, packet, packet_length, 
+            (__CONST_SOCKADDR_ARG) &tcd->remaddr, sizeof(tcd->remaddr));
 
-        trudpUdpSendto(TD(tcd)->fd, packet, packet_length, 
-                (__CONST_SOCKADDR_ARG) &tcd->remaddr, sizeof(tcd->remaddr));
-
-        int port,type;
-        uint32_t id = trudpPacketGetId(packet);
-        char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd->remaddr, &port);
-        if(!(type = trudpPacketGetType(packet))) {
-            debug("send %d bytes, id=%u, to %s:%d, %.3f(%.3f) ms\n",
-                (int)packet_length, id, addr, port,
-                tcd->triptime / 1000.0, tcd->triptimeMiddle / 1000.0);
-        }
-        else {
-            debug("send %d bytes %s id=%u, to %s:%d\n",
-                (int)packet_length, type == 1 ? "ACK":"RESET", id, addr, port);
-        }
-    //}
+    int port,type;
+    uint32_t id = trudpPacketGetId(packet);
+    char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd->remaddr, &port);
+    if(!(type = trudpPacketGetType(packet))) {
+        debug("send %d bytes, id=%u, to %s:%d, %.3f(%.3f) ms\n",
+            (int)packet_length, id, addr, port,
+            tcd->triptime / 1000.0, tcd->triptimeMiddle / 1000.0);
+    }
+    else {
+        debug("send %d bytes %s id=%u, to %s:%d\n",
+            (int)packet_length, type == 1 ? "ACK":"RESET", id, addr, port);
+    }
 }
 
 static void eventCb(void *tcd_ptr, int event, void *data, size_t data_size,
@@ -293,6 +301,7 @@ static void usage(char *name) {
 	fprintf(stderr, "    -p <port>   Local port\n");
 	fprintf(stderr, "    -s <IP>     Source IP\n");
 	fprintf(stderr, "    -B <size>   Buffer size\n");
+        fprintf(stderr, "    -S          Show statistic\n");
 //	fprintf(stderr, "    -n          Don't resolve hostnames\n");
 	fprintf(stderr, "\n");
 	exit(1);
@@ -316,7 +325,7 @@ int main(int argc, char** argv) {
 
     // Read parameters
     while(1) {
-            int c = getopt (argc, argv, "hdlp:B:s:n");
+            int c = getopt (argc, argv, "hdlp:B:s:nS");
             if (c == -1) break;
             switch(c) {
                 case 'h': usage(argv[0]);               break;
@@ -325,8 +334,9 @@ int main(int argc, char** argv) {
                 case 'p': o_local_port = optarg;	break;
                 case 'B': o_buf_size = atoi(optarg);	break;
                 case 's': o_local_address = optarg;	break;
-//                case 'n': o_numeric++;		  break;
+                //case 'n': o_numeric++;		  break;
                 //case 'w': break;	// timeout for connects and final net reads
+                case 'S': o_statistic++;                break;
                 default:  die("Unhandled argument: %c\n", c); break;
             }
     }

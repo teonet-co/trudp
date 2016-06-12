@@ -408,6 +408,7 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
 
                 // Statistic
                 tcd->stat.ack_receive++;
+                tcd->stat.wait = tcd->triptimeMiddle / 1000.0;
                 
                 break;
 
