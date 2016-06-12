@@ -178,12 +178,10 @@ void trudpDestroyChannel(trudpChannelData *tcd) {
     trudpPacketQueueDestroy(tcd->receiveQueue);
 
     int port;
-    size_t data_length, key_length;
+    size_t key_length;
     char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd->remaddr, &port);
     char *key = trudpMakeKey(addr, port, tcd->channel, &key_length);
     trudpMapDelete(TD(tcd)->map, key, key_length);
-
-    //free(tcd);
 }
 
 /**
@@ -465,10 +463,10 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
                 // Save outrunning packet to receiveQueue
                 else if(trudpPacketGetId(packet) > tcd->receiveExpectedId) {
 
-                    if(!trudpPacketQueueFindById(tcd->receiveQueue, trudpPacketGetId(packet)) )
+                    if(!trudpPacketQueueFindById(tcd->receiveQueue, trudpPacketGetId(packet)) ) {
                         trudpPacketQueueAdd(tcd->receiveQueue, packet, packet_length, 0);
-
-                    tcd->outrunning_cnt++; // Increment outrunning count
+                        tcd->outrunning_cnt++; // Increment outrunning count
+                    }
 
                     // \todo Send reset at match outrunning
                     if(tcd->outrunning_cnt > MAX_OUTRUNNING) {
@@ -537,7 +535,7 @@ int trudpProcessChannelSendQueue(trudpChannelData *tcd) {
         tqd->expected_time = trudpCalculateExpectedTime(tcd, ts);
         tcd->stat.packets_attempt++; // Attempt(repeat) statistic parameter increment
         tcd->stat.send_total += tqd->packet_length / (1024.0 * 1024.0);
-        tcd->triptimeMiddle *= 2;
+        //tcd->triptimeMiddle *= 2;
         tqd->retrieves++;
         rv++;
 

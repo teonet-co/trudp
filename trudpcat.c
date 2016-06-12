@@ -327,7 +327,7 @@ static void usage(char *name) {
 int main(int argc, char** argv) {
 
     // Show logo
-    fprintf(stderr, "TR-UDP two node connect sample application ver 0.0.6\n");
+    fprintf(stderr, "TR-UDP two node connect sample application ver 0.0.7\n");
 
     int i/*, connected_f = 0*/;
     o_local_port = "8000"; // Default local port
