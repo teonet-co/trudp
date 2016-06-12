@@ -39,6 +39,7 @@ extern "C" {
 #define CS_KEY_LENGTH 64
     
 #define MAX_RETRIEVES 10
+#define MAX_RETRIEVES_TIME 3 * 1000 * 1000
 #define MAX_OUTRUNNING 10    
 #define START_MIDDLE_TIME (MAX_ACK_WAIT/5) * 1000000    
     

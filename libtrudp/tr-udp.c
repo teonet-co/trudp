@@ -535,12 +535,12 @@ int trudpProcessChannelSendQueue(trudpChannelData *tcd) {
         tqd->expected_time = trudpCalculateExpectedTime(tcd, ts);
         tcd->stat.packets_attempt++; // Attempt(repeat) statistic parameter increment
         tcd->stat.send_total += tqd->packet_length / (1024.0 * 1024.0);
-        //tcd->triptimeMiddle *= 2;
+        if(!tqd->retrieves) tqd->retrieves_start = ts;
         tqd->retrieves++;
         rv++;
 
         // Stop at match retrieves
-        if(tqd->retrieves > MAX_RETRIEVES) {
+        if(tqd->retrieves > MAX_RETRIEVES || ts - tqd->retrieves_start > MAX_RETRIEVES_TIME) {
             char *key = trudpMakeKeyCannel(tcd);
             fprintf(stderr, "Disconnect channel %s\n", key);
             trudpExecEventCallback(tcd, DISCONNECTED, key, strlen(key) + 1,
