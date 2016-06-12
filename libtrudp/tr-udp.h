@@ -193,6 +193,7 @@ typedef struct trudpData {
     
     // Statistic
     trudpStatData stat;
+    uint32_t started;
     
 } trudpData;
 

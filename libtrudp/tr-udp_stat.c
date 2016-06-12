@@ -31,34 +31,35 @@
 #include <stdlib.h>
 
 #include "tr-udp_stat.h"
+#include "utils_r.h"
 #include "utils.h"
 
 /**
  * Initialize TR-UDP statistic
- * 
+ *
  * @param td
- * @return 
+ * @return
  */
 inline trudpStatData *trudpStatInit(trudpData *td) {
-    
+
     return trudpStatReset(td);
 }
 
 /**
  * Reset TR-UDP statistic
- * 
+ *
  * @param td
- * @return 
+ * @return
  */
 inline trudpStatData *trudpStatReset(trudpData *td) {
-    
+
     memset(&td->stat, 0, sizeof(td->stat));
     return &td->stat;
 }
 
 /**
  * Reset TR-UDP channel statistic
- * 
+ *
  * @param tcd
  */
 inline void trudpStatChannelInit(trudpChannelData *tcd) {
@@ -68,7 +69,7 @@ inline void trudpStatChannelInit(trudpChannelData *tcd) {
 
 /**
  * Reset TR-UDP channel statistic
- * 
+ *
  * @param tcd
  */
 inline void trudpStatChannelReset(trudpChannelData *tcd) {
@@ -81,42 +82,42 @@ inline void trudpStatChannelReset(trudpChannelData *tcd) {
  * TR-UDP statistic data
  */
 typedef struct trudpStat {
-    
+
     uint32_t packets_send; ///< Total packets send
     uint32_t ack_receive; ///< Total ACK reseived
     uint32_t packets_receive; ///< Total packet reseived
     uint32_t packets_dropped; ///< Total packet droped
-        
+
     uint32_t cs_num; ///< Number of chanels
     trudpStatChannelData cs[]; ///< Cannels statistic
-    
+
 } trudpStat;
 
 /**
  * Get TR-UDP statistic in binary or JSON format
- * 
+ *
  * @param td Pointer to trudpData
  * @param type Output type: 0 - binary structure trudp_stat; 1 - JSON string
  * @param stat_len [out] Size of return buffer
- * @return Binary structure or JSON string depend of type parameter or NULL at 
+ * @return Binary structure or JSON string depend of type parameter or NULL at
  *         error, should be free after use
  */
-void *ksnTRUDPstatGet(trudpData *td, int type, size_t *stat_len) {
-            
+void *trudpStatGet(trudpData *td, int type, size_t *stat_len) {
+
     if(stat_len != NULL) *stat_len = 0;
     void *retval = NULL;
-    
+
      // Binary output type
     if(!type) {
-        
+
         uint32_t cs_num = trudpMapSize(td->map);
         size_t ts_len = sizeof(trudpStat) + cs_num * sizeof(trudpStatChannelData);
 
         trudpStat *ts = (trudpStat *)malloc(ts_len);
         if(ts != NULL) {
-            
+
             memset(ts, 0, ts_len);
-            ts->cs_num = cs_num;    
+            ts->cs_num = cs_num;
             if(cs_num) {
 
                 trudpMapIterator *it = trudpMapIteratorNew(td->map);
@@ -134,10 +135,10 @@ void *ksnTRUDPstatGet(trudpData *td, int type, size_t *stat_len) {
                         ts->packets_receive += tcd->stat.packets_receive;
                         ts->packets_dropped += tcd->stat.packets_receive_dropped;
 
-                        // Cannel statistic 
+                        // Cannel statistic
                         memcpy(&ts->cs[i], &tcd->stat, sizeof(tcd->stat));
-                        memcpy(ts->cs[i].key, key, key_length < CS_KEY_LENGTH ? 
-                            key_length : CS_KEY_LENGTH - 1);                                                
+                        memcpy(ts->cs[i].key, key, key_length < CS_KEY_LENGTH ?
+                            key_length : CS_KEY_LENGTH - 1);
                         ts->cs[i].sq = trudpQueueSize(tcd->sendQueue->q);
                         ts->cs[i].rq = trudpQueueSize(tcd->receiveQueue->q);
                         i++;
@@ -145,28 +146,28 @@ void *ksnTRUDPstatGet(trudpData *td, int type, size_t *stat_len) {
                     trudpMapIteratorDestroy(it);
                 }
             }
-            
+
             // Set return values
-            if(stat_len != NULL) *stat_len = ts_len;            
+            if(stat_len != NULL) *stat_len = ts_len;
             retval = ts;
         }
     }
-    
+
     // JSON string output type
     else {
-        
+
         size_t ts_len;
-        trudpStat *ts = ksnTRUDPstatGet(td, 0, &ts_len);
-        
+        trudpStat *ts = trudpStatGet(td, 0, &ts_len);
+
         if(ts != NULL) {
-            
+
             int i;
             char *cs = strdup("");
             for(i = 0; i < ts->cs_num; i++) {
                 cs = sformatMessage(cs,
                     "%s%s"
                     "{ "
-                    "\"key\": \"%s\", "    
+                    "\"key\": \"%s\", "
                     "\"ack_receive\": %d, "
                     "\"packets_attempt\": %d, "
                     "\"packets_receive\": %d, "
@@ -175,7 +176,7 @@ void *ksnTRUDPstatGet(trudpData *td, int type, size_t *stat_len) {
                     "\"receive_speed\": %11.3f, "
                     "\"receive_total\": %10.3f, "
                     "\"send_speed\": %11.3f, "
-                    "\"send_total\": %10.3f, " 
+                    "\"send_total\": %10.3f, "
                     "\"triptime_avg\": %d, "
                     "\"triptime_last\": %d, "
                     "\"triptime_last_max\": %d, "
@@ -206,7 +207,7 @@ void *ksnTRUDPstatGet(trudpData *td, int type, size_t *stat_len) {
                     ts->cs[i].rq
                 );
             }
-            
+
             char *json_str = formatMessage(
                 "{ "
                 "\"packets_send\": %d, "
@@ -221,16 +222,120 @@ void *ksnTRUDPstatGet(trudpData *td, int type, size_t *stat_len) {
                 ts->packets_receive,
                 ts->packets_dropped,
                 ts->cs_num,
-                cs    
+                cs
             );
             free(cs);
 
             // Set return values and free used memory
             if(stat_len != NULL) *stat_len = strlen(json_str);
             retval = json_str;
-            free(ts);            
+            free(ts);
         }
     }
-    
+
     return retval;
+}
+
+/**
+ * Show TR-UDP statistics
+ *
+ * Return string with statistics. It should be free after use.
+ *
+ * @param tu
+ *
+ * @return Pointer to allocated string with statistics
+ */
+char * ksnTRUDPstatShowStr(trudpData *td) {
+
+
+    uint32_t packets_send = 0,
+             packets_receive = 0,
+             ack_receive = 0,
+             packets_dropped = 0;
+
+    int i = 0;
+    char *tbl_str = strdup("");
+    trudpMapIterator *it = trudpMapIteratorNew(td->map);
+    if(it != NULL) {
+
+        while(trudpMapIteratorNext(it)) {
+
+            size_t key_len;
+            trudpMapElementData *el = trudpMapIteratorElement(it);
+            char *key = trudpMapIteratorElementKey(el, &key_len);
+            trudpChannelData *tcd = (trudpChannelData *)
+                                    trudpMapIteratorElementData(el, NULL);
+
+            packets_send += tcd->stat.packets_send;
+            ack_receive += tcd->stat.ack_receive;
+            packets_receive += tcd->stat.packets_receive;
+            packets_dropped += tcd->stat.packets_receive_dropped;
+
+            tbl_str = sformatMessage(tbl_str,
+                "%s%3d "_ANSI_BROWN"%-20.*s"_ANSI_NONE" %8d %11.3f %10.3f %9.3f %8d %11.3f %10.3f %8d %8d %8d %6d %6d\n",
+                tbl_str, i + 1,
+                key_len, key,
+                tcd->stat.packets_send,
+                (double)(1.0 * tcd->stat.send_speed / 1024.0),
+                tcd->stat.send_total,
+                tcd->stat.wait,
+                tcd->stat.packets_receive,
+                (double)(1.0 * tcd->stat.receive_speed / 1024.0),
+                tcd->stat.receive_total,
+                tcd->stat.ack_receive,
+                tcd->stat.packets_attempt,
+                tcd->stat.packets_receive_dropped,
+                trudpQueueSize(tcd->sendQueue->q),
+                trudpQueueSize(tcd->receiveQueue->q)
+            );
+            i++;
+        }
+        trudpMapIteratorDestroy(it);
+    }
+
+    char *ret_str = formatMessage(
+        _ANSI_CLS"\033[0;0H"
+        "\n"
+        "---------------------------------------------------------------------------------------------------------------------------------------------\n"
+        "TR-UDP statistics:\n"
+        "---------------------------------------------------------------------------------------------------------------------------------------------\n"
+        "Run time: %f sec\n"
+        "\n"
+        "Packets sent: %-12d                " "Send list:                      " "Receive Heap:\n"
+        "ACK receive: %-12d                 " "  size_max: %-12d        "        "  size_max: %-12d\n"
+        "Packets receive: %-12d             " "  size_current: %-12d    "        "  size_current: %-12d\n"
+        "Packets receive and dropped: %-12d " "  attempts: %-12d\n"
+        "\n"
+        "List of channels:\n"
+        "---------------------------------------------------------------------------------------------------------------------------------------------\n"
+        "  # Key                      Send  Speed(kb/s)  Total(mb)  Wait(ms) ǀ  Recv  Speed(kb/s)  Total(mb)     ACK ǀ Repeat     Drop ǀ   SQ     RQ  \n"
+        "---------------------------------------------------------------------------------------------------------------------------------------------\n"
+        "%s"
+        "---------------------------------------------------------------------------------------------------------------------------------------------\n"
+        "  "
+        _ANSI_GREEN"send:"_ANSI_NONE" send packets, "
+        _ANSI_GREEN"speed:"_ANSI_NONE" send speed(kb/s), "
+        _ANSI_GREEN"total:"_ANSI_NONE" send in megabytes, "
+        _ANSI_GREEN"wait:"_ANSI_NONE" time to wait ACK, "
+        _ANSI_GREEN"recv:"_ANSI_NONE" receive packets   \n"
+
+        "  "
+        _ANSI_GREEN"ACK:"_ANSI_NONE" receive ACK,   "
+        _ANSI_GREEN"repeat:"_ANSI_NONE" resend packets,  "
+        _ANSI_GREEN"drop:"_ANSI_NONE" receive duplicate,  "
+        _ANSI_GREEN"SQ:"_ANSI_NONE" send queue,         "
+        _ANSI_GREEN"RQ:"_ANSI_NONE" receive queue       \n"
+        , (trudpGetTimestamp() - td->started) / 1000000.0
+
+        , packets_send
+        , ack_receive, td->stat.send_list.size_max, td->stat.receive_heap.size_max
+        , packets_receive, td->stat.send_list.size_current, td->stat.receive_heap.size_current
+        , packets_dropped, td->stat.send_list.attempt
+
+        , tbl_str
+    );
+
+    free(tbl_str);
+
+    return ret_str;
 }

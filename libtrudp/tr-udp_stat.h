@@ -36,11 +36,21 @@
 extern "C" {
 #endif
     
+typedef enum trudpStatType {
+ 
+    BINARY_TYPE,
+    JSON_TYPE
+            
+} trudpStatType;    
+    
 inline trudpStatData *trudpStatInit(trudpData *td);
 inline trudpStatData *trudpStatReset(trudpData *td);
 
 inline void trudpStatChannelInit(trudpChannelData *tcd);
 inline void trudpStatChannelReset(trudpChannelData *tcd);
+
+void *trudpStatGet(trudpData *td, int type, size_t *stat_len);
+char * ksnTRUDPstatShowStr(trudpData *td);
 
 #ifdef __cplusplus
 }
