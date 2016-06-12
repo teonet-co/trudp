@@ -46,6 +46,7 @@ static void trudpSetDefaults(trudpChannelData *tcd) {
 
     tcd->sendId = 0;
     tcd->triptime = 0;
+    tcd->triptimeFactor = 1.5; 
     tcd->outrunning_cnt = 0;
     tcd->receiveExpectedId = 0;
     tcd->triptimeMiddle = START_MIDDLE_TIME;
@@ -398,16 +399,20 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
                     trudpPacketGetTimestamp(packet);
 
                 // Calculate and set middle triptime value
-                tcd->triptimeMiddle = tcd->triptimeMiddle == START_MIDDLE_TIME ? tcd->triptime * 1.5 : // Set first middle time
-                    tcd->triptime > tcd->triptimeMiddle ? tcd->triptime : // Set middle time to max triptime
-                        (tcd->triptimeMiddle * 9 + tcd->triptime) / 10.0; // Calculate middle value
-
+                tcd->triptimeMiddle = tcd->triptimeMiddle == START_MIDDLE_TIME ? tcd->triptime * tcd->triptimeFactor : // Set first middle time
+                    tcd->triptime > tcd->triptimeMiddle ? tcd->triptime * tcd->triptimeFactor : // Set middle time to max triptime
+                        (tcd->triptimeMiddle * 19 + tcd->triptime) / 20.0; // Calculate middle value                
+                // Correct triptimeMiddle
+                if(tcd->triptimeMiddle < tcd->triptime * tcd->triptimeFactor) 
+                    tcd->triptimeMiddle = tcd->triptime * tcd->triptimeFactor;
+                
                 // Process ACK data callback
                 trudpExecProcessDataCallback(tcd, packet, &data, data_length,
                         TD(tcd)->user_data, TD(tcd)->processAckCb);
 
                 // Statistic
                 tcd->stat.ack_receive++;
+                tcd->stat.triptime_last = tcd->triptime;
                 tcd->stat.wait = tcd->triptimeMiddle / 1000.0;
                 
                 break;

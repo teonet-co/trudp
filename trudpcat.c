@@ -105,6 +105,18 @@ static void debug(char *fmt, ...)
 }
 
 /**
+ * Show statistic window
+ * @param td
+ */
+static void showStatistic(trudpData *td) {
+    
+    gotoxy(0,0);
+    char *stat_str = ksnTRUDPstatShowStr(td);
+    puts(stat_str);
+    free(stat_str);
+}
+
+/**
  * TR-UDP process data callback
  *
  * @param data
@@ -131,10 +143,8 @@ static void processDataCb(void *td_ptr, void *data, size_t data_length,
         printf("%s\n",(char*)data);
     }
     else {
-        gotoxy(0,0);
-        char *stat_str = ksnTRUDPstatShowStr(TD(tcd));
-        puts(stat_str);
-        free(stat_str);
+        // Show statistic window
+        //showStatistic(TD(tcd));
     }
     debug("\n");
 }
@@ -150,11 +160,11 @@ static void processDataCb(void *td_ptr, void *data, size_t data_length,
 static void processAckCb(void *td_ptr, void *data, size_t data_length, 
         void *user_data) {
 
-    trudpChannelData *td = (trudpChannelData *)td_ptr;
+    trudpChannelData *tcd = (trudpChannelData *)td_ptr;
 
     debug("got ACK id=%u processed %.3f(%.3f) ms\n",
            trudpPacketGetId(trudpPacketGetPacket(data)),
-           (td->triptime)/1000.0, (td->triptimeMiddle)/1000.0  );
+           (tcd->triptime)/1000.0, (tcd->triptimeMiddle)/1000.0  );
 }
 
 /**
@@ -427,6 +437,7 @@ int main(int argc, char** argv) {
         if(/*(!o_listen || o_listen && connected_f) &&*/
            (tt - tt_s) > SEND_MESSAGE_AFTER) {
 
+          if(o_statistic) showStatistic(td);  
           trudpSendDataToAll(td, message, message_length);
           tt_s = tt;
         }

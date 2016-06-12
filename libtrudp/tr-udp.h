@@ -137,7 +137,8 @@ typedef struct trudpChannelData {
     
     uint32_t sendId; ///< Send ID
     trudpPacketQueue *sendQueue; ///< Pointer to send queue trudpPacketQueue
-    uint32_t triptime; ///< Trip time
+    uint32_t triptime; ///< Trip time 
+    double triptimeFactor; ///< Triptime factor
     uint32_t triptimeMiddle; ///< Trip time middle
         
     uint32_t receiveExpectedId; ///< Ecpected recive Id
