@@ -452,13 +452,14 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
                         trudpExecProcessDataCallback(tcd, tqd->packet, &data,
                             data_length, TD(tcd)->user_data,
                             TD(tcd)->processDataCb);
+                        
+                        trudpPacketQueueDelete(tcd->receiveQueue, tqd);
                     }
                     
                     // Statistic
                     tcd->stat.packets_receive++;
                     tcd->stat.receive_total += packet_length / (1024.0 * 1024.0); 
  
-
                     tcd->outrunning_cnt = 0; // Reset outrunning flag
                 }
                 // Save outrunning packet to receiveQueue
