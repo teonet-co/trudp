@@ -63,6 +63,7 @@ int o_remote_port_i;
 
 // Application exit code and flags
 int exit_code = EXIT_SUCCESS,
+    connected_flag = 0,
     quit_flag = 0;
 
 // Read buffer
@@ -106,7 +107,7 @@ static void debug(char *fmt, ...)
 
 /**
  * Show statistic window
- * @param td
+ * @param td Pointer to trudpData
  */
 static void showStatistic(trudpData *td) {
     
@@ -197,10 +198,46 @@ static void sendPacketCb(void *tcd_ptr, void *packet, size_t packet_length,
     }
 }
 
+/**
+ * TR-UDP event callback
+ * 
+ * @param tcd_ptr
+ * @param event
+ * @param data
+ * @param data_size
+ * @param user_data
+ */
 static void eventCb(void *tcd_ptr, int event, void *data, size_t data_size,
         void *user_data) {
     
-    printf("eventCb\n");
+    switch(event) {
+        
+        case DISCONNECTED: printf("Disconnected\n"); connected_flag = 0; break;
+        default: break;
+    }
+}
+
+/**
+ * Connect to peer
+ * 
+ * @param td
+ * @return 
+ */
+static trudpChannelData *connectToPeer(trudpData *td) {
+    
+    trudpChannelData *tcd = NULL;
+            
+    // Create remote address and Send "connect" packet
+    if(!o_listen) {
+        char *connect = "Connect with TR-UDP!";
+        size_t connect_length = strlen(connect) + 1;
+        tcd = trudpNewChannel(td, o_remote_address, o_remote_port_i, 0);
+        trudpSendData(tcd, connect, connect_length);
+        fprintf(stderr, "Connecting to %s:%u:%u\n", o_remote_address, o_remote_port_i, 0);
+        connected_flag = 1;
+    }
+    
+    return tcd;
 }
 
 /**
@@ -325,9 +362,13 @@ static void usage(char *name) {
  * @return
  */
 int main(int argc, char** argv) {
+    
+    #define APP_VERSION "0.0.10"
 
     // Show logo
-    fprintf(stderr, "TR-UDP two node connect sample application ver 0.0.9\n");
+    fprintf(stderr, 
+            "TR-UDP two node connect sample application ver " APP_VERSION "\n"
+    );
 
     int i/*, connected_f = 0*/;
     o_local_port = "8000"; // Default local port
@@ -397,15 +438,6 @@ int main(int argc, char** argv) {
     trudpSetCallback(td, PROCESS_ACK, (trudpCb)processAckCb);
     trudpSetCallback(td, EVENT, (trudpCb)eventCb);
 
-    // Create remote address and Send "connect" packet
-    if(!o_listen) {
-        char *connect = "Connect with TR-UDP!";
-        size_t connect_length = strlen(connect) + 1;
-        trudpChannelData *tcd = trudpNewChannel(td, o_remote_address, o_remote_port_i, 0);
-        trudpSendData(tcd, connect, connect_length);
-        fprintf(stderr, "Connecting to %s:%u:%u\n", o_remote_address, o_remote_port_i, 0);
-    }
-
     // Create messages
     char *hello_c = "Hello TR-UDP from client!";
     size_t hello_c_length = strlen(hello_c) + 1;
@@ -418,10 +450,11 @@ int main(int argc, char** argv) {
     char *message;
     size_t message_length;
     const int DELAY = 500; // mSec
-    const int SEND_MESSAGE_AFTER = 100000; // nSec
+    const int SEND_MESSAGE_AFTER = 100000; // uSec (mSec * 1000)
+    const int RECONNECT_AFTER = 2000000; // uSec (mSec * 1000)
     if(!o_listen) { message = hello_c; message_length = hello_c_length; }
     else { message = hello_s; message_length = hello_s_length; }
-    uint32_t tt, tt_s = 0;
+    uint32_t tt, tt_s = 0, tt_c = 0;
     while (!quit_flag) {
 
         #define USE_SELECT 1
@@ -432,16 +465,26 @@ int main(int argc, char** argv) {
         network_select_loop(td, DELAY * 1000);
         #endif
 
-        // Send message
+        // Current timestamp 
         tt = trudpGetTimestamp();
+        
+        // Connect
+        if(!o_listen && !connected_flag) {
+            if((tt - tt_c) > RECONNECT_AFTER) {
+                connectToPeer(td);
+                tt_c = tt;
+            }
+        }
+
+        // Send message
         if(/*(!o_listen || o_listen && connected_f) &&*/
            (tt - tt_s) > SEND_MESSAGE_AFTER) {
 
-          if(o_statistic) showStatistic(td);  
-          trudpSendDataToAll(td, message, message_length);
-          tt_s = tt;
+            if(o_statistic) showStatistic(td);  
+            trudpSendDataToAll(td, message, message_length);
+            tt_s = tt;
         }
-
+        
         #if !USE_SELECT
         usleep(DELAY);
         #endif
