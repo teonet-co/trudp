@@ -115,6 +115,12 @@ static void showStatistic(trudpData *td) {
     char *stat_str = ksnTRUDPstatShowStr(td);
     puts(stat_str);
     free(stat_str);
+    // Check key !!!
+    int ch = nb_getch();
+    if(ch) {
+        // ...
+        printf("key %c pressed\n", ch);
+    }
 }
 
 /**
@@ -363,7 +369,7 @@ static void usage(char *name) {
  */
 int main(int argc, char** argv) {
     
-    #define APP_VERSION "0.0.10"
+    #define APP_VERSION "0.0.11"
 
     // Show logo
     fprintf(stderr, 

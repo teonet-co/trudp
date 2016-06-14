@@ -49,6 +49,9 @@ inline trudpStatData *trudpStatReset(trudpData *td);
 inline void trudpStatChannelInit(trudpChannelData *tcd);
 inline void trudpStatChannelReset(trudpChannelData *tcd);
 
+void trudpStatProcessLast10Send(trudpChannelData *tcd, void *packet, size_t send_data_length);
+void trudpStatProcessLast10Receive(trudpChannelData *tcd, void *packet);
+
 void *trudpStatGet(trudpData *td, int type, size_t *stat_len);
 char * ksnTRUDPstatShowStr(trudpData *td);
 

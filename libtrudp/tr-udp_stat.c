@@ -79,6 +79,93 @@ inline void trudpStatChannelReset(trudpChannelData *tcd) {
 }
 
 /**
+ * Process packet and calculate last 10 send packets array
+ * 
+ * @param tcd Pointer to trudpChannelData
+ * @param packet Pointer to packet
+ * @param send_data_length Send packet data size
+ */
+void trudpStatProcessLast10Send(trudpChannelData *tcd, void *packet, size_t send_data_length) {
+    
+    // Add triptime to last 10 array
+    tcd->stat.last_send_packets_ar[tcd->stat.idx_snd].triptime = tcd->stat.triptime_last;
+
+    // Add last data size to last 10 array
+    uint32_t size_b = send_data_length + trudpPacketGetHeaderLength(packet);
+    tcd->stat.last_send_packets_ar[tcd->stat.idx_snd].size_b = size_b;
+    tcd->stat.send_total += 1.0 * size_b / (1024.0 * 1024.0);
+    tcd->stat.last_send_packets_ar[tcd->stat.idx_snd].ts = trudpPacketGetTimestamp(packet);
+
+    // Last 10 array next index
+    tcd->stat.idx_snd++;
+    if(tcd->stat.idx_snd >= LAST10_SIZE) tcd->stat.idx_snd = 0;
+
+
+    // Calculate max triptime & speed in bytes in sec in last 10 packet
+    {
+        int i;
+        uint32_t min_ts = UINT32_MAX, max_ts = 0, size_b = 0;
+        uint32_t triptime_last_max = 0;
+        for(i = 0; i < LAST10_SIZE; i++) {
+
+            // Last maximum triptime
+            if(tcd->stat.last_send_packets_ar[i].triptime > triptime_last_max)
+                triptime_last_max = tcd->stat.last_send_packets_ar[i].triptime;
+
+            // Calculate size sum & define minimum and maximum timestamp
+            size_b += tcd->stat.last_send_packets_ar[i].size_b;
+            if(tcd->stat.last_send_packets_ar[i].ts > max_ts) max_ts = tcd->stat.last_send_packets_ar[i].ts;
+            else if (tcd->stat.last_send_packets_ar[i].ts > 0 && tcd->stat.last_send_packets_ar[i].ts < min_ts) min_ts = tcd->stat.last_send_packets_ar[i].ts;
+        }
+
+        // Last maximal triptime
+        tcd->stat.triptime_last_max = (tcd->stat.triptime_last_max + 2 * triptime_last_max) / 3;
+
+        // Send speed
+        uint32_t dif_ts = max_ts - min_ts;
+        if(dif_ts) tcd->stat.send_speed = 1.0 * size_b / (1.0 * (dif_ts) / 1000000.0);
+        else tcd->stat.send_speed = 0;
+    }    
+}
+
+/**
+ * Process packet and calculate last 10 received packets array
+ * 
+ * @param tcd Pointer to trudpChannelData
+ * @param packet Pointer to packet
+ */
+void trudpStatProcessLast10Receive(trudpChannelData *tcd, void *packet) {
+
+    // Add last data size to last 10 array
+    uint32_t size_b = trudpPacketGetDataLength(packet) + trudpPacketGetHeaderLength(packet);
+    tcd->stat.last_receive_packets_ar[tcd->stat.idx_rcv].size_b = size_b;
+    tcd->stat.last_receive_packets_ar[tcd->stat.idx_rcv].ts = trudpPacketGetTimestamp(packet);
+    tcd->stat.receive_total += 1.0 * size_b / (1024.0 * 1024.0);
+
+    // Last 10 array next index
+    tcd->stat.idx_rcv++;
+    if(tcd->stat.idx_rcv >= LAST10_SIZE) tcd->stat.idx_rcv = 0;
+
+    // Calculate speed in bytes in sec in last 10 packet
+    {
+        int i;
+        uint32_t min_ts = UINT32_MAX, max_ts = 0, size_b = 0;
+        for(i = 0; i < LAST10_SIZE; i++) {
+
+            // Calculate size sum & define minimum and maximum timestamp
+            size_b += tcd->stat.last_receive_packets_ar[i].size_b;
+            if(tcd->stat.last_receive_packets_ar[i].ts > max_ts) max_ts = tcd->stat.last_receive_packets_ar[i].ts;
+            else if (tcd->stat.last_receive_packets_ar[i].ts > 0 && tcd->stat.last_receive_packets_ar[i].ts < min_ts) min_ts = tcd->stat.last_receive_packets_ar[i].ts;
+        }
+
+        // Receive speed
+        uint32_t dif_ts = max_ts - min_ts;
+        if(dif_ts) tcd->stat.receive_speed = 1.0 * size_b / (1.0 * (dif_ts) / 1000000.0);
+        else tcd->stat.receive_speed = 0;
+    }
+}
+
+/**
  * TR-UDP statistic data
  */
 typedef struct trudpStat {
@@ -296,6 +383,7 @@ char * ksnTRUDPstatShowStr(trudpData *td) {
 
     char *ret_str = formatMessage(
         _ANSI_CLS"\033[0;0H"
+        "---------------------------------------------------------------------------------------------------------------------------------------------------------\n"
         "TR-UDP statistics, running time: %f sec\n"
         "---------------------------------------------------------------------------------------------------------------------------------------------------------\n"
         "\n"
@@ -306,7 +394,7 @@ char * ksnTRUDPstatShowStr(trudpData *td) {
         "\n"
         "List of channels:\n"
         "---------------------------------------------------------------------------------------------------------------------------------------------------------\n"
-        "  # Key                      Send  Speed(kb/s)  Total(mb) Trip time / Wait(ms) |   Recv Speed(kb/s)  Total(mb)      ACK | Repeat     Drop |   SQ     RQ  \n"
+        "  # Key                      Send  Speed(kb/s)  Total(mb) Trip time /  Wait(ms) |  Recv  Speed(kb/s)  Total(mb)     ACK | Repeat     Drop |   SQ     RQ  \n"
         "---------------------------------------------------------------------------------------------------------------------------------------------------------\n"
         "%s"
         "---------------------------------------------------------------------------------------------------------------------------------------------------------\n"
@@ -320,7 +408,7 @@ char * ksnTRUDPstatShowStr(trudpData *td) {
         "  "
         _ANSI_GREEN"ACK:"_ANSI_NONE" receive ACK,   "
         _ANSI_GREEN"repeat:"_ANSI_NONE" resend packets,  "
-        _ANSI_GREEN"drop:"_ANSI_NONE" receive duplicate,  "
+        _ANSI_GREEN"drop:"_ANSI_NONE" duplicate received, "
         _ANSI_GREEN"SQ:"_ANSI_NONE" send queue,         "
         _ANSI_GREEN"RQ:"_ANSI_NONE" receive queue       \n"
         , (trudpGetTimestamp() - td->started) / 1000000.0
