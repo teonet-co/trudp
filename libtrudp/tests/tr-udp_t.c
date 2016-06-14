@@ -9,7 +9,8 @@
 #include <stdlib.h>
 #include <CUnit/Basic.h>
 #include "../tr-udp.h"
-#include "../packet.h"    
+#include "../packet.h"   
+#include "../tr-udp_stat.h"
 
 // For tests use only
 static inline uint32_t trudpGetNewId(trudpChannelData *td) {
@@ -270,6 +271,18 @@ static void send_process_received_packet_test() {
     idx = 2;
     CU_ASSERT(trudpSendData(tcd_A, data[idx], data_length[idx]) > 0);
     CU_ASSERT(trudpSendData(tcd_B, data[num_packets-idx-1], data_length[num_packets-idx-1]) > 0);
+    
+//    char *stat_js = trudpStatGet(TD(tcd_A), JSON_TYPE, NULL);
+//    puts(stat_js);
+//    free(stat_js);
+    
+    char *stat_str = ksnTRUDPstatShowStr(TD(tcd_A));
+    puts(stat_str);
+    free(stat_str);
+    
+//    stat_str = ksnTRUDPstatShowStr(TD(tcd_B));
+//    puts(stat_str);
+//    free(stat_str);
     
     // Destroy TR-UDP
     trudpDestroyChannel(tcd_A);

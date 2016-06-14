@@ -245,7 +245,7 @@ static inline void trudpHeaderDATAcreate(trudpHeader *out_th, uint32_t id,
  * @return Return true if packet is valid
  * 
  */
-int trudpPacketCheck(void *th, size_t packetLength) {
+inline int trudpPacketCheck(void *th, size_t packetLength) {
     
     return (packetLength - sizeof(trudpHeader) == ((trudpHeader *)th)->payload_length &&
            trudpHeaderChecksumCheck(th));
@@ -413,6 +413,17 @@ inline void *trudpPacketGetPacket(void *data) {
 inline uint16_t trudpPacketGetDataLength(void *packet) {
     
     return ((trudpHeader *)packet)->payload_length;
+}
+
+/**
+ * Get packet header length
+ * 
+ * @param packet Pointer to packet
+ * @return Payload length defines the number of bytes in the message payload
+ */
+inline size_t trudpPacketGetHeaderLength(void *packet) {
+    
+    return sizeof(trudpHeader);
 }
 
 /**

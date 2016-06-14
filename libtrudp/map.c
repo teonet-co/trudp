@@ -20,6 +20,11 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ * 
+ * \file   map.c
+ * \author Kirill Scherba <kirill@scherba.ru>
+ *
+ * Created on June 6, 2016, 12:26 PM
  */
 
 #include <stdio.h>
@@ -67,9 +72,9 @@ trudpMapData *trudpMapNew(size_t size, int auto_resize_f) {
 trudpMapData *trudpMapResize(trudpMapData *map, size_t size) {
 
     // Show mime of  resize for testing
-    #define _SHOW_MSG_ 1
-    #if _SHOW_MSG_
-    printf("\n resize map from %d to %d, time: ", (int)map->hash_map_size, (int)size);
+    #define _SHOW_FUNCTION_MSG_ 1
+    #if _SHOW_FUNCTION_MSG_
+    printf("resize map from %d to %d, time: ", (int)map->hash_map_size, (int)size);
     uint32_t t_stop, t_beg = trudpGetTimestamp();
     #endif
 
@@ -124,9 +129,9 @@ trudpMapData *trudpMapResize(trudpMapData *map, size_t size) {
     map->collisions = 0;
     free(map_new);
 
-    #if _SHOW_MSG_
+    #if _SHOW_FUNCTION_MSG_
     t_stop = (trudpGetTimestamp() - t_beg);
-    printf("%.3f ms ", t_stop / 1000.0);
+    printf("%.3f ms\n", t_stop / 1000.0);
     #endif
 
     return map;
@@ -443,7 +448,7 @@ inline trudpMapElementData *trudpMapIteratorElement(trudpMapIterator *map_it) {
 inline void *trudpMapIteratorElementKey(trudpMapElementData *el, 
         size_t *key_length) {
 
-    *key_length = el->key_length;
+    if(key_length) *key_length = el->key_length;
     return el->data;
 }
 
@@ -457,6 +462,6 @@ inline void *trudpMapIteratorElementKey(trudpMapElementData *el,
 inline void *trudpMapIteratorElementData(trudpMapElementData *el, 
         size_t *data_length) {
 
-    *data_length = el->data_length;
+    if(data_length ) *data_length = el->data_length;
     return el->data + el->key_length;
 }

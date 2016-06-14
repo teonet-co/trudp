@@ -44,10 +44,13 @@
             <word>Scherba</word>
             <word>sendto</word>
             <word>sockaddr</word>
+            <word>tcols</word>
             <word>triptime</word>
+            <word>trows</word>
             <word>trudp</word>
             <word>trudpcat</word>
             <word>Unhandled</word>
+            <word>utils</word>
         </spellchecker-wordlist>
     </configuration>
 </project>

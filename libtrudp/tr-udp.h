@@ -36,7 +36,10 @@
 extern "C" {
 #endif
     
+#define CS_KEY_LENGTH 64
+    
 #define MAX_RETRIEVES 10
+#define MAX_RETRIEVES_TIME 3 * 1000 * 1000
 #define MAX_OUTRUNNING 10    
 #define START_MIDDLE_TIME (MAX_ACK_WAIT/5) * 1000000    
     
@@ -86,34 +89,93 @@ typedef enum trudpEvent {
             
 } trudpEvent;
 
+/**
+ * Last 10 send statistic data
+ */
+typedef struct last10_data {
+    
+    uint32_t triptime; ///< Packet triptime
+    uint32_t size_b; ///< Size of backet in bites
+    uint32_t ts; ///< Packet time
+    
+} last10_data;  
+
+/**
+ * TR-UDP channel statistic data
+ */
+typedef struct trudpStatChannelData {
+    
+    #define LAST10_SIZE 10
+    char key[CS_KEY_LENGTH]; ///< Channel key 
+    uint32_t triptime_last; ///< Last trip time
+    uint32_t triptime_max; ///< Max trip time
+    uint32_t triptime_last_max; ///< Max trip time in last 10 packets
+    uint32_t triptime_min; ///< Min trip time
+    uint32_t triptime_avg; ///< Avr trip time
+    uint32_t packets_send; ///< Number of data or reset packets sent
+    uint32_t packets_attempt; ///< Number of attempt packets 
+    uint32_t packets_receive; ///< Number of data or reset packets receive
+    uint32_t packets_receive_dropped; ///< Number of dropped received package
+    uint32_t ack_receive; ///< Number of ACK packets received
+    uint32_t receive_speed; ///< Receive speed in bytes per second
+    double receive_total; ///< Receive total in megabytes 
+    uint32_t send_speed; ///< Send speed in bytes per second
+    double send_total; ///< Send total in megabytes 
+    double wait; ///< Send repeat timer wait time value
+    uint32_t sq; ///< Send queue length
+    uint32_t rq; ///< Receive queue length
+    last10_data last_send_packets_ar[LAST10_SIZE]; ///< Last 10 send packets
+    size_t idx_snd; ///< Index of last_send_packet_ar
+    last10_data last_receive_packets_ar[LAST10_SIZE]; ///< Last 10 receive packets
+    size_t idx_rcv; ///< Index of last_receive_packets_ar    
+    
+} trudpStatChannelData;   
 
 /**
  * Trudp channel Data Structure
  */
 typedef struct trudpChannelData {
     
-    uint32_t sendId;
-    trudpPacketQueue *sendQueue;
-    uint32_t triptime;
-    uint32_t triptimeMiddle;
+    uint32_t sendId; ///< Send ID
+    trudpPacketQueue *sendQueue; ///< Pointer to send queue trudpPacketQueue
+    uint32_t triptime; ///< Trip time 
+    double triptimeFactor; ///< Triptime factor
+    uint32_t triptimeMiddle; ///< Trip time middle
         
-    uint32_t receiveExpectedId;
-    trudpPacketQueue *receiveQueue;
+    uint32_t receiveExpectedId; ///< Ecpected recive Id
+    trudpPacketQueue *receiveQueue; ///< Pointer to recive queue receiveQueue
     int outrunning_cnt; ///< Receive queue outrunning count
 
-    // User data
-    //void* user_data;
-    
     // Link to parent trudpData
     void *td; ///< Pointer to trudpData
     
     // UDP connection depended variables
-    struct sockaddr_in remaddr; // remote address
-    socklen_t addrlen;          // remote address length
-    int connected_f;            // connected (remote address valid)
-    int channel;                // TR-UDP channel
+    struct sockaddr_in remaddr; ///< Remote address
+    socklen_t addrlen;          ///< Remote address length
+    int connected_f;            ///< Connected (remote address valid)
+    int channel;                ///< TR-UDP channel
+    
+    trudpStatChannelData stat;  ///< Channel statistic
     
 } trudpChannelData;
+
+/**
+ * TR-UDP Statistic data
+ */
+typedef struct trudpStatData {
+    
+    struct send_list {
+        size_t size_max;
+        size_t size_current;
+        size_t attempt;
+    } send_list;
+    
+    struct receive_heap {
+        size_t size_max;
+        size_t size_current;
+    } receive_heap;
+    
+} trudpStatData;
 
 /**
  * Trudp Data Structure
@@ -122,14 +184,18 @@ typedef struct trudpData {
 
     trudpMapData *map; ///< Channels map (key: ip:port:channel)
     void* user_data; ///< User data
-    int port;
-    int fd;
+    int port; ///< Port
+    int fd; ///< File descriptor
     
     // Callback
     trudpDataCb processDataCb;
     trudpDataCb processAckCb;
     trudpEventCb evendCb;
     trudpDataCb sendCb;       
+    
+    // Statistic
+    trudpStatData stat;
+    uint32_t started;
     
 } trudpData;
 
@@ -142,17 +208,17 @@ int trudpProcessSendQueue(trudpData *td);
 
 trudpChannelData *trudpNewChannel(trudpData *td, char *remote_address, int remote_port_i, int channel); // void *user_data, trudpDataCb processDataCb, trudpDataCb sendPacketCb);
 void trudpDestroyChannel(trudpChannelData *tcd);
-void trudpFree(trudpChannelData *tcd);
-void trudpReset(trudpChannelData *tcd);
+void trudpFreeChannel(trudpChannelData *tcd);
+void trudpResetChannel(trudpChannelData *tcd);
 size_t trudpSendData(trudpChannelData *tcd, void *data, size_t data_length);
 void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet, 
         size_t packet_length, size_t *data_length);
-char *trudpMakeKey(char *addr, int port, int channel, size_t *key_length);
 char *trudpMakeKeyCannel(trudpChannelData *tcd);
+
+char *trudpMakeKey(char *addr, int port, int channel, size_t *key_length);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* TR_UDP_H */
-

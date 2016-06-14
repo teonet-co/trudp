@@ -33,22 +33,27 @@
 
 #include "tr-udp.h"
 #include "packet.h"
+#include "tr-udp_stat.h"
+
+#define MAP_SIZE_DEFAULT 1000
 
 /**
  * Set default trudpChannelData values
  *
- * @param td
+ * @param tcd
  */
-static void trudpSetDefaults(trudpChannelData *td) {
+static void trudpSetDefaults(trudpChannelData *tcd) {
 
-    td->sendId = 0;
-    td->triptime = 0;
-    td->outrunning_cnt = 0;
-    td->receiveExpectedId = 0;
-    td->triptimeMiddle = START_MIDDLE_TIME;
+    tcd->sendId = 0;
+    tcd->triptime = 0;
+    tcd->triptimeFactor = 1.5; 
+    tcd->outrunning_cnt = 0;
+    tcd->receiveExpectedId = 0;
+    tcd->triptimeMiddle = START_MIDDLE_TIME;
+    
+    // Initialize statistic
+    trudpStatChannelInit(tcd);
 }
-
-#define MAP_SIZE_DEFAULT 1000
 
 /**
  * Initialize TR-UDP
@@ -67,10 +72,19 @@ trudpData *trudpInit(int fd, int port, void *user_data) {
     trudp->user_data = user_data;
     trudp->port = port;
     trudp->fd = fd;
+    
+    // Initialize statistic data
+    trudpStatInit(trudp);
+    trudp->started = trudpGetTimestamp();
 
     return trudp;
 }
 
+/**
+ * Destroy TR-UDP
+ * 
+ * @param trudp
+ */
 void trudpDestroy(trudpData* trudp) {
 
     if(trudp) {
@@ -127,7 +141,8 @@ trudpCb trudpSetCallback(trudpData *td, trudpCallbsckType type, trudpCb cb) {
  * @param remote_port_i
  * @return
  */
-trudpChannelData *trudpNewChannel(trudpData *td, char *remote_address, int remote_port_i, int channel) {
+trudpChannelData *trudpNewChannel(trudpData *td, char *remote_address, 
+        int remote_port_i, int channel) {
 
     trudpChannelData *tcd = (trudpChannelData *) malloc(sizeof(trudpChannelData));
     memset(tcd, 0, sizeof(trudpChannelData));
@@ -142,13 +157,13 @@ trudpChannelData *trudpNewChannel(trudpData *td, char *remote_address, int remot
 
     // Set other defaults
     trudpSetDefaults(tcd);
-
+    
     // Add cannel to map
     size_t key_length;
     char *key = trudpMakeKey(remote_address, remote_port_i, channel, &key_length);
     trudpChannelData *tcd_r = trudpMapAdd(td->map, key, key_length, tcd, sizeof(*tcd));
     free(tcd);
-
+    
     return tcd_r;
 }
 
@@ -163,33 +178,31 @@ void trudpDestroyChannel(trudpChannelData *tcd) {
     trudpPacketQueueDestroy(tcd->receiveQueue);
 
     int port;
-    size_t data_length, key_length;
+    size_t key_length;
     char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd->remaddr, &port);
     char *key = trudpMakeKey(addr, port, tcd->channel, &key_length);
     trudpMapDelete(TD(tcd)->map, key, key_length);
-
-    //free(tcd);
 }
 
 /**
  * Free trudp chanel
  *
- * @param td Pointer to trudpChannelData
+ * @param tcd Pointer to trudpChannelData
  */
-void trudpFree(trudpChannelData *td) {
+void trudpFreeChannel(trudpChannelData *tcd) {
 
-    trudpPacketQueueFree(td->sendQueue);
-    trudpPacketQueueFree(td->receiveQueue);
-    trudpSetDefaults(td);
+    trudpPacketQueueFree(tcd->sendQueue);
+    trudpPacketQueueFree(tcd->receiveQueue);
+    trudpSetDefaults(tcd);
 }
 
 /**
  * Reset trudp chanel
  *
- * @param td Pointer to trudpChannelData
+ * @param tcd Pointer to trudpChannelData
  */
-inline void trudpReset(trudpChannelData *td) {
-    trudpFree(td);
+inline void trudpResetChannel(trudpChannelData *tcd) {
+    trudpFreeChannel(tcd);
 }
 
 /**
@@ -212,12 +225,13 @@ static inline uint32_t trudpGetNewId(trudpChannelData *td) {
  *
  * @return
  */
-static inline size_t trudpExecSendPacketCallback(trudpChannelData *tcd, void *packet,
-        size_t  packetLength) {
+static inline size_t trudpExecSendPacketCallback(trudpChannelData *tcd, 
+        void *packet, size_t  packetLength) {
 
-    if(TD(tcd)->sendCb)
+    if(TD(tcd)->sendCb) {
         TD(tcd)->sendCb(tcd, packet, packetLength, TD(tcd)->user_data);
-
+    }
+    
     return 0;
 }
 
@@ -248,8 +262,8 @@ size_t trudpSendData(trudpChannelData *tcd, void *data, size_t data_length) {
 
     // Create DATA package
     size_t packetLength;
-    void *packetDATA = trudpPacketDATAcreateNew(trudpGetNewId(tcd), tcd->channel,
-            data, data_length, &packetLength);
+    void *packetDATA = trudpPacketDATAcreateNew(trudpGetNewId(tcd), 
+            tcd->channel, data, data_length, &packetLength);
 
     // Save packet to send queue
     trudpPacketQueueAdd(tcd->sendQueue, packetDATA, packetLength,
@@ -257,6 +271,9 @@ size_t trudpSendData(trudpChannelData *tcd, void *data, size_t data_length) {
 
     // Send data (add to write queue)
     trudpExecSendPacketCallback(tcd, packetDATA, packetLength);
+
+    // Statistic
+    tcd->stat.packets_send++;
 
     // Free created packet
     trudpPacketCreatedFree(packetDATA);
@@ -274,8 +291,8 @@ size_t trudpSendData(trudpChannelData *tcd, void *data, size_t data_length) {
  * @param user_data
  * @param cb
  */
-static void trudpExecProcessDataCallback(trudpChannelData *tcd, void *packet, void **data,
-        size_t *data_length, void *user_data, trudpDataCb cb) {
+static void trudpExecProcessDataCallback(trudpChannelData *tcd, void *packet, 
+        void **data, size_t *data_length, void *user_data, trudpDataCb cb) {
 
     *data = trudpPacketGetData(packet);
     *data_length = (size_t)trudpPacketGetDataLength(packet);
@@ -364,29 +381,46 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
         switch(trudpPacketGetType(packet)) {
 
             // ACK to DATA packet received
-            case TRU_ACK:
+            case TRU_ACK: {
 
                 // Remove packet from send queue
-                trudpPacketQueueDelete(
-                    tcd->sendQueue,
-                    trudpPacketQueueFindById(
-                        tcd->sendQueue, trudpPacketGetId(packet)
-                    )
+                size_t send_data_length = 0;
+                trudpPacketQueueData *tpqd = trudpPacketQueueFindById(
+                    tcd->sendQueue, trudpPacketGetId(packet)
                 );
+                if(tpqd) {
+                    send_data_length = trudpPacketGetDataLength(tpqd->packet);
+                    trudpPacketQueueDelete(
+                        tcd->sendQueue,
+                        trudpPacketQueueFindById(
+                            tcd->sendQueue, trudpPacketGetId(packet)
+                        )
+                    );
+                }
 
                 // Set triptime
                 tcd->triptime = trudpGetTimestamp() -
                     trudpPacketGetTimestamp(packet);
 
                 // Calculate and set middle triptime value
-                tcd->triptimeMiddle = tcd->triptimeMiddle == START_MIDDLE_TIME ? tcd->triptime * 1.5 : // Set first middle time
-                    tcd->triptime > tcd->triptimeMiddle ? tcd->triptime : // Set middle time to max triptime
-                        (tcd->triptimeMiddle * 9 + tcd->triptime) / 10.0; // Calculate middle value
-
+                tcd->triptimeMiddle = tcd->triptimeMiddle == START_MIDDLE_TIME ? tcd->triptime * tcd->triptimeFactor : // Set first middle time
+                    tcd->triptime > tcd->triptimeMiddle ? tcd->triptime * tcd->triptimeFactor : // Set middle time to max triptime
+                        (tcd->triptimeMiddle * 19 + tcd->triptime) / 20.0; // Calculate middle value                
+                // Correct triptimeMiddle
+                if(tcd->triptimeMiddle < tcd->triptime * tcd->triptimeFactor) 
+                    tcd->triptimeMiddle = tcd->triptime * tcd->triptimeFactor;
+                
                 // Process ACK data callback
                 trudpExecProcessDataCallback(tcd, packet, &data, data_length,
                         TD(tcd)->user_data, TD(tcd)->processAckCb);
-                break;
+
+                // Statistic
+                tcd->stat.ack_receive++;
+                tcd->stat.triptime_last = tcd->triptime;
+                tcd->stat.wait = tcd->triptimeMiddle / 1000.0;
+                trudpStatProcessLast10Send(tcd, packet, send_data_length);
+                
+            } break;
 
             // ACK to RESET packet received
             case TRU_ACK | TRU_RESET:
@@ -395,7 +429,11 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
                 fprintf(stderr, "Got TRU_ACK of RESET packet\n");
 
                 // Reset TR-UDP
-                trudpReset(tcd);
+                trudpResetChannel(tcd);
+                
+                // Statistic
+                tcd->stat.ack_receive++;
+                
                 break;
 
             // DATA packet received
@@ -403,8 +441,8 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
 
                 // Create ACK packet and send it back to sender
                 trudpSendACK(tcd, packet);
-
-                // Check expected Id and return data
+                
+               // Check expected Id and return data
                 if(trudpPacketGetId(packet) == tcd->receiveExpectedId) {
 
                     // Execute trudpDataReceivedCb Callback with pointer to data
@@ -419,26 +457,37 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
                         trudpExecProcessDataCallback(tcd, tqd->packet, &data,
                             data_length, TD(tcd)->user_data,
                             TD(tcd)->processDataCb);
+                        
+                        trudpPacketQueueDelete(tcd->receiveQueue, tqd);
                     }
-
+                    
+                    // Statistic
+                    tcd->stat.packets_receive++;
+                    trudpStatProcessLast10Receive(tcd, packet);
+ 
                     tcd->outrunning_cnt = 0; // Reset outrunning flag
                 }
                 // Save outrunning packet to receiveQueue
                 else if(trudpPacketGetId(packet) > tcd->receiveExpectedId) {
 
-                  if(!trudpPacketQueueFindById(tcd->receiveQueue, trudpPacketGetId(packet)) )
-                    trudpPacketQueueAdd(tcd->receiveQueue, packet, packet_length, 0);
+                    if(!trudpPacketQueueFindById(tcd->receiveQueue, trudpPacketGetId(packet)) ) {
+                        trudpPacketQueueAdd(tcd->receiveQueue, packet, packet_length, 0);
+                        tcd->outrunning_cnt++; // Increment outrunning count                    
 
-                  tcd->outrunning_cnt++; // Increment outrunning count
-
-                  // \todo Send reset at match outrunning
-                  if(tcd->outrunning_cnt > MAX_OUTRUNNING) {
-                    fprintf(stderr, "To match TR-UDP channel outrunning! Reset channel ...\n");
-                    trudpSendRESET(tcd);
-                  }
+                        // \todo Send reset at match outrunning
+                        if(tcd->outrunning_cnt > MAX_OUTRUNNING) {
+                            fprintf(stderr, "To match TR-UDP channel outrunning! Reset channel ...\n");
+                            trudpSendRESET(tcd);
+                        }
+                    }
                 }
                 // Skip already processed packet
-                else;
+                else {
+                    
+                    // Statistic
+                    tcd->stat.packets_receive_dropped++;
+                    trudpStatProcessLast10Receive(tcd, packet);
+                }
 
             } break;
 
@@ -453,7 +502,7 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
                 //fprintf(stderr, "Got TRU_RESET packet - 2\n");
 
                 // Reset TR-UDP
-                trudpReset(tcd);
+                trudpResetChannel(tcd);
                 //fprintf(stderr, "Got TRU_RESET packet - 3\n");
 
                 break;
@@ -468,7 +517,7 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
     }
     // Packet is not TR-UDP packet
     else data = (void *)-1;
-
+    
     return data;
 }
 
@@ -491,12 +540,14 @@ int trudpProcessChannelSendQueue(trudpChannelData *tcd) {
         trudpExecSendPacketCallback(tcd, tqd->packet, tqd->packet_length);
         trudpPacketQueueMoveToEnd(tcd->sendQueue, tqd);
         tqd->expected_time = trudpCalculateExpectedTime(tcd, ts);
-        tcd->triptimeMiddle *= 2;
+        tcd->stat.packets_attempt++; // Attempt(repeat) statistic parameter increment
+//        tcd->stat.send_total += tqd->packet_length / (1024.0 * 1024.0);
+        if(!tqd->retrieves) tqd->retrieves_start = ts;
         tqd->retrieves++;
         rv++;
 
         // Stop at match retrieves
-        if(tqd->retrieves > MAX_RETRIEVES) {
+        if(tqd->retrieves > MAX_RETRIEVES || ts - tqd->retrieves_start > MAX_RETRIEVES_TIME) {
             char *key = trudpMakeKeyCannel(tcd);
             fprintf(stderr, "Disconnect channel %s\n", key);
             trudpExecEventCallback(tcd, DISCONNECTED, key, strlen(key) + 1,
@@ -584,9 +635,9 @@ size_t trudpSendDataToAll(trudpData *td, void *data, size_t data_length) {
  */
 char *trudpMakeKey(char *addr, int port, int channel, size_t *key_length) {
 
-    #define BUF_SIZE 64
-    static char buf[BUF_SIZE];
-    *key_length = snprintf(buf, BUF_SIZE, "%s:%u:%u", addr, port, channel);
+    //#define BUF_SIZE 64
+    static char buf[CS_KEY_LENGTH];
+    *key_length = snprintf(buf, CS_KEY_LENGTH, "%s:%u:%u", addr, port, channel);
 
     return buf;
 }
@@ -612,18 +663,20 @@ char *trudpMakeKeyCannel(trudpChannelData *tcd) {
  * @param remaddr Pointer to sockaddr_in remote address
  * @param addr_length Remote address length
  */
-trudpChannelData *trudpCheckRemoteAddr(trudpData *td, struct sockaddr_in *remaddr,
-        socklen_t addr_length, int channel) {
+trudpChannelData *trudpCheckRemoteAddr(trudpData *td, 
+        struct sockaddr_in *remaddr, socklen_t addr_length, int channel) {
 
     int port;
     size_t data_length, key_length;
     char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)remaddr, &port);
     char *key = trudpMakeKey(addr, port, channel, &key_length);
-    trudpChannelData *tcd = (trudpChannelData *)trudpMapGet(td->map, key, key_length, &data_length);
+    trudpChannelData *tcd = (trudpChannelData *)trudpMapGet(td->map, key, 
+            key_length, &data_length);
     if(tcd == (void*)-1) {
         tcd = trudpNewChannel(td, addr, port, channel);
         fprintf(stderr, "Connect channel %s\n", trudpMakeKeyCannel(tcd) );
     }
+    tcd->connected_f = 1;
 
     return tcd;
 }

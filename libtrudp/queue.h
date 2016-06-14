@@ -20,11 +20,9 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- */
-
-/* 
- * File:   queue.h
- * Author: Kirill Scherba <kirill@scherba.ru>
+ * 
+ * \file   queue.h
+ * \author Kirill Scherba <kirill@scherba.ru>
  *
  * Created on May 30, 2016, 11:56 AM
  */
