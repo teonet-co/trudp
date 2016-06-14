@@ -420,6 +420,16 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
                 tcd->stat.wait = tcd->triptimeMiddle / 1000.0;
                 trudpStatProcessLast10Send(tcd, packet, send_data_length);
                 
+                // Reset if id is too big and send queue is empty
+                if(tcd->sendId >= RESET_AFTER_ID && 
+                   !trudpQueueSize(tcd->sendQueue->q) && 
+                   !trudpQueueSize(tcd->receiveQueue->q) ) {
+
+                    // \todo Send event
+                    fprintf(stderr, "High packet number! Reset channel ...\n");
+                    trudpSendRESET(tcd);                    
+                }
+                
             } break;
 
             // ACK to RESET packet received
@@ -474,8 +484,9 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
                         trudpPacketQueueAdd(tcd->receiveQueue, packet, packet_length, 0);
                         tcd->outrunning_cnt++; // Increment outrunning count                    
 
-                        // \todo Send reset at match outrunning
+                        // Send reset at match outrunning
                         if(tcd->outrunning_cnt > MAX_OUTRUNNING) {
+                            // \todo Send event
                             fprintf(stderr, "To match TR-UDP channel outrunning! Reset channel ...\n");
                             trudpSendRESET(tcd);
                         }
@@ -549,6 +560,7 @@ int trudpProcessChannelSendQueue(trudpChannelData *tcd) {
         // Stop at match retrieves
         if(tqd->retrieves > MAX_RETRIEVES || ts - tqd->retrieves_start > MAX_RETRIEVES_TIME) {
             char *key = trudpMakeKeyCannel(tcd);
+            // \todo Send event
             fprintf(stderr, "Disconnect channel %s\n", key);
             trudpExecEventCallback(tcd, DISCONNECTED, key, strlen(key) + 1,
                     TD(tcd)->user_data, TD(tcd)->evendCb);
@@ -674,6 +686,7 @@ trudpChannelData *trudpCheckRemoteAddr(trudpData *td,
             key_length, &data_length);
     if(tcd == (void*)-1) {
         tcd = trudpNewChannel(td, addr, port, channel);
+        // \todo Send event
         fprintf(stderr, "Connect channel %s\n", trudpMakeKeyCannel(tcd) );
     }
     tcd->connected_f = 1;
