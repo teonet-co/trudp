@@ -1,6 +1,6 @@
 #pragma once
 /**
- * File: rlutil.h
+ * File: utils_r.h
  *
  * About: Description
  * This file provides some useful utilities for console mode
@@ -35,46 +35,46 @@
 #endif
 
 #ifdef __cplusplus
-	/// Common C++ headers
-	#include <iostream>
-	#include <string>
-	#include <sstream>
-	/// Namespace forward declarations
-	namespace rlutil {
-		static void locate(int x, int y);
-	}
+    /// Common C++ headers
+    #include <iostream>
+    #include <string>
+    #include <sstream>
+    /// Namespace forward declarations
+    namespace rlutil {
+            static void locate(int x, int y);
+    }
 #else
-	static void locate(int x, int y); // Forward declare for C to avoid warnings
+    static void locate(int x, int y); // Forward declare for C to avoid warnings
 #endif // __cplusplus
 
 #ifndef RLUTIL_INLINE
-	#ifdef _MSC_VER
-		#define RLUTIL_INLINE __inline
-	#else
-		#define RLUTIL_INLINE __inline__
-	#endif
+    #ifdef _MSC_VER
+            #define RLUTIL_INLINE __inline
+    #else
+            #define RLUTIL_INLINE __inline__
+    #endif
 #endif
 
-//	#include "fillio.h"
-	#include "sys/socket.h"
+//   #include "fillio.h"
+    #include "sys/socket.h"
 
 #ifdef _WIN32
-	#include <windows.h>  // for WinAPI and Sleep()
-	#define _NO_OLDNAMES  // for MinGW compatibility
-	#include <conio.h>    // for getch() and kbhit()
-	#define getch _getch
-	#define kbhit _kbhit
+    #include <windows.h>  // for WinAPI and Sleep()
+    #define _NO_OLDNAMES  // for MinGW compatibility
+    #include <conio.h>    // for getch() and kbhit()
+    #define getch _getch
+    #define kbhit _kbhit
 #else
-	#ifdef __cplusplus
-		#include <cstdio> // for getch()
-	#else // __cplusplus
-		#include <stdio.h> // for getch()
-	#endif // __cplusplus
-	#include <termios.h> // for getch() and kbhit()
-	#include <unistd.h> // for getch(), kbhit() and (u)sleep()
-	#include <sys/ioctl.h> // for getkey()
-	#include <sys/types.h> // for kbhit()
-	#include <sys/time.h> // for kbhit()
+    #ifdef __cplusplus
+            #include <cstdio> // for getch()
+    #else // __cplusplus
+            #include <stdio.h> // for getch()
+    #endif // __cplusplus
+    #include <termios.h> // for getch() and kbhit()
+    #include <unistd.h> // for getch(), kbhit() and (u)sleep()
+    #include <sys/ioctl.h> // for getkey()
+    #include <sys/types.h> // for kbhit()
+    #include <sys/time.h> // for kbhit()
 
 /// Function: getch
 /// Get character without waiting for Return to be pressed.
