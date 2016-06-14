@@ -369,7 +369,7 @@ static void usage(char *name) {
  */
 int main(int argc, char** argv) {
     
-    #define APP_VERSION "0.0.11"
+    #define APP_VERSION "0.0.12"
 
     // Show logo
     fprintf(stderr, 
