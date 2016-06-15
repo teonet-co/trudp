@@ -67,7 +67,8 @@ static void trudpSetDefaults(trudpChannelData *tcd) {
 trudpData *trudpInit(int fd, int port, void *user_data) {
 
     trudpData* trudp = (trudpData*) malloc(sizeof(trudpData));
-
+    memset(trudp, 0, sizeof(trudpData));
+    
     trudp->map = trudpMapNew(MAP_SIZE_DEFAULT, 1);
     trudp->user_data = user_data;
     trudp->port = port;
@@ -149,6 +150,7 @@ trudpChannelData *trudpNewChannel(trudpData *td, char *remote_address,
 
     tcd->td = td;
     tcd->sendQueue = trudpPacketQueueNew();
+    tcd->writeQueue = trudpWriteQueueNew();
     tcd->receiveQueue = trudpPacketQueueNew();
     tcd->addrlen = sizeof(tcd->remaddr);
     trudpUdpMakeAddr(remote_address, remote_port_i,
@@ -175,6 +177,7 @@ trudpChannelData *trudpNewChannel(trudpData *td, char *remote_address,
 void trudpDestroyChannel(trudpChannelData *tcd) {
 
     trudpPacketQueueDestroy(tcd->sendQueue);
+    trudpWriteQueueDestroy(tcd->writeQueue);
     trudpPacketQueueDestroy(tcd->receiveQueue);
 
     int port;
@@ -192,6 +195,7 @@ void trudpDestroyChannel(trudpChannelData *tcd) {
 void trudpFreeChannel(trudpChannelData *tcd) {
 
     trudpPacketQueueFree(tcd->sendQueue);
+    trudpWriteQueueFree(tcd->writeQueue);
     trudpPacketQueueFree(tcd->receiveQueue);
     trudpSetDefaults(tcd);
 }
@@ -266,11 +270,12 @@ size_t trudpSendData(trudpChannelData *tcd, void *data, size_t data_length) {
             tcd->channel, data, data_length, &packetLength);
 
     // Save packet to send queue
-    trudpPacketQueueAdd(tcd->sendQueue, packetDATA, packetLength,
-            trudpCalculateExpectedTime(tcd, trudpGetTimestamp()));
+    trudpPacketQueueData *tpqd = trudpPacketQueueAdd(tcd->sendQueue, packetDATA, 
+        packetLength, trudpCalculateExpectedTime(tcd, trudpGetTimestamp()));
 
     // Send data (add to write queue)
-    trudpExecSendPacketCallback(tcd, packetDATA, packetLength);
+    //trudpExecSendPacketCallback(tcd, packetDATA, packetLength);
+    trudpWriteQueueAdd(tcd->writeQueue, tpqd->packet, packetLength);
 
     // Statistic
     tcd->stat.packets_send++;
@@ -279,6 +284,72 @@ size_t trudpSendData(trudpChannelData *tcd, void *data, size_t data_length) {
     trudpPacketCreatedFree(packetDATA);
 
     return packetLength;
+}
+
+/**
+ * Process write queue and send first ready packet
+ * 
+ * @param tcd
+ * 
+ * @return Number of send packet or 0 if write queue is empty
+ */
+static size_t trudpProcessChannelWriteQueue(trudpChannelData *tcd) {
+
+    size_t retval = 0;
+    trudpWriteQueueData *wqd = trudpWriteQueueGetFirst(tcd->writeQueue);
+    if(wqd) {
+        trudpExecSendPacketCallback(tcd, wqd->packet, wqd->packet_length);    
+        trudpWriteQueueDeleteFirst(tcd->writeQueue);
+        retval = wqd->packet_length;
+    }
+    
+    return retval;
+}
+
+/**
+ * Check all peers write Queue elements and write one first packet
+ *
+ * @param td Pointer to trudpData
+ *
+ * @return Size of send packets
+ */
+size_t trudpProcessWriteQueue(trudpData *td) {
+
+    int i = 0;
+    size_t retval = 0;
+    trudpMapElementData *el;
+    trudpMapIterator *it;
+    if((it = trudpMapIteratorNew(td->map))) {
+        while(!retval && (el = trudpMapIteratorNext(it))) {
+            if(i++ < td->writeQueueIdx) continue;
+            trudpChannelData *tcd = (trudpChannelData *)
+                    trudpMapIteratorElementData(el, NULL);
+            retval = trudpProcessChannelWriteQueue(tcd);
+            td->writeQueueIdx++;
+        }
+        trudpMapIteratorDestroy(it);
+        if(!retval) td->writeQueueIdx = 0;
+    }
+
+    return retval;
+}
+
+size_t trudpWriteQueueSizeAll(trudpData *td) {
+    
+    size_t retval = 0;
+    trudpMapElementData *el;
+    trudpMapIterator *it;
+    if((it = trudpMapIteratorNew(td->map))) {
+        while((el = trudpMapIteratorNext(it))) {
+            size_t data_lenth;
+            trudpChannelData *tcd = (trudpChannelData *)
+                    trudpMapIteratorElementData(el, &data_lenth);
+            retval += trudpWriteQueueSize(tcd->writeQueue);
+        }
+        trudpMapIteratorDestroy(it);
+    }
+
+    return retval;    
 }
 
 /**
@@ -580,7 +651,6 @@ int trudpProcessChannelSendQueue(trudpChannelData *tcd) {
  *
  * @return Number of resend packets
  */
-
 int trudpProcessSendQueue(trudpData *td) {
 
     int retval, rv = 0;

@@ -279,14 +279,19 @@ static void network_loop(trudpData *td) {
 static void network_select_loop(trudpData *td, int timeout) {
 
     int rv;
-    fd_set rfds;
+    fd_set rfds, wfds;
     struct timeval tv;
-    ssize_t recvlen = 0;
-
+    
     // Watch server_socket to see when it has input.
     FD_ZERO(&rfds);
     FD_SET(td->fd, &rfds);
+    FD_ZERO(&wfds);
 
+    // Process write queue
+    if(trudpWriteQueueSizeAll(td)) {
+        FD_SET(td->fd, &wfds);
+    }    
+    
     uint32_t timeout_sq = trudpGetSendQueueTimeout(td);
     debug("set timeout: %.3f ms; default: %.3f ms, send_queue: %.3f ms%s\n", 
             (timeout_sq < timeout ? timeout_sq : timeout) / 1000.0, 
@@ -299,7 +304,7 @@ static void network_select_loop(trudpData *td, int timeout) {
     tv.tv_sec = 0;
     tv.tv_usec = timeout_sq < timeout ? timeout_sq : timeout;
 
-    rv = select((int)td->fd + 1, &rfds, NULL, NULL, &tv);
+    rv = select((int)td->fd + 1, &rfds, &wfds, NULL, &tv);
 
     // Error
     if (rv == -1) {
@@ -316,6 +321,7 @@ static void network_select_loop(trudpData *td, int timeout) {
             debug("process send queue ... %d\n", rv);
         }
     }
+    
     // There is a data in fd
     else {
 
@@ -333,7 +339,15 @@ static void network_select_loop(trudpData *td, int timeout) {
                 trudpProcessChannelReceivedPacket(tcd, buffer, recvlen, &data_length);
             }
         }
+        
+        if(FD_ISSET(td->fd, &wfds)) {
+            // Process write queue
+            trudpProcessWriteQueue(td);            
+        }
     }
+    
+    // Process write queue
+//    while(trudpProcessWriteQueue(td));
 }
 
 /**
@@ -369,7 +383,7 @@ static void usage(char *name) {
  */
 int main(int argc, char** argv) {
     
-    #define APP_VERSION "0.0.12"
+    #define APP_VERSION "0.0.13"
 
     // Show logo
     fprintf(stderr, 
@@ -455,12 +469,13 @@ int main(int argc, char** argv) {
     i = 0;
     char *message;
     size_t message_length;
-    const int DELAY = 500; // mSec
-    const int SEND_MESSAGE_AFTER = 100000; // uSec (mSec * 1000)
+    const int DELAY = 500000; // uSec
+    const int SEND_MESSAGE_AFTER = 50000; // uSec (mSec * 1000)
     const int RECONNECT_AFTER = 2000000; // uSec (mSec * 1000)
+    const int SHOW_STATISTIC_AFTER = 250000; // uSec (mSec * 1000)
     if(!o_listen) { message = hello_c; message_length = hello_c_length; }
     else { message = hello_s; message_length = hello_s_length; }
-    uint32_t tt, tt_s = 0, tt_c = 0;
+    uint32_t tt, tt_s = 0, tt_c = 0, tt_ss = 0;
     while (!quit_flag) {
 
         #define USE_SELECT 1
@@ -468,27 +483,30 @@ int main(int argc, char** argv) {
         #if !USE_SELECT
         network_loop(td);
         #else
-        network_select_loop(td, DELAY * 1000);
+        network_select_loop(td, SEND_MESSAGE_AFTER < DELAY ? SEND_MESSAGE_AFTER : DELAY);
         #endif
 
         // Current timestamp 
         tt = trudpGetTimestamp();
         
         // Connect
-        if(!o_listen && !connected_flag) {
-            if((tt - tt_c) > RECONNECT_AFTER) {
-                connectToPeer(td);
-                tt_c = tt;
-            }
+        if(!o_listen && !connected_flag && (tt - tt_c) > RECONNECT_AFTER) {
+            connectToPeer(td);
+            tt_c = tt;            
         }
 
         // Send message
-        if(/*(!o_listen || o_listen && connected_f) &&*/
-           (tt - tt_s) > SEND_MESSAGE_AFTER) {
+        if((tt - tt_s) > SEND_MESSAGE_AFTER) {
 
-            if(o_statistic) showStatistic(td);  
             trudpSendDataToAll(td, message, message_length);
             tt_s = tt;
+        }
+        
+        // Show statistic
+        if(o_statistic && (tt - tt_ss) > SHOW_STATISTIC_AFTER) {
+
+            showStatistic(td);  
+            tt_ss = tt;
         }
         
         #if !USE_SELECT

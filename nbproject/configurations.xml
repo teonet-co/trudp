@@ -34,6 +34,8 @@
         <itemPath>libtrudp/utils.c</itemPath>
         <itemPath>libtrudp/utils.h</itemPath>
         <itemPath>libtrudp/utils_r.h</itemPath>
+        <itemPath>libtrudp/write_queue.c</itemPath>
+        <itemPath>libtrudp/write_queue.h</itemPath>
       </logicalFolder>
       <itemPath>main.cpp</itemPath>
       <itemPath>trudpcat.c</itemPath>
@@ -133,6 +135,10 @@
       </item>
       <item path="libtrudp/utils_r.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="libtrudp/write_queue.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="libtrudp/write_queue.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="main.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="trudpcat.c" ex="false" tool="0" flavor2="0">
@@ -214,6 +220,10 @@
       </item>
       <item path="libtrudp/utils_r.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="libtrudp/write_queue.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="libtrudp/write_queue.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="main.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="trudpcat.c" ex="false" tool="0" flavor2="0">
@@ -285,6 +295,10 @@
       <item path="libtrudp/utils.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="libtrudp/utils_r.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/write_queue.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="libtrudp/write_queue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="main.cpp" ex="false" tool="1" flavor2="9">
       </item>
@@ -365,6 +379,10 @@
       <item path="libtrudp/utils.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="libtrudp/utils_r.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/write_queue.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="libtrudp/write_queue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="main.cpp" ex="false" tool="1" flavor2="9">
       </item>

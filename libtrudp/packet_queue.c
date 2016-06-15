@@ -23,7 +23,7 @@
  */
 
 /**
- * Timed queue: extended queue module used as TR-UDP send and receive queue
+ * Packet queue: extended queue module used as TR-UDP send and receive queue
  */
 
 #include <stdlib.h>
@@ -47,7 +47,7 @@ inline trudpPacketQueue *trudpPacketQueueNew() {
 }
 
 /**
- * Destroy Timed queue
+ * Destroy Packet queue
  * 
  * @param tq Pointer to trudpPacketQueue
  */
@@ -60,7 +60,7 @@ inline void trudpPacketQueueDestroy(trudpPacketQueue *tq) {
 }
 
 /**
- * Remove all elements from Timed queue
+ * Remove all elements from Packet queue
  * 
  * @param tq Pointer to trudpPacketQueue
  * @return Zero at success
@@ -71,7 +71,7 @@ inline int trudpPacketQueueFree(trudpPacketQueue *tq) {
 }
 
 /**
- * Get pointer to trudpQueueData from trudpTimedQueusData pointer
+ * Get pointer to trudpQueueData from trudpPacketQueueData pointer
  * @param tqd Pointer to trudpPacketQueueData
  * @return Pointer to trudpQueueData or NULL if tqd is NULL
  */
@@ -80,7 +80,7 @@ inline trudpQueueData *trudpPacketQueueDataToQueueData(trudpPacketQueueData *tqd
 }
 
 /**
- * Add packet to Timed queue
+ * Add packet to Packet queue
  * 
  * @param tq Pointer to trudpPacketQueue
  * @param packet Packet to add to queue
@@ -103,7 +103,7 @@ trudpPacketQueueData *trudpPacketQueueAdd(trudpPacketQueue *tq, void *packet,
 }
 
 /**
- * Remove element from Timed queue
+ * Remove element from Packet queue
  * 
  * @param tq Pointer to trudpPacketQueue
  * @param tqd Pointer to trudpPacketQueueData to delete it
@@ -116,7 +116,7 @@ inline int trudpPacketQueueDelete(trudpPacketQueue *tq, trudpPacketQueueData *tq
 }
 
 /**
- * Find Timed queue data by Id
+ * Find Packet queue data by Id
  * 
  * @param tq Pointer to trudpPacketQueue
  * @param id Id to find in send queue
@@ -145,7 +145,7 @@ trudpPacketQueueData *trudpPacketQueueFindById(trudpPacketQueue *tq, uint32_t id
 }
 
 /**
- * Find Timed queue data by time
+ * Find Packet queue data by time
  * 
  * @param tq Pointer to trudpPacketQueue
  * @param t Time to find (current time usually). This function will find first 
