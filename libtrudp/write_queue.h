@@ -36,6 +36,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+    
+#define MAX_HEADER_SIZE 64
 
 typedef struct trudpWriteQueue {
 
@@ -45,8 +47,9 @@ typedef struct trudpWriteQueue {
 
 typedef struct trudpWriteQueueData {
 
-    uint16_t packet_length; 
-    void *packet;
+    char packet[MAX_HEADER_SIZE];
+    uint16_t packet_length;
+    void *packet_ptr;
 
 } trudpWriteQueueData;
 
@@ -55,7 +58,7 @@ inline void trudpWriteQueueDestroy(trudpWriteQueue *wq);
 inline int trudpWriteQueueFree(trudpWriteQueue *wq);
 
 trudpWriteQueueData *trudpWriteQueueAdd(trudpWriteQueue *wq, void *packet, 
-        size_t packet_length);
+        void *packet_ptr, size_t packet_length);
 inline trudpWriteQueueData *trudpWriteQueueGetFirst(trudpWriteQueue *wq);
 inline int trudpWriteQueueDeleteFirst(trudpWriteQueue *wq);
 

@@ -28,6 +28,7 @@
  */
 
 #include <stdlib.h>
+#include <string.h>
 #include "write_queue.h"
 
 /**
@@ -89,13 +90,20 @@ inline size_t trudpWriteQueueSize(trudpWriteQueue *wq) {
  * @return Pointer to added trudpWriteQueueData
  */
 trudpWriteQueueData *trudpWriteQueueAdd(trudpWriteQueue *wq, void *packet, 
-        size_t packet_length) {
+        void *packet_ptr, size_t packet_length) {
     
     size_t wqd_length = sizeof(trudpWriteQueueData) + packet_length;    
     trudpWriteQueueData *wqd = (trudpWriteQueueData *)(
             (trudpQueueData *)trudpQueueAdd(wq->q, NULL, wqd_length))->data;
+    if(packet != NULL) {
+        memcpy(wqd->packet, packet, packet_length < MAX_HEADER_SIZE ? packet_length : MAX_HEADER_SIZE);
+        wqd->packet_ptr = NULL;
+    }
+    else {
+        memset(wqd->packet, 0, MAX_HEADER_SIZE);
+        wqd->packet_ptr = packet_ptr;        
+    }
     wqd->packet_length = packet_length;
-    wqd->packet = packet;
     
     return wqd;
 }
@@ -107,14 +115,15 @@ trudpWriteQueueData *trudpWriteQueueAdd(trudpWriteQueue *wq, void *packet,
  * 
  * @return Pointer to trudpWriteQueueData data or NULL
  */
-inline trudpWriteQueueData *trudpWriteQueueGetFirst(trudpWriteQueue *wq) {
-    
+inline trudpWriteQueueData *trudpWriteQueueGetFirst(trudpWriteQueue *wq) {    
     return (trudpWriteQueueData *) (wq->q->first ? wq->q->first->data : NULL);
 }
 
 /**
  * Get pointer to trudpQueueData from trudpWriteQueueData pointer
+ * 
  * @param wqd Pointer to trudpWriteQueueData
+ * 
  * @return Pointer to trudpQueueData or NULL if wqd is NULL
  */
 static inline trudpQueueData *trudpWriteQueueDataToQueueData(trudpWriteQueueData *wqd) {
