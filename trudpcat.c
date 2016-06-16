@@ -174,6 +174,8 @@ static void processAckCb(void *td_ptr, void *data, size_t data_length,
            (tcd->triptime)/1000.0, (tcd->triptimeMiddle)/1000.0  );
 }
 
+int aaa = 0;
+
 /**
  * TR-UDP send callback
  *
@@ -186,9 +188,13 @@ static void sendPacketCb(void *tcd_ptr, void *packet, size_t packet_length,
 
     trudpChannelData *tcd = (trudpChannelData *)tcd_ptr;
 
-    // Send to UDP
-    trudpUdpSendto(TD(tcd)->fd, packet, packet_length,
-            (__CONST_SOCKADDR_ARG) &tcd->remaddr, sizeof(tcd->remaddr));
+    uint32_t timeout = aaa ? 10 : 10000000;   
+    
+    if(isWritable(TD(tcd)->fd, timeout) > 0) {   
+        // Send to UDP
+        trudpUdpSendto(TD(tcd)->fd, packet, packet_length,
+                (__CONST_SOCKADDR_ARG) &tcd->remaddr, sizeof(tcd->remaddr));
+    }
 
     int port,type;
     uint32_t id = trudpPacketGetId(packet);
@@ -476,7 +482,7 @@ int main(int argc, char** argv) {
     char *message;
     size_t message_length;
     const int DELAY = 500000; // uSec
-    const int SEND_MESSAGE_AFTER_MIN = 1000; // uSec (mSec * 1000)
+    const int SEND_MESSAGE_AFTER_MIN = 100; // uSec (mSec * 1000)
     int send_message_after = SEND_MESSAGE_AFTER_MIN;
     const int RECONNECT_AFTER = 2000000; // uSec (mSec * 1000)
     const int SHOW_STATISTIC_AFTER = 250000; // uSec (mSec * 1000)
@@ -507,7 +513,9 @@ int main(int argc, char** argv) {
         
         if((tt - tt_s) > send_message_after) {
 
+            aaa = 1;
             trudpSendDataToAll(td, message, message_length);
+            aaa = 0;
             //send_message_after = (rand() % (500000 - 1)) + SEND_MESSAGE_AFTER_MIN;
             tt_s = tt;
         }

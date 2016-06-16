@@ -266,7 +266,7 @@ static inline uint32_t trudpCalculateExpectedTime(trudpChannelData *td,
  */
 size_t trudpSendData(trudpChannelData *tcd, void *data, size_t data_length) {
 
-    if(tcd->sendQueue->q->length > SEND_QUEUE_MAX) return 0;   // Drop send packet
+//    if(tcd->sendQueue->q->length > SEND_QUEUE_MAX) return 0;   // Drop send packet
     
     // Create DATA package
     size_t packetLength;
@@ -483,9 +483,7 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
                     send_data_length = trudpPacketGetDataLength(tpqd->packet);
                     trudpPacketQueueDelete(
                         tcd->sendQueue,
-                        trudpPacketQueueFindById(
-                            tcd->sendQueue, trudpPacketGetId(packet)
-                        )
+                        tpqd
                     );
                 }
 
@@ -575,6 +573,10 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
                         trudpPacketQueueAdd(tcd->receiveQueue, packet, packet_length, 0);
                         tcd->outrunning_cnt++; // Increment outrunning count                    
 
+                        // Statistic
+                        tcd->stat.packets_receive++;
+                        trudpStatProcessLast10Receive(tcd, packet);
+
                         // Send reset at match outrunning
                         if(tcd->outrunning_cnt > MAX_OUTRUNNING) {
                             // \todo Send event
@@ -653,7 +655,7 @@ int trudpProcessChannelSendQueue(trudpChannelData *tcd) {
         rv++;
 
         // Stop at match retrieves
-        if(tqd->retrieves > MAX_RETRIEVES || ts - tqd->retrieves_start > MAX_RETRIEVES_TIME) {
+        if(/*tqd->retrieves > MAX_RETRIEVES ||*/ ts - tqd->retrieves_start > MAX_RETRIEVES_TIME) {
             char *key = trudpMakeKeyCannel(tcd);
             // \todo Send event
             fprintf(stderr, "Disconnect channel %s\n", key);
