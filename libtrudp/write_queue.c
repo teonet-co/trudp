@@ -92,9 +92,10 @@ inline size_t trudpWriteQueueSize(trudpWriteQueue *wq) {
 trudpWriteQueueData *trudpWriteQueueAdd(trudpWriteQueue *wq, void *packet, 
         void *packet_ptr, size_t packet_length) {
     
-    size_t wqd_length = sizeof(trudpWriteQueueData) + packet_length;    
+    size_t wqd_length = sizeof(trudpWriteQueueData); // + packet_length;    
     trudpWriteQueueData *wqd = (trudpWriteQueueData *)(
             (trudpQueueData *)trudpQueueAdd(wq->q, NULL, wqd_length))->data;
+    
     if(packet != NULL) {
         memcpy(wqd->packet, packet, packet_length < MAX_HEADER_SIZE ? packet_length : MAX_HEADER_SIZE);
         wqd->packet_ptr = NULL;

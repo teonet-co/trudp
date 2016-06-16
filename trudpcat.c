@@ -48,7 +48,7 @@ extern int usleep (__useconds_t __useconds);
 
 // Integer options
 int o_debug = 0,
-    o_statistic = 0,    
+    o_statistic = 0,
     o_listen = 0,
     o_numeric = 0,
     o_buf_size = 4096;
@@ -110,7 +110,7 @@ static void debug(char *fmt, ...)
  * @param td Pointer to trudpData
  */
 static void showStatistic(trudpData *td) {
-    
+
     gotoxy(0,0);
     char *stat_str = ksnTRUDPstatShowStr(td);
     puts(stat_str);
@@ -145,7 +145,7 @@ static void processDataCb(void *td_ptr, void *data, size_t data_length,
                    tcd->receiveExpectedId,
                    (double)trudpGetTimestamp() / 1000.0,
                    (double)tcd->triptime / 1000.0,
-                   (double)tcd->triptimeMiddle / 1000.0);       
+                   (double)tcd->triptimeMiddle / 1000.0);
 
         printf("%s\n",(char*)data);
     }
@@ -164,7 +164,7 @@ static void processDataCb(void *td_ptr, void *data, size_t data_length,
  * @param data_length
  * @param user_data
  */
-static void processAckCb(void *td_ptr, void *data, size_t data_length, 
+static void processAckCb(void *td_ptr, void *data, size_t data_length,
         void *user_data) {
 
     trudpChannelData *tcd = (trudpChannelData *)td_ptr;
@@ -187,7 +187,7 @@ static void sendPacketCb(void *tcd_ptr, void *packet, size_t packet_length,
     trudpChannelData *tcd = (trudpChannelData *)tcd_ptr;
 
     // Send to UDP
-    trudpUdpSendto(TD(tcd)->fd, packet, packet_length, 
+    trudpUdpSendto(TD(tcd)->fd, packet, packet_length,
             (__CONST_SOCKADDR_ARG) &tcd->remaddr, sizeof(tcd->remaddr));
 
     int port,type;
@@ -206,7 +206,7 @@ static void sendPacketCb(void *tcd_ptr, void *packet, size_t packet_length,
 
 /**
  * TR-UDP event callback
- * 
+ *
  * @param tcd_ptr
  * @param event
  * @param data
@@ -215,9 +215,9 @@ static void sendPacketCb(void *tcd_ptr, void *packet, size_t packet_length,
  */
 static void eventCb(void *tcd_ptr, int event, void *data, size_t data_size,
         void *user_data) {
-    
+
     switch(event) {
-        
+
         case DISCONNECTED: printf("Disconnected\n"); connected_flag = 0; break;
         default: break;
     }
@@ -225,14 +225,14 @@ static void eventCb(void *tcd_ptr, int event, void *data, size_t data_size,
 
 /**
  * Connect to peer
- * 
+ *
  * @param td
- * @return 
+ * @return
  */
 static trudpChannelData *connectToPeer(trudpData *td) {
-    
+
     trudpChannelData *tcd = NULL;
-            
+
     // Create remote address and Send "connect" packet
     if(!o_listen) {
         char *connect = "Connect with TR-UDP!";
@@ -242,7 +242,7 @@ static trudpChannelData *connectToPeer(trudpData *td) {
         fprintf(stderr, "Connecting to %s:%u:%u\n", o_remote_address, o_remote_port_i, 0);
         connected_flag = 1;
     }
-    
+
     return tcd;
 }
 
@@ -256,7 +256,7 @@ static void network_loop(trudpData *td) {
     // Read from UDP
     struct sockaddr_in remaddr; // remote address
     socklen_t addr_len = sizeof(remaddr);
-    ssize_t recvlen = trudpUdpRecvfrom(td->fd, buffer, o_buf_size, 
+    ssize_t recvlen = trudpUdpRecvfrom(td->fd, buffer, o_buf_size,
             (__SOCKADDR_ARG)&remaddr, &addr_len);
 
     // Process received packet
@@ -268,6 +268,10 @@ static void network_loop(trudpData *td) {
 
     // Process send queue
     trudpProcessSendQueue(td);
+
+    // Process write queue
+    while(trudpProcessWriteQueue(td));
+
 }
 
 /**
@@ -278,24 +282,25 @@ static void network_loop(trudpData *td) {
  */
 static void network_select_loop(trudpData *td, int timeout) {
 
-    int rv;
+    int rv = 1;
     fd_set rfds, wfds;
     struct timeval tv;
-    
+
+//    while(rv > 0) {
     // Watch server_socket to see when it has input.
+    FD_ZERO(&wfds);
     FD_ZERO(&rfds);
     FD_SET(td->fd, &rfds);
-    FD_ZERO(&wfds);
 
     // Process write queue
     if(trudpWriteQueueSizeAll(td)) {
         FD_SET(td->fd, &wfds);
-    }    
-    
+    }
+
     uint32_t timeout_sq = trudpGetSendQueueTimeout(td);
-    debug("set timeout: %.3f ms; default: %.3f ms, send_queue: %.3f ms%s\n", 
-            (timeout_sq < timeout ? timeout_sq : timeout) / 1000.0, 
-            timeout / 1000.0, 
+    debug("set timeout: %.3f ms; default: %.3f ms, send_queue: %.3f ms%s\n",
+            (timeout_sq < timeout ? timeout_sq : timeout) / 1000.0,
+            timeout / 1000.0,
             timeout_sq / 1000.0,
             timeout_sq == UINT32_MAX ? "(queue is empty)" : ""
     );
@@ -321,10 +326,11 @@ static void network_select_loop(trudpData *td, int timeout) {
             debug("process send queue ... %d\n", rv);
         }
     }
-    
+
     // There is a data in fd
     else {
 
+        // Process read fd
         if(FD_ISSET(td->fd, &rfds)) {
 
             struct sockaddr_in remaddr; // remote address
@@ -339,15 +345,15 @@ static void network_select_loop(trudpData *td, int timeout) {
                 trudpProcessChannelReceivedPacket(tcd, buffer, recvlen, &data_length);
             }
         }
-        
+
+        // Process write fd
         if(FD_ISSET(td->fd, &wfds)) {
             // Process write queue
-            trudpProcessWriteQueue(td);            
+            while(trudpProcessWriteQueue(td));
+            //trudpProcessWriteQueue(td);
         }
     }
-    
-    // Process write queue
-//    while(trudpProcessWriteQueue(td));
+//    }
 }
 
 /**
@@ -382,11 +388,11 @@ static void usage(char *name) {
  * @return
  */
 int main(int argc, char** argv) {
-    
+
     #define APP_VERSION "0.0.13"
 
     // Show logo
-    fprintf(stderr, 
+    fprintf(stderr,
             "TR-UDP two node connect sample application ver " APP_VERSION "\n"
     );
 
@@ -426,11 +432,11 @@ int main(int argc, char** argv) {
 
     // Show execution mode
     if(o_listen)
-        fprintf(stderr, "Server started at %s:%s\n", o_local_address, 
+        fprintf(stderr, "Server started at %s:%s\n", o_local_address,
                 o_local_port);
     else {
         o_remote_port_i = atoi(o_remote_port);
-        fprintf(stderr, "Client start connection to %s:%d\n", o_remote_address, 
+        fprintf(stderr, "Client start connection to %s:%d\n", o_remote_address,
                 o_remote_port_i);
     }
 
@@ -450,8 +456,8 @@ int main(int argc, char** argv) {
     else fprintf(stderr, "Start listening at port %d\n", port);
 
     // Initialize TR-UDP
-    trudpData *td = trudpInit(fd, port, NULL); 
-    
+    trudpData *td = trudpInit(fd, port, NULL);
+
     // Set callback functions
     trudpSetCallback(td, PROCESS_DATA, (trudpCb)processDataCb);
     trudpSetCallback(td, SEND, (trudpCb)sendPacketCb);
@@ -470,7 +476,8 @@ int main(int argc, char** argv) {
     char *message;
     size_t message_length;
     const int DELAY = 500000; // uSec
-    const int SEND_MESSAGE_AFTER = 50000; // uSec (mSec * 1000)
+    const int SEND_MESSAGE_AFTER_MIN = 1000; // uSec (mSec * 1000)
+    int send_message_after = SEND_MESSAGE_AFTER_MIN;
     const int RECONNECT_AFTER = 2000000; // uSec (mSec * 1000)
     const int SHOW_STATISTIC_AFTER = 250000; // uSec (mSec * 1000)
     if(!o_listen) { message = hello_c; message_length = hello_c_length; }
@@ -483,32 +490,35 @@ int main(int argc, char** argv) {
         #if !USE_SELECT
         network_loop(td);
         #else
-        network_select_loop(td, SEND_MESSAGE_AFTER < DELAY ? SEND_MESSAGE_AFTER : DELAY);
+        network_select_loop(td, send_message_after < DELAY ? send_message_after : DELAY);
         #endif
 
-        // Current timestamp 
+        // Current timestamp
         tt = trudpGetTimestamp();
-        
+
         // Connect
         if(!o_listen && !connected_flag && (tt - tt_c) > RECONNECT_AFTER) {
             connectToPeer(td);
-            tt_c = tt;            
+            tt_c = tt;
         }
 
         // Send message
-        if((tt - tt_s) > SEND_MESSAGE_AFTER) {
+        // random int between 0 and 500000 
+        
+        if((tt - tt_s) > send_message_after) {
 
             trudpSendDataToAll(td, message, message_length);
+            //send_message_after = (rand() % (500000 - 1)) + SEND_MESSAGE_AFTER_MIN;
             tt_s = tt;
         }
-        
+
         // Show statistic
         if(o_statistic && (tt - tt_ss) > SHOW_STATISTIC_AFTER) {
 
-            showStatistic(td);  
+            showStatistic(td);
             tt_ss = tt;
         }
-        
+
         #if !USE_SELECT
         usleep(DELAY);
         #endif
