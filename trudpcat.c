@@ -477,8 +477,9 @@ int main(int argc, char** argv) {
     char *hello_c = "Hello TR-UDP from client!";
     size_t hello_c_length = strlen(hello_c) + 1;
     //
-    char *hello_s = "Hello TR-UDP from server!";
-    size_t hello_s_length = strlen(hello_s) + 1;
+    char hello_s[512]; 
+    strcpy(hello_s, "Hello TR-UDP from server!");
+    size_t hello_s_length = sizeof(hello_s); // strlen(hello_s) + 1;
 
     // Process networking
     i = 0;
