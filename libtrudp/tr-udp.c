@@ -78,7 +78,7 @@ trudpData *trudpInit(int fd, int port, void *user_data) {
     
     // Initialize statistic data
     trudpStatInit(trudp);
-    trudp->started = trudpGetTimestamp();
+    trudp->started = trudpGetTimestampFull();
 
     return trudp;
 }
@@ -660,7 +660,9 @@ int trudpProcessChannelSendQueue(trudpChannelData *tcd) {
         rv++;
 
         // Stop at match retrieves
-        if(/*tqd->retrieves > MAX_RETRIEVES ||*/ ts - tqd->retrieves_start > MAX_RETRIEVES_TIME) {
+        if(/*tqd->retrieves > MAX_RETRIEVES ||*/ 
+           ts - tqd->retrieves_start > MAX_RETRIEVES_TIME) {
+            
             char *key = trudpMakeKeyCannel(tcd);
             // \todo Send event
             fprintf(stderr, "Disconnect channel %s\n", key);

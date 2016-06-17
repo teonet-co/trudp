@@ -75,7 +75,7 @@ static char* randIpPort() {
 void check_map() {
     
     int i, j;
-    const size_t NUM_KEYS = 100;
+    const size_t NUM_KEYS = 10000000;
 
     srand(trudpGetTimestamp());
 
@@ -95,13 +95,14 @@ void check_map() {
         memcpy(key[i], k, key_length[i]);
         
         data[i] = malloc(BUFFER_LEN);
-        data_length[i] = snprintf(data[i], BUFFER_LEN, "Hello TR-UDP hash table - %d!", i) + 1;
+        data_length[i] = snprintf(data[i], BUFFER_LEN, 
+                "Hello TR-UDP hash table - %d!", i) + 1;
         
         //printf("\n %s - \"%s\" ", key[i], data[i]);
     }
     
     // Create new map
-    trudpMapData *map = trudpMapNew(10, 1);
+    trudpMapData *map = trudpMapNew(NUM_KEYS, 1);
     CU_ASSERT_PTR_NOT_NULL(map);
     
     // Add and Get data from map

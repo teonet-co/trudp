@@ -201,7 +201,7 @@ typedef struct trudpData {
     
     // Statistic
     trudpStatData stat;
-    uint32_t started;
+    unsigned long long started;
     
     size_t writeQueueIdx;
     

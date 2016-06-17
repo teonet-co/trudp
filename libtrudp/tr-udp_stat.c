@@ -324,6 +324,65 @@ void *trudpStatGet(trudpData *td, int type, size_t *stat_len) {
 }
 
 /**
+ * Remove leading string spaces and zeros
+ * 
+ * @param str
+ * 
+ * @return Pointer to part of string without leading spaces and zeros
+ */
+static char* trimLeadingZerro(char *str) {
+    
+    char *ret_str = str;
+    size_t i = 0, len = strlen(str);
+    
+    while(i<len) {
+        str[i];
+        if(str[i] != ' ' && !(str[i] == '0' && str[i+1] != '.') ) { 
+            ret_str = str + i; 
+            break; 
+        }
+        i++;
+    }
+    
+    return ret_str;
+}
+
+/**
+ * Return formated time string
+ * 
+ * @param t Time
+ * 
+ * @return Formated time string: days minutes seconds.milliseconds
+ */
+static char* showTime(double t) {
+    
+    #define T_STR_LEN 64
+    static char t_str[T_STR_LEN];
+
+    double seconds;
+    int days, hours, minutes;
+    const int minute_sec = 60 /* sec */;
+    const int hour_sec = minute_sec * 60 /* min */;
+    const int day_sec = hour_sec * 24 /* hours */;
+    days = t / day_sec;
+    hours = (t - days * day_sec) / hour_sec;
+    minutes = (t - days * day_sec - hours * hour_sec) /  minute_sec;
+    seconds = t - days * day_sec - hours * hour_sec - minutes * minute_sec;
+    
+    snprintf(t_str, T_STR_LEN, "%d%s%d%s%d%s%.3f sec"
+            , days
+            , (days ? " days " : " ")
+            , hours
+            , (!hours && !days ? " " : " hour ")
+            , minutes
+            , (!minutes && !hours && !days ? " " : " min ")
+            , seconds
+    );
+            
+    return trimLeadingZerro(t_str);
+}
+
+/**
  * Show TR-UDP statistics
  *
  * Return string with statistics. It should be free after use.
@@ -428,7 +487,7 @@ char * ksnTRUDPstatShowStr(trudpData *td) {
     char *ret_str = formatMessage(
 //        _ANSI_CLS"\033[0;0H"
         "---------------------------------------------------------------------------------------------------------------------------------------------------------\n"
-        "TR-UDP statistics, port %d, running time: %f sec\n"
+        "TR-UDP statistics, port %d, running time: %s\n"
 //        "---------------------------------------------------------------------------------------------------------------------------------------------------------\n"
 //        "\n"
 //        "  Packets sent: %-12d                " "Send list:                      " "Receive Heap:\n"
@@ -457,7 +516,7 @@ char * ksnTRUDPstatShowStr(trudpData *td) {
         _ANSI_GREEN"RQ:"_ANSI_NONE" receive queue       \n"
     
         , td->port
-        , (trudpGetTimestamp() - td->started) / 1000000.0
+        , showTime((trudpGetTimestampFull() - td->started) / 1000000.0)
 
 //        , packets_send
 //        , ack_receive, td->stat.sendQueue.size_max, td->stat.receiveQueue.size_max
