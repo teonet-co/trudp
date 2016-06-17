@@ -28,6 +28,7 @@
 #define TR_UDP_H
 
 #include "packet_queue.h"
+#include "write_queue.h"
 #include "packet.h"
 #include "map.h"
 #include "udp.h"
@@ -39,7 +40,7 @@ extern "C" {
 #define CS_KEY_LENGTH 64    
 #define MAX_RETRIEVES 10
 #define MAX_OUTRUNNING 10    
-#define MAX_RETRIEVES_TIME 3 * 1000 * 1000
+#define MAX_RETRIEVES_TIME 2 * 1000 * 1000
 #define START_MIDDLE_TIME (MAX_ACK_WAIT/5) * 1000000    
     
 #define RESET_AFTER_ID (UINT32_MAX - 1024)
@@ -128,7 +129,9 @@ typedef struct trudpStatChannelData {
     last10_data last_send_packets_ar[LAST10_SIZE]; ///< Last 10 send packets
     size_t idx_snd; ///< Index of last_send_packet_ar
     last10_data last_receive_packets_ar[LAST10_SIZE]; ///< Last 10 receive packets
-    size_t idx_rcv; ///< Index of last_receive_packets_ar    
+    size_t idx_rcv; ///< Index of last_receive_packets_ar   
+    uint32_t sendQueueSize;
+    uint32_t receiveQueueSize;
     
 } trudpStatChannelData;   
 
@@ -142,6 +145,8 @@ typedef struct trudpChannelData {
     uint32_t triptime; ///< Trip time 
     double triptimeFactor; ///< Triptime factor
     uint32_t triptimeMiddle; ///< Trip time middle
+    
+    trudpWriteQueue *writeQueue; ///< Pointer to write queue trudpWriteQueue
         
     uint32_t receiveExpectedId; ///< Ecpected recive Id
     trudpPacketQueue *receiveQueue; ///< Pointer to recive queue receiveQueue
@@ -165,16 +170,16 @@ typedef struct trudpChannelData {
  */
 typedef struct trudpStatData {
     
-    struct send_list {
+    struct sendQueue {
         size_t size_max;
         size_t size_current;
         size_t attempt;
-    } send_list;
+    } sendQueue;
     
-    struct receive_heap {
+    struct receiveQueue {
         size_t size_max;
         size_t size_current;
-    } receive_heap;
+    } receiveQueue;
     
 } trudpStatData;
 
@@ -187,7 +192,7 @@ typedef struct trudpData {
     void* user_data; ///< User data
     int port; ///< Port
     int fd; ///< File descriptor
-    
+                 
     // Callback
     trudpDataCb processDataCb;
     trudpDataCb processAckCb;
@@ -196,7 +201,9 @@ typedef struct trudpData {
     
     // Statistic
     trudpStatData stat;
-    uint32_t started;
+    unsigned long long started;
+    
+    size_t writeQueueIdx;
     
 } trudpData;
 
@@ -206,6 +213,7 @@ trudpCb trudpSetCallback(trudpData *td, trudpCallbsckType type, trudpCb cb);
 trudpChannelData *trudpCheckRemoteAddr(trudpData *td, struct sockaddr_in *remaddr, 
         socklen_t addr_length, int channel);
 int trudpProcessSendQueue(trudpData *td);
+size_t trudpProcessWriteQueue(trudpData *td);
 
 trudpChannelData *trudpNewChannel(trudpData *td, char *remote_address, int remote_port_i, int channel); // void *user_data, trudpDataCb processDataCb, trudpDataCb sendPacketCb);
 void trudpDestroyChannel(trudpChannelData *tcd);

@@ -184,9 +184,73 @@ inline ssize_t trudpUdpRecvfrom(int fd, void *buffer, size_t buffer_size,
     return recvlen;
 }    
 
+#define SOCKET_ERROR -1
+
+static struct timeval *usecToTv(struct timeval *tv, uint32_t usec) {
+
+    if(usec) {
+        tv->tv_sec  = usec / 1000000;
+        tv->tv_usec = usec % 1000000;
+    } else {
+        tv->tv_sec  = 0;
+        tv->tv_usec = 0;
+    }
+
+    return tv;
+}
+
+/**
+ * Wait while socket read available or timeout occurred
+ * 
+ * @param fd File descriptor
+ * @param timeout Timeout in uSec
+ * 
+ * @return -1 - error; 0 - timeout; >0 ready
+ */
+
+int isReadable(int sd, uint32_t timeOut) { 
+    
+    int rv = 1;
+    
+    fd_set socketReadSet;
+    FD_ZERO(&socketReadSet);
+    FD_SET(sd,&socketReadSet);
+    struct timeval tv;
+    usecToTv(&tv, timeOut);
+    
+    rv = select(sd + 1, &socketReadSet, NULL, NULL, &tv);
+
+    return ;
+} 
+
+/**
+ * Wait while socket write available or timeout occurred
+ * 
+ * @param fd File descriptor
+ * @param timeout Timeout in uSec
+ * 
+ * @return -1 - error; 0 - timeout; >0 ready
+ */
+
+int isWritable(int sd, uint32_t timeOut) { 
+    
+    int rv = 1;
+    
+    fd_set socketWriteSet;
+    FD_ZERO(&socketWriteSet);
+    FD_SET(sd,&socketWriteSet);
+    struct timeval tv;
+    usecToTv(&tv, timeOut);
+    
+    rv = select(sd + 1, NULL, &socketWriteSet, NULL, &tv);
+    if(rv <= 0) printf("isWritable timeout\n");
+
+    return ;
+} 
+
 /**
  * Simple UDP sendto wrapper
- * @param fd
+ * @param fd File descriptor
  * @param buffer
  * @param buffer_size
  * @param addr
@@ -195,11 +259,15 @@ inline ssize_t trudpUdpRecvfrom(int fd, void *buffer, size_t buffer_size,
  */
 inline ssize_t trudpUdpSendto(int fd, void *buffer, size_t buffer_size, 
         __CONST_SOCKADDR_ARG remaddr, socklen_t addrlen) {
+        
+    ssize_t sendlen = 0;
     
-    int flags = 0;
-    
-    // Write UDP data
-    ssize_t sendlen = sendto(fd, buffer, buffer_size, flags, remaddr, addrlen);
+    //if(waitSocketWriteAvailable(fd, 1000000) > 0) {   
+        
+        // Write UDP data
+        int flags = 0;
+        sendlen = sendto(fd, buffer, buffer_size, flags, remaddr, addrlen);
+    //}
     
     return sendlen;
 }    

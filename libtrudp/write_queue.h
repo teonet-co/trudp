@@ -21,14 +21,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * \file   packet_queue.h
+ * \file   write_queue.h
  * \author Kirill Scherba <kirill@scherba.ru>
  *
- * Created on May 30, 2016, 8:56 PM
+ * Created on June 15, 2016, 12:57 AM
  */
 
-#ifndef SEND_QUEUE_H
-#define SEND_QUEUE_H
+#ifndef WRITE_QUEUE_H
+#define WRITE_QUEUE_H
 
 #include <stdint.h>
 #include "queue.h"
@@ -36,38 +36,36 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+    
+#define MAX_HEADER_SIZE 64
 
-typedef struct trudpPacketQueue {
+typedef struct trudpWriteQueue {
 
     trudpQueue *q;
 
-} trudpPacketQueue;
+} trudpWriteQueue;
 
-typedef struct trudpPacketQueueData {
+typedef struct trudpWriteQueueData {
 
-    uint32_t expected_time;
-    uint32_t packet_length;
-    uint32_t retrieves;
-    uint32_t retrieves_start;
-    char packet[];
+    char packet[MAX_HEADER_SIZE];
+    uint16_t packet_length;
+    void *packet_ptr;
 
-} trudpPacketQueueData;
+} trudpWriteQueueData;
 
-inline trudpPacketQueue *trudpPacketQueueNew();
-inline void trudpPacketQueueDestroy(trudpPacketQueue *tq);
-inline int trudpPacketQueueFree(trudpPacketQueue *tq);
+inline trudpWriteQueue *trudpWriteQueueNew();
+inline void trudpWriteQueueDestroy(trudpWriteQueue *wq);
+inline int trudpWriteQueueFree(trudpWriteQueue *wq);
 
-inline size_t trudpPacketQueueSize(trudpPacketQueue *tq);
-inline trudpQueueData *trudpPacketQueueDataToQueueData(trudpPacketQueueData *tqd);
+trudpWriteQueueData *trudpWriteQueueAdd(trudpWriteQueue *wq, void *packet, 
+        void *packet_ptr, size_t packet_length);
+inline trudpWriteQueueData *trudpWriteQueueGetFirst(trudpWriteQueue *wq);
+inline int trudpWriteQueueDeleteFirst(trudpWriteQueue *wq);
 
-trudpPacketQueueData *trudpPacketQueueAdd(trudpPacketQueue *tq, void *packet,
-        size_t packet_length, uint32_t expected_time);
-inline int trudpPacketQueueDelete(trudpPacketQueue *tq, trudpPacketQueueData *tqd);
-trudpPacketQueueData *trudpPacketQueueFindById(trudpPacketQueue *tq, uint32_t id);
-trudpPacketQueueData *trudpPacketQueueFindByTime(trudpPacketQueue *tq, uint32_t t);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* SEND_QUEUE_H */
+#endif /* WRITE_QUEUE_H */
+

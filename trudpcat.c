@@ -48,7 +48,7 @@ extern int usleep (__useconds_t __useconds);
 
 // Integer options
 int o_debug = 0,
-    o_statistic = 0,    
+    o_statistic = 0,
     o_listen = 0,
     o_numeric = 0,
     o_buf_size = 4096;
@@ -109,17 +109,25 @@ static void debug(char *fmt, ...)
  * Show statistic window
  * @param td Pointer to trudpData
  */
-static void showStatistic(trudpData *td) {
-    
-    gotoxy(0,0);
-    char *stat_str = ksnTRUDPstatShowStr(td);
-    puts(stat_str);
-    free(stat_str);
+static void showStatistic(trudpData *td, int *show) {
+
+    if(*show) {
+        //gotoxy(0,0);
+        cls();
+        hidecursor();
+        char *stat_str = ksnTRUDPstatShowStr(td);
+        puts(stat_str);
+        free(stat_str);
+    }
     // Check key !!!
     int ch = nb_getch();
     if(ch) {
         // ...
         printf("key %c pressed\n", ch);
+        if(ch == 'S') { 
+            *show = !*show;
+            if(!*show) showcursor();
+        }
     }
 }
 
@@ -145,7 +153,7 @@ static void processDataCb(void *td_ptr, void *data, size_t data_length,
                    tcd->receiveExpectedId,
                    (double)trudpGetTimestamp() / 1000.0,
                    (double)tcd->triptime / 1000.0,
-                   (double)tcd->triptimeMiddle / 1000.0);       
+                   (double)tcd->triptimeMiddle / 1000.0);
 
         printf("%s\n",(char*)data);
     }
@@ -164,7 +172,7 @@ static void processDataCb(void *td_ptr, void *data, size_t data_length,
  * @param data_length
  * @param user_data
  */
-static void processAckCb(void *td_ptr, void *data, size_t data_length, 
+static void processAckCb(void *td_ptr, void *data, size_t data_length,
         void *user_data) {
 
     trudpChannelData *tcd = (trudpChannelData *)td_ptr;
@@ -186,9 +194,11 @@ static void sendPacketCb(void *tcd_ptr, void *packet, size_t packet_length,
 
     trudpChannelData *tcd = (trudpChannelData *)tcd_ptr;
 
+    //if(isWritable(TD(tcd)->fd, timeout) > 0) {   
     // Send to UDP
-    trudpUdpSendto(TD(tcd)->fd, packet, packet_length, 
+    trudpUdpSendto(TD(tcd)->fd, packet, packet_length,
             (__CONST_SOCKADDR_ARG) &tcd->remaddr, sizeof(tcd->remaddr));
+    //}
 
     int port,type;
     uint32_t id = trudpPacketGetId(packet);
@@ -206,7 +216,7 @@ static void sendPacketCb(void *tcd_ptr, void *packet, size_t packet_length,
 
 /**
  * TR-UDP event callback
- * 
+ *
  * @param tcd_ptr
  * @param event
  * @param data
@@ -215,9 +225,9 @@ static void sendPacketCb(void *tcd_ptr, void *packet, size_t packet_length,
  */
 static void eventCb(void *tcd_ptr, int event, void *data, size_t data_size,
         void *user_data) {
-    
+
     switch(event) {
-        
+
         case DISCONNECTED: printf("Disconnected\n"); connected_flag = 0; break;
         default: break;
     }
@@ -225,14 +235,14 @@ static void eventCb(void *tcd_ptr, int event, void *data, size_t data_size,
 
 /**
  * Connect to peer
- * 
+ *
  * @param td
- * @return 
+ * @return
  */
 static trudpChannelData *connectToPeer(trudpData *td) {
-    
+
     trudpChannelData *tcd = NULL;
-            
+
     // Create remote address and Send "connect" packet
     if(!o_listen) {
         char *connect = "Connect with TR-UDP!";
@@ -242,7 +252,7 @@ static trudpChannelData *connectToPeer(trudpData *td) {
         fprintf(stderr, "Connecting to %s:%u:%u\n", o_remote_address, o_remote_port_i, 0);
         connected_flag = 1;
     }
-    
+
     return tcd;
 }
 
@@ -256,7 +266,7 @@ static void network_loop(trudpData *td) {
     // Read from UDP
     struct sockaddr_in remaddr; // remote address
     socklen_t addr_len = sizeof(remaddr);
-    ssize_t recvlen = trudpUdpRecvfrom(td->fd, buffer, o_buf_size, 
+    ssize_t recvlen = trudpUdpRecvfrom(td->fd, buffer, o_buf_size,
             (__SOCKADDR_ARG)&remaddr, &addr_len);
 
     // Process received packet
@@ -268,6 +278,9 @@ static void network_loop(trudpData *td) {
 
     // Process send queue
     trudpProcessSendQueue(td);
+
+    // Process write queue
+    while(trudpProcessWriteQueue(td));
 }
 
 /**
@@ -278,19 +291,25 @@ static void network_loop(trudpData *td) {
  */
 static void network_select_loop(trudpData *td, int timeout) {
 
-    int rv;
-    fd_set rfds;
+    int rv = 1;
+    fd_set rfds, wfds;
     struct timeval tv;
-    ssize_t recvlen = 0;
 
+//    while(rv > 0) {
     // Watch server_socket to see when it has input.
+    FD_ZERO(&wfds);
     FD_ZERO(&rfds);
     FD_SET(td->fd, &rfds);
 
+    // Process write queue
+    if(trudpWriteQueueSizeAll(td)) {
+        FD_SET(td->fd, &wfds);
+    }
+
     uint32_t timeout_sq = trudpGetSendQueueTimeout(td);
-    debug("set timeout: %.3f ms; default: %.3f ms, send_queue: %.3f ms%s\n", 
-            (timeout_sq < timeout ? timeout_sq : timeout) / 1000.0, 
-            timeout / 1000.0, 
+    debug("set timeout: %.3f ms; default: %.3f ms, send_queue: %.3f ms%s\n",
+            (timeout_sq < timeout ? timeout_sq : timeout) / 1000.0,
+            timeout / 1000.0,
             timeout_sq / 1000.0,
             timeout_sq == UINT32_MAX ? "(queue is empty)" : ""
     );
@@ -299,7 +318,7 @@ static void network_select_loop(trudpData *td, int timeout) {
     tv.tv_sec = 0;
     tv.tv_usec = timeout_sq < timeout ? timeout_sq : timeout;
 
-    rv = select((int)td->fd + 1, &rfds, NULL, NULL, &tv);
+    rv = select((int)td->fd + 1, &rfds, &wfds, NULL, &tv);
 
     // Error
     if (rv == -1) {
@@ -316,9 +335,11 @@ static void network_select_loop(trudpData *td, int timeout) {
             debug("process send queue ... %d\n", rv);
         }
     }
+
     // There is a data in fd
     else {
 
+        // Process read fd
         if(FD_ISSET(td->fd, &rfds)) {
 
             struct sockaddr_in remaddr; // remote address
@@ -333,7 +354,15 @@ static void network_select_loop(trudpData *td, int timeout) {
                 trudpProcessChannelReceivedPacket(tcd, buffer, recvlen, &data_length);
             }
         }
+
+        // Process write fd
+        if(FD_ISSET(td->fd, &wfds)) {
+            // Process write queue
+            while(trudpProcessWriteQueue(td));
+            //trudpProcessWriteQueue(td);
+        }
     }
+//    }
 }
 
 /**
@@ -368,11 +397,11 @@ static void usage(char *name) {
  * @return
  */
 int main(int argc, char** argv) {
-    
-    #define APP_VERSION "0.0.12"
+
+    #define APP_VERSION "0.0.13"
 
     // Show logo
-    fprintf(stderr, 
+    fprintf(stderr,
             "TR-UDP two node connect sample application ver " APP_VERSION "\n"
     );
 
@@ -412,11 +441,11 @@ int main(int argc, char** argv) {
 
     // Show execution mode
     if(o_listen)
-        fprintf(stderr, "Server started at %s:%s\n", o_local_address, 
+        fprintf(stderr, "Server started at %s:%s\n", o_local_address,
                 o_local_port);
     else {
         o_remote_port_i = atoi(o_remote_port);
-        fprintf(stderr, "Client start connection to %s:%d\n", o_remote_address, 
+        fprintf(stderr, "Client start connection to %s:%d\n", o_remote_address,
                 o_remote_port_i);
     }
 
@@ -436,8 +465,8 @@ int main(int argc, char** argv) {
     else fprintf(stderr, "Start listening at port %d\n", port);
 
     // Initialize TR-UDP
-    trudpData *td = trudpInit(fd, port, NULL); 
-    
+    trudpData *td = trudpInit(fd, port, NULL);
+
     // Set callback functions
     trudpSetCallback(td, PROCESS_DATA, (trudpCb)processDataCb);
     trudpSetCallback(td, SEND, (trudpCb)sendPacketCb);
@@ -448,19 +477,22 @@ int main(int argc, char** argv) {
     char *hello_c = "Hello TR-UDP from client!";
     size_t hello_c_length = strlen(hello_c) + 1;
     //
-    char *hello_s = "Hello TR-UDP from server!";
-    size_t hello_s_length = strlen(hello_s) + 1;
+    char hello_s[512]; 
+    strcpy(hello_s, "Hello TR-UDP from server!");
+    size_t hello_s_length = sizeof(hello_s); // strlen(hello_s) + 1;
 
     // Process networking
     i = 0;
     char *message;
     size_t message_length;
-    const int DELAY = 500; // mSec
-    const int SEND_MESSAGE_AFTER = 100000; // uSec (mSec * 1000)
-    const int RECONNECT_AFTER = 2000000; // uSec (mSec * 1000)
+    const int DELAY = 500000; // uSec
+    const int SEND_MESSAGE_AFTER_MIN = 5000; // uSec (mSec * 1000)
+    int send_message_after = SEND_MESSAGE_AFTER_MIN;
+    const int RECONNECT_AFTER = 6000000; // uSec (mSec * 1000)
+    const int SHOW_STATISTIC_AFTER = 250000; // uSec (mSec * 1000)
     if(!o_listen) { message = hello_c; message_length = hello_c_length; }
     else { message = hello_s; message_length = hello_s_length; }
-    uint32_t tt, tt_s = 0, tt_c = 0;
+    uint32_t tt, tt_s = 0, tt_c = 0, tt_ss = 0;
     while (!quit_flag) {
 
         #define USE_SELECT 1
@@ -468,29 +500,36 @@ int main(int argc, char** argv) {
         #if !USE_SELECT
         network_loop(td);
         #else
-        network_select_loop(td, DELAY * 1000);
+        network_select_loop(td, send_message_after < DELAY ? send_message_after : DELAY);
         #endif
 
-        // Current timestamp 
+        // Current timestamp
         tt = trudpGetTimestamp();
-        
+
         // Connect
-        if(!o_listen && !connected_flag) {
-            if((tt - tt_c) > RECONNECT_AFTER) {
-                connectToPeer(td);
-                tt_c = tt;
-            }
+        if(!o_listen && !connected_flag && (tt - tt_c) > RECONNECT_AFTER) {
+            connectToPeer(td);
+            tt_c = tt;
         }
 
         // Send message
-        if(/*(!o_listen || o_listen && connected_f) &&*/
-           (tt - tt_s) > SEND_MESSAGE_AFTER) {
+        // random int between 0 and 500000 
+        
+        if((tt - tt_s) > send_message_after) {
 
-            if(o_statistic) showStatistic(td);  
+            if(td->stat.sendQueue.size_current < 1000)
             trudpSendDataToAll(td, message, message_length);
+            //send_message_after = (rand() % (500000 - 1)) + SEND_MESSAGE_AFTER_MIN;
             tt_s = tt;
         }
-        
+
+        // Show statistic
+        if(/*o_statistic && */(tt - tt_ss) > SHOW_STATISTIC_AFTER) {
+
+            showStatistic(td, &o_statistic);
+            tt_ss = tt;
+        }
+
         #if !USE_SELECT
         usleep(DELAY);
         #endif
