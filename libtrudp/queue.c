@@ -87,6 +87,7 @@ int trudpQueueFree(trudpQueue *q) {
 
 /**
  * Get number of elements in TR-UPD queue
+ * 
  * @param q
  * 
  * @return Number of elements in TR-UPD queue
@@ -105,23 +106,6 @@ inline size_t trudpQueueSize(trudpQueue *q) {
  */
 trudpQueueData *trudpQueuePut(trudpQueue *q, trudpQueueData *qd) {
    
-//    if(qd) {        
-//        // Add to the end
-//        if(q->last) {
-//            q->last->next = qd;
-//            qd->prev = q->last;
-//        }
-//        // Add to the beginning
-//        else {
-//            qd->prev = NULL;
-//            q->first = qd;
-//        }
-//        qd->next = NULL; 
-//        q->last = qd;
-//        
-//        q->length++;
-//    }
-    
     if(q) {
         if(qd) {
             // Fill Queue data structure

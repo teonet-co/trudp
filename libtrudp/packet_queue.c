@@ -185,3 +185,14 @@ inline trudpPacketQueueData *trudpPacketQueueMoveToEnd(trudpPacketQueue *tq, tru
 
     return (trudpPacketQueueData *)trudpQueueMoveToEnd(tq->q, trudpPacketQueueDataToQueueData(tqd))->data;
 }
+
+/**
+ * Get number of elements in Packet queue
+ * 
+ * @param q
+ * 
+ * @return Number of elements in TR-UPD queue
+ */
+inline size_t trudpPacketQueueSize(trudpPacketQueue *tq) {
+    return trudpQueueSize(tq->q);
+}

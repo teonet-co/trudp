@@ -40,7 +40,7 @@ extern "C" {
 #define CS_KEY_LENGTH 64    
 #define MAX_RETRIEVES 10
 #define MAX_OUTRUNNING 10    
-#define MAX_RETRIEVES_TIME 3 * 1000 * 1000
+#define MAX_RETRIEVES_TIME 2 * 1000 * 1000
 #define START_MIDDLE_TIME (MAX_ACK_WAIT/5) * 1000000    
     
 #define RESET_AFTER_ID (UINT32_MAX - 1024)
@@ -129,7 +129,9 @@ typedef struct trudpStatChannelData {
     last10_data last_send_packets_ar[LAST10_SIZE]; ///< Last 10 send packets
     size_t idx_snd; ///< Index of last_send_packet_ar
     last10_data last_receive_packets_ar[LAST10_SIZE]; ///< Last 10 receive packets
-    size_t idx_rcv; ///< Index of last_receive_packets_ar    
+    size_t idx_rcv; ///< Index of last_receive_packets_ar   
+    uint32_t sendQueueSize;
+    uint32_t receiveQueueSize;
     
 } trudpStatChannelData;   
 
@@ -168,16 +170,16 @@ typedef struct trudpChannelData {
  */
 typedef struct trudpStatData {
     
-    struct send_list {
+    struct sendQueue {
         size_t size_max;
         size_t size_current;
         size_t attempt;
-    } send_list;
+    } sendQueue;
     
-    struct receive_heap {
+    struct receiveQueue {
         size_t size_max;
         size_t size_current;
-    } receive_heap;
+    } receiveQueue;
     
 } trudpStatData;
 

@@ -109,17 +109,25 @@ static void debug(char *fmt, ...)
  * Show statistic window
  * @param td Pointer to trudpData
  */
-static void showStatistic(trudpData *td) {
+static void showStatistic(trudpData *td, int *show) {
 
-    gotoxy(0,0);
-    char *stat_str = ksnTRUDPstatShowStr(td);
-    puts(stat_str);
-    free(stat_str);
+    if(*show) {
+        //gotoxy(0,0);
+        cls();
+        hidecursor();
+        char *stat_str = ksnTRUDPstatShowStr(td);
+        puts(stat_str);
+        free(stat_str);
+    }
     // Check key !!!
     int ch = nb_getch();
     if(ch) {
         // ...
         printf("key %c pressed\n", ch);
+        if(ch == 'S') { 
+            *show = !*show;
+            if(!*show) showcursor();
+        }
     }
 }
 
@@ -174,8 +182,6 @@ static void processAckCb(void *td_ptr, void *data, size_t data_length,
            (tcd->triptime)/1000.0, (tcd->triptimeMiddle)/1000.0  );
 }
 
-int aaa = 0;
-
 /**
  * TR-UDP send callback
  *
@@ -188,13 +194,11 @@ static void sendPacketCb(void *tcd_ptr, void *packet, size_t packet_length,
 
     trudpChannelData *tcd = (trudpChannelData *)tcd_ptr;
 
-    uint32_t timeout = aaa ? 10 : 10000000;   
-    
-    if(isWritable(TD(tcd)->fd, timeout) > 0) {   
-        // Send to UDP
-        trudpUdpSendto(TD(tcd)->fd, packet, packet_length,
-                (__CONST_SOCKADDR_ARG) &tcd->remaddr, sizeof(tcd->remaddr));
-    }
+    //if(isWritable(TD(tcd)->fd, timeout) > 0) {   
+    // Send to UDP
+    trudpUdpSendto(TD(tcd)->fd, packet, packet_length,
+            (__CONST_SOCKADDR_ARG) &tcd->remaddr, sizeof(tcd->remaddr));
+    //}
 
     int port,type;
     uint32_t id = trudpPacketGetId(packet);
@@ -277,7 +281,6 @@ static void network_loop(trudpData *td) {
 
     // Process write queue
     while(trudpProcessWriteQueue(td));
-
 }
 
 /**
@@ -482,9 +485,9 @@ int main(int argc, char** argv) {
     char *message;
     size_t message_length;
     const int DELAY = 500000; // uSec
-    const int SEND_MESSAGE_AFTER_MIN = 100; // uSec (mSec * 1000)
+    const int SEND_MESSAGE_AFTER_MIN = 5000; // uSec (mSec * 1000)
     int send_message_after = SEND_MESSAGE_AFTER_MIN;
-    const int RECONNECT_AFTER = 2000000; // uSec (mSec * 1000)
+    const int RECONNECT_AFTER = 6000000; // uSec (mSec * 1000)
     const int SHOW_STATISTIC_AFTER = 250000; // uSec (mSec * 1000)
     if(!o_listen) { message = hello_c; message_length = hello_c_length; }
     else { message = hello_s; message_length = hello_s_length; }
@@ -513,17 +516,16 @@ int main(int argc, char** argv) {
         
         if((tt - tt_s) > send_message_after) {
 
-            aaa = 1;
+            if(td->stat.sendQueue.size_current < 1000)
             trudpSendDataToAll(td, message, message_length);
-            aaa = 0;
             //send_message_after = (rand() % (500000 - 1)) + SEND_MESSAGE_AFTER_MIN;
             tt_s = tt;
         }
 
         // Show statistic
-        if(o_statistic && (tt - tt_ss) > SHOW_STATISTIC_AFTER) {
+        if(/*o_statistic && */(tt - tt_ss) > SHOW_STATISTIC_AFTER) {
 
-            showStatistic(td);
+            showStatistic(td, &o_statistic);
             tt_ss = tt;
         }
 

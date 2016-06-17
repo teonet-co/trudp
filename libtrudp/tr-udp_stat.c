@@ -80,13 +80,14 @@ inline void trudpStatChannelReset(trudpChannelData *tcd) {
 
 /**
  * Process packet and calculate last 10 send packets array
- * 
+ *
  * @param tcd Pointer to trudpChannelData
  * @param packet Pointer to packet
  * @param send_data_length Send packet data size
  */
-void trudpStatProcessLast10Send(trudpChannelData *tcd, void *packet, size_t send_data_length) {
-    
+void trudpStatProcessLast10Send(trudpChannelData *tcd, void *packet,
+        size_t send_data_length) {
+
     // Add triptime to last 10 array
     tcd->stat.last_send_packets_ar[tcd->stat.idx_snd].triptime = tcd->stat.triptime_last;
 
@@ -99,7 +100,6 @@ void trudpStatProcessLast10Send(trudpChannelData *tcd, void *packet, size_t send
     // Last 10 array next index
     tcd->stat.idx_snd++;
     if(tcd->stat.idx_snd >= LAST10_SIZE) tcd->stat.idx_snd = 0;
-
 
     // Calculate max triptime & speed in bytes in sec in last 10 packet
     {
@@ -124,13 +124,13 @@ void trudpStatProcessLast10Send(trudpChannelData *tcd, void *packet, size_t send
         // Send speed
         uint32_t dif_ts = max_ts - min_ts;
         if(dif_ts) tcd->stat.send_speed = 1.0 * size_b / (1.0 * (dif_ts) / 1000000.0);
-        else tcd->stat.send_speed = 0;
-    }    
+//        else tcd->stat.send_speed = 0;
+    }
 }
 
 /**
  * Process packet and calculate last 10 received packets array
- * 
+ *
  * @param tcd Pointer to trudpChannelData
  * @param packet Pointer to packet
  */
@@ -341,10 +341,11 @@ char * ksnTRUDPstatShowStr(trudpData *td) {
              packets_dropped = 0;
 
     int i = 0;
-    char *tbl_str = strdup("");
+    char *tbl_str = strdup(""), *tbl_total = strdup("");
+    trudpStatChannelData totalStat;
     trudpMapIterator *it = trudpMapIteratorNew(td->map);
-    if(it != NULL) {
-
+    if(it != NULL) {        
+        memset(&totalStat, 0, sizeof(totalStat));
         while(trudpMapIteratorNext(it)) {
 
             size_t key_len;
@@ -365,7 +366,7 @@ char * ksnTRUDPstatShowStr(trudpData *td) {
                 tcd->stat.packets_send,
                 (double)(1.0 * tcd->stat.send_speed / 1024.0),
                 tcd->stat.send_total,
-                tcd->stat.triptime_last / 1000.0,    
+                tcd->stat.triptime_last / 1000.0,
                 tcd->stat.wait,
                 tcd->stat.packets_receive,
                 (double)(1.0 * tcd->stat.receive_speed / 1024.0),
@@ -376,28 +377,71 @@ char * ksnTRUDPstatShowStr(trudpData *td) {
                 trudpQueueSize(tcd->sendQueue->q),
                 trudpQueueSize(tcd->receiveQueue->q)
             );
+            totalStat.packets_send += tcd->stat.packets_send;
+            totalStat.send_speed += tcd->stat.send_speed;
+            totalStat.send_total += tcd->stat.send_total;
+            totalStat.triptime_last += tcd->stat.triptime_last;
+            totalStat.wait += tcd->stat.wait;
+            totalStat.packets_receive += tcd->stat.packets_receive;
+            totalStat.receive_speed += tcd->stat.receive_speed;
+            totalStat.receive_total += tcd->stat.receive_total;
+            totalStat.ack_receive += tcd->stat.ack_receive;
+            totalStat.packets_attempt += tcd->stat.packets_attempt;
+            totalStat.packets_receive_dropped += tcd->stat.packets_receive_dropped;
+            totalStat.sendQueueSize += trudpQueueSize(tcd->sendQueue->q);
+            totalStat.receiveQueueSize += trudpQueueSize(tcd->receiveQueue->q);
             i++;
+        }
+        if(i > 0) {
+            tbl_str = sformatMessage(tbl_str,
+            "%s"
+            "---------------------------------------------------------------------------------------------------------------------------------------------------------\n"
+            , tbl_str
+            );
+        }
+        if(i > 1) {
+            totalStat.triptime_last /= i;
+            totalStat.wait /= i;
+
+            tbl_total = sformatMessage(tbl_total,
+            "                         %8d %11.3f %10.3f  %9.3f /%9.3f %8d %11.3f %10.3f %8d %8d %8d %6d %6d\n"
+            "---------------------------------------------------------------------------------------------------------------------------------------------------------\n"
+        
+            , totalStat.packets_send
+            , (double)(1.0 * totalStat.send_speed / 1024.0)
+            , totalStat.send_total
+            , totalStat.triptime_last / 1000.0
+            , totalStat.wait
+            , totalStat.packets_receive
+            , (double)(1.0 * totalStat.receive_speed / 1024.0)
+            , totalStat.receive_total
+            , totalStat.ack_receive
+            , totalStat.packets_attempt
+            , totalStat.packets_receive_dropped
+            , totalStat.sendQueueSize
+            , totalStat.receiveQueueSize
+            );            
         }
         trudpMapIteratorDestroy(it);
     }
 
     char *ret_str = formatMessage(
-        _ANSI_CLS"\033[0;0H"
+//        _ANSI_CLS"\033[0;0H"
         "---------------------------------------------------------------------------------------------------------------------------------------------------------\n"
-        "TR-UDP statistics, running time: %f sec\n"
-        "---------------------------------------------------------------------------------------------------------------------------------------------------------\n"
-        "\n"
-        "  Packets sent: %-12d                " "Send list:                      " "Receive Heap:\n"
-        "  ACK receive: %-12d                 " "  size_max: %-12d        "        "  size_max: %-12d\n"
-        "  Packets receive: %-12d             " "  size_current: %-12d    "        "  size_current: %-12d\n"
-        "  Packets receive and dropped: %-12d " "  attempts: %-12d\n"
-        "\n"
+        "TR-UDP statistics, port %d, running time: %f sec\n"
+//        "---------------------------------------------------------------------------------------------------------------------------------------------------------\n"
+//        "\n"
+//        "  Packets sent: %-12d                " "Send list:                      " "Receive Heap:\n"
+//        "  ACK receive: %-12d                 " "  size_max: %-12d        "        "  size_max: %-12d\n"
+//        "  Packets receive: %-12d             " "  size_current: %-12d    "        "  size_current: %-12d\n"
+//        "  Packets receive and dropped: %-12d " "  attempts: %-12d\n"
+//        "\n"
         "List of channels:\n"
         "---------------------------------------------------------------------------------------------------------------------------------------------------------\n"
         "  # Key                      Send  Speed(kb/s)  Total(mb) Trip time /  Wait(ms) |  Recv  Speed(kb/s)  Total(mb)     ACK | Repeat     Drop |   SQ     RQ  \n"
         "---------------------------------------------------------------------------------------------------------------------------------------------------------\n"
         "%s"
-        "---------------------------------------------------------------------------------------------------------------------------------------------------------\n"
+        "%s"
         "  "
         _ANSI_GREEN"send:"_ANSI_NONE" send packets, "
         _ANSI_GREEN"speed:"_ANSI_NONE" send speed(kb/s), "
@@ -411,17 +455,22 @@ char * ksnTRUDPstatShowStr(trudpData *td) {
         _ANSI_GREEN"drop:"_ANSI_NONE" duplicate received, "
         _ANSI_GREEN"SQ:"_ANSI_NONE" send queue,         "
         _ANSI_GREEN"RQ:"_ANSI_NONE" receive queue       \n"
+    
+        , td->port
         , (trudpGetTimestamp() - td->started) / 1000000.0
 
-        , packets_send
-        , ack_receive, td->stat.send_list.size_max, td->stat.receive_heap.size_max
-        , packets_receive, td->stat.send_list.size_current, td->stat.receive_heap.size_current
-        , packets_dropped, td->stat.send_list.attempt
+//        , packets_send
+//        , ack_receive, td->stat.sendQueue.size_max, td->stat.receiveQueue.size_max
+//        , packets_receive, td->stat.sendQueue.size_current, td->stat.receiveQueue.size_current
+//        , packets_dropped, td->stat.sendQueue.attempt
 
         , tbl_str
+        , tbl_total
+    
     );
 
     free(tbl_str);
+    free(tbl_total);
 
     return ret_str;
 }
