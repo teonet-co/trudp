@@ -27,6 +27,7 @@
  */
 
 #include <stdio.h>
+#include <stdint.h>
 #include <string.h>
 #include <fcntl.h>
 
@@ -184,8 +185,16 @@ inline ssize_t trudpUdpRecvfrom(int fd, void *buffer, size_t buffer_size,
     return recvlen;
 }    
 
-#define SOCKET_ERROR -1
+//#define SOCKET_ERROR -1
 
+/**
+ * Convert uSec time to timeval structure
+ * 
+ * @param tv [out] Pointer to struct timeval to save time to
+ * @param usec Time in uSec
+ * 
+ * @return Pointer to the input struct timeval
+ */
 static struct timeval *usecToTv(struct timeval *tv, uint32_t usec) {
 
     if(usec) {

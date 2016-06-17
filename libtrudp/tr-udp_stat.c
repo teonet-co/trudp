@@ -27,8 +27,9 @@
  * Created on June 11, 2016, 4:41 PM
  */
 
-#include <string.h>
+#include<stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "tr-udp_stat.h"
 #include "utils_r.h"
@@ -369,7 +370,7 @@ static char* showTime(double t) {
     minutes = (t - days * day_sec - hours * hour_sec) /  minute_sec;
     seconds = t - days * day_sec - hours * hour_sec - minutes * minute_sec;
     
-    snprintf(t_str, T_STR_LEN, "%d%s%d%s%d%s%.3f sec"
+    snprintf((char*)t_str, T_STR_LEN, "%d%s%d%s%d%s%.3f sec"
             , days
             , (days ? " days " : " ")
             , hours
