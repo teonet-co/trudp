@@ -35,7 +35,7 @@
 #include "utils.h"
 
 // \todo vformatMessage does not work under MinGW
-#define KSN_BUFFER_SM_SIZE 2048;//256
+#define KSN_BUFFER_SM_SIZE 256; //2048;//256
 
 char *vformatMessage(const char *fmt, va_list ap) {
 
@@ -51,16 +51,17 @@ char *vformatMessage(const char *fmt, va_list ap) {
         // Try to print in the allocated space
         va_copy(ap_copy,ap);
         n = vsnprintf(p, size, fmt, ap_copy);
+//        printf("n = %d\n", n);
         va_end(ap_copy);
 
         // Check error code
-        if(n < 0) return NULL;
+        //if(n < 0) return NULL;
 
         // If that worked, return the string
-        if(n < size) return p;
+        if(n > 0 && n < size) return p;
 
         // Else try again with more space
-        size = n + KSN_BUFFER_SM_SIZE; // Precisely what is needed
+        size = size + KSN_BUFFER_SM_SIZE; // Precisely what is needed
         if((np = realloc(p, size)) == NULL) {
             free(p);
             return NULL;

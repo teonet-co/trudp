@@ -116,9 +116,10 @@ static void showStatistic(trudpData *td, int *show) {
         cls();
 //        //hidecursor();
         char *stat_str = ksnTRUDPstatShowStr(td);
-//        puts(stat_str);
-        printf("ss: %s\n", stat_str);
-        if(stat_str) free(stat_str);
+        if(stat_str) {
+            puts(stat_str);
+            free(stat_str);
+        }
     }
     // Check key !!!
     int ch = nb_getch();
