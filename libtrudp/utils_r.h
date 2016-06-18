@@ -451,12 +451,12 @@ static RLUTIL_INLINE void setColor(int c) {
 /// Function: cls
 /// Clears screen and moves cursor home.
 static RLUTIL_INLINE void cls(void) {
-#if defined(_WIN32) && !defined(RLUTIL_USE_ANSI)
-    //! \todo: This is cheating...
-    system("cls");
-#else
+//#if defined(_WIN32) && !defined(RLUTIL_USE_ANSI)
+//    //! \todo: This is cheating...
+//    system("cls");
+//#else
     RLUTIL_PRINT("\033[2J\033[H");
-#endif
+//#endif
 }
 
 /// Function: locate
