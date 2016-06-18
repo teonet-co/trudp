@@ -165,7 +165,12 @@ trudpChannelData *trudpNewChannel(trudpData *td, char *remote_address,
     
     // Add cannel to map
     size_t key_length;
-    char *key = trudpMakeKey(remote_address, remote_port_i, channel, &key_length);
+    char *key = trudpMakeKey(
+        trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd->remaddr, NULL), 
+        remote_port_i, 
+        channel, 
+        &key_length
+    );    
     trudpChannelData *tcd_r = trudpMapAdd(td->map, key, key_length, tcd, sizeof(*tcd));
     free(tcd);
     

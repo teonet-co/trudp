@@ -38,12 +38,10 @@ extern int inet_aton (const char *__cp, struct in_addr *__inp) __THROW;
 
 #include "udp.h"
 
-
 // UDP / UDT functions
 #define ksn_socket(domain, type, protocol) socket(domain, type, protocol)
 #define ksn_bind(fd, addr, addr_len) bind(fd, addr, addr_len)
 #define NUMBER_TRY_PORTS 1000
-
 
 /**
  * Set socket or FD to non blocking mode
@@ -76,6 +74,32 @@ static void set_nonblock(int fd) {
 }
 
 /**
+ * Convert host name to IP
+ * 
+ * @param remaddr
+ * @param server
+ */
+static void hostToIp(struct sockaddr_in *remaddr, const char *server) {
+
+    struct hostent *hostp;
+
+    if((remaddr->sin_addr.s_addr = inet_addr(server)) == 
+            (unsigned long)INADDR_NONE) {
+
+        /* When passing the host name of the server as a */
+        /* parameter to this program, use the gethostbyname() */
+        /* function to retrieve the address of the host server. */
+        /***************************************************/
+        /* get host address */
+        hostp = gethostbyname(server);
+        if(hostp == (struct hostent *)NULL) {
+            // ...
+        }
+        else memcpy(&remaddr->sin_addr, hostp->h_addr, sizeof(remaddr->sin_addr));
+    }
+}
+
+/**
  * Make address from the IPv4 numbers-and-dots notation and integer port number
  * into binary form
  *
@@ -94,13 +118,14 @@ int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr,
     memset((void *)remaddr, 0, *addr_length);
     ((struct sockaddr_in*)remaddr)->sin_family = AF_INET;
     ((struct sockaddr_in*)remaddr)->sin_port = htons(port);
-    #ifndef HAVE_MINGW
-    if(inet_aton(addr, &((struct sockaddr_in*)remaddr)->sin_addr) == 0) {
-        return(-2);
-    }
-    #else
-    ((struct sockaddr_in*)remaddr)->sin_addr.s_addr = inet_addr(addr);
-    #endif
+//    #ifndef HAVE_MINGW
+//    if(inet_aton(addr, &((struct sockaddr_in*)remaddr)->sin_addr) == 0) {
+//        return(-2);
+//    }
+//    #else
+    //((struct sockaddr_in*)remaddr)->sin_addr.s_addr = inet_addr(addr);
+    hostToIp((struct sockaddr_in*)remaddr, addr);
+//    #endif
 
     return 0;
 }
@@ -114,7 +139,7 @@ int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr,
 inline char *trudpUdpGetAddr(__CONST_SOCKADDR_ARG remaddr, int *port) {
 
     char *addr = inet_ntoa(((struct sockaddr_in*)remaddr)->sin_addr); // IP to string
-    *port = ntohs(((struct sockaddr_in*)remaddr)->sin_port); // Port to integer
+    if(port) *port = ntohs(((struct sockaddr_in*)remaddr)->sin_port); // Port to integer
 
     return addr;
 }
@@ -159,7 +184,7 @@ int trudpUdpBindRaw(int *port, int allow_port_increment_f) {
             if(allow_port_increment_f && i++ < NUMBER_TRY_PORTS) continue;
             else return -2;
         }
-        
+
         // Bind successfully
         else {
             set_nonblock(fd);
@@ -184,13 +209,11 @@ inline ssize_t trudpUdpRecvfrom(int fd, void *buffer, size_t buffer_size,
     int flags = 0;
 
     // Read UDP data
-    ssize_t recvlen = recvfrom(fd, buffer, buffer_size, flags, 
+    ssize_t recvlen = recvfrom(fd, buffer, buffer_size, flags,
             (__SOCKADDR_ARG)remaddr, addr_len);
 
     return recvlen;
 }
-
-//#define SOCKET_ERROR -1
 
 /**
  * Wait while socket read available or timeout occurred
@@ -200,7 +223,6 @@ inline ssize_t trudpUdpRecvfrom(int fd, void *buffer, size_t buffer_size,
  *
  * @return -1 - error; 0 - timeout; >0 ready
  */
-
 int isReadable(int sd, uint32_t timeOut) {
 
     int rv = 1;
@@ -224,7 +246,6 @@ int isReadable(int sd, uint32_t timeOut) {
  *
  * @return -1 - error; 0 - timeout; >0 ready
  */
-
 int isWritable(int sd, uint32_t timeOut) {
 
     int rv = 1;
@@ -299,7 +320,7 @@ ssize_t trudpUdpReadEventLoop(int fd, void *buffer, size_t buffer_size,
     }
     // There is a data in fd
     else {
-        recvlen = trudpUdpRecvfrom(fd, buffer, buffer_size, 
+        recvlen = trudpUdpRecvfrom(fd, buffer, buffer_size,
                 (__SOCKADDR_ARG)remaddr, addr_len);
     }
 
