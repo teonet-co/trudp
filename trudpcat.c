@@ -112,12 +112,13 @@ static void debug(char *fmt, ...)
 static void showStatistic(trudpData *td, int *show) {
 
     if(*show) {
-        //gotoxy(0,0);
+//        gotoxy(0,0);
         cls();
-        hidecursor();
+//        //hidecursor();
         char *stat_str = ksnTRUDPstatShowStr(td);
-        puts(stat_str);
-        free(stat_str);
+//        puts(stat_str);
+        printf("ss: %s\n", stat_str);
+        if(stat_str) free(stat_str);
     }
     // Check key !!!
     int ch = nb_getch();
@@ -126,7 +127,7 @@ static void showStatistic(trudpData *td, int *show) {
         printf("key %c pressed\n", ch);
         if(ch == 'S') { 
             *show = !*show;
-            if(!*show) showcursor();
+            //if(!*show) showcursor();
         }
     }
 }
@@ -307,16 +308,16 @@ static void network_select_loop(trudpData *td, int timeout) {
     }
 
     uint32_t timeout_sq = trudpGetSendQueueTimeout(td);
-    debug("set timeout: %.3f ms; default: %.3f ms, send_queue: %.3f ms%s\n",
-            (timeout_sq < timeout ? timeout_sq : timeout) / 1000.0,
-            timeout / 1000.0,
-            timeout_sq / 1000.0,
-            timeout_sq == UINT32_MAX ? "(queue is empty)" : ""
-    );
+//    debug("set timeout: %.3f ms; default: %.3f ms, send_queue: %.3f ms%s\n",
+//            (timeout_sq < timeout ? timeout_sq : timeout) / 1000.0,
+//            timeout / 1000.0,
+//            timeout_sq / 1000.0,
+//            timeout_sq == UINT32_MAX ? "(queue is empty)" : ""
+//    );
 
     // Wait up to ~50 ms. */
-    tv.tv_sec = 0;
-    tv.tv_usec = timeout_sq < timeout ? timeout_sq : timeout;
+    uint32_t t = timeout_sq < timeout ? timeout_sq : timeout;
+    usecToTv(&tv, t);
 
     rv = select((int)td->fd + 1, &rfds, &wfds, NULL, &tv);
 
@@ -398,7 +399,7 @@ static void usage(char *name) {
  */
 int main(int argc, char** argv) {
 
-    #define APP_VERSION "0.0.13"
+    #define APP_VERSION "0.0.14"
 
     // Show logo
     fprintf(stderr,
@@ -486,7 +487,7 @@ int main(int argc, char** argv) {
     char *message;
     size_t message_length;
     const int DELAY = 500000; // uSec
-    const int SEND_MESSAGE_AFTER_MIN = 5000; // uSec (mSec * 1000)
+    const int SEND_MESSAGE_AFTER_MIN = 500000; // uSec (mSec * 1000)
     int send_message_after = SEND_MESSAGE_AFTER_MIN;
     const int RECONNECT_AFTER = 6000000; // uSec (mSec * 1000)
     const int SHOW_STATISTIC_AFTER = 250000; // uSec (mSec * 1000)

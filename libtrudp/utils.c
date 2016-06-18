@@ -29,9 +29,13 @@
 
 #include <stdlib.h>
 #include <stdarg.h>
+#include <stdint.h>
+#include <time.h>
+
 #include "utils.h"
 
-#define KSN_BUFFER_SM_SIZE 256
+// \todo vformatMessage does not work under MinGW
+#define KSN_BUFFER_SM_SIZE 2048;//256
 
 char *vformatMessage(const char *fmt, va_list ap) {
 
@@ -40,8 +44,7 @@ char *vformatMessage(const char *fmt, va_list ap) {
     va_list ap_copy;
     int n;
 
-    if((p = malloc(size)) == NULL)
-        return NULL;
+    if((p = malloc(size)) == NULL) return NULL;
 
     while(1) {
 
@@ -51,12 +54,10 @@ char *vformatMessage(const char *fmt, va_list ap) {
         va_end(ap_copy);
 
         // Check error code
-        if(n < 0)
-            return NULL;
+        if(n < 0) return NULL;
 
         // If that worked, return the string
-        if(n < size)
-            return p;
+        if(n < size) return p;
 
         // Else try again with more space
         size = n + KSN_BUFFER_SM_SIZE; // Precisely what is needed
@@ -64,9 +65,7 @@ char *vformatMessage(const char *fmt, va_list ap) {
             free(p);
             return NULL;
         }
-        else {
-            p = np;
-        }
+        else p = np;        
     }
 }
 
@@ -87,6 +86,7 @@ char *formatMessage(const char *fmt, ...) {
 
     return p;
 }
+
 /**
  * Create formated message in new null terminated string, and free str_to_free
  *
@@ -106,4 +106,25 @@ char *sformatMessage(char *str_to_free, const char *fmt, ...) {
     if(str_to_free != NULL) free(str_to_free);
 
     return p;
+}
+
+/**
+ * Convert uSec time to timeval structure
+ * 
+ * @param tv [out] Pointer to struct timeval to save time to
+ * @param usec Time in uSec
+ * 
+ * @return Pointer to the input struct timeval
+ */
+struct timeval *usecToTv(struct timeval *tv, uint32_t usec) {
+
+    if(usec) {
+        tv->tv_sec  = usec / 1000000;
+        tv->tv_usec = usec % 1000000;
+    } else {
+        tv->tv_sec  = 0;
+        tv->tv_usec = 0;
+    }
+
+    return tv;
 }

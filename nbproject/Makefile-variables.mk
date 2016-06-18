@@ -31,13 +31,13 @@ CND_PACKAGE_DIR_MinGW-w64-Debug=dist/MinGW-w64-Debug/GNU-MinGW-64-Linux/package
 CND_PACKAGE_NAME_MinGW-w64-Debug=tr-udp.tar
 CND_PACKAGE_PATH_MinGW-w64-Debug=dist/MinGW-w64-Debug/GNU-MinGW-64-Linux/package/tr-udp.tar
 # MinGW-w64-Win32-Debug configuration
-CND_PLATFORM_MinGW-w64-Win32-Debug=GNU-MinGW-64-Win32-Linux
-CND_ARTIFACT_DIR_MinGW-w64-Win32-Debug=dist/MinGW-w64-Win32-Debug/GNU-MinGW-64-Win32-Linux
+CND_PLATFORM_MinGW-w64-Win32-Debug=MinGW-w64-Win32-Debug-Linux
+CND_ARTIFACT_DIR_MinGW-w64-Win32-Debug=dist/MinGW-w64-Win32-Debug/MinGW-w64-Win32-Debug-Linux
 CND_ARTIFACT_NAME_MinGW-w64-Win32-Debug=trudpcat.exe
-CND_ARTIFACT_PATH_MinGW-w64-Win32-Debug=dist/MinGW-w64-Win32-Debug/GNU-MinGW-64-Win32-Linux/trudpcat.exe
-CND_PACKAGE_DIR_MinGW-w64-Win32-Debug=dist/MinGW-w64-Win32-Debug/GNU-MinGW-64-Win32-Linux/package
+CND_ARTIFACT_PATH_MinGW-w64-Win32-Debug=dist/MinGW-w64-Win32-Debug/MinGW-w64-Win32-Debug-Linux/trudpcat.exe
+CND_PACKAGE_DIR_MinGW-w64-Win32-Debug=dist/MinGW-w64-Win32-Debug/MinGW-w64-Win32-Debug-Linux/package
 CND_PACKAGE_NAME_MinGW-w64-Win32-Debug=tr-udp.tar
-CND_PACKAGE_PATH_MinGW-w64-Win32-Debug=dist/MinGW-w64-Win32-Debug/GNU-MinGW-64-Win32-Linux/package/tr-udp.tar
+CND_PACKAGE_PATH_MinGW-w64-Win32-Debug=dist/MinGW-w64-Win32-Debug/MinGW-w64-Win32-Debug-Linux/package/tr-udp.tar
 #
 # include compiler specific variables
 #

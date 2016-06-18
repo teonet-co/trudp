@@ -42,19 +42,19 @@
 typedef struct trudpHeader {
 
     uint8_t checksum; ///< Checksum
-    unsigned int version : 4; ///< Protocol version number
+    uint8_t version : 4; ///< Protocol version number
     /**
      * Message type could be of type DATA(0x0), ACK(0x1) and RESET(0x2).
      */
-    unsigned int message_type : 4;
+    uint8_t message_type : 4;
     /**
      * TR-UDP channel number
      */
-    unsigned int channel : 4;
+    uint16_t channel : 4;
     /**
      * Payload length defines the number of bytes in the message payload
      */
-    unsigned int payload_length : 12;
+    uint16_t payload_length : 12;
     /**
      * ID  is a message serial number that sender assigns to DATA and RESET
      * messages. The ACK messages must copy the ID from the corresponding DATA

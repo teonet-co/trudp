@@ -35,6 +35,7 @@
             </formatting>
         </data>
         <spellchecker-wordlist xmlns="http://www.netbeans.org/ns/spellchecker-wordlist/1">
+            <word>fd</word>
             <word>ioctlsocket</word>
             <word>ip</word>
             <word>Kirill</word>
@@ -45,6 +46,8 @@
             <word>Scherba</word>
             <word>sendto</word>
             <word>sockaddr</word>
+            <word>str</word>
+            <word>struct</word>
             <word>tcols</word>
             <word>timeval</word>
             <word>triptime</word>
@@ -53,6 +56,7 @@
             <word>trudpcat</word>
             <word>Unhandled</word>
             <word>utils</word>
+            <word>wqd</word>
         </spellchecker-wordlist>
     </configuration>
 </project>
