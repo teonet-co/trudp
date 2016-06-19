@@ -39,6 +39,7 @@
       </logicalFolder>
       <itemPath>main.cpp</itemPath>
       <itemPath>trudpcat.c</itemPath>
+      <itemPath>trudpcat_ev.c</itemPath>
     </logicalFolder>
     <logicalFolder name="TestFiles"
                    displayName="Test Files"
@@ -77,6 +78,9 @@
       <compileType>
         <linkerTool>
           <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/trudpcat</output>
+          <linkerLibItems>
+            <linkerLibLibItem>ev</linkerLibLibItem>
+          </linkerLibItems>
         </linkerTool>
       </compileType>
       <folder path="TestFiles/f1">
@@ -142,6 +146,8 @@
       <item path="main.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="trudpcat.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="trudpcat_ev.c" ex="false" tool="0" flavor2="0">
       </item>
     </conf>
     <conf name="Release" type="1">
@@ -163,6 +169,11 @@
         <asmTool>
           <developmentMode>5</developmentMode>
         </asmTool>
+        <linkerTool>
+          <linkerLibItems>
+            <linkerLibLibItem>ev</linkerLibLibItem>
+          </linkerLibItems>
+        </linkerTool>
       </compileType>
       <folder path="TestFiles/f1">
         <linkerTool>
@@ -228,6 +239,8 @@
       </item>
       <item path="trudpcat.c" ex="false" tool="0" flavor2="0">
       </item>
+      <item path="trudpcat_ev.c" ex="false" tool="0" flavor2="0">
+      </item>
     </conf>
     <conf name="MinGW-w64-Debug" type="1">
       <toolsSet>
@@ -238,6 +251,9 @@
       <compileType>
         <linkerTool>
           <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/trudpcat</output>
+          <linkerLibItems>
+            <linkerLibLibItem>ev</linkerLibLibItem>
+          </linkerLibItems>
         </linkerTool>
       </compileType>
       <folder path="TestFiles/f1">
@@ -303,6 +319,8 @@
       <item path="main.cpp" ex="false" tool="1" flavor2="9">
       </item>
       <item path="trudpcat.c" ex="false" tool="0" flavor2="9">
+      </item>
+      <item path="trudpcat_ev.c" ex="false" tool="0" flavor2="0">
       </item>
     </conf>
     <conf name="MinGW-w64-Win32-Debug" type="1">
@@ -320,7 +338,7 @@
         <linkerTool>
           <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/trudpcat.exe</output>
           <linkerLibItems>
-            <linkerLibLibItem>ws2_32</linkerLibLibItem>
+            <linkerLibLibItem>ev</linkerLibLibItem>
           </linkerLibItems>
         </linkerTool>
       </compileType>
@@ -387,6 +405,8 @@
       <item path="main.cpp" ex="false" tool="1" flavor2="9">
       </item>
       <item path="trudpcat.c" ex="false" tool="0" flavor2="9">
+      </item>
+      <item path="trudpcat_ev.c" ex="false" tool="0" flavor2="0">
       </item>
     </conf>
   </confs>

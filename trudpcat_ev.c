@@ -37,6 +37,11 @@
 #include <string.h>
 #include <time.h>
 
+#define USE_LIBEV 1
+#if USE_LIBEV
+#include <ev.h>
+#endif
+
 // C11 present
 #if __STDC_VERSION__ >= 201112L
 extern int usleep (__useconds_t __useconds);
@@ -112,9 +117,7 @@ static void debug(char *fmt, ...)
 static void showStatistic(trudpData *td, int *show) {
 
     if(*show) {
-//        gotoxy(0,0);
         cls();
-//        //hidecursor();
         char *stat_str = ksnTRUDPstatShowStr(td);
         if(stat_str) {
             puts(stat_str);
@@ -128,7 +131,6 @@ static void showStatistic(trudpData *td, int *show) {
         printf("key %c pressed\n", ch);
         if(ch == 'S') { 
             *show = !*show;
-            //if(!*show) showcursor();
         }
     }
 }
@@ -367,6 +369,22 @@ static void network_select_loop(trudpData *td, int timeout) {
 //    }
 }
 
+static void io_cb(EV_P_ ev_io *w, int revents) {
+    
+    trudpData *td = (trudpData *)w->data;
+    struct sockaddr_in remaddr; // remote address
+    socklen_t addr_len = sizeof(remaddr);
+    ssize_t recvlen = trudpUdpRecvfrom(td->fd, buffer, o_buf_size,
+            (__SOCKADDR_ARG)&remaddr, &addr_len);
+
+    // Process received packet
+    if(recvlen > 0) {
+        size_t data_length;
+        trudpChannelData *tcd = trudpCheckRemoteAddr(td, &remaddr, addr_len, 0);
+        trudpProcessChannelReceivedPacket(tcd, buffer, recvlen, &data_length);
+    }    
+}
+
 /**
  * Show usage screen
  *
@@ -398,7 +416,7 @@ static void usage(char *name) {
  * @param argv
  * @return
  */
-int main_select(int argc, char** argv) {
+int main(int argc, char** argv) {
 
     #define APP_VERSION "0.0.14"
 
@@ -495,6 +513,19 @@ int main_select(int argc, char** argv) {
     if(!o_listen) { message = hello_c; message_length = hello_c_length; }
     else { message = hello_s; message_length = hello_s_length; }
     uint32_t tt, tt_s = 0, tt_c = 0, tt_ss = 0;
+    
+    #if USE_LIBEV
+                
+        struct ev_loop *loop = 0 ? ev_loop_new(0) : EV_DEFAULT;
+        ev_io w;
+        w.data = (void*)td;
+        
+        ev_io_init(&w, io_cb, fd, EV_READ);
+        ev_io_start(loop, &w);
+        
+        ev_run(loop, 0);
+        
+    #else
     while (!quit_flag) {
 
         #define USE_SELECT 1
@@ -537,6 +568,7 @@ int main_select(int argc, char** argv) {
         #endif
         i++;
     }
+    #endif
 
     // Destroy TR-UDP
     trudpDestroy(td);
