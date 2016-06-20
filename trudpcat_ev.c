@@ -40,6 +40,8 @@
 #define USE_LIBEV 1
 #if USE_LIBEV
 #include <ev.h>
+#else
+#define USE_SELECT 1
 #endif
 
 // C11 present
@@ -129,7 +131,7 @@ static void showStatistic(trudpData *td, int *show) {
     if(ch) {
         // ...
         printf("key %c pressed\n", ch);
-        if(ch == 'S') { 
+        if(ch == 'S') {
             *show = !*show;
         }
     }
@@ -198,7 +200,7 @@ static void sendPacketCb(void *tcd_ptr, void *packet, size_t packet_length,
 
     trudpChannelData *tcd = (trudpChannelData *)tcd_ptr;
 
-    //if(isWritable(TD(tcd)->fd, timeout) > 0) {   
+    //if(isWritable(TD(tcd)->fd, timeout) > 0) {
     // Send to UDP
     trudpUdpSendto(TD(tcd)->fd, packet, packet_length,
             (__CONST_SOCKADDR_ARG) &tcd->remaddr, sizeof(tcd->remaddr));
@@ -369,9 +371,10 @@ static void network_select_loop(trudpData *td, int timeout) {
 //    }
 }
 
-static void io_cb(EV_P_ ev_io *w, int revents) {
-    
+static void host_cb(EV_P_ ev_io *w, int revents) {
+
     trudpData *td = (trudpData *)w->data;
+
     struct sockaddr_in remaddr; // remote address
     socklen_t addr_len = sizeof(remaddr);
     ssize_t recvlen = trudpUdpRecvfrom(td->fd, buffer, o_buf_size,
@@ -382,7 +385,37 @@ static void io_cb(EV_P_ ev_io *w, int revents) {
         size_t data_length;
         trudpChannelData *tcd = trudpCheckRemoteAddr(td, &remaddr, addr_len, 0);
         trudpProcessChannelReceivedPacket(tcd, buffer, recvlen, &data_length);
-    }    
+    }
+}
+
+static void connect_cb(EV_P_ ev_timer *w, int revents) {
+
+    trudpData *td = (trudpData *)w->data;
+
+    if(!o_listen && !connected_flag) {
+        connectToPeer(td);
+    }
+}
+
+typedef struct send_message_data {
+
+    trudpData *td;
+    char *message;
+    size_t message_length;
+
+} send_message_data;
+
+static void send_message_cb(EV_P_ ev_timer *w, int revents) {
+
+    send_message_data *smd = (send_message_data *)w->data;
+
+    trudpSendDataToAll(smd->td, smd->message, smd->message_length);
+}
+
+static void show_stat_cb(EV_P_ ev_timer *w, int revents) {
+
+    trudpData *td = (trudpData *)w->data;
+    showStatistic(td, &o_statistic);
 }
 
 /**
@@ -497,43 +530,68 @@ int main(int argc, char** argv) {
     char *hello_c = "Hello TR-UDP from client!";
     size_t hello_c_length = strlen(hello_c) + 1;
     //
-    char hello_s[512]; 
-    strcpy(hello_s, "Hello TR-UDP from server!");
+    char hello_s[512];
+    strncpy(hello_s, "Hello TR-UDP from server!", sizeof(hello_s));
     size_t hello_s_length = sizeof(hello_s); // strlen(hello_s) + 1;
 
     // Process networking
     i = 0;
     char *message;
     size_t message_length;
-    const int DELAY = 500000; // uSec
     const int SEND_MESSAGE_AFTER_MIN = 500000; // uSec (mSec * 1000)
-    int send_message_after = SEND_MESSAGE_AFTER_MIN;
+    int SEND_MESSAGE_AFTER = SEND_MESSAGE_AFTER_MIN;
     const int RECONNECT_AFTER = 6000000; // uSec (mSec * 1000)
     const int SHOW_STATISTIC_AFTER = 250000; // uSec (mSec * 1000)
     if(!o_listen) { message = hello_c; message_length = hello_c_length; }
     else { message = hello_s; message_length = hello_s_length; }
-    uint32_t tt, tt_s = 0, tt_c = 0, tt_ss = 0;
-    
-    #if USE_LIBEV
-                
-        struct ev_loop *loop = 0 ? ev_loop_new(0) : EV_DEFAULT;
-        ev_io w;
-        w.data = (void*)td;
-        
-        ev_io_init(&w, io_cb, fd, EV_READ);
-        ev_io_start(loop, &w);
-        
-        ev_run(loop, 0);
-        
-    #else
-    while (!quit_flag) {
 
-        #define USE_SELECT 1
+    #if USE_LIBEV
+
+    // Create event loop
+    struct ev_loop *loop = 0 ? ev_loop_new(0) : EV_DEFAULT;
+    ev_timer send_message_w;
+    send_message_data smd;
+    ev_timer show_stat_w;
+    ev_timer connect_w;
+    ev_io w;
+
+    // Start UDP input output watcher
+    ev_io_init(&w, host_cb, fd, EV_READ);
+    w.data = (void*)td;
+    ev_io_start(loop, &w);
+
+    // Initialize and start reconnect watcher watcher
+    ev_timer_init(&connect_w, connect_cb, 0.0, RECONNECT_AFTER / 1000000.0);
+    connect_w.data = (void*)td;
+    ev_timer_start (loop, &connect_w);
+
+    // Initialize and start send message watcher
+    ev_timer_init(&send_message_w, send_message_cb, SEND_MESSAGE_AFTER / 1000000.0, SEND_MESSAGE_AFTER / 1000000.0);
+    send_message_w.data = (void*)&smd;
+    smd.td = td;
+    smd.message = message;
+    smd.message_length = message_length;
+    ev_timer_start (loop, &send_message_w);
+
+    // Initialize and start show statistic watcher
+    ev_timer_init(&show_stat_w, show_stat_cb, SHOW_STATISTIC_AFTER / 1000000.0, SHOW_STATISTIC_AFTER / 1000000.0);
+    show_stat_w.data = (void*)td;
+    ev_timer_start (loop, &show_stat_w);
+
+    // Start event loop
+    ev_run(loop, 0);
+
+    #else
+
+    const int DELAY = 500000; // uSec
+    uint32_t tt, tt_s = 0, tt_c = 0, tt_ss = 0;
+
+    while (!quit_flag) {
 
         #if !USE_SELECT
         network_loop(td);
         #else
-        network_select_loop(td, send_message_after < DELAY ? send_message_after : DELAY);
+        network_select_loop(td, SEND_MESSAGE_AFTER < DELAY ? SEND_MESSAGE_AFTER : DELAY);
         #endif
 
         // Current timestamp
@@ -546,9 +604,9 @@ int main(int argc, char** argv) {
         }
 
         // Send message
-        // random int between 0 and 500000 
-        
-        if((tt - tt_s) > send_message_after) {
+        // random int between 0 and 500000
+
+        if((tt - tt_s) > SEND_MESSAGE_AFTER) {
 
             if(td->stat.sendQueue.size_current < 1000)
             trudpSendDataToAll(td, message, message_length);
@@ -568,6 +626,7 @@ int main(int argc, char** argv) {
         #endif
         i++;
     }
+    
     #endif
 
     // Destroy TR-UDP
