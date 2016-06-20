@@ -37,13 +37,6 @@
 #include <string.h>
 #include <time.h>
 
-#define USE_LIBEV 1
-#if USE_LIBEV
-#include <ev.h>
-#else
-#define USE_SELECT 1
-#endif
-
 // C11 present
 #if __STDC_VERSION__ >= 201112L
 extern int usleep (__useconds_t __useconds);
@@ -52,6 +45,28 @@ extern int usleep (__useconds_t __useconds);
 #include "libtrudp/tr-udp.h"
 #include "libtrudp/utils_r.h"
 #include "libtrudp/tr-udp_stat.h"
+
+#define USE_LIBEV 1
+
+#if USE_LIBEV
+
+#include <ev.h>
+
+typedef struct process_sendqueue_data {
+
+    int inited;
+    trudpData *td;
+    struct ev_loop *loop;
+    ev_timer process_sendqueue_w;
+
+} process_sendqueue_data;
+
+static void set_sendqueue_cb(process_sendqueue_data *psd);
+static process_sendqueue_data psd;
+
+#else
+#define USE_SELECT 1
+#endif
 
 // Integer options
 static int o_debug = 0,
@@ -185,7 +200,11 @@ static void processAckCb(void *td_ptr, void *data, size_t data_length,
 
     debug("got ACK id=%u processed %.3f(%.3f) ms\n",
            trudpPacketGetId(trudpPacketGetPacket(data)),
-           (tcd->triptime)/1000.0, (tcd->triptimeMiddle)/1000.0  );
+           (tcd->triptime)/1000.0, (tcd->triptimeMiddle)/1000.0);
+    
+    #if USE_LIBEV
+    set_sendqueue_cb(&psd);
+    #endif
 }
 
 /**
@@ -218,6 +237,10 @@ static void sendPacketCb(void *tcd_ptr, void *packet, size_t packet_length,
         debug("send %d bytes %s id=%u, to %s:%d\n",
             (int)packet_length, type == 1 ? "ACK":"RESET", id, addr, port);
     }
+    
+    #if USE_LIBEV
+    set_sendqueue_cb(&psd);
+    #endif
 }
 
 /**
@@ -262,14 +285,12 @@ static trudpChannelData *connectToPeer(trudpData *td) {
     return tcd;
 }
 
-/**
- * The TR-UDP cat network loop
- *
- * @param td Pointer to trudpData
- */
-static void network_loop(trudpData *td) {
+#if USE_LIBEV
 
-    // Read from UDP
+static void host_cb(EV_P_ ev_io *w, int revents) {
+
+    trudpData *td = (trudpData *)w->data;
+
     struct sockaddr_in remaddr; // remote address
     socklen_t addr_len = sizeof(remaddr);
     ssize_t recvlen = trudpUdpRecvfrom(td->fd, buffer, o_buf_size,
@@ -281,13 +302,78 @@ static void network_loop(trudpData *td) {
         trudpChannelData *tcd = trudpCheckRemoteAddr(td, &remaddr, addr_len, 0);
         trudpProcessChannelReceivedPacket(tcd, buffer, recvlen, &data_length);
     }
-
-    // Process send queue
-    trudpProcessSendQueue(td);
-
-    // Process write queue
-    while(trudpProcessWriteQueue(td));
 }
+
+static void connect_cb(EV_P_ ev_timer *w, int revents) {
+
+    trudpData *td = (trudpData *)w->data;
+
+    if(!o_listen && !connected_flag) {
+        connectToPeer(td);
+    }
+}
+
+typedef struct send_message_data {
+
+    trudpData *td;
+    char *message;
+    size_t message_length;
+
+} send_message_data;
+
+static void send_message_cb(EV_P_ ev_timer *w, int revents) {
+
+    send_message_data *smd = (send_message_data *)w->data;
+
+    trudpSendDataToAll(smd->td, smd->message, smd->message_length);
+}
+
+static void show_stat_cb(EV_P_ ev_timer *w, int revents) {
+
+    trudpData *td = (trudpData *)w->data;
+    showStatistic(td, &o_statistic);
+}
+
+static void set_sendqueue_cb(process_sendqueue_data *psd);
+
+static void process_sendqueue_cb(EV_P_ ev_timer *w, int revents) {
+
+    process_sendqueue_data *psd = (process_sendqueue_data *) w->data;
+    
+    // Process send queue
+    int rv = trudpProcessSendQueue(psd->td);
+    debug("process send queue ... %d\n", rv);
+    
+    // Start new process_sendqueue timer
+    set_sendqueue_cb(psd);
+}
+
+static void set_sendqueue_cb(process_sendqueue_data *psd) {
+    
+    uint32_t tt;
+    if((tt = trudpGetSendQueueTimeout(psd->td)) != UINT32_MAX) {
+        
+        if(!psd->inited) {
+            ev_timer_init(&psd->process_sendqueue_w, process_sendqueue_cb, tt / 1000000.0, 0.0);
+            psd->process_sendqueue_w.data = (void*)psd;
+            psd->inited = 1;
+            
+            //ev_timer_again(psd->loop, &psd->process_sendqueue_w);   
+            
+        }
+        else {
+            ev_timer_stop(psd->loop, &psd->process_sendqueue_w);
+            ev_timer_set(&psd->process_sendqueue_w, tt / 1000000.0, 0.);
+        }
+        
+        ev_timer_start(psd->loop, &psd->process_sendqueue_w); 
+        //printf("set_sendqueue_cb ... %f\n", tt / 1000000.0);
+    }
+}
+
+#else
+
+#if USE_SELECT
 
 /**
  * The TR-UDP cat network loop with select function
@@ -371,10 +457,16 @@ static void network_select_loop(trudpData *td, int timeout) {
 //    }
 }
 
-static void host_cb(EV_P_ ev_io *w, int revents) {
+#else
 
-    trudpData *td = (trudpData *)w->data;
+/**
+ * The TR-UDP cat network loop
+ *
+ * @param td Pointer to trudpData
+ */
+static void network_loop(trudpData *td) {
 
+    // Read from UDP
     struct sockaddr_in remaddr; // remote address
     socklen_t addr_len = sizeof(remaddr);
     ssize_t recvlen = trudpUdpRecvfrom(td->fd, buffer, o_buf_size,
@@ -386,37 +478,17 @@ static void host_cb(EV_P_ ev_io *w, int revents) {
         trudpChannelData *tcd = trudpCheckRemoteAddr(td, &remaddr, addr_len, 0);
         trudpProcessChannelReceivedPacket(tcd, buffer, recvlen, &data_length);
     }
+
+    // Process send queue
+    trudpProcessSendQueue(td);
+
+    // Process write queue
+    while(trudpProcessWriteQueue(td));
 }
 
-static void connect_cb(EV_P_ ev_timer *w, int revents) {
+#endif
 
-    trudpData *td = (trudpData *)w->data;
-
-    if(!o_listen && !connected_flag) {
-        connectToPeer(td);
-    }
-}
-
-typedef struct send_message_data {
-
-    trudpData *td;
-    char *message;
-    size_t message_length;
-
-} send_message_data;
-
-static void send_message_cb(EV_P_ ev_timer *w, int revents) {
-
-    send_message_data *smd = (send_message_data *)w->data;
-
-    trudpSendDataToAll(smd->td, smd->message, smd->message_length);
-}
-
-static void show_stat_cb(EV_P_ ev_timer *w, int revents) {
-
-    trudpData *td = (trudpData *)w->data;
-    showStatistic(td, &o_statistic);
-}
+#endif
 
 /**
  * Show usage screen
@@ -451,7 +523,7 @@ static void usage(char *name) {
  */
 int main(int argc, char** argv) {
 
-    #define APP_VERSION "0.0.14"
+    #define APP_VERSION "0.0.15"
 
     // Show logo
     fprintf(stderr,
@@ -538,7 +610,7 @@ int main(int argc, char** argv) {
     i = 0;
     char *message;
     size_t message_length;
-    const int SEND_MESSAGE_AFTER_MIN = 500000; // uSec (mSec * 1000)
+    const int SEND_MESSAGE_AFTER_MIN = 10000; // uSec (mSec * 1000)
     int SEND_MESSAGE_AFTER = SEND_MESSAGE_AFTER_MIN;
     const int RECONNECT_AFTER = 6000000; // uSec (mSec * 1000)
     const int SHOW_STATISTIC_AFTER = 250000; // uSec (mSec * 1000)
@@ -554,6 +626,11 @@ int main(int argc, char** argv) {
     ev_timer show_stat_w;
     ev_timer connect_w;
     ev_io w;
+    
+    // Initialize process_sendqueue_data
+    psd.loop = loop;
+    psd.inited = 0;
+    psd.td = td;
 
     // Start UDP input output watcher
     ev_io_init(&w, host_cb, fd, EV_READ);

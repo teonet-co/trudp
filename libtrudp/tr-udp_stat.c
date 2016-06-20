@@ -418,6 +418,9 @@ char * ksnTRUDPstatShowStr(trudpData *td) {
             ack_receive += tcd->stat.ack_receive;
             packets_receive += tcd->stat.packets_receive;
             packets_dropped += tcd->stat.packets_receive_dropped;
+            
+            size_t sendQueueSize = trudpQueueSize(tcd->sendQueue->q);
+            size_t receiveQueueSize = trudpQueueSize(tcd->receiveQueue->q);
 
             tbl_str = sformatMessage(tbl_str,
                 "%s%3d "_ANSI_BROWN"%-20.*s"_ANSI_NONE" %8d %11.3f %10.3f  %9.3f /%9.3f %8d %11.3f %10.3f %8d %8d %8d %6d %6d\n",
@@ -434,8 +437,8 @@ char * ksnTRUDPstatShowStr(trudpData *td) {
                 tcd->stat.ack_receive,
                 tcd->stat.packets_attempt,
                 tcd->stat.packets_receive_dropped,
-                trudpQueueSize(tcd->sendQueue->q),
-                trudpQueueSize(tcd->receiveQueue->q)
+                sendQueueSize,
+                receiveQueueSize
             );
             totalStat.packets_send += tcd->stat.packets_send;
             totalStat.send_speed += tcd->stat.send_speed;
@@ -448,8 +451,8 @@ char * ksnTRUDPstatShowStr(trudpData *td) {
             totalStat.ack_receive += tcd->stat.ack_receive;
             totalStat.packets_attempt += tcd->stat.packets_attempt;
             totalStat.packets_receive_dropped += tcd->stat.packets_receive_dropped;
-            totalStat.sendQueueSize += trudpQueueSize(tcd->sendQueue->q);
-            totalStat.receiveQueueSize += trudpQueueSize(tcd->receiveQueue->q);
+            totalStat.sendQueueSize += sendQueueSize;
+            totalStat.receiveQueueSize += receiveQueueSize;
             i++;
         }
         if(i > 0) {
