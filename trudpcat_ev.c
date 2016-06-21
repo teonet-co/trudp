@@ -225,17 +225,20 @@ static void sendPacketCb(void *tcd_ptr, void *packet, size_t packet_length,
             (__CONST_SOCKADDR_ARG) &tcd->remaddr, sizeof(tcd->remaddr));
     //}
 
-    int port,type;
-    uint32_t id = trudpPacketGetId(packet);
-    char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd->remaddr, &port);
-    if(!(type = trudpPacketGetType(packet))) {
-        debug("send %d bytes, id=%u, to %s:%d, %.3f(%.3f) ms\n",
-            (int)packet_length, id, addr, port,
-            tcd->triptime / 1000.0, tcd->triptimeMiddle / 1000.0);
-    }
-    else {
-        debug("send %d bytes %s id=%u, to %s:%d\n",
-            (int)packet_length, type == 1 ? "ACK":"RESET", id, addr, port);
+    // Debug message
+    if(o_debug) {
+        int port,type;
+        uint32_t id = trudpPacketGetId(packet);
+        char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd->remaddr, &port);
+        if(!(type = trudpPacketGetType(packet))) {
+            debug("send %d bytes, id=%u, to %s:%d, %.3f(%.3f) ms\n",
+                (int)packet_length, id, addr, port,
+                tcd->triptime / 1000.0, tcd->triptimeMiddle / 1000.0);
+        }
+        else {
+            debug("send %d bytes %s id=%u, to %s:%d\n",
+                (int)packet_length, type == 1 ? "ACK":"RESET", id, addr, port);
+        }
     }
     
     #if USE_LIBEV
@@ -357,9 +360,6 @@ static void set_sendqueue_cb(process_sendqueue_data *psd) {
             ev_timer_init(&psd->process_sendqueue_w, process_sendqueue_cb, tt / 1000000.0, 0.0);
             psd->process_sendqueue_w.data = (void*)psd;
             psd->inited = 1;
-            
-            //ev_timer_again(psd->loop, &psd->process_sendqueue_w);   
-            
         }
         else {
             ev_timer_stop(psd->loop, &psd->process_sendqueue_w);
@@ -367,7 +367,6 @@ static void set_sendqueue_cb(process_sendqueue_data *psd) {
         }
         
         ev_timer_start(psd->loop, &psd->process_sendqueue_w); 
-        //printf("set_sendqueue_cb ... %f\n", tt / 1000000.0);
     }
 }
 
@@ -610,7 +609,7 @@ int main(int argc, char** argv) {
     i = 0;
     char *message;
     size_t message_length;
-    const int SEND_MESSAGE_AFTER_MIN = 10000; // uSec (mSec * 1000)
+    const int SEND_MESSAGE_AFTER_MIN = 5000; // uSec (mSec * 1000)
     int SEND_MESSAGE_AFTER = SEND_MESSAGE_AFTER_MIN;
     const int RECONNECT_AFTER = 6000000; // uSec (mSec * 1000)
     const int SHOW_STATISTIC_AFTER = 250000; // uSec (mSec * 1000)

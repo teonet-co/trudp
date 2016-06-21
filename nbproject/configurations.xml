@@ -62,6 +62,7 @@
                    kind="IMPORTANT_FILES_FOLDER">
       <itemPath>Makefile</itemPath>
       <itemPath>README.md</itemPath>
+      <itemPath>trudpcat.sh</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>

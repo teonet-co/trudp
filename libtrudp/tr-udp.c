@@ -599,13 +599,21 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
                         trudpStatProcessLast10Receive(tcd, packet);
 
                         // Send reset at match outrunning
-                        if(tcd->outrunning_cnt > MAX_OUTRUNNING * 200) {
+                        if(tcd->outrunning_cnt > MAX_OUTRUNNING) {
                             // \todo Send event
-                            fprintf(stderr, "To match TR-UDP channel outrunning! Reset channel ...\n");
+                            fprintf(stderr, 
+                                "To match TR-UDP channel outrunning! "
+                                "Reset channel ...\n");
                             trudpSendRESET(tcd);
                         }
                     }
                 }
+                
+                // Reset channel if packet id = 0 
+                else if(!trudpPacketGetId(packet)) {
+                    trudpResetChannel(tcd);
+                }
+                        
                 // Skip already processed packet
                 else {
 
@@ -665,7 +673,6 @@ int trudpProcessChannelSendQueue(trudpChannelData *tcd) {
         trudpPacketQueueMoveToEnd(tcd->sendQueue, tqd);
         tqd->expected_time = trudpCalculateExpectedTime(tcd, ts);
         tcd->stat.packets_attempt++; // Attempt(repeat) statistic parameter increment
-//        tcd->stat.send_total += tqd->packet_length / (1024.0 * 1024.0);
         if(!tqd->retrieves) tqd->retrieves_start = ts;
         tqd->retrieves++;
         rv++;
@@ -678,12 +685,14 @@ int trudpProcessChannelSendQueue(trudpChannelData *tcd) {
         #endif
         
         // Stop at match retrieves
-        if(/*tqd->retrieves > MAX_RETRIEVES ||*/
-           ts - tqd->retrieves_start > MAX_RETRIEVES_TIME) {
+        uint32_t retrive_time = tcd->triptimeMiddle * 2;
+        if(retrive_time < MIN_RETRIEVES_TIME) retrive_time = MIN_RETRIEVES_TIME;
+        if(tqd->retrieves > MAX_RETRIEVES ||
+           ts - tqd->retrieves_start > retrive_time ) {
 
             char *key = trudpMakeKeyCannel(tcd);
             // \todo Send event
-            fprintf(stderr, "Disconnect channel %s\n", key);
+            fprintf(stderr, "Disconnect channel %s, wait: %.6f\n", key, retrive_time / 1000000.0);
             trudpExecEventCallback(tcd, DISCONNECTED, key, strlen(key) + 1,
                     TD(tcd)->user_data, TD(tcd)->evendCb);
             trudpDestroyChannel(tcd);
