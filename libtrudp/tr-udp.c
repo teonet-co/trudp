@@ -35,6 +35,7 @@
 #include "packet.h"
 #include "tr-udp_stat.h"
 
+#define MAX_TRIPTIME_MIDDLE 5757575
 #define MAP_SIZE_DEFAULT 1000
 #define SEND_QUEUE_MAX 500
 #define USE_WRITE_QUEUE 0
@@ -258,10 +259,10 @@ static inline size_t trudpExecSendPacketCallback(trudpChannelData *tcd,
  *
  * @return Current time plus
  */
-static inline uint32_t trudpCalculateExpectedTime(trudpChannelData *td,
+static inline uint32_t trudpCalculateExpectedTime(trudpChannelData *tcd,
         uint32_t current_time) {
 
-    return current_time + td->triptimeMiddle;
+    return current_time + tcd->triptimeMiddle;
 }
 
 /**
@@ -472,8 +473,9 @@ static inline void setTriptime(trudpChannelData *tcd, void *packet, size_t send_
         tcd->triptime > tcd->triptimeMiddle ? tcd->triptime * tcd->triptimeFactor : // Set middle time to max triptime
             (tcd->triptimeMiddle * 19 + tcd->triptime) / 20.0; // Calculate middle value
     // Correct triptimeMiddle
-    if(tcd->triptimeMiddle < tcd->triptime * tcd->triptimeFactor)
-        tcd->triptimeMiddle = tcd->triptime * tcd->triptimeFactor;
+    if(tcd->triptimeMiddle < tcd->triptime * tcd->triptimeFactor) tcd->triptimeMiddle = tcd->triptime * tcd->triptimeFactor;
+    if(tcd->triptimeMiddle > tcd->triptime * 10) tcd->triptimeMiddle = tcd->triptime * 10;
+    if(tcd->triptimeMiddle > MAX_TRIPTIME_MIDDLE) tcd->triptimeMiddle = MAX_TRIPTIME_MIDDLE;
 
     // Statistic
     tcd->stat.ack_receive++;
@@ -659,7 +661,7 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
  *
  * @param tcd Pointer to trudpChannelData
  *
- * @return Number of resend packets
+ * @return Number of resend packets or -1 if the channel was disconnected
  */
 int trudpProcessChannelSendQueue(trudpChannelData *tcd) {
 
@@ -674,6 +676,14 @@ int trudpProcessChannelSendQueue(trudpChannelData *tcd) {
         tqd->expected_time = trudpCalculateExpectedTime(tcd, ts);
         tcd->stat.packets_attempt++; // Attempt(repeat) statistic parameter increment
         if(!tqd->retrieves) tqd->retrieves_start = ts;
+        
+        // Change triptime middle \todo Optimize it
+        uint32_t triptimeMiddle_old = tcd->triptimeMiddle;
+        tcd->triptimeMiddle *= 2;
+        if(tcd->triptimeMiddle > tcd->triptime * 10) tcd->triptimeMiddle = tcd->triptime * 10;
+        if(tcd->triptimeMiddle < triptimeMiddle_old) tcd->triptimeMiddle = triptimeMiddle_old;
+        if(tcd->triptimeMiddle > MAX_TRIPTIME_MIDDLE) tcd->triptimeMiddle = MAX_TRIPTIME_MIDDLE;
+        
         tqd->retrieves++;
         rv++;
         
@@ -685,8 +695,10 @@ int trudpProcessChannelSendQueue(trudpChannelData *tcd) {
         #endif
         
         // Stop at match retrieves
-        uint32_t retrive_time = tcd->triptimeMiddle * 2;
-        if(retrive_time < MIN_RETRIEVES_TIME) retrive_time = MIN_RETRIEVES_TIME;
+//        uint32_t retrive_time = tcd->triptimeMiddle * 2;
+//        if(retrive_time < MIN_RETRIEVES_TIME) retrive_time = MIN_RETRIEVES_TIME;
+        uint32_t retrive_time = MAX_TRIPTIME_MIDDLE;
+        
         if(tqd->retrieves > MAX_RETRIEVES ||
            ts - tqd->retrieves_start > retrive_time ) {
 
@@ -720,10 +732,8 @@ int trudpProcessSendQueue(trudpData *td) {
         trudpMapIterator *it;
         if((it = trudpMapIteratorNew(td->map))) {
             while((el = trudpMapIteratorNext(it))) {
-                size_t data_lenth;
                 trudpChannelData *tcd = (
-                    trudpChannelData *)trudpMapIteratorElementData(el,
-                        &data_lenth);
+                    trudpChannelData *)trudpMapIteratorElementData(el, NULL);
                 retval = trudpProcessChannelSendQueue(tcd);
                 if(retval > 0) rv += retval;
                 else if(retval < 0) break;
@@ -752,14 +762,63 @@ size_t trudpSendDataToAll(trudpData *td, void *data, size_t data_length) {
     trudpMapElementData *el;
     if((it = trudpMapIteratorNew(td->map))) {
         while((el = trudpMapIteratorNext(it))) {
-            size_t data_lenth;
             trudpChannelData *tcd = (trudpChannelData *)
-                    trudpMapIteratorElementData(el, &data_lenth
-            );
+                    trudpMapIteratorElementData(el, NULL);
+            
             if(tcd->connected_f) {
-                trudpSendData(tcd, data, data_length);
+                if(trudpSendData(tcd, data, data_length) < 0) break;
                 rv++;
             }
+        }
+        trudpMapIteratorDestroy(it);
+    }
+
+    return rv;
+}
+
+/**
+ * Get maximum send queue size of all channels
+ * 
+ * @param td Pointer to trudpData
+ * @return Maximum send queue size of all channels or zero if all queues is empty
+ */
+size_t trudpGetSendQueueMax(trudpData *td) {
+
+    int rv = 0;
+
+    trudpMapIterator *it;
+    trudpMapElementData *el;
+    if((it = trudpMapIteratorNew(td->map))) {
+        while((el = trudpMapIteratorNext(it))) {
+            trudpChannelData *tcd = (trudpChannelData *) 
+                    trudpMapIteratorElementData(el, NULL);            
+            int size = trudpPacketQueueSize(tcd->sendQueue);
+            if(size > rv) rv = size;
+        }
+        trudpMapIteratorDestroy(it);
+    }
+
+    return rv;
+}
+
+/**
+ * Get maximum receive queue size of all channels
+ * 
+ * @param td Pointer to trudpData
+ * @return Maximum send queue size of all channels or zero if all queues is empty
+ */
+size_t trudpGetReceiveQueueMax(trudpData *td) {
+
+    int rv = 0;
+
+    trudpMapIterator *it;
+    trudpMapElementData *el;
+    if((it = trudpMapIteratorNew(td->map))) {
+        while((el = trudpMapIteratorNext(it))) {
+            trudpChannelData *tcd = (trudpChannelData *) 
+                    trudpMapIteratorElementData(el, NULL);            
+            int size = trudpPacketQueueSize(tcd->receiveQueue);
+            if(size > rv) rv = size;
         }
         trudpMapIteratorDestroy(it);
     }

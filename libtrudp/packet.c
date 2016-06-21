@@ -158,7 +158,7 @@ inline unsigned long long trudpGetTimestampFull() {
 
 #endif
 
-    return tmilliseconds & 0xFFFFFFFF;
+    return tmilliseconds; // & 0xFFFFFFFF;
 }
 
 /**

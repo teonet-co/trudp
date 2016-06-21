@@ -122,8 +122,8 @@ void trudpStatProcessLast10Send(trudpChannelData *tcd, void *packet,
         // Last maximal triptime
         tcd->stat.triptime_last_max = (tcd->stat.triptime_last_max + 2 * triptime_last_max) / 3;
 
-        // Send speed
-        uint32_t dif_ts = max_ts - min_ts;
+        // Send speed \todo use trudpGetTimestamp() or max_ts
+        uint32_t dif_ts = trudpGetTimestamp()/*max_ts*/ - min_ts;
         if(dif_ts) tcd->stat.send_speed = 1.0 * size_b / (1.0 * (dif_ts) / 1000000.0);
 //        else tcd->stat.send_speed = 0;
     }
@@ -159,8 +159,8 @@ void trudpStatProcessLast10Receive(trudpChannelData *tcd, void *packet) {
             else if (tcd->stat.last_receive_packets_ar[i].ts > 0 && tcd->stat.last_receive_packets_ar[i].ts < min_ts) min_ts = tcd->stat.last_receive_packets_ar[i].ts;
         }
 
-        // Receive speed
-        uint32_t dif_ts = max_ts - min_ts;
+        // Receive speed \todo use trudpGetTimestamp() or max_ts
+        uint32_t dif_ts = trudpGetTimestamp()/*max_ts*/ - min_ts;
         if(dif_ts) tcd->stat.receive_speed = 1.0 * size_b / (1.0 * (dif_ts) / 1000000.0);
         else tcd->stat.receive_speed = 0;
     }
@@ -423,7 +423,7 @@ char * ksnTRUDPstatShowStr(trudpData *td) {
             size_t receiveQueueSize = trudpQueueSize(tcd->receiveQueue->q);
 
             tbl_str = sformatMessage(tbl_str,
-                "%s%3d "_ANSI_BROWN"%-20.*s"_ANSI_NONE" %8d %11.3f %10.3f  %9.3f /%9.3f %8d %11.3f %10.3f %8d %8d %8d %6d %6d\n",
+                "%s%3d "_ANSI_BROWN"%-20.*s"_ANSI_NONE" %8d %11.3f %10.3f  %9.3f /%9.3f %8d %11.3f %10.3f %8d %8d(%d%%) %8d(%d%%) %6d %6d\n",
                 tbl_str, i + 1,
                 key_len, key,
                 tcd->stat.packets_send,
@@ -436,7 +436,9 @@ char * ksnTRUDPstatShowStr(trudpData *td) {
                 tcd->stat.receive_total,
                 tcd->stat.ack_receive,
                 tcd->stat.packets_attempt,
+                tcd->stat.packets_send ? 100 * tcd->stat.packets_attempt / tcd->stat.packets_send : 0,     
                 tcd->stat.packets_receive_dropped,
+                tcd->stat.packets_receive ? 100 * tcd->stat.packets_receive_dropped / tcd->stat.packets_receive : 0,    
                 sendQueueSize,
                 receiveQueueSize
             );
@@ -458,7 +460,7 @@ char * ksnTRUDPstatShowStr(trudpData *td) {
         if(i > 0) {
             tbl_str = sformatMessage(tbl_str,
             "%s"
-            "---------------------------------------------------------------------------------------------------------------------------------------------------------\n"
+            "-----------------------------------------------------------------------------------------------------------------------------------------------------------------\n"
             , tbl_str
             );
         }
@@ -467,8 +469,8 @@ char * ksnTRUDPstatShowStr(trudpData *td) {
             totalStat.wait /= i;
 
             tbl_total = sformatMessage(tbl_total,
-            "                         %8d %11.3f %10.3f  %9.3f /%9.3f %8d %11.3f %10.3f %8d %8d %8d %6d %6d\n"
-            "---------------------------------------------------------------------------------------------------------------------------------------------------------\n"
+            "                         %8d %11.3f %10.3f  %9.3f /%9.3f %8d %11.3f %10.3f %8d %8d(%d%%) %8d(%d%%) %6d %6d\n"
+            "-----------------------------------------------------------------------------------------------------------------------------------------------------------------\n"
         
             , totalStat.packets_send
             , (double)(1.0 * totalStat.send_speed / 1024.0)
@@ -480,7 +482,9 @@ char * ksnTRUDPstatShowStr(trudpData *td) {
             , totalStat.receive_total
             , totalStat.ack_receive
             , totalStat.packets_attempt
+            , totalStat.packets_send ? 100 * totalStat.packets_attempt / totalStat.packets_send : 0
             , totalStat.packets_receive_dropped
+            , totalStat.packets_receive ? 100 * totalStat.packets_receive_dropped / totalStat.packets_receive : 0
             , totalStat.sendQueueSize
             , totalStat.receiveQueueSize
             );            
@@ -490,9 +494,9 @@ char * ksnTRUDPstatShowStr(trudpData *td) {
 
     char *ret_str = formatMessage(
 //        _ANSI_CLS"\033[0;0H"
-        "---------------------------------------------------------------------------------------------------------------------------------------------------------\n"
+        "-----------------------------------------------------------------------------------------------------------------------------------------------------------------\n"
         "TR-UDP statistics, port %d, running time: %s\n"
-//        "---------------------------------------------------------------------------------------------------------------------------------------------------------\n"
+//        "-----------------------------------------------------------------------------------------------------------------------------------------------------------------\n"
 //        "\n"
 //        "  Packets sent: %-12d                " "Send list:                      " "Receive Heap:\n"
 //        "  ACK receive: %-12d                 " "  size_max: %-12d        "        "  size_max: %-12d\n"
@@ -500,9 +504,9 @@ char * ksnTRUDPstatShowStr(trudpData *td) {
 //        "  Packets receive and dropped: %-12d " "  attempts: %-12d\n"
 //        "\n"
         "List of channels:\n"
-        "---------------------------------------------------------------------------------------------------------------------------------------------------------\n"
-        "  # Key                      Send  Speed(kb/s)  Total(mb) Trip time /  Wait(ms) |  Recv  Speed(kb/s)  Total(mb)     ACK | Repeat     Drop |   SQ     RQ  \n"
-        "---------------------------------------------------------------------------------------------------------------------------------------------------------\n"
+        "-----------------------------------------------------------------------------------------------------------------------------------------------------------------\n"
+        "  # Key                      Send  Speed(kb/s)  Total(mb) Trip time /  Wait(ms) |  Recv  Speed(kb/s)  Total(mb)     ACK |     Repeat         Drop |   SQ     RQ  \n"
+        "-----------------------------------------------------------------------------------------------------------------------------------------------------------------\n"
         "%s"
         "%s"
         "  "

@@ -598,11 +598,11 @@ int main(int argc, char** argv) {
     trudpSetCallback(td, EVENT, (trudpCb)eventCb);
 
     // Create messages
-    char *hello_c = "Hello TR-UDP from client!";
-    size_t hello_c_length = strlen(hello_c) + 1;
+    #define SEND_BUFFER_SIZE 1024 * 1
+    char hello_c[SEND_BUFFER_SIZE] =  { "Hello TR-UDP from client!" } ;
+    size_t hello_c_length = sizeof(hello_c); // strlen(hello_c) + 1;
     //
-    char hello_s[512];
-    strncpy(hello_s, "Hello TR-UDP from server!", sizeof(hello_s));
+    char hello_s[SEND_BUFFER_SIZE] = { "Hello TR-UDP from server!" };
     size_t hello_s_length = sizeof(hello_s); // strlen(hello_s) + 1;
 
     // Process networking
