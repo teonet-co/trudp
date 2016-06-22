@@ -140,17 +140,10 @@ trudpQueueData *trudpQueueAdd(trudpQueue *q, void *data, size_t data_length) {
         // Create new trudpQueueData
         qd = (trudpQueueData *) malloc(sizeof(trudpQueueData) + data_length);
         if(qd) {
-//            // Fill Queue data structure
-//            qd->prev = q->last;
-//            qd->next = NULL;
+            // Fill Queue data structure
             qd->data_length = data_length;
             if(data && data_length > 0) memcpy(qd->data, data, data_length);
             trudpQueuePut(q, qd);
-//            // Change fields in queue structure
-//            if(q->last) q->last->next = qd; // Set next in existing last element to this element
-//            if(!q->first) q->first = qd; // Set this element as first if first does not exists
-//            q->last = qd; // Set this element as last
-//            q->length++; // Increment length
         }
     }
     return qd;
@@ -189,6 +182,7 @@ trudpQueueData *trudpQueueAddAfter(trudpQueue *q, void *data, size_t data_length
                 new_qd->next = qd->next; // Set next of new element to next of existing
                 qd->next = new_qd; // Set next of existing element to new element
             }
+            
             // Add to the first position
             else {
                 new_qd->prev = NULL; // Set this element previous to null

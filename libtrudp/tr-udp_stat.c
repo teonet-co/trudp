@@ -392,7 +392,7 @@ static char* showTime(double t) {
  *
  * @return Pointer to allocated string with statistics
  */
-char * ksnTRUDPstatShowStr(trudpData *td) {
+char *ksnTRUDPstatShowStr(trudpData *td) {
 
 
     uint32_t packets_send = 0,
@@ -540,4 +540,47 @@ char * ksnTRUDPstatShowStr(trudpData *td) {
     free(tbl_total);
 
     return ret_str;
+}
+
+char *trudpStatShowSendQueueStr(trudpChannelData *tcd) {
+    
+    char *str = strdup("");
+    
+    trudpQueueIterator *it = trudpQueueIteratorNew(tcd->sendQueue->q);
+    if(it != NULL) {        
+        
+        int i = 0;
+        long current_t = trudpGetTimestamp();
+        str = sformatMessage(str, 
+            "--------------------------------------------------------------\n"
+            "TR-UDP Send Queue:\n"
+            "--------------------------------------------------------------\n"
+            "    # Id         Expected Retrieves\n"
+            "--------------------------------------------------------------\n"
+
+        );
+        while(trudpQueueIteratorNext(it)) {
+            
+            trudpPacketQueueData *tqd = (trudpPacketQueueData *)
+                    ((trudpQueueData *)trudpQueueIteratorElement(it))->data;
+                        
+            long timeout_sq = current_t < tqd->expected_time ? 
+                (long)tqd->expected_time - current_t : 
+                -1 * (current_t - (long)tqd->expected_time);
+                        
+            str = sformatMessage(str,             
+            "%s"
+            "  %3d %-8d %8.3f ms %d\n"
+            "--------------------------------------------------------------\n"
+            , str
+            , i++   
+            , trudpPacketGetId(tqd->packet)
+            , timeout_sq / 1000.0
+            , tqd->retrieves
+            );
+        }
+        trudpQueueIteratorFree(it);
+    }
+    
+    return str;
 }

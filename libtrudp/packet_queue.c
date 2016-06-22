@@ -92,14 +92,51 @@ inline trudpQueueData *trudpPacketQueueDataToQueueData(trudpPacketQueueData *tqd
 trudpPacketQueueData *trudpPacketQueueAdd(trudpPacketQueue *tq, void *packet, 
         size_t packet_length, uint32_t expected_time) {
     
+    // Add
     size_t tqd_length = sizeof(trudpPacketQueueData) + packet_length;    
-    trudpPacketQueueData *tqd = (trudpPacketQueueData *)((trudpQueueData *)trudpQueueAdd(tq->q, NULL, tqd_length))->data;
-    tqd->expected_time = expected_time;
-    tqd->retrieves = 0;
+    trudpPacketQueueData *tqd = (trudpPacketQueueData *)
+            ((trudpQueueData *)trudpQueueAdd(tq->q, NULL, tqd_length))->data;
+    // Fill data
     memcpy(tqd->packet, packet, packet_length);
+    tqd->expected_time = expected_time;
     tqd->packet_length = packet_length;
+    tqd->retrieves = 0;
     
     return tqd;
+}
+
+/**
+ * Add packet to Packet queue and sort by expected
+ * 
+ * @param tq
+ * @param packet
+ * @param packet_length
+ * @param expected_time
+ * @return 
+ */
+trudpPacketQueueData *trudpPacketQueueAddTime(trudpPacketQueue *tq, 
+        void *packet, size_t packet_length, uint32_t expected_time) {
+    
+    if(trudpPacketQueueSize(tq)) {   
+        // Find expected less or equal then than selected
+        trudpPacketQueueData *tpqd = trudpPacketQueueFindByTime(tq, expected_time);
+        if(tpqd) {
+            // Add after
+            size_t tqd_length = sizeof(trudpPacketQueueData) + packet_length;  
+            trudpPacketQueueData *tqd = (trudpPacketQueueData *)
+                ((trudpQueueData *)trudpQueueAddAfter(tq->q, NULL, tqd_length, 
+                    trudpPacketQueueDataToQueueData(tpqd)))->data;
+            // Fill data
+            memcpy(tqd->packet, packet, packet_length);
+            tqd->expected_time = expected_time;
+            tqd->packet_length = packet_length;
+            tqd->retrieves = 0;
+            
+            return tqd;
+        }
+    }
+    
+    return trudpPacketQueueAdd(tq, packet, packet_length, expected_time);
 }
 
 /**
@@ -162,7 +199,8 @@ trudpPacketQueueData *trudpPacketQueueFindByTime(trudpPacketQueue *tq, uint32_t 
         
         while(trudpQueueIteratorNext(it)) {
             
-            trudpPacketQueueData *tqd = (trudpPacketQueueData *)((trudpQueueData *)trudpQueueIteratorElement(it))->data;
+            trudpPacketQueueData *tqd = (trudpPacketQueueData *)
+                    ((trudpQueueData *)trudpQueueIteratorElement(it))->data;
             if(tqd->expected_time <= t) {
                 rv = tqd;
                 break;

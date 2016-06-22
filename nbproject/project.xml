@@ -47,7 +47,6 @@
             <word>ptr</word>
             <word>recvfrom</word>
             <word>Scherba</word>
-            <word>sendqueue</word>
             <word>sendto</word>
             <word>sockaddr</word>
             <word>str</word>

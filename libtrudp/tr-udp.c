@@ -284,8 +284,10 @@ size_t trudpSendData(trudpChannelData *tcd, void *data, size_t data_length) {
             tcd->channel, data, data_length, &packetLength);
 
     // Save packet to send queue
-    trudpPacketQueueData *tpqd = trudpPacketQueueAdd(tcd->sendQueue, packetDATA,
-        packetLength, trudpCalculateExpectedTime(tcd, trudpGetTimestamp()));
+    trudpPacketQueueData *tpqd = trudpPacketQueueAddTime(tcd->sendQueue, 
+        packetDATA, packetLength, 
+        trudpCalculateExpectedTime(tcd, trudpGetTimestamp())
+    );
 
     // Send data (add to write queue)
     #if !USE_WRITE_QUEUE
@@ -704,11 +706,20 @@ int trudpProcessChannelSendQueue(trudpChannelData *tcd) {
 
             char *key = trudpMakeKeyCannel(tcd);
             // \todo Send event
-            fprintf(stderr, "Disconnect channel %s, wait: %.6f\n", key, retrive_time / 1000000.0);
-            trudpExecEventCallback(tcd, DISCONNECTED, key, strlen(key) + 1,
-                    TD(tcd)->user_data, TD(tcd)->evendCb);
+            fprintf(stderr, "Disconnect channel %s, wait: %.6f\n", key, 
+                retrive_time / 1000000.0);
+            trudpExecEventCallback(tcd, DISCONNECTED, key, strlen(key) + 1, 
+                TD(tcd)->user_data, TD(tcd)->evendCb);
+
+            // Print Send Queue
+            {
+                char *str;
+                printf("%s", str=trudpStatShowSendQueueStr(tcd));
+                free(str);
+            }
             trudpDestroyChannel(tcd);
 
+            exit(-1);
             return -1;
         }
     }
