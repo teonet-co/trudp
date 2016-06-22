@@ -46,29 +46,54 @@ extern int usleep (__useconds_t __useconds);
 #include "libtrudp/utils_r.h"
 #include "libtrudp/tr-udp_stat.h"
 
+// Application version
+#define APP_VERSION "0.0.17"
+
+// Application constants
+#define SEND_MESSAGE_AFTER_MIN  5000 // uSec (mSec * 1000)
+#define SEND_MESSAGE_AFTER  SEND_MESSAGE_AFTER_MIN
+#define RECONNECT_AFTER 6000000 // uSec (mSec * 1000)
+#define SHOW_STATISTIC_AFTER 250000 // uSec (mSec * 1000)
+
 #define USE_LIBEV 1
 
 #if USE_LIBEV
-
 #include <ev.h>
 
-typedef struct process_sendqueue_data {
+/**
+ * Send queue processing data definition
+ */
+typedef struct process_send_queue_data {
 
     int inited;
     trudpData *td;
     struct ev_loop *loop;
     ev_timer process_sendqueue_w;
 
-} process_sendqueue_data;
+} process_send_queue_data;
 
-static void set_sendqueue_cb(process_sendqueue_data *psd);
-static process_sendqueue_data psd;
+/**
+ * Send message callback data
+ */
+typedef struct send_message_data {
+
+    trudpData *td;
+    char *message;
+    size_t message_length;
+
+} send_message_data;
+
+// Local static function definition
+static void start_send_queue_cb(process_send_queue_data *psd);
+
+// Global data
+static process_send_queue_data psd;
 
 #else
 #define USE_SELECT 1
 #endif
 
-// Options
+// Application options structure
 typedef struct options {
     
     // Integer options
@@ -90,6 +115,7 @@ typedef struct options {
 
 } options;
 
+// Application options
 static options o = { 0, 0, 0, 0, 0, 4096, NULL, NULL, NULL, NULL, 0 };
 
 // Application exit code and flags
@@ -234,7 +260,7 @@ static void processAckCb(void *td_ptr, void *data, size_t data_length,
            (tcd->triptime)/1000.0, (tcd->triptimeMiddle)/1000.0);
     
     #if USE_LIBEV
-    set_sendqueue_cb(&psd);
+    start_send_queue_cb(&psd);
     #endif
 }
 
@@ -273,7 +299,7 @@ static void sendPacketCb(void *tcd_ptr, void *packet, size_t packet_length,
     }
     
     #if USE_LIBEV
-    set_sendqueue_cb(&psd);
+    start_send_queue_cb(&psd);
     #endif
 }
 
@@ -319,8 +345,16 @@ static trudpChannelData *connectToPeer(trudpData *td) {
     return tcd;
 }
 
+// Libev functions
 #if USE_LIBEV
 
+/**
+ * Read UDP data libev callback
+ * 
+ * @param loop
+ * @param w
+ * @param revents
+ */
 static void host_cb(EV_P_ ev_io *w, int revents) {
 
     trudpData *td = (trudpData *)w->data;
@@ -338,6 +372,13 @@ static void host_cb(EV_P_ ev_io *w, int revents) {
     }
 }
 
+/**
+ * Connect timer libev callback
+ * 
+ * @param loop
+ * @param w
+ * @param revents
+ */
 static void connect_cb(EV_P_ ev_timer *w, int revents) {
 
     trudpData *td = (trudpData *)w->data;
@@ -347,14 +388,13 @@ static void connect_cb(EV_P_ ev_timer *w, int revents) {
     }
 }
 
-typedef struct send_message_data {
-
-    trudpData *td;
-    char *message;
-    size_t message_length;
-
-} send_message_data;
-
+/**
+ * Send message timer libev callback
+ * 
+ * @param loop
+ * @param w
+ * @param revents
+ */
 static void send_message_cb(EV_P_ ev_timer *w, int revents) {
 
     send_message_data *smd = (send_message_data *)w->data;
@@ -362,27 +402,44 @@ static void send_message_cb(EV_P_ ev_timer *w, int revents) {
     trudpSendDataToAll(smd->td, smd->message, smd->message_length);
 }
 
+/**
+ * Show statistic timer libev callback
+ * 
+ * @param loop
+ * @param w
+ * @param revents
+ */
 static void show_stat_cb(EV_P_ ev_timer *w, int revents) {
 
     trudpData *td = (trudpData *)w->data;
     showStatistic(td, &o);
 }
 
-static void set_sendqueue_cb(process_sendqueue_data *psd);
+/**
+ * Send queue processing timer libev callback
+ * 
+ * @param loop
+ * @param w
+ * @param revents
+ */
+static void process_send_queue_cb(EV_P_ ev_timer *w, int revents) {
 
-static void process_sendqueue_cb(EV_P_ ev_timer *w, int revents) {
-
-    process_sendqueue_data *psd = (process_sendqueue_data *) w->data;
+    process_send_queue_data *psd = (process_send_queue_data *) w->data;
     
     // Process send queue
     debug("process send queue ... \n");
     int rv = trudpProcessSendQueue(psd->td);
     
-    // Start new process_sendqueue timer
-    set_sendqueue_cb(psd);
+    // Start new process_send_queue timer
+    start_send_queue_cb(psd);
 }
 
-static void set_sendqueue_cb(process_sendqueue_data *psd) {
+/**
+ * Set send queue timer
+ * 
+ * @param psd Pointer to process_send_queue_data
+ */
+static void start_send_queue_cb(process_send_queue_data *psd) {
     
     uint32_t tt;
     if((tt = trudpGetSendQueueTimeout(psd->td)) != UINT32_MAX) {
@@ -390,19 +447,17 @@ static void set_sendqueue_cb(process_sendqueue_data *psd) {
         double tt_d = tt / 1000000.0;
         
         if(!psd->inited) {
-            ev_timer_init(&psd->process_sendqueue_w, process_sendqueue_cb, 0.0/*tt_d*/, 0.0);
+            ev_timer_init(&psd->process_sendqueue_w, process_send_queue_cb, 0.0/*tt_d*/, 0.0);
             psd->process_sendqueue_w.data = (void*)psd;
             psd->inited = 1;
-            //printf("set process_sendqueue_cb wait to: %.3f\n", tt_d);
+            //printf("set process_send_queue_cb wait to: %.3f\n", tt_d);
         }
         else {
             ev_timer_stop(psd->loop, &psd->process_sendqueue_w);
             ev_timer_set(&psd->process_sendqueue_w, tt_d, 0.);
-            //printf("reset process_sendqueue_cb wait to: %.3f\n", tt_d);
+            //printf("reset process_send_queue_cb wait to: %.3f\n", tt_d);
         }
-        
-        
-        
+                        
         ev_timer_start(psd->loop, &psd->process_sendqueue_w); 
     }
 }
@@ -560,8 +615,6 @@ static void usage(char *name) {
  */
 int main(int argc, char** argv) {
 
-    #define APP_VERSION "0.0.16"
-
     // Show logo
     fprintf(stderr,
             "TR-UDP two node connect sample application ver " APP_VERSION "\n"
@@ -573,28 +626,28 @@ int main(int argc, char** argv) {
 
     // Read parameters
     while(1) {
-            int c = getopt (argc, argv, "hdlp:B:s:nSQ");
-            if (c == -1) break;
-            switch(c) {
-                case 'h': usage(argv[0]);               break;
-                case 'd': o.debug++;			break;
-                case 'l': o.listen++;			break;
-                case 'p': o.local_port = optarg;	break;
-                case 'B': o.buf_size = atoi(optarg);	break;
-                case 's': o.local_address = optarg;	break;
-                //case 'n': o.numeric++;		  break;
-                //case 'w': break;	// timeout for connects and final net reads
-                case 'S': o.show_statistic++;           break;
-                case 'Q': o.show_send_queue++;          break;
-                default:  die("Unhandled argument: %c\n", c); break;
-            }
+        int c = getopt (argc, argv, "hdlp:B:s:nSQ");
+        if (c == -1) break;
+        switch(c) {
+            case 'h': usage(argv[0]);               break;
+            case 'd': o.debug++;		    break;
+            case 'l': o.listen++;		    break;
+            case 'p': o.local_port = optarg;	    break;
+            case 'B': o.buf_size = atoi(optarg);    break;
+            case 's': o.local_address = optarg;	    break;
+            //case 'n': o.numeric++;		  break;
+            //case 'w': break;	// timeout for connects and final net reads
+            case 'S': o.show_statistic++;           break;
+            case 'Q': o.show_send_queue++;          break;
+            default:  die("Unhandled argument: %c\n", c); break;
+        }
     }
 
     // Read arguments
     for(i = optind; i < argc; i++) {
         switch(i - optind) {
-            case 0:	o.remote_address = argv[i]; 	break;
-            case 1:	o.remote_port = argv[i];	break;
+            case 0:	o.remote_address = argv[i]; break;
+            case 1:	o.remote_port = argv[i];    break;
         }
     }
 
@@ -603,9 +656,10 @@ int main(int argc, char** argv) {
     if(!o.listen && (!o.remote_port || !o.remote_address)) usage(argv[0]);
 
     // Show execution mode
-    if(o.listen)
+    if(o.listen) {
         fprintf(stderr, "Server started at %s:%s\n", o.local_address,
             o.local_port);
+    }
     else {
         o.remote_port_i = atoi(o.remote_port);
         fprintf(stderr, "Client start connection to %s:%d\n", o.remote_address,
@@ -648,10 +702,6 @@ int main(int argc, char** argv) {
     i = 0;
     char *message;
     size_t message_length;
-    const int SEND_MESSAGE_AFTER_MIN = 5000; // uSec (mSec * 1000)
-    int SEND_MESSAGE_AFTER = SEND_MESSAGE_AFTER_MIN;
-    const int RECONNECT_AFTER = 6000000; // uSec (mSec * 1000)
-    const int SHOW_STATISTIC_AFTER = 250000; // uSec (mSec * 1000)
     if(!o.listen) { message = hello_c; message_length = hello_c_length; }
     else { message = hello_s; message_length = hello_s_length; }
 
@@ -665,7 +715,7 @@ int main(int argc, char** argv) {
     ev_timer connect_w;
     ev_io w;
     
-    // Initialize process_sendqueue_data
+    // Initialize process_send_queue_data
     psd.loop = loop;
     psd.inited = 0;
     psd.td = td;
