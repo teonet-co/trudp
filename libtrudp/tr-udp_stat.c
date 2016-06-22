@@ -542,22 +542,33 @@ char *ksnTRUDPstatShowStr(trudpData *td) {
     return ret_str;
 }
 
-char *trudpStatShowSendQueueStr(trudpChannelData *tcd) {
+#define MAX_QUELEN_SHOW 40
+char *trudpStatShowQueueStr(trudpChannelData *tcd, int type) {
     
     char *str = strdup("");
     
-    trudpQueueIterator *it = trudpQueueIteratorNew(tcd->sendQueue->q);
+//    if(trudpPacketQueueSize(tcd->sendQueue) > MAX_QUELEN_SHOW || 
+//       trudpPacketQueueSize(tcd->receiveQueue) > MAX_QUELEN_SHOW) 
+//    exit(-1); 
+    
+    trudpQueueIterator *it = !type ? 
+        trudpQueueIteratorNew(tcd->sendQueue->q) : 
+        trudpQueueIteratorNew(tcd->receiveQueue->q);
+    
     if(it != NULL) {        
         
         int i = 0;
         long current_t = trudpGetTimestamp();
         str = sformatMessage(str, 
             "--------------------------------------------------------------\n"
-            "TR-UDP Send Queue:\n"
+            "TR-UDP %s Queue, size: %d, %s %u\n"
             "--------------------------------------------------------------\n"
-            "    # Id         Expected Retrieves\n"
+            "    #   Id          Expected   Retrieves\n"
             "--------------------------------------------------------------\n"
-
+            , !type ? "Send" : "Receive"
+            , !type ? trudpPacketQueueSize(tcd->sendQueue) : trudpPacketQueueSize(tcd->receiveQueue)
+            , !type ? "next id: " : "expected id: "
+            , !type ? tcd->sendId : tcd->receiveExpectedId
         );
         while(trudpQueueIteratorNext(it)) {
             
@@ -570,14 +581,22 @@ char *trudpStatShowSendQueueStr(trudpChannelData *tcd) {
                         
             str = sformatMessage(str,             
             "%s"
-            "  %3d %-8d %8.3f ms %d\n"
-            "--------------------------------------------------------------\n"
+            "  %3d   %-8d %8.3f ms   %d\n"
             , str
             , i++   
             , trudpPacketGetId(tqd->packet)
-            , timeout_sq / 1000.0
-            , tqd->retrieves
+            , !type ? timeout_sq / 1000.0 : 0
+            , !type ? tqd->retrieves : 0
             );
+            if(i > MAX_QUELEN_SHOW) { str = sformatMessage(str, "%s...\n", str); break; }
+        }
+        if(i) {
+            str = sformatMessage(str,
+            "%s"
+            "--------------------------------------------------------------\n"
+            , str
+        );
+
         }
         trudpQueueIteratorFree(it);
     }

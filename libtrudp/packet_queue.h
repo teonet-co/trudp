@@ -67,6 +67,7 @@ trudpPacketQueueData *trudpPacketQueueAddTime(trudpPacketQueue *tq,
 inline int trudpPacketQueueDelete(trudpPacketQueue *tq, trudpPacketQueueData *tqd);
 trudpPacketQueueData *trudpPacketQueueFindById(trudpPacketQueue *tq, uint32_t id);
 trudpPacketQueueData *trudpPacketQueueFindByTime(trudpPacketQueue *tq, uint32_t t);
+trudpPacketQueueData *trudpPacketQueueGetFirst(trudpPacketQueue *tq);
 
 #ifdef __cplusplus
 }

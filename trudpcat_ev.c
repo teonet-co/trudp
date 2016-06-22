@@ -68,20 +68,29 @@ static process_sendqueue_data psd;
 #define USE_SELECT 1
 #endif
 
-// Integer options
-static int o_debug = 0,
-    o_statistic = 0,
-    o_listen = 0,
-    o_numeric = 0,
-    o_buf_size = 4096;
+// Options
+typedef struct options {
+    
+    // Integer options
+    int debug; // = 0;
+    int show_statistic; // = 0;
+    int show_send_queue; // = 0;
+    int listen; // = 0;
+    int numeric; // = 0;
+    int buf_size; // = 4096;
 
-// String options
-static char *o_local_address = NULL,
-     *o_local_port = NULL,
-     *o_remote_address = NULL,
-     *o_remote_port = NULL;
+    // String options
+    char *local_address; // = NULL;
+    char *local_port; // = NULL;
+    char *remote_address; // = NULL;
+    char *remote_port; // = NULL;
 
-static int o_remote_port_i;
+    // Calculated options
+    int remote_port_i;
+
+} options;
+
+static options o = { 0, 0, 0, 0, 0, 4096, NULL, NULL, NULL, NULL, 0 };
 
 // Application exit code and flags
 static int exit_code = EXIT_SUCCESS,
@@ -117,7 +126,7 @@ static void debug(char *fmt, ...)
 {
     static unsigned long idx = 0;
     va_list ap;
-    if (o_debug) {
+    if(o.debug) {
         fflush(stdout);
         fprintf(stderr, "%lu %.3f debug: ", ++idx, trudpGetTimestamp() / 1000.0);
         va_start(ap, fmt);
@@ -131,9 +140,9 @@ static void debug(char *fmt, ...)
  * Show statistic window
  * @param td Pointer to trudpData
  */
-static void showStatistic(trudpData *td, int *show) {
+static void showStatistic(trudpData *td, options *o) {
 
-    if(*show) {
+    if(o->show_statistic) {
         cls();
         char *stat_str = ksnTRUDPstatShowStr(td);
         if(stat_str) {
@@ -141,13 +150,35 @@ static void showStatistic(trudpData *td, int *show) {
             free(stat_str);
         }
     }
+    
+    if(o->show_send_queue) {
+        trudpChannelData *tcd = (trudpChannelData*)trudpMapGetFirst(td->map, 0);
+        if(tcd != (void*)-1) {
+            char *stat_sq_str = trudpStatShowQueueStr(tcd, 0);
+            if(stat_sq_str) {
+                cls();
+                puts(stat_sq_str);
+                free(stat_sq_str);
+            }
+            else cls();
+
+            char *stat_rq_str = trudpStatShowQueueStr(tcd, 1);
+            if(stat_rq_str) {
+                puts(stat_rq_str);
+                free(stat_rq_str);
+            }
+        }
+        else { cls(); puts("Queues have not been created..."); }
+    }
+    
     // Check key !!!
     int ch = nb_getch();
     if(ch) {
-        // ...
         printf("key %c pressed\n", ch);
-        if(ch == 'S') {
-            *show = !*show;
+        
+        switch(ch) {
+            case 'S': o->show_statistic  = !o->show_statistic;  o->show_send_queue = 0; break;        
+            case 'Q': o->show_send_queue = !o->show_send_queue; o->show_statistic = 0;  break;
         }
     }
 }
@@ -168,8 +199,8 @@ static void processDataCb(void *td_ptr, void *data, size_t data_length,
     debug("got %d byte data, id=%u: ", (int)data_length,
                 trudpPacketGetId(trudpPacketGetPacket(data)));
 
-    if(!o_statistic) {
-        if(!o_debug)
+    if(!o.show_statistic && !o.show_send_queue) {
+        if(!o.debug)
             printf("#%u at %.3f [%.3f(%.3f) ms] ",
                    tcd->receiveExpectedId,
                    (double)trudpGetTimestamp() / 1000.0,
@@ -226,7 +257,7 @@ static void sendPacketCb(void *tcd_ptr, void *packet, size_t packet_length,
     //}
 
     // Debug message
-    if(o_debug) {
+    if(o.debug) {
         int port,type;
         uint32_t id = trudpPacketGetId(packet);
         char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd->remaddr, &port);
@@ -276,12 +307,12 @@ static trudpChannelData *connectToPeer(trudpData *td) {
     trudpChannelData *tcd = NULL;
 
     // Create remote address and Send "connect" packet
-    if(!o_listen) {
+    if(!o.listen) {
         char *connect = "Connect with TR-UDP!";
         size_t connect_length = strlen(connect) + 1;
-        tcd = trudpNewChannel(td, o_remote_address, o_remote_port_i, 0);
+        tcd = trudpNewChannel(td, o.remote_address, o.remote_port_i, 0);
         trudpSendData(tcd, connect, connect_length);
-        fprintf(stderr, "Connecting to %s:%u:%u\n", o_remote_address, o_remote_port_i, 0);
+        fprintf(stderr, "Connecting to %s:%u:%u\n", o.remote_address, o.remote_port_i, 0);
         connected_flag = 1;
     }
 
@@ -296,7 +327,7 @@ static void host_cb(EV_P_ ev_io *w, int revents) {
 
     struct sockaddr_in remaddr; // remote address
     socklen_t addr_len = sizeof(remaddr);
-    ssize_t recvlen = trudpUdpRecvfrom(td->fd, buffer, o_buf_size,
+    ssize_t recvlen = trudpUdpRecvfrom(td->fd, buffer, o.buf_size,
             (__SOCKADDR_ARG)&remaddr, &addr_len);
 
     // Process received packet
@@ -311,7 +342,7 @@ static void connect_cb(EV_P_ ev_timer *w, int revents) {
 
     trudpData *td = (trudpData *)w->data;
 
-    if(!o_listen && !connected_flag) {
+    if(!o.listen && !connected_flag) {
         connectToPeer(td);
     }
 }
@@ -334,7 +365,7 @@ static void send_message_cb(EV_P_ ev_timer *w, int revents) {
 static void show_stat_cb(EV_P_ ev_timer *w, int revents) {
 
     trudpData *td = (trudpData *)w->data;
-    showStatistic(td, &o_statistic);
+    showStatistic(td, &o);
 }
 
 static void set_sendqueue_cb(process_sendqueue_data *psd);
@@ -344,8 +375,8 @@ static void process_sendqueue_cb(EV_P_ ev_timer *w, int revents) {
     process_sendqueue_data *psd = (process_sendqueue_data *) w->data;
     
     // Process send queue
+    debug("process send queue ... \n");
     int rv = trudpProcessSendQueue(psd->td);
-    debug("process send queue ... %d\n", rv);
     
     // Start new process_sendqueue timer
     set_sendqueue_cb(psd);
@@ -356,15 +387,21 @@ static void set_sendqueue_cb(process_sendqueue_data *psd) {
     uint32_t tt;
     if((tt = trudpGetSendQueueTimeout(psd->td)) != UINT32_MAX) {
         
+        double tt_d = tt / 1000000.0;
+        
         if(!psd->inited) {
-            ev_timer_init(&psd->process_sendqueue_w, process_sendqueue_cb, tt / 1000000.0, 0.0);
+            ev_timer_init(&psd->process_sendqueue_w, process_sendqueue_cb, 0.0/*tt_d*/, 0.0);
             psd->process_sendqueue_w.data = (void*)psd;
             psd->inited = 1;
+            //printf("set process_sendqueue_cb wait to: %.3f\n", tt_d);
         }
         else {
             ev_timer_stop(psd->loop, &psd->process_sendqueue_w);
-            ev_timer_set(&psd->process_sendqueue_w, tt / 1000000.0, 0.);
+            ev_timer_set(&psd->process_sendqueue_w, tt_d, 0.);
+            //printf("reset process_sendqueue_cb wait to: %.3f\n", tt_d);
         }
+        
+        
         
         ev_timer_start(psd->loop, &psd->process_sendqueue_w); 
     }
@@ -435,7 +472,7 @@ static void network_select_loop(trudpData *td, int timeout) {
 
             struct sockaddr_in remaddr; // remote address
             socklen_t addr_len = sizeof(remaddr);
-            ssize_t recvlen = trudpUdpRecvfrom(td->fd, buffer, o_buf_size,
+            ssize_t recvlen = trudpUdpRecvfrom(td->fd, buffer, o.buf_size,
                     (__SOCKADDR_ARG)&remaddr, &addr_len);
 
             // Process received packet
@@ -468,7 +505,7 @@ static void network_loop(trudpData *td) {
     // Read from UDP
     struct sockaddr_in remaddr; // remote address
     socklen_t addr_len = sizeof(remaddr);
-    ssize_t recvlen = trudpUdpRecvfrom(td->fd, buffer, o_buf_size,
+    ssize_t recvlen = trudpUdpRecvfrom(td->fd, buffer, o.buf_size,
             (__SOCKADDR_ARG)&remaddr, &addr_len);
 
     // Process received packet
@@ -508,6 +545,7 @@ static void usage(char *name) {
 	fprintf(stderr, "    -s <IP>     Source IP\n");
 	fprintf(stderr, "    -B <size>   Buffer size\n");
         fprintf(stderr, "    -S          Show statistic\n");
+        fprintf(stderr, "    -Q          Show queues\n");
 //	fprintf(stderr, "    -n          Don't resolve hostnames\n");
 	fprintf(stderr, "\n");
 	exit(1);
@@ -522,7 +560,7 @@ static void usage(char *name) {
  */
 int main(int argc, char** argv) {
 
-    #define APP_VERSION "0.0.15"
+    #define APP_VERSION "0.0.16"
 
     // Show logo
     fprintf(stderr,
@@ -530,23 +568,24 @@ int main(int argc, char** argv) {
     );
 
     int i/*, connected_f = 0*/;
-    o_local_port = "8000"; // Default local port
-    o_local_address = "0.0.0.0"; // Default local address
+    o.local_port = "8000"; // Default local port
+    o.local_address = "0.0.0.0"; // Default local address
 
     // Read parameters
     while(1) {
-            int c = getopt (argc, argv, "hdlp:B:s:nS");
+            int c = getopt (argc, argv, "hdlp:B:s:nSQ");
             if (c == -1) break;
             switch(c) {
                 case 'h': usage(argv[0]);               break;
-                case 'd': o_debug++;			break;
-                case 'l': o_listen++;			break;
-                case 'p': o_local_port = optarg;	break;
-                case 'B': o_buf_size = atoi(optarg);	break;
-                case 's': o_local_address = optarg;	break;
-                //case 'n': o_numeric++;		  break;
+                case 'd': o.debug++;			break;
+                case 'l': o.listen++;			break;
+                case 'p': o.local_port = optarg;	break;
+                case 'B': o.buf_size = atoi(optarg);	break;
+                case 's': o.local_address = optarg;	break;
+                //case 'n': o.numeric++;		  break;
                 //case 'w': break;	// timeout for connects and final net reads
-                case 'S': o_statistic++;                break;
+                case 'S': o.show_statistic++;           break;
+                case 'Q': o.show_send_queue++;          break;
                 default:  die("Unhandled argument: %c\n", c); break;
             }
     }
@@ -554,27 +593,27 @@ int main(int argc, char** argv) {
     // Read arguments
     for(i = optind; i < argc; i++) {
         switch(i - optind) {
-            case 0:	o_remote_address = argv[i]; 	break;
-            case 1:	o_remote_port = argv[i];	break;
+            case 0:	o.remote_address = argv[i]; 	break;
+            case 1:	o.remote_port = argv[i];	break;
         }
     }
 
     // Check necessary arguments
-    if(o_listen && (o_remote_port || o_remote_address)) usage(argv[0]);
-    if(!o_listen && (!o_remote_port || !o_remote_address)) usage(argv[0]);
+    if(o.listen &&   (o.remote_port || o.remote_address)) usage(argv[0]);
+    if(!o.listen && (!o.remote_port || !o.remote_address)) usage(argv[0]);
 
     // Show execution mode
-    if(o_listen)
-        fprintf(stderr, "Server started at %s:%s\n", o_local_address,
-                o_local_port);
+    if(o.listen)
+        fprintf(stderr, "Server started at %s:%s\n", o.local_address,
+            o.local_port);
     else {
-        o_remote_port_i = atoi(o_remote_port);
-        fprintf(stderr, "Client start connection to %s:%d\n", o_remote_address,
-                o_remote_port_i);
+        o.remote_port_i = atoi(o.remote_port);
+        fprintf(stderr, "Client start connection to %s:%d\n", o.remote_address,
+            o.remote_port_i);
     }
 
     // Create read buffer
-    buffer = malloc(o_buf_size);
+    buffer = malloc(o.buf_size);
 
     // Startup windows socket library
     #if defined(HAVE_MINGW) || defined(_WIN32) || defined(_WIN64)
@@ -583,7 +622,7 @@ int main(int argc, char** argv) {
     #endif
 
     // Bind UDP port and get FD (start listening at port)
-    int port = atoi(o_local_port);
+    int port = atoi(o.local_port);
     int fd = trudpUdpBindRaw(&port, 1);
     if(fd <= 0) die("Can't bind UDP port ...\n");
     else fprintf(stderr, "Start listening at port %d\n", port);
@@ -613,7 +652,7 @@ int main(int argc, char** argv) {
     int SEND_MESSAGE_AFTER = SEND_MESSAGE_AFTER_MIN;
     const int RECONNECT_AFTER = 6000000; // uSec (mSec * 1000)
     const int SHOW_STATISTIC_AFTER = 250000; // uSec (mSec * 1000)
-    if(!o_listen) { message = hello_c; message_length = hello_c_length; }
+    if(!o.listen) { message = hello_c; message_length = hello_c_length; }
     else { message = hello_s; message_length = hello_s_length; }
 
     #if USE_LIBEV
@@ -674,7 +713,7 @@ int main(int argc, char** argv) {
         tt = trudpGetTimestamp();
 
         // Connect
-        if(!o_listen && !connected_flag && (tt - tt_c) > RECONNECT_AFTER) {
+        if(!o.listen && !connected_flag && (tt - tt_c) > RECONNECT_AFTER) {
             connectToPeer(td);
             tt_c = tt;
         }
@@ -691,9 +730,9 @@ int main(int argc, char** argv) {
         }
 
         // Show statistic
-        if(/*o_statistic && */(tt - tt_ss) > SHOW_STATISTIC_AFTER) {
+        if(/*o.statistic && */(tt - tt_ss) > SHOW_STATISTIC_AFTER) {
 
-            showStatistic(td, &o_statistic);
+            showStatistic(td, &o);
             tt_ss = tt;
         }
 

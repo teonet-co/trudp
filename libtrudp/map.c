@@ -182,7 +182,7 @@ static inline uint32_t trudpMapHash(void *key, size_t key_length) {
  * @param key Key
  * @param key_length Key length
  * @param hash Hash of key
- * @param data_length [out] Pointer to data length
+ * @param data_length [out] Pointer to returned data length (may be NULL in input)
  *
  * @return Pointer to Data of selected key or (void*)-1 if not found
  */
@@ -205,7 +205,7 @@ static void *_trudpMapGet(trudpMapData *map, void *key, size_t key_length,
             if(key_length == htd->key_length &&
                !memcmp(htd->data, key, key_length)) {
 
-                *data_length = htd->data_length;
+                if(data_length) *data_length = htd->data_length;
                 data = htd->data + htd->key_length;
                 break;
             }
@@ -215,6 +215,34 @@ static void *_trudpMapGet(trudpMapData *map, void *key, size_t key_length,
       trudpQueueIteratorFree(it);
     }
 
+    return data;
+}
+
+/**
+ * Get first available element from hash table
+ * 
+ * @param map Pointer to trudpHashTdata
+ * @param data_length [out] Pointer to returned data length (may be NULL in input)
+ * 
+ * @return Pointer to Data of first available element or (void*)-1 if not found
+ */
+void *trudpMapGetFirst(trudpMapData *map, size_t *data_length) {
+    
+    int i;
+    trudpQueueData *tqd;
+    void *data = (void*)-1;
+    for(i = 0; i < map->length; i++) {
+        trudpQueueIterator *it = trudpQueueIteratorNew(map->q[i]);
+        if(it != NULL) {
+            if((tqd = trudpQueueIteratorNext(it))) {
+                trudpMapElementData *htd = (trudpMapElementData *)tqd->data;
+                if(data_length) *data_length = htd->data_length;
+                data = htd->data + htd->key_length;
+                break;
+            }
+        }
+    }
+    
     return data;
 }
 
