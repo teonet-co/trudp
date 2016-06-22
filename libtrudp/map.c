@@ -228,19 +228,16 @@ static void *_trudpMapGet(trudpMapData *map, void *key, size_t key_length,
  */
 void *trudpMapGetFirst(trudpMapData *map, size_t *data_length) {
     
-    int i;
-    trudpQueueData *tqd;
     void *data = (void*)-1;
-    for(i = 0; i < map->length; i++) {
-        trudpQueueIterator *it = trudpQueueIteratorNew(map->q[i]);
-        if(it != NULL) {
-            if((tqd = trudpQueueIteratorNext(it))) {
-                trudpMapElementData *htd = (trudpMapElementData *)tqd->data;
-                if(data_length) *data_length = htd->data_length;
-                data = htd->data + htd->key_length;
-                break;
-            }
+    
+    trudpMapIterator *it = trudpMapIteratorNew(map);
+    if(it != NULL) {
+        trudpMapElementData *el;
+        if((el = trudpMapIteratorNext(it))) {
+            size_t data_lenth;
+            data = trudpMapIteratorElementData(el, &data_lenth);
         }
+        trudpMapIteratorDestroy(it);
     }
     
     return data;
