@@ -38,6 +38,7 @@
 extern "C" {
 #endif
 
+// TR-UDP Protocol constants    
 #define TR_UDP_PROTOCOL_VERSION 2
 #define MIN_ACK_WAIT 0.000732  // 000.732 MS
 #define MAX_ACK_WAIT 0.500  // 500 MS

@@ -35,12 +35,6 @@
 #include "packet.h"
 #include "tr-udp_stat.h"
 
-#define MAX_TRIPTIME_MIDDLE 5757575
-#define MAP_SIZE_DEFAULT 1000
-#define SEND_QUEUE_MAX 500
-#define USE_WRITE_QUEUE 0
-#define MAX_RTT 50000 // 250000
-
 /**
  * Set default trudpChannelData values
  *
@@ -53,6 +47,7 @@ static void trudpSetDefaults(trudpChannelData *tcd) {
     tcd->triptimeFactor = 1.5;
     tcd->outrunning_cnt = 0;
     tcd->receiveExpectedId = 0;
+    tcd->lastReceived = 0;
     tcd->triptimeMiddle = START_MIDDLE_TIME;
 
     // Initialize statistic
@@ -419,6 +414,15 @@ static void trudpExecEventCallback(trudpChannelData *tcd, int event, void *data,
 }
 
 /**
+ * Set last received field to current timestamp
+ * 
+ * @param tcd
+ */
+static inline void trudpSetLastReceived(trudpChannelData *tcd) {
+    tcd->lastReceived = trudpGetTimestamp();
+}    
+
+/**
  * Create ACK packet and send it back to sender
  *
  * @param tcd Pointer to trudpChannelData
@@ -432,7 +436,8 @@ static inline void trudpSendACK(trudpChannelData *tcd, void *packet) {
     #else
     trudpWriteQueueAdd(tcd->writeQueue, packetACK, NULL, trudpPacketACKlength());
     #endif
-    trudpPacketCreatedFree(packetACK);
+    trudpPacketCreatedFree(packetACK);    
+    trudpSetLastReceived(tcd);
 }
 
 /**
@@ -450,6 +455,7 @@ static inline void trudpSendACKtoRESET(trudpChannelData *tcd, void *packet) {
     trudpWriteQueueAdd(tcd->writeQueue, packetACK, NULL, trudpPacketACKlength());
     #endif
     trudpPacketCreatedFree(packetACK);
+    trudpSetLastReceived(tcd);
 }
 
 /**
@@ -564,9 +570,8 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
                 trudpExecProcessDataCallback(tcd, packet, &data, data_length,
                         TD(tcd)->user_data, TD(tcd)->processAckCb);
 
-                goto skip_reset;
-                
                 // Reset if id is too big and send queue is empty
+                goto skip_reset_after_id;                
                 if(tcd->sendId >= RESET_AFTER_ID &&
                    !trudpQueueSize(tcd->sendQueue->q) &&
                    !trudpQueueSize(tcd->receiveQueue->q) ) {
@@ -574,9 +579,8 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
                     // \todo Send event
                     fprintf(stderr, "High packet number! Reset channel ...\n");
                     trudpSendRESET(tcd);
-                }
-                
-                skip_reset: ;
+                }                
+                skip_reset_after_id: ;
 
             } break;
 
@@ -638,7 +642,7 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
                         trudpStatProcessLast10Receive(tcd, packet);
 
                         goto skip_reset_2;
-                        // Send reset at match outrunning
+                        // Send reset at maximum outrunning
                         if(tcd->outrunning_cnt > MAX_OUTRUNNING) {
                             // \todo Send event
                             fprintf(stderr, 
@@ -734,36 +738,39 @@ int trudpProcessChannelSendQueue(trudpChannelData *tcd) {
         trudpWriteQueueAdd(tcd->writeQueue, NULL, tqd->packet, tqd->packet_length);
         #endif
         
-        goto skip_disconnect;
-                
-        // Stop at match retrieves
-//        uint32_t retrive_time = tcd->triptimeMiddle * 2;
-//        if(retrive_time < MIN_RETRIEVES_TIME) retrive_time = MIN_RETRIEVES_TIME;
-        uint32_t retrive_time = MAX_TRIPTIME_MIDDLE;
+        // Disconnect at max retrieves
+//        goto skip_disconnect_on_max_retrives;                
+//        if(tqd->retrieves > MAX_RETRIEVES ||
+//           ts - tqd->retrieves_start > MAX_TRIPTIME_MIDDLE ) {
+//
+//            char *key = trudpMakeKeyCannel(tcd);
+//            // \todo Send event
+//            fprintf(stderr, "Disconnect channel %s, wait: %.6f\n", key, 
+//                (ts - tqd->retrieves_start) / 1000000.0);
+//            trudpExecEventCallback(tcd, DISCONNECTED, key, strlen(key) + 1, 
+//                TD(tcd)->user_data, TD(tcd)->evendCb);
+//
+//            trudpDestroyChannel(tcd);
+//
+//            //exit(-1);
+//            return -1;
+//        }        
+//        skip_disconnect_on_max_retrives: ;
         
-        if(tqd->retrieves > MAX_RETRIEVES ||
-           ts - tqd->retrieves_start > retrive_time ) {
-
+        // Disconnect channel at long last receive
+        if(tcd->lastReceived && ts - tcd->lastReceived > MAX_LAST_RECEIVE) {
             char *key = trudpMakeKeyCannel(tcd);
             // \todo Send event
-            fprintf(stderr, "Disconnect channel %s, wait: %.6f\n", key, 
-                (ts - tqd->retrieves_start) / 1000000.0);
+            fprintf(stderr, "Disconnect channel %s, last received: %.6f\n", key, 
+                (ts - tcd->lastReceived) / 1000000.0);
             trudpExecEventCallback(tcd, DISCONNECTED, key, strlen(key) + 1, 
                 TD(tcd)->user_data, TD(tcd)->evendCb);
 
-//            // Print Send Queue
-//            {
-//                char *str;
-//                printf("%s", str=trudpStatShowQueueStr(tcd, 0));
-//                free(str);
-//            }
             trudpDestroyChannel(tcd);
 
             //exit(-1);
             return -1;
         }
-        
-        skip_disconnect: ;
     }
 
     return rv;
@@ -894,9 +901,8 @@ size_t trudpGetReceiveQueueMax(trudpData *td) {
  */
 char *trudpMakeKey(char *addr, int port, int channel, size_t *key_length) {
 
-    //#define BUF_SIZE 64
-    static char buf[CS_KEY_LENGTH];
-    *key_length = snprintf(buf, CS_KEY_LENGTH, "%s:%u:%u", addr, port, channel);
+    static char buf[MAX_KEY_LENGTH];
+    *key_length = snprintf(buf, MAX_KEY_LENGTH, "%s:%u:%u", addr, port, channel);
 
     return buf;
 }

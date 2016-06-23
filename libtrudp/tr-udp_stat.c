@@ -225,8 +225,8 @@ void *trudpStatGet(trudpData *td, int type, size_t *stat_len) {
 
                         // Cannel statistic
                         memcpy(&ts->cs[i], &tcd->stat, sizeof(tcd->stat));
-                        memcpy(ts->cs[i].key, key, key_length < CS_KEY_LENGTH ?
-                            key_length : CS_KEY_LENGTH - 1);
+                        memcpy(ts->cs[i].key, key, key_length < MAX_KEY_LENGTH ?
+                            key_length : MAX_KEY_LENGTH - 1);
                         ts->cs[i].sq = trudpQueueSize(tcd->sendQueue->q);
                         ts->cs[i].rq = trudpQueueSize(tcd->receiveQueue->q);
                         i++;
