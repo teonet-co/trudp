@@ -214,6 +214,7 @@ trudpChannelData *trudpCheckRemoteAddr(trudpData *td, struct sockaddr_in *remadd
         socklen_t addr_length, int channel);
 int trudpProcessSendQueue(trudpData *td);
 size_t trudpProcessWriteQueue(trudpData *td);
+void trudpSendResetAll(trudpData *td);
 
 trudpChannelData *trudpNewChannel(trudpData *td, char *remote_address, int remote_port_i, int channel); // void *user_data, trudpDataCb processDataCb, trudpDataCb sendPacketCb);
 void trudpDestroyChannel(trudpChannelData *tcd);

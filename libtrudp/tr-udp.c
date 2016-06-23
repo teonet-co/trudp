@@ -470,6 +470,26 @@ static inline void trudpSendRESET(trudpChannelData *tcd) {
 }
 
 /**
+ * Create RESET packet and send it to all channels
+ * 
+ * @param td
+ */
+void trudpSendResetAll(trudpData *td) {
+    
+    size_t retval = 0;
+    trudpMapElementData *el;
+    trudpMapIterator *it;
+    if((it = trudpMapIteratorNew(td->map))) {
+        while((el = trudpMapIteratorNext(it))) {
+            trudpChannelData *tcd = (trudpChannelData *)
+                    trudpMapIteratorElementData(el, NULL);
+            trudpSendRESET(tcd);
+        }
+        trudpMapIteratorDestroy(it);
+    }
+}
+
+/**
  * Calculate Triptime
  *
  * @param tcd
