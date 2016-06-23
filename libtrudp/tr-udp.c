@@ -47,7 +47,7 @@ static void trudpSetDefaults(trudpChannelData *tcd) {
     tcd->triptimeFactor = 1.5;
     tcd->outrunning_cnt = 0;
     tcd->receiveExpectedId = 0;
-    tcd->lastReceived = 0;
+    tcd->lastReceived = trudpGetTimestamp();
     tcd->triptimeMiddle = START_MIDDLE_TIME;
 
     // Initialize statistic
@@ -459,6 +459,24 @@ static inline void trudpSendACKtoRESET(trudpChannelData *tcd, void *packet) {
 }
 
 /**
+ * Create ACK to PING packet and send it back to sender
+ *
+ * @param tcd Pointer to trudpChannelData
+ * @param packet Pointer to received packet
+ */
+static inline void trudpSendACKtoPING(trudpChannelData *tcd, void *packet) {
+
+    size_t packetLength = trudpPacketGetDataLength(packet) + trudpPacketGetHeaderLength(packet);
+    trudpPacketSetType(packet, TRU_ACK_PING);
+    #if !USE_WRITE_QUEUE
+    trudpExecSendPacketCallback(tcd, packet, packetLength);
+    #else
+    trudpWriteQueueAdd(tcd->writeQueue, NULL, packet, packetLength);
+    #endif
+    trudpSetLastReceived(tcd);
+}
+
+/**
  * Create RESET packet and send it to sender
  *
  * @param tcd Pointer to trudpChannelData
@@ -504,8 +522,7 @@ void trudpSendResetAll(trudpData *td) {
  */
 static inline void trudpCalculateTriptime(trudpChannelData *tcd, void *packet, size_t send_data_length) {
 
-    tcd->triptime = trudpGetTimestamp() -
-        trudpPacketGetTimestamp(packet);
+    tcd->triptime = trudpGetTimestamp() - trudpPacketGetTimestamp(packet);
 
     // Calculate and set Middle Triptime value
     tcd->triptimeMiddle = tcd->triptimeMiddle == START_MIDDLE_TIME ? tcd->triptime * tcd->triptimeFactor : // Set first middle time
@@ -547,7 +564,8 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
     if(trudpPacketCheck(packet, packet_length)) {
 
         // Check packet type
-        switch(trudpPacketGetType(packet)) {
+        int type = trudpPacketGetType(packet);
+        switch(type) {
 
             // ACK to DATA packet received
             case TRU_ACK: {
@@ -571,7 +589,7 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
                         TD(tcd)->user_data, TD(tcd)->processAckCb);
 
                 // Reset if id is too big and send queue is empty
-                goto skip_reset_after_id;                
+                //goto skip_reset_after_id;                
                 if(tcd->sendId >= RESET_AFTER_ID &&
                    !trudpQueueSize(tcd->sendQueue->q) &&
                    !trudpQueueSize(tcd->receiveQueue->q) ) {
@@ -580,12 +598,12 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
                     fprintf(stderr, "High packet number! Reset channel ...\n");
                     trudpSendRESET(tcd);
                 }                
-                skip_reset_after_id: ;
+                //skip_reset_after_id: ;
 
             } break;
 
             // ACK to RESET packet received
-            case TRU_ACK | TRU_RESET:
+            case TRU_ACK | TRU_RESET: {
 
                 // \todo Send event
                 fprintf(stderr, "Got TRU_ACK of RESET packet\n");
@@ -596,8 +614,34 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
                 // Statistic
                 tcd->stat.ack_receive++;
 
-                break;
+            } break;
 
+            // ACK to PING packet received
+            case TRU_ACK_PING: {
+                
+                // Calculate Triptime
+                trudpCalculateTriptime(tcd, packet, packet_length);
+                trudpSetLastReceived(tcd);
+                
+                // Send event \todo
+                fprintf(stderr, "%s\n", trudpPacketGetData(packet));
+                
+            } break;
+                
+            // PING packet received    
+            case TRU_PING: {
+                                
+                // Calculate Triptime
+                trudpCalculateTriptime(tcd, packet, packet_length);
+                
+                // Create ACK packet and send it back to sender
+                trudpSendACKtoPING(tcd, packet);
+                                
+                // Send event \todo
+                fprintf(stderr, "%s\n", trudpPacketGetData(packet));
+                
+            } break;
+            
             // DATA packet received
             case TRU_DATA: {
 
@@ -656,7 +700,11 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
                 
                 // Reset channel if packet id = 0 
                 else if(!trudpPacketGetId(packet)) {
-                    trudpResetChannel(tcd);
+                    // \todo Send event
+                    fprintf(stderr,"Not expected 0 Packet reseived\n");
+//                    trudpResetChannel(tcd);
+//                    tcd->receiveExpectedId = 1;
+                    trudpSendRESET(tcd);
                 }
                         
                 // Skip already processed packet
@@ -670,7 +718,7 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
             } break;
 
             // RESET packet received
-            case TRU_RESET:
+            case TRU_RESET: {
 
                 // \todo Send event
                 fprintf(stderr, "Got TRU_RESET packet\n");
@@ -683,14 +731,15 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
                 trudpResetChannel(tcd);
                 //fprintf(stderr, "Got TRU_RESET packet - 3\n");
 
-                break;
+            } break;
 
             // An undefined type of packet (skip it)
-            default:
+            default: {
 
                 // Return error code
                 data = (void *)-1;
-                break;
+                
+            } break;
         }
     }
     // Packet is not TR-UDP packet
@@ -830,6 +879,37 @@ size_t trudpSendDataToAll(trudpData *td, void *data, size_t data_length) {
                     if(trudpSendData(tcd, data, data_length) < 0) break;
                     rv++;
                 }
+            }
+        }
+        
+        trudpMapIteratorDestroy(it);
+    }
+
+    return rv;
+}
+
+/**
+ * Keep connection at idle line
+ * 
+ * @param td
+ * @return 
+ */
+size_t trudpKeepConnection(trudpData *td) {
+
+    int rv = 0;
+
+    trudpMapIterator *it;
+    trudpMapElementData *el;
+    uint32_t ts = trudpGetTimestamp();
+    if((it = trudpMapIteratorNew(td->map))) {
+        while((el = trudpMapIteratorNext(it))) {
+            trudpChannelData *tcd = (trudpChannelData *)
+                    trudpMapIteratorElementData(el, NULL);
+            
+            if(tcd->connected_f && ts - tcd->lastReceived > MAX_LAST_RECEIVE) {
+                // \todo Create SendPing function
+                trudpSendData(tcd, "PING", 5);
+                rv++;
             }
         }
         

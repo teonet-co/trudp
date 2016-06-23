@@ -50,10 +50,33 @@ extern int usleep (__useconds_t __useconds);
 #define APP_VERSION "0.0.17"
 
 // Application constants
-#define SEND_MESSAGE_AFTER_MIN  10000 // uSec (mSec * 1000)
+#define SEND_MESSAGE_AFTER_MIN  150000 /* 16667 */ // uSec (mSec * 1000)
 #define SEND_MESSAGE_AFTER  SEND_MESSAGE_AFTER_MIN
 #define RECONNECT_AFTER 6000000 // uSec (mSec * 1000)
 #define SHOW_STATISTIC_AFTER 333000 // uSec (mSec * 1000)
+
+// Application options structure
+typedef struct options {
+
+    // Integer options
+    int debug; // = 0;
+    int show_statistic; // = 0;
+    int show_send_queue; // = 0;
+    int listen; // = 0;
+    int numeric; // = 0;
+    int dont_send_data; // 0
+    int buf_size; // = 4096;
+
+    // String options
+    char *local_address; // = NULL;
+    char *local_port; // = NULL;
+    char *remote_address; // = NULL;
+    char *remote_port; // = NULL;
+
+    // Calculated options
+    int remote_port_i;
+
+} options;
 
 #define USE_LIBEV 1
 
@@ -94,6 +117,7 @@ typedef struct send_message_data {
     trudpData *td;
     char *message;
     size_t message_length;
+    options *o;
 
 } send_message_data;
 
@@ -108,30 +132,8 @@ static process_send_queue_data psd;
 #define USE_SELECT 1
 #endif
 
-// Application options structure
-typedef struct options {
-
-    // Integer options
-    int debug; // = 0;
-    int show_statistic; // = 0;
-    int show_send_queue; // = 0;
-    int listen; // = 0;
-    int numeric; // = 0;
-    int buf_size; // = 4096;
-
-    // String options
-    char *local_address; // = NULL;
-    char *local_port; // = NULL;
-    char *remote_address; // = NULL;
-    char *remote_port; // = NULL;
-
-    // Calculated options
-    int remote_port_i;
-
-} options;
-
 // Application options
-static options o = { 0, 0, 0, 0, 0, 4096, NULL, NULL, NULL, NULL, 0 };
+static options o = { 0, 0, 0, 0, 0, 0, 4096, NULL, NULL, NULL, NULL, 0 };
 
 // Application exit code and flags
 static int exit_code = EXIT_SUCCESS,
@@ -224,8 +226,9 @@ static void showStatistic(trudpData *td, options *o, void *user_data) {
             case 'S': o->show_statistic  = !o->show_statistic;  o->show_send_queue = 0; break;
             case 'Q': o->show_send_queue = !o->show_send_queue; o->show_statistic = 0;  break;
             #if USE_LIBEV
-            case 'q': ev_break(user_data, EVBREAK_ALL); break;
-            case 'r': trudpSendResetAll(td);                break;
+            case 'q': ev_break(user_data, EVBREAK_ALL);         break;
+            case 'r': trudpSendResetAll(td);                    break;
+            case 'x': o->dont_send_data = !o->dont_send_data;   break;
             #endif
         }
     }
@@ -405,8 +408,13 @@ static void connect_cb(EV_P_ ev_timer *w, int revents) {
 
     trudpData *td = (trudpData *)w->data;
 
+    // Check connections
     if(!o.listen && !connected_flag) {
         connectToPeer(td);
+    }
+    else {
+        // Check all channels line (lastReceived time) and send PING if idle
+        trudpKeepConnection(td);
     }
 }
 
@@ -421,7 +429,8 @@ static void send_message_cb(EV_P_ ev_timer *w, int revents) {
 
     send_message_data *smd = (send_message_data *)w->data;
 
-    trudpSendDataToAll(smd->td, smd->message, smd->message_length);
+    if(!smd-> o->dont_send_data)
+        trudpSendDataToAll(smd->td, smd->message, smd->message_length);
 }
 
 /**
@@ -681,6 +690,7 @@ static void usage(char *name) {
 	fprintf(stderr, "    -B <size>   Buffer size\n");
         fprintf(stderr, "    -S          Show statistic\n");
         fprintf(stderr, "    -Q          Show queues\n");
+        fprintf(stderr, "    -x          Don't send data\n");
 //	fprintf(stderr, "    -n          Don't resolve hostnames\n");
 	fprintf(stderr, "\n");
 	exit(1);
@@ -706,7 +716,7 @@ int main(int argc, char** argv) {
 
     // Read parameters
     while(1) {
-        int c = getopt (argc, argv, "hdlp:B:s:nSQ");
+        int c = getopt (argc, argv, "hdlp:B:s:nSQx");
         if (c == -1) break;
         switch(c) {
             case 'h': usage(argv[0]);               break;
@@ -719,6 +729,7 @@ int main(int argc, char** argv) {
             //case 'w': break;	// timeout for connects and final net reads
             case 'S': o.show_statistic++;           break;
             case 'Q': o.show_send_queue++;          break;
+            case 'x': o.dont_send_data++;           break;
             default:  die("Unhandled argument: %c\n", c); break;
         }
     }
@@ -814,6 +825,7 @@ int main(int argc, char** argv) {
     // Initialize and start send message watcher
     ev_timer_init(&send_message_w, send_message_cb, SEND_MESSAGE_AFTER / 1000000.0, SEND_MESSAGE_AFTER / 1000000.0);
     send_message_w.data = (void*)&smd;
+    smd.o = &o;
     smd.td = td;
     smd.message = message;
     smd.message_length = message_length;
@@ -857,7 +869,8 @@ int main(int argc, char** argv) {
         if((tt - tt_s) > SEND_MESSAGE_AFTER) {
 
             if(td->stat.sendQueue.size_current < 1000)
-            trudpSendDataToAll(td, message, message_length);
+                if(!o.dont_send_data)
+                    trudpSendDataToAll(td, message, message_length);
             //send_message_after = (rand() % (500000 - 1)) + SEND_MESSAGE_AFTER_MIN;
             tt_s = tt;
         }

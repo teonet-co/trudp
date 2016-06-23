@@ -44,7 +44,8 @@ typedef struct trudpHeader {
     uint8_t checksum; ///< Checksum
     uint8_t version : 4; ///< Protocol version number
     /**
-     * Message type could be of type DATA(0x0), ACK(0x1) and RESET(0x2).
+     * Message type could be of type:
+     * DATA(0x0), ACK(0x1), RESET(0x2), ACK_RESET(0x3), PING(0x4), ACK_PING(0x5)
      */
     uint8_t message_type : 4;
     /**
@@ -440,11 +441,22 @@ inline size_t trudpPacketGetHeaderLength(void *packet) {
  * Get packet data type
  *
  * @param packet Pointer to packet
- * @return Message type could be of type DATA(0x0), ACK(0x1) and RESET(0x2)
+ * @return Message type could be of type:
+ *  DATA(0x0), ACK(0x1), RESET(0x2), ACK_RESET(0x3), PING(0x4), ACK_PING(0x5)
  */
 inline trudpPacketType trudpPacketGetType(void *packet) {
 
     return ((trudpHeader *)packet)->message_type;
+}
+
+/**
+ * Set packet data type
+ *
+ * @param packet Pointer to packet
+ */
+inline void trudpPacketSetType(void *packet, trudpPacketType message_type) {
+
+    ((trudpHeader *)packet)->message_type = message_type;
 }
 
 /**

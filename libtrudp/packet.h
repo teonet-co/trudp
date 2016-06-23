@@ -50,13 +50,17 @@ extern "C" {
  */
 typedef enum trudpPacketType {
 
-    TRU_DATA, ///< The DATA messages are carrying payload. (has payload)
+    TRU_DATA, ///< #0 The DATA messages are carrying payload. (has payload)
     /**
+     * #1 
      * The ACK messages are used to acknowledge the arrival of the DATA and
      * RESET messages. (has not payload)
      */
     TRU_ACK,
-    TRU_RESET ///< The RESET messages reset messages counter. (has not payload)
+    TRU_RESET, ///< #2 The RESET messages reset messages counter. (has not payload)
+    TRU_ACK_TRU_RESET, ///< #3 = TRU_ACK | TRU_RESET: ACK for RESET. (has not payload)  
+    TRU_PING, ///< #4 PING The DATA messages can carrying payload, does not sent to User level as DATA received. (payload allowed)
+    TRU_ACK_PING ///< #5 = TRU_ACK | TRU_PING: ACK for PING (payload allowed)
 
 } trudpPacketType;
 
@@ -78,6 +82,7 @@ inline uint16_t trudpPacketGetDataLength(void *packet);
 inline size_t trudpPacketGetHeaderLength(void *packet);
 inline void *trudpPacketGetPacket(void *data);
 inline trudpPacketType trudpPacketGetType(void *packet);
+inline void trudpPacketSetType(void *packet, trudpPacketType message_type);
 inline uint32_t trudpPacketGetTimestamp(void *packet);
 
 inline void trudpPacketCreatedFree(void *in_th);
