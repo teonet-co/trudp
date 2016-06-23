@@ -82,6 +82,7 @@ typedef struct show_statistic_data {
     struct ev_loop *loop;
     ev_timer show_statistic_w;
     ev_idle idle_show_statistic_w;
+    uint32_t last_show;
 
 } show_statistic_data;
 
@@ -438,7 +439,8 @@ static void idle_show_stat_cb(EV_P_ ev_timer *w, int revents) {
 
     trudpData *td = ssd->td;
     showStatistic(td, &o, ssd->loop);
-    start_show_stat_cb(ssd);
+    start_show_stat_cb(ssd);    
+    ssd->last_show = trudpGetTimestamp();
 }
 
 /**
@@ -451,9 +453,19 @@ static void idle_show_stat_cb(EV_P_ ev_timer *w, int revents) {
 static void show_stat_cb(EV_P_ ev_timer *w, int revents) {
 
     show_statistic_data *ssd = (show_statistic_data *)w->data;
-
-    // Start idle watcher
-    ev_idle_start(ssd->loop, &ssd->idle_show_statistic_w);
+    
+    uint32_t tt = trudpGetTimestamp();
+    if(tt - ssd->last_show > 1000000) {
+        
+        trudpData *td = ssd->td;
+        showStatistic(td, &o, ssd->loop);
+        start_show_stat_cb(ssd);
+        ssd->last_show = tt;
+    }
+    else {
+        // Start idle watcher
+        ev_idle_start(ssd->loop, &ssd->idle_show_statistic_w);
+    }
 }
 
 /**
@@ -811,6 +823,7 @@ int main(int argc, char** argv) {
     ssd.td = td;
     ssd.inited = 0;
     ssd.loop = loop;
+    ssd.last_show = 0;
     start_show_stat_cb(&ssd);
 
     // Start event loop
