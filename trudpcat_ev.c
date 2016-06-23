@@ -50,10 +50,10 @@ extern int usleep (__useconds_t __useconds);
 #define APP_VERSION "0.0.17"
 
 // Application constants
-#define SEND_MESSAGE_AFTER_MIN  5000 // uSec (mSec * 1000)
+#define SEND_MESSAGE_AFTER_MIN  10000 // uSec (mSec * 1000)
 #define SEND_MESSAGE_AFTER  SEND_MESSAGE_AFTER_MIN
 #define RECONNECT_AFTER 6000000 // uSec (mSec * 1000)
-#define SHOW_STATISTIC_AFTER 250000 // uSec (mSec * 1000)
+#define SHOW_STATISTIC_AFTER 333000 // uSec (mSec * 1000)
 
 #define USE_LIBEV 1
 
@@ -68,9 +68,22 @@ typedef struct process_send_queue_data {
     int inited;
     trudpData *td;
     struct ev_loop *loop;
-    ev_timer process_sendqueue_w;
+    ev_timer process_send_queue_w;
 
 } process_send_queue_data;
+
+/**
+ * Show statistic data definition
+ */
+typedef struct show_statistic_data {
+
+    int inited;
+    trudpData *td;
+    struct ev_loop *loop;
+    ev_timer show_statistic_w;
+    ev_idle idle_show_statistic_w;
+
+} show_statistic_data;
 
 /**
  * Send message callback data
@@ -85,6 +98,7 @@ typedef struct send_message_data {
 
 // Local static function definition
 static void start_send_queue_cb(process_send_queue_data *psd);
+static void start_show_stat_cb(show_statistic_data *ssd);
 
 // Global data
 static process_send_queue_data psd;
@@ -95,7 +109,7 @@ static process_send_queue_data psd;
 
 // Application options structure
 typedef struct options {
-    
+
     // Integer options
     int debug; // = 0;
     int show_statistic; // = 0;
@@ -164,9 +178,10 @@ static void debug(char *fmt, ...)
 
 /**
  * Show statistic window
+ *
  * @param td Pointer to trudpData
  */
-static void showStatistic(trudpData *td, options *o) {
+static void showStatistic(trudpData *td, options *o, void *user_data) {
 
     if(o->show_statistic) {
         cls();
@@ -176,10 +191,11 @@ static void showStatistic(trudpData *td, options *o) {
             free(stat_str);
         }
     }
-    
+
     if(o->show_send_queue) {
         trudpChannelData *tcd = (trudpChannelData*)trudpMapGetFirst(td->map, 0);
         if(tcd != (void*)-1) {
+
             char *stat_sq_str = trudpStatShowQueueStr(tcd, 0);
             if(stat_sq_str) {
                 cls();
@@ -196,15 +212,19 @@ static void showStatistic(trudpData *td, options *o) {
         }
         else { cls(); puts("Queues have not been created..."); }
     }
-    
+
     // Check key !!!
     int ch = nb_getch();
     if(ch) {
         printf("key %c pressed\n", ch);
-        
+
         switch(ch) {
-            case 'S': o->show_statistic  = !o->show_statistic;  o->show_send_queue = 0; break;        
+            case 'd': o->debug  = !o->debug; break;
+            case 'S': o->show_statistic  = !o->show_statistic;  o->show_send_queue = 0; break;
             case 'Q': o->show_send_queue = !o->show_send_queue; o->show_statistic = 0;  break;
+            #if USE_LIBEV
+            case 'q': ev_break(user_data, EVBREAK_ALL); break;
+            #endif
         }
     }
 }
@@ -258,7 +278,7 @@ static void processAckCb(void *td_ptr, void *data, size_t data_length,
     debug("got ACK id=%u processed %.3f(%.3f) ms\n",
            trudpPacketGetId(trudpPacketGetPacket(data)),
            (tcd->triptime)/1000.0, (tcd->triptimeMiddle)/1000.0);
-    
+
     #if USE_LIBEV
     start_send_queue_cb(&psd);
     #endif
@@ -297,7 +317,7 @@ static void sendPacketCb(void *tcd_ptr, void *packet, size_t packet_length,
                 (int)packet_length, type == 1 ? "ACK":"RESET", id, addr, port);
         }
     }
-    
+
     #if USE_LIBEV
     start_send_queue_cb(&psd);
     #endif
@@ -350,7 +370,7 @@ static trudpChannelData *connectToPeer(trudpData *td) {
 
 /**
  * Read UDP data libev callback
- * 
+ *
  * @param loop
  * @param w
  * @param revents
@@ -374,7 +394,7 @@ static void host_cb(EV_P_ ev_io *w, int revents) {
 
 /**
  * Connect timer libev callback
- * 
+ *
  * @param loop
  * @param w
  * @param revents
@@ -390,7 +410,7 @@ static void connect_cb(EV_P_ ev_timer *w, int revents) {
 
 /**
  * Send message timer libev callback
- * 
+ *
  * @param loop
  * @param w
  * @param revents
@@ -403,21 +423,70 @@ static void send_message_cb(EV_P_ ev_timer *w, int revents) {
 }
 
 /**
+ * Show statistic in idle time libev callback
+ *
+ * @param loop
+ * @param w
+ * @param revents
+ */
+static void idle_show_stat_cb(EV_P_ ev_timer *w, int revents) {
+
+    show_statistic_data *ssd = (show_statistic_data *)w->data;
+
+    ev_idle_stop(ssd->loop, &ssd->idle_show_statistic_w);
+
+    trudpData *td = ssd->td;
+    showStatistic(td, &o, ssd->loop);
+    start_show_stat_cb(ssd);
+}
+
+/**
  * Show statistic timer libev callback
- * 
+ *
  * @param loop
  * @param w
  * @param revents
  */
 static void show_stat_cb(EV_P_ ev_timer *w, int revents) {
 
-    trudpData *td = (trudpData *)w->data;
-    showStatistic(td, &o);
+    show_statistic_data *ssd = (show_statistic_data *)w->data;
+
+    // Start idle watcher
+    ev_idle_start(ssd->loop, &ssd->idle_show_statistic_w);
+}
+
+/**
+ * Start show statistic timer
+ *
+ * @param ssd
+ */
+static void start_show_stat_cb(show_statistic_data *ssd) {
+
+    double tt_d = SHOW_STATISTIC_AFTER / 1000000.0;
+
+    if(!ssd->inited) {
+
+        // Initialize show statistic watcher
+        ev_timer_init(&ssd->show_statistic_w, show_stat_cb, tt_d, 0.0);
+        ssd->show_statistic_w.data = (void*)ssd;
+
+        // Initialize idle watchers
+        ev_idle_init(&ssd->idle_show_statistic_w, idle_show_stat_cb);
+        ssd->idle_show_statistic_w.data = (void*)ssd;
+
+        ssd->inited = 1;
+    }
+    else {
+        ev_timer_stop(ssd->loop, &ssd->show_statistic_w);
+        ev_timer_set(&ssd->show_statistic_w, tt_d, 0.0);
+    }
+
+    ev_timer_start(ssd->loop, &ssd->show_statistic_w);
 }
 
 /**
  * Send queue processing timer libev callback
- * 
+ *
  * @param loop
  * @param w
  * @param revents
@@ -425,40 +494,38 @@ static void show_stat_cb(EV_P_ ev_timer *w, int revents) {
 static void process_send_queue_cb(EV_P_ ev_timer *w, int revents) {
 
     process_send_queue_data *psd = (process_send_queue_data *) w->data;
-    
+
     // Process send queue
     debug("process send queue ... \n");
     int rv = trudpProcessSendQueue(psd->td);
-    
+
     // Start new process_send_queue timer
     start_send_queue_cb(psd);
 }
 
 /**
- * Set send queue timer
- * 
+ * Start send queue timer
+ *
  * @param psd Pointer to process_send_queue_data
  */
 static void start_send_queue_cb(process_send_queue_data *psd) {
-    
+
     uint32_t tt;
     if((tt = trudpGetSendQueueTimeout(psd->td)) != UINT32_MAX) {
-        
+
         double tt_d = tt / 1000000.0;
-        
+
         if(!psd->inited) {
-            ev_timer_init(&psd->process_sendqueue_w, process_send_queue_cb, 0.0/*tt_d*/, 0.0);
-            psd->process_sendqueue_w.data = (void*)psd;
+            ev_timer_init(&psd->process_send_queue_w, process_send_queue_cb, 0.0/*tt_d*/, 0.0);
+            psd->process_send_queue_w.data = (void*)psd;
             psd->inited = 1;
-            //printf("set process_send_queue_cb wait to: %.3f\n", tt_d);
         }
         else {
-            ev_timer_stop(psd->loop, &psd->process_sendqueue_w);
-            ev_timer_set(&psd->process_sendqueue_w, tt_d, 0.);
-            //printf("reset process_send_queue_cb wait to: %.3f\n", tt_d);
+            ev_timer_stop(psd->loop, &psd->process_send_queue_w);
+            ev_timer_set(&psd->process_send_queue_w, tt_d, 0.0);
         }
-                        
-        ev_timer_start(psd->loop, &psd->process_sendqueue_w); 
+
+        ev_timer_start(psd->loop, &psd->process_send_queue_w);
     }
 }
 
@@ -710,11 +777,12 @@ int main(int argc, char** argv) {
     // Create event loop
     struct ev_loop *loop = 0 ? ev_loop_new(0) : EV_DEFAULT;
     ev_timer send_message_w;
+    show_statistic_data ssd;
     send_message_data smd;
     ev_timer show_stat_w;
     ev_timer connect_w;
     ev_io w;
-    
+
     // Initialize process_send_queue_data
     psd.loop = loop;
     psd.inited = 0;
@@ -728,7 +796,7 @@ int main(int argc, char** argv) {
     // Initialize and start reconnect watcher watcher
     ev_timer_init(&connect_w, connect_cb, 0.0, RECONNECT_AFTER / 1000000.0);
     connect_w.data = (void*)td;
-    ev_timer_start (loop, &connect_w);
+    ev_timer_start(loop, &connect_w);
 
     // Initialize and start send message watcher
     ev_timer_init(&send_message_w, send_message_cb, SEND_MESSAGE_AFTER / 1000000.0, SEND_MESSAGE_AFTER / 1000000.0);
@@ -736,12 +804,13 @@ int main(int argc, char** argv) {
     smd.td = td;
     smd.message = message;
     smd.message_length = message_length;
-    ev_timer_start (loop, &send_message_w);
+    ev_timer_start(loop, &send_message_w);
 
     // Initialize and start show statistic watcher
-    ev_timer_init(&show_stat_w, show_stat_cb, SHOW_STATISTIC_AFTER / 1000000.0, SHOW_STATISTIC_AFTER / 1000000.0);
-    show_stat_w.data = (void*)td;
-    ev_timer_start (loop, &show_stat_w);
+    ssd.td = td;
+    ssd.inited = 0;
+    ssd.loop = loop;
+    start_show_stat_cb(&ssd);
 
     // Start event loop
     ev_run(loop, 0);
@@ -782,7 +851,7 @@ int main(int argc, char** argv) {
         // Show statistic
         if(/*o.statistic && */(tt - tt_ss) > SHOW_STATISTIC_AFTER) {
 
-            showStatistic(td, &o);
+            showStatistic(td, &o, 0);
             tt_ss = tt;
         }
 
@@ -791,7 +860,7 @@ int main(int argc, char** argv) {
         #endif
         i++;
     }
-    
+
     #endif
 
     // Destroy TR-UDP
