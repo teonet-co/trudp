@@ -52,7 +52,7 @@ extern int usleep (__useconds_t __useconds);
 // Application constants
 #define SEND_MESSAGE_AFTER_MIN  150000 /* 16667 */ // uSec (mSec * 1000)
 #define SEND_MESSAGE_AFTER  SEND_MESSAGE_AFTER_MIN
-#define RECONNECT_AFTER 6000000 // uSec (mSec * 1000)
+#define RECONNECT_AFTER 3000000 // uSec (mSec * 1000)
 #define SHOW_STATISTIC_AFTER 333000 // uSec (mSec * 1000)
 
 // Application options structure
@@ -309,6 +309,7 @@ static void sendPacketCb(void *tcd_ptr, void *packet, size_t packet_length,
 
     // Debug message
     if(o.debug) {
+        
         int port,type;
         uint32_t id = trudpPacketGetId(packet);
         char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd->remaddr, &port);
@@ -319,7 +320,11 @@ static void sendPacketCb(void *tcd_ptr, void *packet, size_t packet_length,
         }
         else {
             debug("send %d bytes %s id=%u, to %s:%d\n",
-                (int)packet_length, type == 1 ? "ACK":"RESET", id, addr, port);
+                (int)packet_length, type == 1 ? "ACK" : 
+                                    type == 2 ? "RESET" : 
+                                    type == 3 ? "ACK to RESET" : 
+                                    type == 4 ? "PING" : "ACK to PING"
+                                    , id, addr, port);
         }
     }
 
@@ -406,16 +411,19 @@ static void host_cb(EV_P_ ev_io *w, int revents) {
  */
 static void connect_cb(EV_P_ ev_timer *w, int revents) {
 
+    static int i = 0;
     trudpData *td = (trudpData *)w->data;
 
     // Check connections
     if(!o.listen && !connected_flag) {
-        connectToPeer(td);
+        if(!(i%2)) connectToPeer(td);
     }
     else {
         // Check all channels line (lastReceived time) and send PING if idle
         trudpKeepConnection(td);
     }
+    
+    i++;
 }
 
 /**

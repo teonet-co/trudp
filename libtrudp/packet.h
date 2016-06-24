@@ -68,8 +68,12 @@ inline int trudpPacketCheck(void *th, size_t packetLength);
 
 inline void *trudpPacketACKcreateNew(void *in_th);
 inline void *trudpPacketACKtoRESETcreateNew(void *in_th);
+inline void *trudpPacketACKtoPINGcreateNew(void *in_th);
 inline void *trudpPacketRESETcreateNew(uint32_t id, unsigned int channel);
-inline void *trudpPacketDATAcreateNew(uint32_t id, unsigned int channel, void *data, size_t data_length, size_t *packetLength);
+inline void *trudpPacketDATAcreateNew(uint32_t id, unsigned int channel, 
+        void *data, size_t data_length, size_t *packetLength);
+inline void *trudpPacketPINGcreateNew(uint32_t id, unsigned int channel,
+        void *data, size_t data_length, size_t *packetLength);
 
 inline size_t trudpPacketACKlength();
 inline size_t trudpPacketRESETlength();
@@ -81,6 +85,7 @@ inline void *trudpPacketGetData(void *packet);
 inline uint16_t trudpPacketGetDataLength(void *packet);
 inline size_t trudpPacketGetHeaderLength(void *packet);
 inline void *trudpPacketGetPacket(void *data);
+inline size_t trudpPacketGetPacketLength(void *packet);
 inline trudpPacketType trudpPacketGetType(void *packet);
 inline void trudpPacketSetType(void *packet, trudpPacketType message_type);
 inline uint32_t trudpPacketGetTimestamp(void *packet);
