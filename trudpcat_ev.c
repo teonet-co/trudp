@@ -416,7 +416,7 @@ static void connect_cb(EV_P_ ev_timer *w, int revents) {
 
     // Check connections
     if(!o.listen && !connected_flag) {
-        if(!(i%2)) connectToPeer(td);
+        if(!(i%4)) connectToPeer(td);
     }
     else {
         // Check all channels line (lastReceived time) and send PING if idle
