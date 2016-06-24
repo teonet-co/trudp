@@ -46,6 +46,7 @@ OBJECTFILES= \
 	${OBJECTDIR}/libtrudp/utils.o \
 	${OBJECTDIR}/libtrudp/write_queue.o \
 	${OBJECTDIR}/main.o \
+	${OBJECTDIR}/snake.o \
 	${OBJECTDIR}/trudpcat.o \
 	${OBJECTDIR}/trudpcat_ev.o
 
@@ -142,6 +143,11 @@ ${OBJECTDIR}/main.o: main.cpp
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.cc) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/main.o main.cpp
+
+${OBJECTDIR}/snake.o: snake.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/snake.o snake.c
 
 ${OBJECTDIR}/trudpcat.o: trudpcat.c 
 	${MKDIR} -p ${OBJECTDIR}
@@ -336,6 +342,19 @@ ${OBJECTDIR}/main_nomain.o: ${OBJECTDIR}/main.o main.cpp
 	    $(COMPILE.cc) -O2 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/main_nomain.o main.cpp;\
 	else  \
 	    ${CP} ${OBJECTDIR}/main.o ${OBJECTDIR}/main_nomain.o;\
+	fi
+
+${OBJECTDIR}/snake_nomain.o: ${OBJECTDIR}/snake.o snake.c 
+	${MKDIR} -p ${OBJECTDIR}
+	@NMOUTPUT=`${NM} ${OBJECTDIR}/snake.o`; \
+	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
+	then  \
+	    ${RM} "$@.d";\
+	    $(COMPILE.c) -O2 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/snake_nomain.o snake.c;\
+	else  \
+	    ${CP} ${OBJECTDIR}/snake.o ${OBJECTDIR}/snake_nomain.o;\
 	fi
 
 ${OBJECTDIR}/trudpcat_nomain.o: ${OBJECTDIR}/trudpcat.o trudpcat.c 

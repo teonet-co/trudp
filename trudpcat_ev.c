@@ -62,6 +62,7 @@ typedef struct options {
     int debug; // = 0;
     int show_statistic; // = 0;
     int show_send_queue; // = 0;
+    int show_snake; // = 0;
     int listen; // = 0;
     int numeric; // = 0;
     int dont_send_data; // 0
@@ -133,7 +134,7 @@ static process_send_queue_data psd;
 #endif
 
 // Application options
-static options o = { 0, 0, 0, 0, 0, 0, 4096, NULL, NULL, NULL, NULL, 0 };
+static options o = { 0, 0, 0, 0, 0, 0, 0, 4096, NULL, NULL, NULL, NULL, 0 };
 
 // Application exit code and flags
 static int exit_code = EXIT_SUCCESS,
@@ -195,7 +196,7 @@ static void showStatistic(trudpData *td, options *o, void *user_data) {
         }
     }
 
-    if(o->show_send_queue) {
+    else if(o->show_send_queue) {
         trudpChannelData *tcd = (trudpChannelData*)trudpMapGetFirst(td->map, 0);
         if(tcd != (void*)-1) {
 
@@ -215,6 +216,10 @@ static void showStatistic(trudpData *td, options *o, void *user_data) {
         }
         else { cls(); puts("Queues have not been created..."); }
     }
+    
+    else if(o->show_snake) {
+        run_snake();
+    }
 
     // Check key !!!
     int ch = nb_getch();
@@ -223,8 +228,9 @@ static void showStatistic(trudpData *td, options *o, void *user_data) {
 
         switch(ch) {
             case 'd': o->debug  = !o->debug; break;
-            case 'S': o->show_statistic  = !o->show_statistic;  o->show_send_queue = 0; break;
-            case 'Q': o->show_send_queue = !o->show_send_queue; o->show_statistic = 0;  break;
+            case 'S': o->show_statistic  = !o->show_statistic;  o->show_send_queue = 0; o->show_snake = 0; break;
+            case 'Q': o->show_send_queue = !o->show_send_queue; o->show_statistic = 0; o->show_snake = 0;  break;
+            case 's': o->show_snake = !o->show_snake;           o->show_send_queue = 0; o->show_statistic = 0; break;
             #if USE_LIBEV
             case 'q': ev_break(user_data, EVBREAK_ALL);         break;
             case 'r': trudpSendResetAll(td);                    break;
@@ -250,7 +256,7 @@ static void processDataCb(void *td_ptr, void *data, size_t data_length,
     debug("got %d byte data, id=%u: ", (int)data_length,
                 trudpPacketGetId(trudpPacketGetPacket(data)));
 
-    if(!o.show_statistic && !o.show_send_queue) {
+    if(!o.show_statistic && !o.show_send_queue && !o.show_snake) {
         if(!o.debug)
             printf("#%u at %.3f [%.3f(%.3f) ms] ",
                    tcd->receiveExpectedId,
@@ -493,7 +499,7 @@ static void show_stat_cb(EV_P_ ev_timer *w, int revents) {
  */
 static void start_show_stat_cb(show_statistic_data *ssd) {
 
-    double tt_d = SHOW_STATISTIC_AFTER / 1000000.0;
+    double tt_d = (SHOW_STATISTIC_AFTER/3) / 1000000.0;
 
     if(!ssd->inited) {
 
