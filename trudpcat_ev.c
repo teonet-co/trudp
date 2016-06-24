@@ -122,7 +122,7 @@ typedef struct send_message_data {
 } send_message_data;
 
 // Local static function definition
-static void start_send_queue_cb(process_send_queue_data *psd);
+static void start_send_queue_cb(process_send_queue_data *psd, uint32_t next_expected_time);
 static void start_show_stat_cb(show_statistic_data *ssd);
 
 // Global data
@@ -285,7 +285,7 @@ static void processAckCb(void *td_ptr, void *data, size_t data_length,
            (tcd->triptime)/1000.0, (tcd->triptimeMiddle)/1000.0);
 
     #if USE_LIBEV
-    start_send_queue_cb(&psd);
+    start_send_queue_cb(&psd, 0);
     #endif
 }
 
@@ -329,7 +329,7 @@ static void sendPacketCb(void *tcd_ptr, void *packet, size_t packet_length,
     }
 
     #if USE_LIBEV
-    start_send_queue_cb(&psd);
+    start_send_queue_cb(&psd, 0);
     #endif
 }
 
@@ -472,7 +472,7 @@ static void show_stat_cb(EV_P_ ev_timer *w, int revents) {
     show_statistic_data *ssd = (show_statistic_data *)w->data;
     
     uint32_t tt = trudpGetTimestamp();
-    if(tt - ssd->last_show > 1000000) {
+    if(tt - ssd->last_show > 3000000) {
         
         trudpData *td = ssd->td;
         showStatistic(td, &o, ssd->loop);
@@ -481,7 +481,8 @@ static void show_stat_cb(EV_P_ ev_timer *w, int revents) {
     }
     else {
         // Start idle watcher
-        ev_idle_start(ssd->loop, &ssd->idle_show_statistic_w);
+        if(!ev_is_active(&ssd->idle_show_statistic_w))
+            ev_idle_start(ssd->loop, &ssd->idle_show_statistic_w);
     }
 }
 
@@ -527,21 +528,34 @@ static void process_send_queue_cb(EV_P_ ev_timer *w, int revents) {
 
     // Process send queue
     debug("process send queue ... \n");
-    int rv = trudpProcessSendQueue(psd->td);
+    uint32_t next_expected_time;
+    int rv = trudpProcessSendQueue(psd->td, &next_expected_time);
 
     // Start new process_send_queue timer
-    start_send_queue_cb(psd);
+    if(next_expected_time)
+        start_send_queue_cb(psd, next_expected_time);
 }
 
 /**
  * Start send queue timer
  *
  * @param psd Pointer to process_send_queue_data
+ * @param next_expected_time
  */
-static void start_send_queue_cb(process_send_queue_data *psd) {
+static void start_send_queue_cb(process_send_queue_data *psd, 
+        uint32_t next_expected_time) {
 
-    uint32_t tt;
-    if((tt = trudpGetSendQueueTimeout(psd->td)) != UINT32_MAX) {
+    uint32_t tt, net = UINT32_MAX;
+    
+    // If next_expected_time selected (non nil)
+    if(next_expected_time) {
+        uint32_t ts;
+        ts = trudpGetTimestamp();
+        net = ts > next_expected_time ? ts - next_expected_time : 0;
+    }
+    
+    // If next_expected_time (net) or GetSendQueueTimeout 
+    if((tt = net != UINT32_MAX ? net : trudpGetSendQueueTimeout(psd->td)) != UINT32_MAX) {
 
         double tt_d = tt / 1000000.0;
 
