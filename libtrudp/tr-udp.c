@@ -902,12 +902,14 @@ int trudpProcessChannelSendQueue(trudpChannelData *tcd, uint32_t ts,
 
         // Disconnect channel at long last receive
         if(trudpCheckChannelDisconnect(tcd, ts) == -1) {
+            tqd = NULL;
             rv = -1;
         }
-
-        // Get next value
-        tqd = trudpPacketQueueGetFirst(tcd->sendQueue);
-//        break;
+        else {
+            // Get next value
+            tqd = trudpPacketQueueGetFirst(tcd->sendQueue);
+            //break;
+        }
     }
 
     // If record exists
@@ -936,10 +938,11 @@ int trudpProcessSendQueue(trudpData *td, uint32_t *net) {
         if((it = trudpMapIteratorNew(td->map))) {
             while((el = trudpMapIteratorNext(it))) {
                 trudpChannelData *tcd = ( trudpChannelData *)trudpMapIteratorElementData(el, NULL);
-                retval = trudpProcessChannelSendQueue(tcd, ts, &next_expected_time);
-                if(next_expected_time < min_expected_time) min_expected_time = next_expected_time;
+                retval = trudpProcessChannelSendQueue(tcd, ts, &next_expected_time);                
+                if(retval < 0) break;
                 if(retval > 0) rv += retval;
-                else if(retval < 0) break;
+                if(next_expected_time && next_expected_time < min_expected_time) 
+                    min_expected_time = next_expected_time;
             }
             trudpMapIteratorDestroy(it);
         }

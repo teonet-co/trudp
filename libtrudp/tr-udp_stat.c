@@ -155,8 +155,15 @@ void trudpStatProcessLast10Receive(trudpChannelData *tcd, void *packet) {
 
             // Calculate size sum & define minimum and maximum timestamp
             size_b += tcd->stat.last_receive_packets_ar[i].size_b;
-            if(tcd->stat.last_receive_packets_ar[i].ts > max_ts) max_ts = tcd->stat.last_receive_packets_ar[i].ts;
-            else if (tcd->stat.last_receive_packets_ar[i].ts > 0 && tcd->stat.last_receive_packets_ar[i].ts < min_ts) min_ts = tcd->stat.last_receive_packets_ar[i].ts;
+            if(tcd->stat.last_receive_packets_ar[i].ts > max_ts) {
+                
+                max_ts = tcd->stat.last_receive_packets_ar[i].ts;
+            }
+            else if(tcd->stat.last_receive_packets_ar[i].ts > 0 && 
+                    tcd->stat.last_receive_packets_ar[i].ts < min_ts) {
+                
+                min_ts = tcd->stat.last_receive_packets_ar[i].ts;
+            }
         }
 
         // Receive speed \todo use trudpGetTimestamp() or max_ts
@@ -394,7 +401,9 @@ static char* showTime(double t) {
  */
 char *ksnTRUDPstatShowStr(trudpData *td) {
 
-
+    static uint32_t show_stat_time = 0;
+    uint32_t ts = trudpGetTimestamp();
+    
     uint32_t packets_send = 0,
              packets_receive = 0,
              ack_receive = 0,
@@ -495,7 +504,7 @@ char *ksnTRUDPstatShowStr(trudpData *td) {
     char *ret_str = formatMessage(
 //        _ANSI_CLS"\033[0;0H"
         "-----------------------------------------------------------------------------------------------------------------------------------------------------------------\n"
-        "TR-UDP statistics, port %d, running time: %s\n"
+        "TR-UDP statistics, port %d, running time: %s, show statistic time %.3f ms\n"
 //        "-----------------------------------------------------------------------------------------------------------------------------------------------------------------\n"
 //        "\n"
 //        "  Packets sent: %-12d                " "Send list:                      " "Receive Heap:\n"
@@ -525,6 +534,7 @@ char *ksnTRUDPstatShowStr(trudpData *td) {
     
         , td->port
         , showTime((trudpGetTimestampFull() - td->started) / 1000000.0)
+        , show_stat_time / 1000000.0
 
 //        , packets_send
 //        , ack_receive, td->stat.sendQueue.size_max, td->stat.receiveQueue.size_max
@@ -538,6 +548,8 @@ char *ksnTRUDPstatShowStr(trudpData *td) {
 
     free(tbl_str);
     free(tbl_total);
+    
+    show_stat_time = trudpGetTimestamp() - ts;
 
     return ret_str;
 }

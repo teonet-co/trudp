@@ -50,7 +50,7 @@ extern int usleep (__useconds_t __useconds);
 #define APP_VERSION "0.0.17"
 
 // Application constants
-#define SEND_MESSAGE_AFTER_MIN  150000 /* 16667 */ // uSec (mSec * 1000)
+#define SEND_MESSAGE_AFTER_MIN  15000 /* 16667 */ // uSec (mSec * 1000)
 #define SEND_MESSAGE_AFTER  SEND_MESSAGE_AFTER_MIN
 #define RECONNECT_AFTER 3000000 // uSec (mSec * 1000)
 #define SHOW_STATISTIC_AFTER 333000 // uSec (mSec * 1000)
