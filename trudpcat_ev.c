@@ -218,13 +218,13 @@ static void showStatistic(trudpData *td, options *o, void *user_data) {
     }
     
     else if(o->show_snake) {
-        run_snake();
+        if(!run_snake()) o->show_snake = 0; 
     }
 
     // Check key !!!
     int ch = nb_getch();
     if(ch) {
-        printf("key %c pressed\n", ch);
+        //printf("key %c pressed\n", ch);
 
         switch(ch) {
             case 'd': o->debug  = !o->debug; break;
@@ -287,8 +287,8 @@ static void processAckCb(void *td_ptr, void *data, size_t data_length,
     trudpChannelData *tcd = (trudpChannelData *)td_ptr;
 
     debug("got ACK id=%u processed %.3f(%.3f) ms\n",
-           trudpPacketGetId(trudpPacketGetPacket(data)),
-           (tcd->triptime)/1000.0, (tcd->triptimeMiddle)/1000.0);
+          trudpPacketGetId(trudpPacketGetPacket(data)),
+          (tcd->triptime)/1000.0, (tcd->triptimeMiddle)/1000.0);
 
     #if USE_LIBEV
     start_send_queue_cb(&psd, 0);
@@ -551,22 +551,22 @@ static void process_send_queue_cb(EV_P_ ev_timer *w, int revents) {
 static void start_send_queue_cb(process_send_queue_data *psd, 
         uint32_t next_expected_time) {
 
-    uint32_t tt, net = UINT32_MAX;
+    uint32_t tt, next_et = UINT32_MAX;
     
     // If next_expected_time selected (non nil)
     if(next_expected_time) {
         uint32_t ts;
         ts = trudpGetTimestamp();
-        net = ts > next_expected_time ? ts - next_expected_time : 0;
+        next_et = ts > next_expected_time ? ts - next_expected_time : 0;
     }
     
     // If next_expected_time (net) or GetSendQueueTimeout 
-    if((tt = net != UINT32_MAX ? net : trudpGetSendQueueTimeout(psd->td)) != UINT32_MAX) {
+    if((tt = next_et != UINT32_MAX ? next_et : trudpGetSendQueueTimeout(psd->td)) != UINT32_MAX) {
 
         double tt_d = tt / 1000000.0;
 
         if(!psd->inited) {
-            ev_timer_init(&psd->process_send_queue_w, process_send_queue_cb, 0.0/*tt_d*/, 0.0);
+            ev_timer_init(&psd->process_send_queue_w, process_send_queue_cb, 0.0, 0.0);
             psd->process_send_queue_w.data = (void*)psd;
             psd->inited = 1;
         }

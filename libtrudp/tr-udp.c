@@ -830,8 +830,6 @@ static int trudpCheckChannelDisconnect(trudpChannelData *tcd, uint32_t ts) {
             TD(tcd)->user_data, TD(tcd)->evendCb);
 
         trudpDestroyChannel(tcd);
-
-        //exit(-1);
         return -1;
     }
     return 0;
@@ -922,11 +920,11 @@ int trudpProcessChannelSendQueue(trudpChannelData *tcd, uint32_t ts,
  * Check all peers send Queue elements and resend elements with expired time
  *
  * @param td Pointer to trudpData
- * @param net [out] Next expected time
+ * @param next_et [out] Next expected time
  *
  * @return Number of resend packets
  */
-int trudpProcessSendQueue(trudpData *td, uint32_t *net) {
+int trudpProcessSendQueue(trudpData *td, uint32_t *next_et) {
 
     int retval, rv = 0;
     uint32_t ts = trudpGetTimestamp(), min_expected_time = UINT32_MAX, next_expected_time;
@@ -937,7 +935,7 @@ int trudpProcessSendQueue(trudpData *td, uint32_t *net) {
         min_expected_time = 0;
         if((it = trudpMapIteratorNew(td->map))) {
             while((el = trudpMapIteratorNext(it))) {
-                trudpChannelData *tcd = ( trudpChannelData *)trudpMapIteratorElementData(el, NULL);
+                trudpChannelData *tcd = (trudpChannelData *)trudpMapIteratorElementData(el, NULL);
                 retval = trudpProcessChannelSendQueue(tcd, ts, &next_expected_time);                
                 if(retval < 0) break;
                 if(retval > 0) rv += retval;
@@ -948,7 +946,7 @@ int trudpProcessSendQueue(trudpData *td, uint32_t *net) {
         }
     } while(retval == -1 || retval > 0 && /*min_expected_time != UINT32_MAX &&*/ min_expected_time <= ts);
 
-    if(net) *net = min_expected_time != UINT32_MAX ? min_expected_time : 0;
+    if(next_et) *next_et = min_expected_time != UINT32_MAX ? min_expected_time : 0;
 
     return rv;
 }
@@ -1007,7 +1005,10 @@ size_t trudpKeepConnection(trudpData *td) {
                 trudpMapIteratorElementData(el, NULL);
 
             if(tcd->connected_f && ts - tcd->lastReceived > SEND_PING_AFTER) {
-                if(trudpCheckChannelDisconnect(tcd, ts) == -1) { rv = -1; break; }
+                if(trudpCheckChannelDisconnect(tcd, ts) == -1) { 
+                    rv = -1; 
+                    break; 
+                }
                 trudpSendPING(tcd, "PING", 5);
                 rv++;
             }

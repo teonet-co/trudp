@@ -225,7 +225,7 @@ void trudpDestroy(trudpData* trudp);
 trudpCb trudpSetCallback(trudpData *td, trudpCallbsckType type, trudpCb cb);
 trudpChannelData *trudpCheckRemoteAddr(trudpData *td, struct sockaddr_in *remaddr, 
         socklen_t addr_length, int channel);
-int trudpProcessSendQueue(trudpData *td, uint32_t *net);
+int trudpProcessSendQueue(trudpData *td, uint32_t *next_et);
 size_t trudpProcessWriteQueue(trudpData *td);
 void trudpSendResetAll(trudpData *td);
 size_t trudpKeepConnection(trudpData *td);

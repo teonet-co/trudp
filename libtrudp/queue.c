@@ -150,6 +150,22 @@ trudpQueueData *trudpQueueAdd(trudpQueue *q, void *data, size_t data_length) {
 }
 
 /**
+ * Add new element to the top of TR-UPD queue
+ * 
+ * @param q Pointer to existing TR-UDP Queue
+ * @param data Pointer to data of new element
+ * @param data_length Length of new element data 
+ * 
+ * @return Pointer to trudpQueueData of added element
+ */
+inline trudpQueueData *trudpQueueAddTop(trudpQueue *q, void *data, 
+        size_t data_length) {
+    
+    trudpQueueData *qd = trudpQueueAdd(q, data, data_length);
+    return trudpQueueMoveToTop(q, qd);
+}
+
+/**
  * Add new element after selected in qd field
  * 
  * @param q Pointer to existing TR-UDP Queue
@@ -293,7 +309,7 @@ inline int trudpQueueDeleteLast(trudpQueue *q) {
  */
 trudpQueueData *trudpQueueMoveToEnd(trudpQueue *q, trudpQueueData *qd) {
    
-    if(qd && qd->next) {
+    if(q && qd && qd->next) {
         
         if(q->length > 1) {
             
@@ -304,6 +320,34 @@ trudpQueueData *trudpQueueMoveToEnd(trudpQueue *q, trudpQueueData *qd) {
             q->last->next = qd;
             qd->prev = q->last;
             q->last = qd;
+            q->length++;
+        }
+    }
+    
+    return qd;
+}
+
+/**
+ * Move element from this queue to the top of queue
+ * 
+ * @param q Pointer to trudpQueue
+ * @param qd Pointer to trudpQueueData
+ * @return Zero at success
+ */
+trudpQueueData *trudpQueueMoveToTop(trudpQueue *q, trudpQueueData *qd) {
+   
+    if(q && qd && qd->prev) {
+        
+        if(q->length > 1) {
+            
+            // Remove element
+            trudpQueueRemove(q, qd);
+            
+            // Add to the beginning
+            q->first->prev = qd;
+            qd->prev = NULL;
+            qd->next = q->first;
+            q->first = qd;
             q->length++;
         }
     }

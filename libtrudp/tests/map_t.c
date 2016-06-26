@@ -75,7 +75,7 @@ static char* randIpPort() {
 void check_map() {
     
     int i, j;
-    const size_t NUM_KEYS = 10000000;
+    const size_t NUM_KEYS = 10000;
 
     srand(trudpGetTimestamp());
 

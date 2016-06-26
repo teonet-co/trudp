@@ -22,10 +22,10 @@
  * THE SOFTWARE.
  */
 
-/* 
+/*
  * Snake network game.
  * Terminal module and basic function
- * 
+ *
  * \file   snake.h
  * \author Kirill Scherba <kirill@scherba.ru>
  *
@@ -33,38 +33,54 @@
  */
 
 #include <stdio.h>
+#include <stdint.h>
 #include "libtrudp/utils_r.h"
+#include "libtrudp/queue.h"
 
-#define LINE_HORIZONTAL_CHAR "-"
-#define LINE_VERTICAL_CHAR "|"
-#define LTC "*"
-#define LBC "*"
-#define RTC "*"
-#define RBC "*"
+//#define HL "-"
+//#define VL "|"
+//#define LTC "*"
+//#define LBC "*"
+//#define RTC "*"
+//#define RBC "*"
+
+// Box characters
+#define RB "\e(0\x6a\e(B" // 188 Right Bottom corner
+#define RT "\e(0\x6b\e(B" // 187 Right Top corner
+#define LT "\e(0\x6c\e(B" // 201 Left Top cornet
+#define LB "\e(0\x6d\e(B" // 200 Left Bottom corner
+#define MC "\e(0\x6e\e(B" // 206 Midle Cross
+#define HL "\e(0\x71\e(B" // 205 Horizontal Line
+#define LC "\e(0\x74\e(B" // 204 Left Cross
+#define RC "\e(0\x75\e(B" // 185 Right Cross
+#define BC "\e(0\x76\e(B" // 202 Bottom Cross
+#define TC "\e(0\x77\e(B" // 203 Top Cross
+#define VL "\e(0\x78\e(B" // 186 Vertical Line
+#define SP " " 		  // space string
 
 #define SHAKE_HEAD "O"
 #define SHAKE_BODY "X"
 
 static void show_line_horizontal(int x, int y, int width) {
-    
-    int i; 
+
+    int i;
     gotoxy(x,y);
-    for(i=0; i < width; i++) 
-        printf(LINE_HORIZONTAL_CHAR);
+    for(i=0; i < width; i++)
+        printf(HL);
 }
 
 static void show_line_vertical(int x, int y, int height) {
-    
-    int i; 
-    for(i=0; i < height; i++, y++) { 
-        gotoxy(x,y); 
-        printf(LINE_VERTICAL_CHAR); 
-    } 
+
+    int i;
+    for(i=0; i < height; i++, y++) {
+        gotoxy(x,y);
+        printf(VL);
+    }
 }
 
 // Show in terminal functions --------------------------------------------------
 static void show_scene(int width, int height, int *out_x, int *out_y) {
-       
+
     int cols = tcols(), rows = trows();
     int x = (cols-width) / 2, y = (rows-height-1) / 2;
 
@@ -72,149 +88,265 @@ static void show_scene(int width, int height, int *out_x, int *out_y) {
     cls();
     gotoxy(x,y);
     printf("SNAKE GAME"); y++;
-    
+
     // Return scene position
     if(out_x) *out_x = x+1;
     if(out_y) *out_y = y+1;
-    
+
     // Top line
     show_line_horizontal(x+1,y,width); y++;
-    
+
     // Left line
     show_line_vertical(x,y,height);
-            
+
     // Right line
     show_line_vertical(x+1+width,y,height);
-    
+
     // Bottom line
     show_line_horizontal(x+1,y+height,width);
-    
+
     // Show corners
-    gotoxy(x,y-1); printf(LTC); // LTC
-    gotoxy(x,y+height); printf(LBC); // LBC
-    gotoxy(x+1+width,y-1); printf(RTC); // RTC
-    gotoxy(x+1+width,y+height); printf(RBC); // RBC
-    
-    //fflush(stdout);
+    gotoxy(x,y-1); printf(LT); // LTC
+    gotoxy(x,y+height); printf(LB); // LBC
+    gotoxy(x+1+width,y-1); printf(RT); // RTC
+    gotoxy(x+1+width,y+height); printf(RB); // RBC
 }
 
 typedef enum snake_direction {
-    
+
     DI_NO,
     DI_LEFT,
     DI_RIGHT,
     DI_UP,
     DI_DOWN
-    
+
 } snake_direction;
 
-typedef struct snake {
-    
-    int initialized;
-    
+typedef struct snake_body_data {
+
     int x;
     int y;
-    
-    int s_left;
-    int s_top;
+    char *color;
+
+} snake_body_data;
+
+typedef struct snake {
+
+    int initialized;
+
+    int x;
+    int y;
+
+    int scene_left;
+    int scene_top;
     int s_width;
     int s_height;
-    
+
+    int auto_change_direction;
     int direction; ///< 0 - no; 1 - left; 2 - right; 3 - up; 4 - down
-    
+    int auto_increment;
+    uint32_t tic;
+    int quited;
+
     void *s_matrix;
-    void *body;
-    
+
+    trudpQueue *body; ///< Snake body queue
+
+    struct termios oldt;
+
 } snake;
 
-static snake sn = { 0, 0, 0, 0, 0, 0, 0, 0, NULL };
-
-void init_snake(snake *sn, int x, int y, int s_left, int s_top, int width, int height, int direction) {
-    
-    if(!sn->initialized) {
-        
-        sn->x = x;
-        sn->y = y;        
-        sn->direction = direction;
-        
-        sn->s_width = width;
-        sn->s_height = height;
-        
-        sn->initialized = 1;
-    }
-    
-    sn->s_left = s_left;
-    sn->s_top = s_top;        
-}
-
 static int can_move_snake(snake *sn, int x, int y) {
-    
+
     int rv = 1;
-    
+
     // Check scena area
-    if     (sn->s_left + x < sn->s_left) rv = 0;
-    else if(sn->s_left + x >= sn->s_left + sn->s_width) rv = 0;
-    else if(sn->s_top  + y < sn->s_top) rv = 0;
-    else if(sn->s_top  + y >= sn->s_top + sn->s_height) rv = 0;
+    if     (sn->scene_left + x < sn->scene_left) rv = 0;
+    else if(sn->scene_left + x >= sn->scene_left + sn->s_width) rv = 0;
+    else if(sn->scene_top  + y < sn->scene_top) rv = 0;
+    else if(sn->scene_top  + y >= sn->scene_top + sn->s_height) rv = 0;
     
+    // Check himself
+    if(rv) {
+        if(sn->x == x && sn->y == y) rv = 0;
+        else {
+            trudpQueueIterator *it = trudpQueueIteratorNew(sn->body);
+            if(it != NULL) {
+                while(trudpQueueIteratorNext(it)) {
+                    snake_body_data *b = (snake_body_data *)trudpQueueIteratorElement(it)->data;
+                    if(b->x == x && b->y == y) { rv = 0; break; }
+                }
+                trudpQueueIteratorFree(it);
+            }
+        }
+    }
+
     return rv;
 }
 
-static void show_snake(snake *sn) {
-    
-    gotoxy(sn->s_left + sn->x, sn->s_top + sn->y); 
-    
+static void printf_snake(snake *sn) {
+
+    // Print body
+    trudpQueueIterator *it = trudpQueueIteratorNew(sn->body);
+    if(it != NULL) {
+        while(trudpQueueIteratorNext(it)) {
+            snake_body_data *b = (snake_body_data *)trudpQueueIteratorElement(it)->data;
+            gotoxy(sn->scene_left + b->x, sn->scene_top + b->y);
+            printf("%s" SHAKE_BODY _ANSI_NONE,b->color);
+        }
+        trudpQueueIteratorFree(it);
+    }
+    // Print head
+    gotoxy(sn->scene_left + sn->x, sn->scene_top + sn->y);
+    printf(SHAKE_HEAD);
+
+
+    // Calculate next head position
+    int can_move = 0, x = sn->x, y = sn->y;
     switch(sn->direction) {
         case DI_LEFT:
-        case DI_RIGHT:    
-            if(sn->direction == DI_LEFT) printf(SHAKE_HEAD);
-            printf(SHAKE_BODY);
-            printf(SHAKE_BODY);
-            printf(SHAKE_BODY);
-            printf(SHAKE_BODY);
-            printf(SHAKE_BODY);
-            if(sn->direction == DI_RIGHT) printf(SHAKE_HEAD);
+            if(can_move_snake(sn, sn->x-1, sn->y)) { can_move = 1; sn->x--; }
+            else if(sn->auto_change_direction) sn->direction = DI_UP;
+            break;
+        case DI_RIGHT:
+            if(can_move_snake(sn, sn->x+1, sn->y)) { can_move = 1; sn->x++; }
+            else if(sn->auto_change_direction) sn->direction = DI_DOWN;
             break;
         case DI_UP:
-        case DI_DOWN: {   
-            int dif;
-            printf(SHAKE_HEAD); 
-            if(sn->direction == DI_UP) { dif = 1; } else dif = -1;
-            gotoxy(sn->s_left + sn->x, sn->s_top + sn->y + dif); printf(SHAKE_BODY); 
-            gotoxy(sn->s_left + sn->x, sn->s_top + sn->y + dif*2); printf(SHAKE_BODY); 
-            gotoxy(sn->s_left + sn->x, sn->s_top + sn->y + dif*3); printf(SHAKE_BODY); 
-            gotoxy(sn->s_left + sn->x, sn->s_top + sn->y + dif*4); printf(SHAKE_BODY); 
-            gotoxy(sn->s_left + sn->x, sn->s_top + sn->y + dif*5); printf(SHAKE_BODY); 
-            //if(sn->direction == DI_DOWN) { gotoxy(sn->s_left + sn->x, sn->s_top + sn->y); printf(SHAKE_HEAD); }
-        } break;
-    }
-    //fflush(stdout);
-    
-    // Calculate next head position
-    switch(sn->direction) {        
-        case DI_LEFT:  if(can_move_snake(sn, sn->x-1, sn->y)) sn->x--; else sn->direction = DI_UP;    break;
-        case DI_RIGHT: if(can_move_snake(sn, sn->x+1, sn->y)) sn->x++; else sn->direction = DI_DOWN;  break;
-        case DI_UP:    if(can_move_snake(sn, sn->x, sn->y-1)) sn->y--; else sn->direction = DI_RIGHT; break;
-        case DI_DOWN:  if(can_move_snake(sn, sn->x, sn->y+1)) sn->y++; else sn->direction = DI_LEFT;  break;
+            if(can_move_snake(sn, sn->x, sn->y-1)) { can_move = 1; sn->y--; }
+            else if(sn->auto_change_direction) sn->direction = DI_RIGHT;
+            break;
+        case DI_DOWN:
+            if(can_move_snake(sn, sn->x, sn->y+1)) { can_move = 1; sn->y++; }
+            else if(sn->auto_change_direction) sn->direction = DI_LEFT;
+            break;
         default: break;
     }
+
+    // Move body end to first position
+    if(can_move) {
+        // Auto increment
+        if(sn->auto_increment && sn->tic && !(sn->tic % sn->auto_increment)) {
+            snake_body_data body;
+            body.x = x;
+            body.y = y;            
+            body.color = _ANSI_NONE;
+            trudpQueueAddTop(sn->body, (void*)&body, sizeof(snake_body_data));
+            ((snake_body_data*)sn->body->last->data)->color = _ANSI_GREEN;
+        }
+        else {
+            ((snake_body_data *)sn->body->last->data)->x = x;
+            ((snake_body_data *)sn->body->last->data)->y = y;
+            ((snake_body_data *)sn->body->last->data)->color = _ANSI_NONE;
+            trudpQueueMoveToTop(sn->body, sn->body->last);
+        }
+    }
+    // Remove one body element from end
+    else {
+        trudpQueueDeleteLast(sn->body);
+    }
+
 }
 
-void run_snake() {
+void show_snake(snake *sn, int start_x, int start_y, int scene_left,
+        int scene_top, int width, int height, int start_direction) {
+
+    if(!sn->initialized || sn->quited) {
+        // Hide cursor and Turn echoing off and fail if we can't.
+        hidecursor();
+        struct termios newt;
+        tcgetattr(STDIN_FILENO, &sn->oldt);
+        newt = sn->oldt;
+        newt.c_lflag &= ~(ICANON | ECHO);
+        tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+        
+        sn->quited = 0;
+    }
     
-    int x,y, width = 100, height = 50;
-    
-    hidecursor();
+    if(!sn->initialized) {
+
+        sn->tic = 0;
+
+        sn->x = start_x;
+        sn->y = start_y;
+        sn->auto_increment = 10;
+        sn->auto_change_direction = 1;
+        sn->direction = start_direction;
+
+        sn->s_width = width;
+        sn->s_height = height;
+
+        sn->initialized = 1;
+
+        sn->body = trudpQueueNew();
+
+        int i;
+        const size_t START_BODY_LENGS = 9;
+        for(i = 0; i < START_BODY_LENGS; i++) {
+            snake_body_data body;
+            body.x = start_x - i -1;
+            body.y = start_y;
+            body.color = _ANSI_NONE;
+            trudpQueueAdd(sn->body, (void*)&body, sizeof(snake_body_data));
+        }
+
+    }
+    else sn->tic++;
+
+    sn->scene_left = scene_left;
+    sn->scene_top = scene_top;
+
+    // Printf snake (and calculate next position for bot snake)
+    printf_snake(sn);
+}
+
+static void restore_terminal(snake *sn) {
+
+    // Show cursor and Turn echoing on
+    showcursor();
+    tcsetattr(STDIN_FILENO, TCSANOW, &sn->oldt);
+    sn->quited = 1;
+    cls();
+}
+
+static int check_key_snake(snake *sn) {
+
+    int rv = 1;
+
+    if(kbhit()) {
+        int ch = getkey();
+        switch(ch) {
+            case 14 /*KEY_UP*/:   sn->direction = DI_UP;       break;
+            case 15 /*KEY_DOWN*/: sn->direction = DI_DOWN;     break;
+            case 16 /*KEY_LEFT*/: sn->direction = DI_LEFT;     break;
+            case 17 /*KEY_RIGHT*/: sn->direction = DI_RIGHT;   break;
+            case 'q': case 's': rv = 0; break;
+            default: break;
+        }
+    }
+
+    return rv;
+}
+
+int run_snake() {
+
+    int rv, x,y, width = 100, height = 50;
+    static snake sn; // = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL };
 
     // Show scene
     show_scene(width, height, &x, &y);
-    
-    // Initialize snake 
-    init_snake(&sn, 7, 0, x, y, width, height, DI_RIGHT);
 
-    // Show snake 
-    show_snake(&sn);  
-    
+    // Initialize snake
+    show_snake(&sn, 10, 0, x, y, width, height, DI_RIGHT);
+
+    // Check key
+    rv = check_key_snake(&sn);
+
     // Refresh screen
     fflush(stdout);
+
+    // Restore terminal
+    if(!rv) restore_terminal(&sn);
+
+    return rv;
 }

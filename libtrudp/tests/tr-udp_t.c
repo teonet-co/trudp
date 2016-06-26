@@ -257,7 +257,7 @@ static void send_process_received_packet_test() {
        #if !NO_MESSAGES
        printf("\ntrudpProcessSendQueue begin");
        #endif    
-       int r = trudpProcessChannelSendQueue(tcd_A);
+       int r = trudpProcessChannelSendQueue(tcd_A, trudpGetTimestamp(), NULL);
        #if !NO_MESSAGES
        printf("send queue processed times: %d ...\ntrudpProcessSendQueue end\n", r);
        #endif
