@@ -36,6 +36,7 @@
 #include <stdint.h>
 #include "libtrudp/utils_r.h"
 #include "libtrudp/queue.h"
+#include "libtrudp/packet.h"
 
 //#define HL "-"
 //#define VL "|"
@@ -79,7 +80,18 @@ static void show_line_vertical(int x, int y, int height) {
 }
 
 // Show in terminal functions --------------------------------------------------
-static void show_scene(int width, int height, int *out_x, int *out_y) {
+typedef struct scene {
+    
+    int initialized;
+    trudpQueue *snakes;
+    
+} scene;
+
+static void show_scene(scene *sc, int width, int height, int *out_x, int *out_y) {
+    
+    if(!sc->initialized) {
+        sc->snakes = trudpQueueNew();
+    }
 
     int cols = tcols(), rows = trows();
     int x = (cols-width) / 2, y = (rows-height-1) / 2;
@@ -143,9 +155,11 @@ typedef struct snake {
     int s_height;
 
     int auto_change_direction;
+    int random_direction;
     int direction; ///< 0 - no; 1 - left; 2 - right; 3 - up; 4 - down
     int auto_increment;
     uint32_t tic;
+    uint32_t last_key_pressed;
     int quited;
 
     void *s_matrix;
@@ -156,7 +170,29 @@ typedef struct snake {
 
 } snake;
 
-static int can_move_snake(snake *sn, int x, int y) {
+static int check_snake(snake *sn, int x, int y) {
+    
+    int rv = 1;
+    
+    if(sn->x == x && sn->y == y) rv = 0;
+    else {
+        trudpQueueIterator *it = trudpQueueIteratorNew(sn->body);
+        if(it != NULL) {
+            while(trudpQueueIteratorNext(it)) {
+                snake_body_data *b = (snake_body_data *)trudpQueueIteratorElement(it)->data;
+                if(b->x == x && b->y == y) { 
+                    rv = 0; 
+                    break; 
+                }
+            }
+            trudpQueueIteratorFree(it);
+        }
+    }    
+    
+    return rv;
+}
+
+static int can_move_snake(scene *sc, snake *sn, int x, int y) {
 
     int rv = 1;
 
@@ -168,23 +204,30 @@ static int can_move_snake(snake *sn, int x, int y) {
     
     // Check himself
     if(rv) {
-        if(sn->x == x && sn->y == y) rv = 0;
-        else {
-            trudpQueueIterator *it = trudpQueueIteratorNew(sn->body);
-            if(it != NULL) {
-                while(trudpQueueIteratorNext(it)) {
-                    snake_body_data *b = (snake_body_data *)trudpQueueIteratorElement(it)->data;
-                    if(b->x == x && b->y == y) { rv = 0; break; }
+        rv = check_snake(sn, x, y);
+    }
+    
+    // Check other snakes
+    if(rv) {
+        trudpQueueIterator *it = trudpQueueIteratorNew(sc->snakes);
+        if(it != NULL) {
+            while(trudpQueueIteratorNext(it)) {
+                snake *s = (snake *)trudpQueueIteratorElement(it)->data;
+                if(s != sn) {
+                    if(!check_snake(s, x, y)) { 
+                        rv = 0; 
+                        break; 
+                    }
                 }
-                trudpQueueIteratorFree(it);
             }
+            trudpQueueIteratorFree(it);
         }
     }
-
+    
     return rv;
 }
 
-static void printf_snake(snake *sn) {
+static void printf_snake(scene *sc, snake *sn) {
 
     // Print body
     trudpQueueIterator *it = trudpQueueIteratorNew(sn->body);
@@ -200,30 +243,47 @@ static void printf_snake(snake *sn) {
     gotoxy(sn->scene_left + sn->x, sn->scene_top + sn->y);
     printf(SHAKE_HEAD);
 
-
     // Calculate next head position
-    int can_move = 0, x = sn->x, y = sn->y;
+    int can_move = 0, x = sn->x, y = sn->y, direction = sn->direction;
     switch(sn->direction) {
         case DI_LEFT:
-            if(can_move_snake(sn, sn->x-1, sn->y)) { can_move = 1; sn->x--; }
+            if(can_move_snake(sc, sn, sn->x-1, sn->y)) { can_move = 1; sn->x--; }
             else if(sn->auto_change_direction) sn->direction = DI_UP;
             break;
         case DI_RIGHT:
-            if(can_move_snake(sn, sn->x+1, sn->y)) { can_move = 1; sn->x++; }
+            if(can_move_snake(sc, sn, sn->x+1, sn->y)) { can_move = 1; sn->x++; }
             else if(sn->auto_change_direction) sn->direction = DI_DOWN;
             break;
         case DI_UP:
-            if(can_move_snake(sn, sn->x, sn->y-1)) { can_move = 1; sn->y--; }
+            if(can_move_snake(sc, sn, sn->x, sn->y-1)) { can_move = 1; sn->y--; }
             else if(sn->auto_change_direction) sn->direction = DI_RIGHT;
             break;
         case DI_DOWN:
-            if(can_move_snake(sn, sn->x, sn->y+1)) { can_move = 1; sn->y++; }
+            if(can_move_snake(sc, sn, sn->x, sn->y+1)) { can_move = 1; sn->y++; }
             else if(sn->auto_change_direction) sn->direction = DI_LEFT;
             break;
         default: break;
     }
+    
+    // Random direction
+    if(sn->random_direction && 
+       sn->auto_change_direction && 
+       direction == sn->direction &&
+       trudpGetTimestamp() - sn->last_key_pressed > 10000000 &&
+       sn->tic && !(sn->tic % 10) 
+            ) {
+        
+        int new_direction = rand() % 4 + 1;
+        if( !((sn->direction == DI_LEFT && new_direction == DI_RIGHT) ||
+              (sn->direction == DI_RIGHT && new_direction == DI_LEFT) ||     
+              (sn->direction == DI_UP && new_direction == DI_DOWN) ||     
+              (sn->direction == DI_DOWN && new_direction == DI_UP)) ) {
+            
+            sn->direction = new_direction;
+        }     
+    }
 
-    // Move body end to first position
+    // Move body end to first position    
     if(can_move) {
         // Auto increment
         if(sn->auto_increment && sn->tic && !(sn->tic % sn->auto_increment)) {
@@ -234,7 +294,7 @@ static void printf_snake(snake *sn) {
             trudpQueueAddTop(sn->body, (void*)&body, sizeof(snake_body_data));
             ((snake_body_data*)sn->body->last->data)->color = _ANSI_GREEN;
         }
-        else {
+        else if(trudpQueueSize(sn->body)) {
             ((snake_body_data *)sn->body->last->data)->x = x;
             ((snake_body_data *)sn->body->last->data)->y = y;
             ((snake_body_data *)sn->body->last->data)->color = _ANSI_NONE;
@@ -248,7 +308,7 @@ static void printf_snake(snake *sn) {
 
 }
 
-void show_snake(snake *sn, int start_x, int start_y, int scene_left,
+void show_snake(scene *sc, snake *sn, int start_x, int start_y, int scene_left,
         int scene_top, int width, int height, int start_direction) {
 
     if(!sn->initialized || sn->quited) {
@@ -264,6 +324,9 @@ void show_snake(snake *sn, int start_x, int start_y, int scene_left,
     }
     
     if(!sn->initialized) {
+        
+        uint32_t ts = trudpGetTimestamp();
+        srand(ts);
 
         sn->tic = 0;
 
@@ -271,7 +334,9 @@ void show_snake(snake *sn, int start_x, int start_y, int scene_left,
         sn->y = start_y;
         sn->auto_increment = 10;
         sn->auto_change_direction = 1;
+        sn->random_direction = 1;
         sn->direction = start_direction;
+        sn->last_key_pressed = ts;
 
         sn->s_width = width;
         sn->s_height = height;
@@ -290,6 +355,8 @@ void show_snake(snake *sn, int start_x, int start_y, int scene_left,
             trudpQueueAdd(sn->body, (void*)&body, sizeof(snake_body_data));
         }
 
+//        snake **sn_ptr = &sn;
+//        trudpQueueAdd(sc->snakes, (void*)sn_ptr, sizeof(snake *));
     }
     else sn->tic++;
 
@@ -297,7 +364,7 @@ void show_snake(snake *sn, int start_x, int start_y, int scene_left,
     sn->scene_top = scene_top;
 
     // Printf snake (and calculate next position for bot snake)
-    printf_snake(sn);
+    printf_snake(sc, sn);
 }
 
 static void restore_terminal(snake *sn) {
@@ -323,6 +390,7 @@ static int check_key_snake(snake *sn) {
             case 'q': case 's': rv = 0; break;
             default: break;
         }
+        sn->last_key_pressed = trudpGetTimestamp(); 
     }
 
     return rv;
@@ -331,13 +399,15 @@ static int check_key_snake(snake *sn) {
 int run_snake() {
 
     int rv, x,y, width = 100, height = 50;
-    static snake sn; // = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL };
+    static scene sc;
+    static snake sn, sn2; 
 
     // Show scene
-    show_scene(width, height, &x, &y);
+    show_scene(&sc, width, height, &x, &y);
 
     // Initialize snake
-    show_snake(&sn, 10, 0, x, y, width, height, DI_RIGHT);
+    show_snake(&sc, &sn, 10, 0, x, y, width, height, DI_RIGHT);
+    show_snake(&sc, &sn2, 10, 10, x, y, width, height, DI_RIGHT);
 
     // Check key
     rv = check_key_snake(&sn);
