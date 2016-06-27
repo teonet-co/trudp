@@ -212,7 +212,8 @@ static int can_move_snake(scene *sc, snake *sn, int x, int y) {
         trudpQueueIterator *it = trudpQueueIteratorNew(sc->snakes);
         if(it != NULL) {
             while(trudpQueueIteratorNext(it)) {
-                snake *s = (snake *)trudpQueueIteratorElement(it)->data;
+                snake **sn_ptr = (snake **)trudpQueueIteratorElement(it)->data;
+                snake *s = *sn_ptr;
                 if(s != sn) {
                     if(!check_snake(s, x, y)) { 
                         rv = 0; 
@@ -355,8 +356,7 @@ void show_snake(scene *sc, snake *sn, int start_x, int start_y, int scene_left,
             trudpQueueAdd(sn->body, (void*)&body, sizeof(snake_body_data));
         }
 
-//        snake **sn_ptr = &sn;
-//        trudpQueueAdd(sc->snakes, (void*)sn_ptr, sizeof(snake *));
+        trudpQueueAdd(sc->snakes, (void*)&sn, sizeof(snake *));
     }
     else sn->tic++;
 
