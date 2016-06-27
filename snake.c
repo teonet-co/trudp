@@ -59,7 +59,8 @@
 #define VL "\e(0\x78\e(B" // 186 Vertical Line
 #define SP " " 		  // space string
 
-#define SHAKE_HEAD "O"
+#define SNAKE_HEAD "O"
+#define SNAKE_HEAD_OTHER "H"
 #define SHAKE_BODY "X"
 
 static void show_line_horizontal(int x, int y, int width) {
@@ -147,6 +148,7 @@ typedef struct snake {
 
     int initialized;
 
+    char *head_char;
     int x;
     int y;
 
@@ -243,7 +245,7 @@ static void printf_snake(scene *sc, snake *sn) {
     }
     // Print head
     gotoxy(sn->scene_left + sn->x, sn->scene_top + sn->y);
-    printf(SHAKE_HEAD);
+    printf("%s", sn->head_char);
 
     // Calculate next head position
     int can_move = 0, x = sn->x, y = sn->y, direction = sn->direction;
@@ -311,7 +313,8 @@ static void printf_snake(scene *sc, snake *sn) {
 }
 
 void show_snake(scene *sc, snake *sn, int start_x, int start_y, int scene_left,
-        int scene_top, int width, int height, int start_direction) {
+        int scene_top, int width, int height, int start_direction, 
+        char* snake_head_char) {
 
     if(!sn->initialized || sn->quited) {
         // Hide cursor and Turn echoing off and fail if we can't.
@@ -331,6 +334,7 @@ void show_snake(scene *sc, snake *sn, int start_x, int start_y, int scene_left,
         srand(ts);
 
         sn->tic = 0;
+        sn->head_char = snake_head_char;
 
         sn->x = start_x;
         sn->y = start_y;
@@ -401,14 +405,16 @@ int run_snake() {
 
     int rv, x,y, width = 100, height = 50;
     static scene sc;
-    static snake sn, sn2; 
+    static snake sn[4];
 
     // Show scene
     show_scene(&sc, width, height, &x, &y);
 
-    // Initialize snake
-    show_snake(&sc, &sn, 10, 0, x, y, width, height, DI_RIGHT);
-    show_snake(&sc, &sn2, 10, 10, x, y, width, height, DI_RIGHT);
+    // Initialize own snake and 3 bots
+    show_snake(&sc, &sn[0], 10, 0, x, y, width, height, DI_RIGHT, SNAKE_HEAD);
+    show_snake(&sc, &sn[1], 10, 10, x, y, width, height, DI_RIGHT, SNAKE_HEAD_OTHER);
+    show_snake(&sc, &sn[2], 10, 20, x, y, width, height, DI_RIGHT, SNAKE_HEAD_OTHER);
+    show_snake(&sc, &sn[3], 10, 30, x, y, width, height, DI_RIGHT, SNAKE_HEAD_OTHER);
 
     // Check key
     rv = check_key_snake(&sn);
