@@ -91,6 +91,7 @@ static void show_scene(scene *sc, int width, int height, int *out_x, int *out_y)
     
     if(!sc->initialized) {
         sc->snakes = trudpQueueNew();
+        sc->initialized = 1;
     }
 
     int cols = tcols(), rows = trows();
