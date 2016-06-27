@@ -417,13 +417,13 @@ int run_snake() {
     show_snake(&sc, &sn[3], 10, 30, x, y, width, height, DI_RIGHT, SNAKE_HEAD_OTHER);
 
     // Check key
-    rv = check_key_snake(&sn);
+    rv = check_key_snake(&sn[0]);
 
     // Refresh screen
     fflush(stdout);
 
     // Restore terminal
-    if(!rv) restore_terminal(&sn);
+    if(!rv) restore_terminal(&sn[0]);
 
     return rv;
 }
