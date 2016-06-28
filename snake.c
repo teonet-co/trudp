@@ -78,14 +78,62 @@ static void show_line_vertical(int x, int y, int height) {
 typedef struct scene {
     
     int initialized;
+
+    int scene_left;
+    int scene_top;
+    char *matrix;    
+    int width;
+    int height;
     trudpQueue *snakes;
     
 } scene;
 
-static void show_scene(scene *sc, int width, int height, int *out_x, int *out_y) {
+
+static char get_matrix_char(scene *sc, int x, int y) {
+    
+    return *(sc->matrix + (x-1) * sc->width + (y-1));
+}
+
+static void set_matrix_char(scene *sc, int x, int y, int ch) {
+    
+    *(sc->matrix + (x-1) * sc->width + (y-1)) = ch;
+}
+
+static void show_matrix_char(scene *sc, int x, int y) {
+    gotoxy(sc->scene_left + x, sc->scene_top + y);
+    printf("%c", get_matrix_char(sc, x, y));
+}
+
+static void show_matrix(scene *sc) {
+    int i, j;
+    for(i = 1; i <= sc->width; i++)
+        for(j = 1; i <= sc->height; i++)
+            show_matrix_char(sc, i, j);
+}
+
+static void generate_food(scene *sc) {
+    
+    int x = rand() % sc->width + 1;
+    int y = rand() % sc->height + 1;
+    printf("x %d, y %d\n", x, y);
+    if(get_matrix_char(sc, x, y) == ' ') {
+        set_matrix_char(sc, x, y, '*');
+        show_matrix_char(sc, x, y);
+    }
+}
+
+static void show_scene(scene *sc, int width, int height, char*matrix, int *out_x, int *out_y) {
     
     if(!sc->initialized) {
         sc->snakes = trudpQueueNew();
+        sc->width = width;
+        sc->height = height;
+        sc->matrix = matrix;
+        int i,j;
+        for(i = 1; i <= sc->width; i++)
+            for(j = 1; i <= sc->height; i++)
+                set_matrix_char(sc, i, j, ' ');
+        
         sc->initialized = 1;
     }
 
@@ -100,6 +148,8 @@ static void show_scene(scene *sc, int width, int height, int *out_x, int *out_y)
     // Return scene position
     if(out_x) *out_x = x+1;
     if(out_y) *out_y = y+1;
+    sc->scene_left = x+1;
+    sc->scene_top = y+1;
 
     // Top line
     show_line_horizontal(x+1,y,width); y++;
@@ -118,6 +168,12 @@ static void show_scene(scene *sc, int width, int height, int *out_x, int *out_y)
     gotoxy(x,y+height); printf(LB); // LBC
     gotoxy(x+1+width,y-1); printf(RT); // RTC
     gotoxy(x+1+width,y+height); printf(RB); // RBC
+    
+    // Show matrix
+    show_matrix(sc);
+    
+    // Generate food    
+    generate_food(sc);
 }
 
 typedef enum snake_direction {
@@ -345,7 +401,6 @@ void show_snake(scene *sc, snake *sn, int start_x, int start_y, int scene_left,
     if(!sn->initialized) {
         
         uint64_t ts = trudpGetTimestampFull();
-        srand(ts);
 
         sn->tic = 0;
         sn->head_char = snake_head_char;
@@ -408,18 +463,23 @@ static int check_key_snake(snake *sn) {
 
 int run_snake() {
 
-    int rv, x,y, width = 100, height = 50;
+    srand(trudpGetTimestampFull());
+
     static scene sc;
     static snake sn[4];
-
+    int rv, x,y; 
+    #define WIDTH 100
+    #define HEIGHT 50    
+    static char matrix[WIDTH*HEIGHT*10000];
+    
     // Show scene
-    show_scene(&sc, width, height, &x, &y);
+    show_scene(&sc, WIDTH, HEIGHT, (char*)matrix, &x, &y);
 
     // Initialize own snake and 3 bots
-    show_snake(&sc, &sn[0], 10, 0, x, y, width, height, DI_RIGHT, SNAKE_HEAD);
-    show_snake(&sc, &sn[1], 10, 10, x, y, width, height, DI_RIGHT, SNAKE_HEAD_OTHER);
-    show_snake(&sc, &sn[2], 10, 20, x, y, width, height, DI_RIGHT, SNAKE_HEAD_OTHER);
-    show_snake(&sc, &sn[3], 10, 30, x, y, width, height, DI_RIGHT, SNAKE_HEAD_OTHER);
+    show_snake(&sc, &sn[0], 10, 0, x, y, WIDTH, HEIGHT, DI_RIGHT, SNAKE_HEAD);
+    show_snake(&sc, &sn[1], 10, 10, x, y, WIDTH, HEIGHT, DI_RIGHT, SNAKE_HEAD_OTHER);
+    show_snake(&sc, &sn[2], 10, 20, x, y, WIDTH, HEIGHT, DI_RIGHT, SNAKE_HEAD_OTHER);
+    show_snake(&sc, &sn[3], 10, 30, x, y, WIDTH, HEIGHT, DI_RIGHT, SNAKE_HEAD_OTHER);
 
     // Check key
     rv = check_key_snake(&sn[0]);
