@@ -932,7 +932,8 @@ int trudpProcessSendQueue(trudpData *td, uint32_t *next_et) {
     do {
         retval = 0;
         trudpMapIterator *it;
-        min_expected_time = 0;
+        //min_expected_time = 0;
+        min_expected_time = UINT32_MAX;
         if((it = trudpMapIteratorNew(td->map))) {
             while((el = trudpMapIteratorNext(it))) {
                 trudpChannelData *tcd = (trudpChannelData *)trudpMapIteratorElementData(el, NULL);
@@ -978,7 +979,6 @@ size_t trudpSendDataToAll(trudpData *td, void *data, size_t data_length) {
                 }
             }
         }
-
         trudpMapIteratorDestroy(it);
     }
 
@@ -1013,7 +1013,6 @@ size_t trudpKeepConnection(trudpData *td) {
                 rv++;
             }
         }
-
         trudpMapIteratorDestroy(it);
     }
 
