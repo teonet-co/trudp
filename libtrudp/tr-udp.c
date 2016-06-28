@@ -47,7 +47,7 @@ static void trudpSetDefaults(trudpChannelData *tcd) {
     tcd->triptimeFactor = 1.5;
     tcd->outrunning_cnt = 0;
     tcd->receiveExpectedId = 0;
-    tcd->lastReceived = trudpGetTimestamp();
+    tcd->lastReceived = trudpGetTimestampFull();
     tcd->triptimeMiddle = START_MIDDLE_TIME;
 
     // Initialize statistic
@@ -266,10 +266,10 @@ static inline size_t trudpExecSendPacketCallback(trudpChannelData *tcd,
  *
  * @return Current time plus
  */
-static inline uint32_t trudpCalculateExpectedTime(trudpChannelData *tcd,
-        uint32_t current_time) {
+static inline uint64_t trudpCalculateExpectedTime(trudpChannelData *tcd,
+        uint64_t current_time) {
 
-    uint32_t expected_time = current_time + tcd->triptimeMiddle + 2 * MAX_RTT;
+    uint64_t expected_time = current_time + tcd->triptimeMiddle + 2 * MAX_RTT;
 
     if(tcd->sendQueue->q->last)
         if(((trudpPacketQueueData*)tcd->sendQueue->q->last->data)->expected_time > expected_time)
@@ -298,7 +298,7 @@ static size_t trudpSendPacket(trudpChannelData *tcd, void *packetDATA,
         tpqd = trudpPacketQueueAdd(tcd->sendQueue,
             packetDATA,
             packetLength,
-            trudpCalculateExpectedTime(tcd, trudpGetTimestamp())
+            trudpCalculateExpectedTime(tcd, trudpGetTimestampFull())
         );
         TD(tcd)->stat.sendQueue.size_current++;
     }
@@ -475,7 +475,7 @@ static void trudpExecEventCallback(trudpChannelData *tcd, int event, void *data,
  * @param tcd
  */
 static inline void trudpSetLastReceived(trudpChannelData *tcd) {
-    tcd->lastReceived = trudpGetTimestamp();
+    tcd->lastReceived = trudpGetTimestampFull();
 }
 
 /**
@@ -816,7 +816,7 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
     return data;
 }
 
-static int trudpCheckChannelDisconnect(trudpChannelData *tcd, uint32_t ts) {
+static int trudpCheckChannelDisconnect(trudpChannelData *tcd, uint64_t ts) {
 
     // Disconnect channel at long last receive
     if(tcd->lastReceived && ts - tcd->lastReceived > MAX_LAST_RECEIVE) {
@@ -846,13 +846,12 @@ static int trudpCheckChannelDisconnect(trudpChannelData *tcd, uint32_t ts) {
  *
  * @return Number of resend packets or -1 if the channel was disconnected
  */
-int trudpProcessChannelSendQueue(trudpChannelData *tcd, uint32_t ts,
-        uint32_t *next_expected_time) {
+int trudpProcessChannelSendQueue(trudpChannelData *tcd, uint64_t ts,
+        uint64_t *next_expected_time) {
 
     int rv = 0;
 
     trudpPacketQueueData *tqd;
-    //if((tqd = trudpPacketQueueFindByTime(tcd->sendQueue, ts))) {
     if((tqd = trudpPacketQueueGetFirst(tcd->sendQueue)) &&
             tqd->expected_time <= ts ) {
 
@@ -861,13 +860,6 @@ int trudpProcessChannelSendQueue(trudpChannelData *tcd, uint32_t ts,
         trudpPacketQueueMoveToEnd(tcd->sendQueue, tqd);
         tcd->stat.packets_attempt++; // Attempt(repeat) statistic parameter increment
         if(!tqd->retrieves) tqd->retrieves_start = ts;
-
-//        // Change triptime middle \todo Optimize it
-//        uint32_t triptimeMiddle_old = tcd->triptimeMiddle;
-//        tcd->triptimeMiddle *= 2;
-//        if(tcd->triptimeMiddle > tcd->triptime * 10) tcd->triptimeMiddle = tcd->triptime * 10;
-//        if(tcd->triptimeMiddle < triptimeMiddle_old) tcd->triptimeMiddle = triptimeMiddle_old;
-//        if(tcd->triptimeMiddle > MAX_TRIPTIME_MIDDLE) tcd->triptimeMiddle = MAX_TRIPTIME_MIDDLE;
 
         tqd->retrieves++;
         rv++;
@@ -924,16 +916,16 @@ int trudpProcessChannelSendQueue(trudpChannelData *tcd, uint32_t ts,
  *
  * @return Number of resend packets
  */
-int trudpProcessSendQueue(trudpData *td, uint32_t *next_et) {
+int trudpProcessSendQueue(trudpData *td, uint64_t *next_et) {
 
     int retval, rv = 0;
-    uint32_t ts = trudpGetTimestamp(), min_expected_time = UINT32_MAX, next_expected_time;
+    uint64_t ts = trudpGetTimestampFull(), min_expected_time = UINT64_MAX, next_expected_time;
     trudpMapElementData *el;
     do {
         retval = 0;
         trudpMapIterator *it;
         //min_expected_time = 0;
-        min_expected_time = UINT32_MAX;
+        min_expected_time = UINT64_MAX;
         if((it = trudpMapIteratorNew(td->map))) {
             while((el = trudpMapIteratorNext(it))) {
                 trudpChannelData *tcd = (trudpChannelData *)trudpMapIteratorElementData(el, NULL);
@@ -945,9 +937,9 @@ int trudpProcessSendQueue(trudpData *td, uint32_t *next_et) {
             }
             trudpMapIteratorDestroy(it);
         }
-    } while(retval == -1 || retval > 0 && /*min_expected_time != UINT32_MAX &&*/ min_expected_time <= ts);
+    } while(retval == -1 || retval > 0 && /*min_expected_time != UINT64_MAX &&*/ min_expected_time <= ts);
 
-    if(next_et) *next_et = min_expected_time != UINT32_MAX ? min_expected_time : 0;
+    if(next_et) *next_et = min_expected_time != UINT64_MAX ? min_expected_time : 0;
 
     return rv;
 }
@@ -997,7 +989,7 @@ size_t trudpKeepConnection(trudpData *td) {
 
     trudpMapIterator *it;
     trudpMapElementData *el;
-    uint32_t ts = trudpGetTimestamp();
+    uint64_t ts = trudpGetTimestampFull();
     while(rv == -1 && (it = trudpMapIteratorNew(td->map))) {
         rv = 0;
         while((el = trudpMapIteratorNext(it))) {
@@ -1139,9 +1131,10 @@ uint32_t trudpGetChannelSendQueueTimeout(trudpChannelData *tcd) {
     uint32_t timeout_sq = UINT32_MAX;
     if(tcd->sendQueue->q->first) {
 
-        uint32_t
+        uint64_t
         expected_t = ((trudpPacketQueueData *)tcd->sendQueue->q->first->data)->expected_time,
-        current_t = trudpGetTimestamp();
+        current_t = trudpGetTimestampFull();
+        
         timeout_sq = current_t < expected_t ? expected_t - current_t : 0;
     }
 

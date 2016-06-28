@@ -156,14 +156,14 @@ typedef struct trudpChannelData {
     uint32_t triptime; ///< Trip time 
     double triptimeFactor; ///< Triptime factor
     uint32_t triptimeMiddle; ///< Trip time middle
-    uint32_t lastSend; ///< Last send time
+//    uint32_t lastSend; ///< Last send time
     
     trudpWriteQueue *writeQueue; ///< Pointer to write queue trudpWriteQueue
         
     uint32_t receiveExpectedId; ///< Ecpected recive Id
     trudpPacketQueue *receiveQueue; ///< Pointer to recive queue receiveQueue
     int outrunning_cnt; ///< Receive queue outrunning count
-    uint32_t lastReceived; ///< Last received time
+    uint64_t lastReceived; ///< Last received time
 
     // Link to parent trudpData
     void *td; ///< Pointer to trudpData
@@ -225,7 +225,7 @@ void trudpDestroy(trudpData* trudp);
 trudpCb trudpSetCallback(trudpData *td, trudpCallbsckType type, trudpCb cb);
 trudpChannelData *trudpCheckRemoteAddr(trudpData *td, struct sockaddr_in *remaddr, 
         socklen_t addr_length, int channel);
-int trudpProcessSendQueue(trudpData *td, uint32_t *next_et);
+int trudpProcessSendQueue(trudpData *td, uint64_t *next_et);
 size_t trudpProcessWriteQueue(trudpData *td);
 void trudpSendResetAll(trudpData *td);
 size_t trudpKeepConnection(trudpData *td);

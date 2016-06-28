@@ -340,12 +340,15 @@
     </conf>
     <conf name="MinGW-w64-Win32-Debug" type="1">
       <toolsSet>
-        <compilerSet>MinGW-w64-Win32-Debug|GNU</compilerSet>
+        <compilerSet>GNU-MinGW-64-Win32|GNU</compilerSet>
         <dependencyChecking>true</dependencyChecking>
         <rebuildPropChanged>false</rebuildPropChanged>
       </toolsSet>
       <compileType>
         <cTool>
+          <incFile>
+            <pElem>/usr/include/ev.h</pElem>
+          </incFile>
           <preprocessorList>
             <Elem>HAVE_MINGW</Elem>
           </preprocessorList>
@@ -353,7 +356,7 @@
         <linkerTool>
           <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/trudpcat.exe</output>
           <linkerLibItems>
-            <linkerLibLibItem>ev</linkerLibLibItem>
+            <linkerOptionItem>-static -lev</linkerOptionItem>
           </linkerLibItems>
         </linkerTool>
       </compileType>

@@ -75,7 +75,7 @@ trudpMapData *trudpMapResize(trudpMapData *map, size_t size) {
     #define _SHOW_FUNCTION_MSG_ 1
     #if _SHOW_FUNCTION_MSG_
     printf("resize map from %d to %d, time: ", (int)map->hash_map_size, (int)size);
-    uint32_t t_stop, t_beg = trudpGetTimestamp();
+    uint64_t t_stop, t_beg = trudpGetTimestampFull();
     #endif
 
     int i = 0;
@@ -130,7 +130,7 @@ trudpMapData *trudpMapResize(trudpMapData *map, size_t size) {
     free(map_new);
 
     #if _SHOW_FUNCTION_MSG_
-    t_stop = (trudpGetTimestamp() - t_beg);
+    t_stop = (trudpGetTimestampFull() - t_beg);
     printf("%.3f ms\n", t_stop / 1000.0);
     #endif
 

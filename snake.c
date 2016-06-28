@@ -34,16 +34,10 @@
 
 #include <stdio.h>
 #include <stdint.h>
+
 #include "libtrudp/utils_r.h"
 #include "libtrudp/queue.h"
 #include "libtrudp/packet.h"
-
-//#define HL "-"
-//#define VL "|"
-//#define LTC "*"
-//#define LBC "*"
-//#define RTC "*"
-//#define RBC "*"
 
 // Box characters
 #define RB "\e(0\x6a\e(B" // 188 Right Bottom corner
@@ -162,14 +156,16 @@ typedef struct snake {
     int direction; ///< 0 - no; 1 - left; 2 - right; 3 - up; 4 - down
     int auto_increment;
     uint32_t tic;
-    uint32_t last_key_pressed;
+    uint64_t last_key_pressed;
     int quited;
 
     void *s_matrix;
 
     trudpQueue *body; ///< Snake body queue
 
+    #if !defined(_WIN32) && !defined(_WIN64)
     struct termios oldt;
+    #endif
 
 } snake;
 
@@ -273,7 +269,7 @@ static void printf_snake(scene *sc, snake *sn) {
     if(sn->random_direction && 
        sn->auto_change_direction && 
        direction == sn->direction &&
-       trudpGetTimestamp() - sn->last_key_pressed > 10000000 &&
+       trudpGetTimestampFull() - sn->last_key_pressed > 10000000 &&
        sn->tic && !(sn->tic % 10) 
             ) {
         
@@ -312,6 +308,28 @@ static void printf_snake(scene *sc, snake *sn) {
 
 }
 
+echo_off(snake *sn) {
+    
+    #if !defined(_WIN32) && !defined(_WIN64)
+    struct termios newt;
+    tcgetattr(STDIN_FILENO, &sn->oldt);
+    newt = sn->oldt;
+    newt.c_lflag &= ~(ICANON | ECHO);
+    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+    #endif
+}
+
+static void restore_terminal(snake *sn) {
+
+    // Show cursor and Turn echoing on
+    showcursor();
+    #if !defined(_WIN32) && !defined(_WIN64)
+    tcsetattr(STDIN_FILENO, TCSANOW, &sn->oldt);
+    sn->quited = 1;
+    cls();
+    #endif
+}
+
 void show_snake(scene *sc, snake *sn, int start_x, int start_y, int scene_left,
         int scene_top, int width, int height, int start_direction, 
         char* snake_head_char) {
@@ -319,18 +337,14 @@ void show_snake(scene *sc, snake *sn, int start_x, int start_y, int scene_left,
     if(!sn->initialized || sn->quited) {
         // Hide cursor and Turn echoing off and fail if we can't.
         hidecursor();
-        struct termios newt;
-        tcgetattr(STDIN_FILENO, &sn->oldt);
-        newt = sn->oldt;
-        newt.c_lflag &= ~(ICANON | ECHO);
-        tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+        echo_off(sn);
         
         sn->quited = 0;
     }
     
     if(!sn->initialized) {
         
-        uint32_t ts = trudpGetTimestamp();
+        uint64_t ts = trudpGetTimestampFull();
         srand(ts);
 
         sn->tic = 0;
@@ -372,15 +386,6 @@ void show_snake(scene *sc, snake *sn, int start_x, int start_y, int scene_left,
     printf_snake(sc, sn);
 }
 
-static void restore_terminal(snake *sn) {
-
-    // Show cursor and Turn echoing on
-    showcursor();
-    tcsetattr(STDIN_FILENO, TCSANOW, &sn->oldt);
-    sn->quited = 1;
-    cls();
-}
-
 static int check_key_snake(snake *sn) {
 
     int rv = 1;
@@ -395,7 +400,7 @@ static int check_key_snake(snake *sn) {
             case 'q': case 's': rv = 0; break;
             default: break;
         }
-        sn->last_key_pressed = trudpGetTimestamp(); 
+        sn->last_key_pressed = trudpGetTimestampFull(); 
     }
 
     return rv;
