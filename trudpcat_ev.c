@@ -123,7 +123,7 @@ typedef struct send_message_data {
 } send_message_data;
 
 // Local static function definition
-static void start_send_queue_cb(process_send_queue_data *psd, uint32_t next_expected_time);
+static void start_send_queue_cb(process_send_queue_data *psd, uint64_t next_expected_time);
 static void start_show_stat_cb(show_statistic_data *ssd);
 
 // Global data
@@ -534,7 +534,7 @@ static void process_send_queue_cb(EV_P_ ev_timer *w, int revents) {
 
     // Process send queue
     debug("process send queue ... \n");
-    uint32_t next_expected_time;
+    uint64_t next_expected_time;
     int rv = trudpProcessSendQueue(psd->td, &next_expected_time);
 
     // Start new process_send_queue timer
@@ -549,19 +549,19 @@ static void process_send_queue_cb(EV_P_ ev_timer *w, int revents) {
  * @param next_expected_time
  */
 static void start_send_queue_cb(process_send_queue_data *psd, 
-        uint32_t next_expected_time) {
+        uint64_t next_expected_time) {
 
-    uint32_t tt, next_et = UINT32_MAX;
+    uint64_t tt, next_et = UINT64_MAX;
     
     // If next_expected_time selected (non nil)
     if(next_expected_time) {
-        uint32_t ts;
-        ts = trudpGetTimestamp();
+        uint64_t ts;
+        ts = trudpGetTimestampFull();
         next_et = ts > next_expected_time ? ts - next_expected_time : 0;
     }
     
     // If next_expected_time (net) or GetSendQueueTimeout 
-    if((tt = next_et != UINT32_MAX ? next_et : trudpGetSendQueueTimeout(psd->td)) != UINT32_MAX) {
+    if((tt = next_et != UINT64_MAX ? next_et : trudpGetSendQueueTimeout(psd->td)) != UINT64_MAX) {
 
         double tt_d = tt / 1000000.0;
 
@@ -631,7 +631,7 @@ static void network_select_loop(trudpData *td, int timeout) {
 
         // Process send queue
         if(timeout_sq != UINT32_MAX) {
-            int rv = trudpProcessSendQueue(td);
+            int rv = trudpProcessSendQueue(td, 0);
             debug("process send queue ... %d\n", rv);
         }
     }
@@ -688,7 +688,7 @@ static void network_loop(trudpData *td) {
     }
 
     // Process send queue
-    trudpProcessSendQueue(td);
+    trudpProcessSendQueue(td, 0);
 
     // Process write queue
     while(trudpProcessWriteQueue(td));

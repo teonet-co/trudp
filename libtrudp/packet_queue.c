@@ -90,7 +90,7 @@ inline trudpQueueData *trudpPacketQueueDataToQueueData(trudpPacketQueueData *tqd
  * @return Pointer to added trudpPacketQueueData
  */
 trudpPacketQueueData *trudpPacketQueueAdd(trudpPacketQueue *tq, void *packet,
-        size_t packet_length, uint32_t expected_time) {
+        size_t packet_length, uint64_t expected_time) {
 
     // Add
     size_t tqd_length = sizeof(trudpPacketQueueData) + packet_length;
@@ -115,7 +115,7 @@ trudpPacketQueueData *trudpPacketQueueAdd(trudpPacketQueue *tq, void *packet,
  * @return
  */
 trudpPacketQueueData *trudpPacketQueueAddTime(trudpPacketQueue *tq,
-        void *packet, size_t packet_length, uint32_t expected_time) {
+        void *packet, size_t packet_length, uint64_t expected_time) {
 
     if(trudpPacketQueueSize(tq)) {
         // Find expected less or equal then than selected
@@ -195,7 +195,7 @@ trudpPacketQueueData *trudpPacketQueueFindById(trudpPacketQueue *tq,
  * @return  Pointer to trudpPacketQueueData or NULL if not found
  */
 trudpPacketQueueData *trudpPacketQueueFindByTime(trudpPacketQueue *tq, 
-        uint32_t t) {
+        uint64_t t) {
 
     trudpPacketQueueData *rv = NULL;
 

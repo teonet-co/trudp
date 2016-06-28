@@ -570,7 +570,7 @@ char *trudpStatShowQueueStr(trudpChannelData *tcd, int type) {
     if(it != NULL) {        
         
         int i = 0;
-        long current_t = trudpGetTimestamp();
+        uint64_t current_t = trudpGetTimestampFull();
         str = sformatMessage(str, 
             "--------------------------------------------------------------\n"
             "TR-UDP %s Queue, size: %d, %s %u\n"
