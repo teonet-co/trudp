@@ -555,8 +555,7 @@ static void start_send_queue_cb(process_send_queue_data *psd,
     
     // If next_expected_time selected (non nil)
     if(next_expected_time) {
-        uint64_t ts;
-        ts = trudpGetTimestampFull();
+        uint64_t ts = trudpGetTimestampFull();
         next_et = ts > next_expected_time ? ts - next_expected_time : 0;
     }
     

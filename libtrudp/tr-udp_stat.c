@@ -588,8 +588,8 @@ char *trudpStatShowQueueStr(trudpChannelData *tcd, int type) {
                     ((trudpQueueData *)trudpQueueIteratorElement(it))->data;
                         
             long timeout_sq = current_t < tqd->expected_time ? 
-                (long)tqd->expected_time - current_t : 
-                -1 * (current_t - (long)tqd->expected_time);
+                (long)(tqd->expected_time - current_t) : 
+                -1 * (long)(current_t - tqd->expected_time);
                         
             str = sformatMessage(str,             
             "%s"

@@ -344,7 +344,7 @@ void show_snake(scene *sc, snake *sn, int start_x, int start_y, int scene_left,
     
     if(!sn->initialized) {
         
-        uint32_t ts = trudpGetTimestampFull();
+        uint64_t ts = trudpGetTimestampFull();
         srand(ts);
 
         sn->tic = 0;

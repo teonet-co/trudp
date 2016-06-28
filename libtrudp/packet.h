@@ -92,7 +92,7 @@ inline uint32_t trudpPacketGetTimestamp(void *packet);
 
 inline void trudpPacketCreatedFree(void *in_th);
 
-inline unsigned long long trudpGetTimestampFull();
+inline uint64_t /*unsigned long long*/ trudpGetTimestampFull();
 inline uint32_t trudpGetTimestamp();
 
 #ifdef __cplusplus

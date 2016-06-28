@@ -852,7 +852,6 @@ int trudpProcessChannelSendQueue(trudpChannelData *tcd, uint64_t ts,
     int rv = 0;
 
     trudpPacketQueueData *tqd;
-    //if((tqd = trudpPacketQueueFindByTime(tcd->sendQueue, ts))) {
     if((tqd = trudpPacketQueueGetFirst(tcd->sendQueue)) &&
             tqd->expected_time <= ts ) {
 
@@ -861,13 +860,6 @@ int trudpProcessChannelSendQueue(trudpChannelData *tcd, uint64_t ts,
         trudpPacketQueueMoveToEnd(tcd->sendQueue, tqd);
         tcd->stat.packets_attempt++; // Attempt(repeat) statistic parameter increment
         if(!tqd->retrieves) tqd->retrieves_start = ts;
-
-//        // Change triptime middle \todo Optimize it
-//        uint32_t triptimeMiddle_old = tcd->triptimeMiddle;
-//        tcd->triptimeMiddle *= 2;
-//        if(tcd->triptimeMiddle > tcd->triptime * 10) tcd->triptimeMiddle = tcd->triptime * 10;
-//        if(tcd->triptimeMiddle < triptimeMiddle_old) tcd->triptimeMiddle = triptimeMiddle_old;
-//        if(tcd->triptimeMiddle > MAX_TRIPTIME_MIDDLE) tcd->triptimeMiddle = MAX_TRIPTIME_MIDDLE;
 
         tqd->retrieves++;
         rv++;
