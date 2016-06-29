@@ -83,11 +83,11 @@ LDLIBSOPTIONS=-lev
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
-	"${MAKE}"  -f nbproject/Makefile-${CND_CONF}.mk ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/tr-udp
+	"${MAKE}"  -f nbproject/Makefile-${CND_CONF}.mk ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/trudp
 
-${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/tr-udp: ${OBJECTFILES}
+${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/trudp: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
-	${LINK.cc} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/tr-udp ${OBJECTFILES} ${LDLIBSOPTIONS}
+	${LINK.cc} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/trudp ${OBJECTFILES} ${LDLIBSOPTIONS}
 
 ${OBJECTDIR}/libtrudp/src/hash.o: libtrudp/src/hash.c 
 	${MKDIR} -p ${OBJECTDIR}/libtrudp/src
@@ -395,7 +395,7 @@ ${OBJECTDIR}/trudpcat_ev_nomain.o: ${OBJECTDIR}/trudpcat_ev.o trudpcat_ev.c
 # Clean Targets
 .clean-conf: ${CLEAN_SUBPROJECTS}
 	${RM} -r ${CND_BUILDDIR}/${CND_CONF}
-	${RM} ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/tr-udp
+	${RM} ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/trudp
 
 # Subprojects
 .clean-subprojects:

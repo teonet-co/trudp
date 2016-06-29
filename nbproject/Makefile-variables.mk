@@ -12,16 +12,16 @@ CND_ARTIFACT_DIR_Debug=dist/Debug/GNU-Linux
 CND_ARTIFACT_NAME_Debug=trudpcat
 CND_ARTIFACT_PATH_Debug=dist/Debug/GNU-Linux/trudpcat
 CND_PACKAGE_DIR_Debug=dist/Debug/GNU-Linux/package
-CND_PACKAGE_NAME_Debug=tr-udp.tar
-CND_PACKAGE_PATH_Debug=dist/Debug/GNU-Linux/package/tr-udp.tar
+CND_PACKAGE_NAME_Debug=trudp.tar
+CND_PACKAGE_PATH_Debug=dist/Debug/GNU-Linux/package/trudp.tar
 # Release configuration
 CND_PLATFORM_Release=GNU-Linux
 CND_ARTIFACT_DIR_Release=dist/Release/GNU-Linux
-CND_ARTIFACT_NAME_Release=tr-udp
-CND_ARTIFACT_PATH_Release=dist/Release/GNU-Linux/tr-udp
+CND_ARTIFACT_NAME_Release=trudp
+CND_ARTIFACT_PATH_Release=dist/Release/GNU-Linux/trudp
 CND_PACKAGE_DIR_Release=dist/Release/GNU-Linux/package
-CND_PACKAGE_NAME_Release=tr-udp.tar
-CND_PACKAGE_PATH_Release=dist/Release/GNU-Linux/package/tr-udp.tar
+CND_PACKAGE_NAME_Release=trudp.tar
+CND_PACKAGE_PATH_Release=dist/Release/GNU-Linux/package/trudp.tar
 # MinGW-w64-Debug configuration
 CND_PLATFORM_MinGW-w64-Debug=GNU-MinGW-64-Linux
 CND_ARTIFACT_DIR_MinGW-w64-Debug=dist/MinGW-w64-Debug/GNU-MinGW-64-Linux
