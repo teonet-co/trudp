@@ -69,12 +69,13 @@ typedef struct trudpMapIterator {
 } trudpMapIterator;
 
 trudpMapData *trudpMapNew(size_t size, int auto_resize_f);
-void trudpMapDestroy(trudpMapData *ht);
-void *trudpMapAdd(trudpMapData *ht, void *key, size_t key_length, void *data, size_t data_length);
-void *trudpMapGet(trudpMapData *ht, void *key, size_t key_length, size_t *data_length);
+void trudpMapDestroy(trudpMapData *map);
+void *trudpMapAdd(trudpMapData *map, void *key, size_t key_length, void *data, size_t data_length);
+void *trudpMapGet(trudpMapData *map, void *key, size_t key_length, size_t *data_length);
+void *trudpMapGetFirst(trudpMapData *map, size_t *data_length);
 int trudpMapDelete(trudpMapData *map, void *key, size_t key_length);
 
-size_t trudpMapSize(trudpMapData *ht);
+size_t trudpMapSize(trudpMapData *map);
 
 trudpMapIterator *trudpMapIteratorNew(trudpMapData *map);
 int trudpMapIteratorDestroy(trudpMapIterator *map_it);

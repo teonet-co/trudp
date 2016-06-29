@@ -21,7 +21,7 @@ FC=gfortran
 AS=x86_64-w64-mingw32-as
 
 # Macros
-CND_PLATFORM=MinGW-w64-Win32-Debug-Linux
+CND_PLATFORM=GNU-MinGW-64-Win32-Linux
 CND_DLIB_EXT=so
 CND_CONF=MinGW-w64-Win32-Debug
 CND_DISTDIR=dist
@@ -46,6 +46,7 @@ OBJECTFILES= \
 	${OBJECTDIR}/libtrudp/utils.o \
 	${OBJECTDIR}/libtrudp/write_queue.o \
 	${OBJECTDIR}/main.o \
+	${OBJECTDIR}/snake.o \
 	${OBJECTDIR}/trudpcat.o \
 	${OBJECTDIR}/trudpcat_ev.o
 
@@ -78,7 +79,7 @@ FFLAGS=
 ASFLAGS=
 
 # Link Libraries and Options
-LDLIBSOPTIONS=-lev
+LDLIBSOPTIONS=-static -lev
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
@@ -91,67 +92,72 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/trudpcat.exe: ${OBJECTFILES}
 ${OBJECTDIR}/libtrudp/hash.o: libtrudp/hash.c 
 	${MKDIR} -p ${OBJECTDIR}/libtrudp
 	${RM} "$@.d"
-	$(COMPILE.c) -g -DHAVE_MINGW -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/hash.o libtrudp/hash.c
+	$(COMPILE.c) -g -DHAVE_MINGW -include /usr/include/ev.h -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/hash.o libtrudp/hash.c
 
 ${OBJECTDIR}/libtrudp/map.o: libtrudp/map.c 
 	${MKDIR} -p ${OBJECTDIR}/libtrudp
 	${RM} "$@.d"
-	$(COMPILE.c) -g -DHAVE_MINGW -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/map.o libtrudp/map.c
+	$(COMPILE.c) -g -DHAVE_MINGW -include /usr/include/ev.h -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/map.o libtrudp/map.c
 
 ${OBJECTDIR}/libtrudp/packet.o: libtrudp/packet.c 
 	${MKDIR} -p ${OBJECTDIR}/libtrudp
 	${RM} "$@.d"
-	$(COMPILE.c) -g -DHAVE_MINGW -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/packet.o libtrudp/packet.c
+	$(COMPILE.c) -g -DHAVE_MINGW -include /usr/include/ev.h -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/packet.o libtrudp/packet.c
 
 ${OBJECTDIR}/libtrudp/packet_queue.o: libtrudp/packet_queue.c 
 	${MKDIR} -p ${OBJECTDIR}/libtrudp
 	${RM} "$@.d"
-	$(COMPILE.c) -g -DHAVE_MINGW -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/packet_queue.o libtrudp/packet_queue.c
+	$(COMPILE.c) -g -DHAVE_MINGW -include /usr/include/ev.h -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/packet_queue.o libtrudp/packet_queue.c
 
 ${OBJECTDIR}/libtrudp/queue.o: libtrudp/queue.c 
 	${MKDIR} -p ${OBJECTDIR}/libtrudp
 	${RM} "$@.d"
-	$(COMPILE.c) -g -DHAVE_MINGW -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/queue.o libtrudp/queue.c
+	$(COMPILE.c) -g -DHAVE_MINGW -include /usr/include/ev.h -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/queue.o libtrudp/queue.c
 
 ${OBJECTDIR}/libtrudp/tr-udp.o: libtrudp/tr-udp.c 
 	${MKDIR} -p ${OBJECTDIR}/libtrudp
 	${RM} "$@.d"
-	$(COMPILE.c) -g -DHAVE_MINGW -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/tr-udp.o libtrudp/tr-udp.c
+	$(COMPILE.c) -g -DHAVE_MINGW -include /usr/include/ev.h -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/tr-udp.o libtrudp/tr-udp.c
 
 ${OBJECTDIR}/libtrudp/tr-udp_stat.o: libtrudp/tr-udp_stat.c 
 	${MKDIR} -p ${OBJECTDIR}/libtrudp
 	${RM} "$@.d"
-	$(COMPILE.c) -g -DHAVE_MINGW -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/tr-udp_stat.o libtrudp/tr-udp_stat.c
+	$(COMPILE.c) -g -DHAVE_MINGW -include /usr/include/ev.h -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/tr-udp_stat.o libtrudp/tr-udp_stat.c
 
 ${OBJECTDIR}/libtrudp/udp.o: libtrudp/udp.c 
 	${MKDIR} -p ${OBJECTDIR}/libtrudp
 	${RM} "$@.d"
-	$(COMPILE.c) -g -DHAVE_MINGW -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/udp.o libtrudp/udp.c
+	$(COMPILE.c) -g -DHAVE_MINGW -include /usr/include/ev.h -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/udp.o libtrudp/udp.c
 
 ${OBJECTDIR}/libtrudp/utils.o: libtrudp/utils.c 
 	${MKDIR} -p ${OBJECTDIR}/libtrudp
 	${RM} "$@.d"
-	$(COMPILE.c) -g -DHAVE_MINGW -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/utils.o libtrudp/utils.c
+	$(COMPILE.c) -g -DHAVE_MINGW -include /usr/include/ev.h -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/utils.o libtrudp/utils.c
 
 ${OBJECTDIR}/libtrudp/write_queue.o: libtrudp/write_queue.c 
 	${MKDIR} -p ${OBJECTDIR}/libtrudp
 	${RM} "$@.d"
-	$(COMPILE.c) -g -DHAVE_MINGW -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/write_queue.o libtrudp/write_queue.c
+	$(COMPILE.c) -g -DHAVE_MINGW -include /usr/include/ev.h -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/write_queue.o libtrudp/write_queue.c
 
 ${OBJECTDIR}/main.o: main.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.cc) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/main.o main.cpp
 
+${OBJECTDIR}/snake.o: snake.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -g -DHAVE_MINGW -include /usr/include/ev.h -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/snake.o snake.c
+
 ${OBJECTDIR}/trudpcat.o: trudpcat.c 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
-	$(COMPILE.c) -g -DHAVE_MINGW -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/trudpcat.o trudpcat.c
+	$(COMPILE.c) -g -DHAVE_MINGW -include /usr/include/ev.h -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/trudpcat.o trudpcat.c
 
 ${OBJECTDIR}/trudpcat_ev.o: trudpcat_ev.c 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
-	$(COMPILE.c) -g -DHAVE_MINGW -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/trudpcat_ev.o trudpcat_ev.c
+	$(COMPILE.c) -g -DHAVE_MINGW -include /usr/include/ev.h -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/trudpcat_ev.o trudpcat_ev.c
 
 # Subprojects
 .build-subprojects:
@@ -168,31 +174,31 @@ ${TESTDIR}/TestFiles/f1: ${TESTDIR}/libtrudp/tests/map_t.o ${TESTDIR}/libtrudp/t
 ${TESTDIR}/libtrudp/tests/map_t.o: libtrudp/tests/map_t.c 
 	${MKDIR} -p ${TESTDIR}/libtrudp/tests
 	${RM} "$@.d"
-	$(COMPILE.c) -g -DHAVE_MINGW -MMD -MP -MF "$@.d" -o ${TESTDIR}/libtrudp/tests/map_t.o libtrudp/tests/map_t.c
+	$(COMPILE.c) -g -DHAVE_MINGW -include /usr/include/ev.h -MMD -MP -MF "$@.d" -o ${TESTDIR}/libtrudp/tests/map_t.o libtrudp/tests/map_t.c
 
 
 ${TESTDIR}/libtrudp/tests/packet_queue_t.o: libtrudp/tests/packet_queue_t.c 
 	${MKDIR} -p ${TESTDIR}/libtrudp/tests
 	${RM} "$@.d"
-	$(COMPILE.c) -g -DHAVE_MINGW -MMD -MP -MF "$@.d" -o ${TESTDIR}/libtrudp/tests/packet_queue_t.o libtrudp/tests/packet_queue_t.c
+	$(COMPILE.c) -g -DHAVE_MINGW -include /usr/include/ev.h -MMD -MP -MF "$@.d" -o ${TESTDIR}/libtrudp/tests/packet_queue_t.o libtrudp/tests/packet_queue_t.c
 
 
 ${TESTDIR}/libtrudp/tests/packet_t.o: libtrudp/tests/packet_t.c 
 	${MKDIR} -p ${TESTDIR}/libtrudp/tests
 	${RM} "$@.d"
-	$(COMPILE.c) -g -DHAVE_MINGW -MMD -MP -MF "$@.d" -o ${TESTDIR}/libtrudp/tests/packet_t.o libtrudp/tests/packet_t.c
+	$(COMPILE.c) -g -DHAVE_MINGW -include /usr/include/ev.h -MMD -MP -MF "$@.d" -o ${TESTDIR}/libtrudp/tests/packet_t.o libtrudp/tests/packet_t.c
 
 
 ${TESTDIR}/libtrudp/tests/queue_t.o: libtrudp/tests/queue_t.c 
 	${MKDIR} -p ${TESTDIR}/libtrudp/tests
 	${RM} "$@.d"
-	$(COMPILE.c) -g -DHAVE_MINGW -MMD -MP -MF "$@.d" -o ${TESTDIR}/libtrudp/tests/queue_t.o libtrudp/tests/queue_t.c
+	$(COMPILE.c) -g -DHAVE_MINGW -include /usr/include/ev.h -MMD -MP -MF "$@.d" -o ${TESTDIR}/libtrudp/tests/queue_t.o libtrudp/tests/queue_t.c
 
 
 ${TESTDIR}/libtrudp/tests/tr-udp_t.o: libtrudp/tests/tr-udp_t.c 
 	${MKDIR} -p ${TESTDIR}/libtrudp/tests
 	${RM} "$@.d"
-	$(COMPILE.c) -g -DHAVE_MINGW -MMD -MP -MF "$@.d" -o ${TESTDIR}/libtrudp/tests/tr-udp_t.o libtrudp/tests/tr-udp_t.c
+	$(COMPILE.c) -g -DHAVE_MINGW -include /usr/include/ev.h -MMD -MP -MF "$@.d" -o ${TESTDIR}/libtrudp/tests/tr-udp_t.o libtrudp/tests/tr-udp_t.c
 
 
 ${OBJECTDIR}/libtrudp/hash_nomain.o: ${OBJECTDIR}/libtrudp/hash.o libtrudp/hash.c 
@@ -203,7 +209,7 @@ ${OBJECTDIR}/libtrudp/hash_nomain.o: ${OBJECTDIR}/libtrudp/hash.o libtrudp/hash.
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.c) -g -DHAVE_MINGW -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/hash_nomain.o libtrudp/hash.c;\
+	    $(COMPILE.c) -g -DHAVE_MINGW -include /usr/include/ev.h -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/hash_nomain.o libtrudp/hash.c;\
 	else  \
 	    ${CP} ${OBJECTDIR}/libtrudp/hash.o ${OBJECTDIR}/libtrudp/hash_nomain.o;\
 	fi
@@ -216,7 +222,7 @@ ${OBJECTDIR}/libtrudp/map_nomain.o: ${OBJECTDIR}/libtrudp/map.o libtrudp/map.c
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.c) -g -DHAVE_MINGW -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/map_nomain.o libtrudp/map.c;\
+	    $(COMPILE.c) -g -DHAVE_MINGW -include /usr/include/ev.h -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/map_nomain.o libtrudp/map.c;\
 	else  \
 	    ${CP} ${OBJECTDIR}/libtrudp/map.o ${OBJECTDIR}/libtrudp/map_nomain.o;\
 	fi
@@ -229,7 +235,7 @@ ${OBJECTDIR}/libtrudp/packet_nomain.o: ${OBJECTDIR}/libtrudp/packet.o libtrudp/p
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.c) -g -DHAVE_MINGW -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/packet_nomain.o libtrudp/packet.c;\
+	    $(COMPILE.c) -g -DHAVE_MINGW -include /usr/include/ev.h -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/packet_nomain.o libtrudp/packet.c;\
 	else  \
 	    ${CP} ${OBJECTDIR}/libtrudp/packet.o ${OBJECTDIR}/libtrudp/packet_nomain.o;\
 	fi
@@ -242,7 +248,7 @@ ${OBJECTDIR}/libtrudp/packet_queue_nomain.o: ${OBJECTDIR}/libtrudp/packet_queue.
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.c) -g -DHAVE_MINGW -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/packet_queue_nomain.o libtrudp/packet_queue.c;\
+	    $(COMPILE.c) -g -DHAVE_MINGW -include /usr/include/ev.h -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/packet_queue_nomain.o libtrudp/packet_queue.c;\
 	else  \
 	    ${CP} ${OBJECTDIR}/libtrudp/packet_queue.o ${OBJECTDIR}/libtrudp/packet_queue_nomain.o;\
 	fi
@@ -255,7 +261,7 @@ ${OBJECTDIR}/libtrudp/queue_nomain.o: ${OBJECTDIR}/libtrudp/queue.o libtrudp/que
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.c) -g -DHAVE_MINGW -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/queue_nomain.o libtrudp/queue.c;\
+	    $(COMPILE.c) -g -DHAVE_MINGW -include /usr/include/ev.h -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/queue_nomain.o libtrudp/queue.c;\
 	else  \
 	    ${CP} ${OBJECTDIR}/libtrudp/queue.o ${OBJECTDIR}/libtrudp/queue_nomain.o;\
 	fi
@@ -268,7 +274,7 @@ ${OBJECTDIR}/libtrudp/tr-udp_nomain.o: ${OBJECTDIR}/libtrudp/tr-udp.o libtrudp/t
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.c) -g -DHAVE_MINGW -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/tr-udp_nomain.o libtrudp/tr-udp.c;\
+	    $(COMPILE.c) -g -DHAVE_MINGW -include /usr/include/ev.h -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/tr-udp_nomain.o libtrudp/tr-udp.c;\
 	else  \
 	    ${CP} ${OBJECTDIR}/libtrudp/tr-udp.o ${OBJECTDIR}/libtrudp/tr-udp_nomain.o;\
 	fi
@@ -281,7 +287,7 @@ ${OBJECTDIR}/libtrudp/tr-udp_stat_nomain.o: ${OBJECTDIR}/libtrudp/tr-udp_stat.o 
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.c) -g -DHAVE_MINGW -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/tr-udp_stat_nomain.o libtrudp/tr-udp_stat.c;\
+	    $(COMPILE.c) -g -DHAVE_MINGW -include /usr/include/ev.h -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/tr-udp_stat_nomain.o libtrudp/tr-udp_stat.c;\
 	else  \
 	    ${CP} ${OBJECTDIR}/libtrudp/tr-udp_stat.o ${OBJECTDIR}/libtrudp/tr-udp_stat_nomain.o;\
 	fi
@@ -294,7 +300,7 @@ ${OBJECTDIR}/libtrudp/udp_nomain.o: ${OBJECTDIR}/libtrudp/udp.o libtrudp/udp.c
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.c) -g -DHAVE_MINGW -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/udp_nomain.o libtrudp/udp.c;\
+	    $(COMPILE.c) -g -DHAVE_MINGW -include /usr/include/ev.h -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/udp_nomain.o libtrudp/udp.c;\
 	else  \
 	    ${CP} ${OBJECTDIR}/libtrudp/udp.o ${OBJECTDIR}/libtrudp/udp_nomain.o;\
 	fi
@@ -307,7 +313,7 @@ ${OBJECTDIR}/libtrudp/utils_nomain.o: ${OBJECTDIR}/libtrudp/utils.o libtrudp/uti
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.c) -g -DHAVE_MINGW -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/utils_nomain.o libtrudp/utils.c;\
+	    $(COMPILE.c) -g -DHAVE_MINGW -include /usr/include/ev.h -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/utils_nomain.o libtrudp/utils.c;\
 	else  \
 	    ${CP} ${OBJECTDIR}/libtrudp/utils.o ${OBJECTDIR}/libtrudp/utils_nomain.o;\
 	fi
@@ -320,7 +326,7 @@ ${OBJECTDIR}/libtrudp/write_queue_nomain.o: ${OBJECTDIR}/libtrudp/write_queue.o 
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.c) -g -DHAVE_MINGW -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/write_queue_nomain.o libtrudp/write_queue.c;\
+	    $(COMPILE.c) -g -DHAVE_MINGW -include /usr/include/ev.h -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/write_queue_nomain.o libtrudp/write_queue.c;\
 	else  \
 	    ${CP} ${OBJECTDIR}/libtrudp/write_queue.o ${OBJECTDIR}/libtrudp/write_queue_nomain.o;\
 	fi
@@ -338,6 +344,19 @@ ${OBJECTDIR}/main_nomain.o: ${OBJECTDIR}/main.o main.cpp
 	    ${CP} ${OBJECTDIR}/main.o ${OBJECTDIR}/main_nomain.o;\
 	fi
 
+${OBJECTDIR}/snake_nomain.o: ${OBJECTDIR}/snake.o snake.c 
+	${MKDIR} -p ${OBJECTDIR}
+	@NMOUTPUT=`${NM} ${OBJECTDIR}/snake.o`; \
+	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
+	then  \
+	    ${RM} "$@.d";\
+	    $(COMPILE.c) -g -DHAVE_MINGW -include /usr/include/ev.h -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/snake_nomain.o snake.c;\
+	else  \
+	    ${CP} ${OBJECTDIR}/snake.o ${OBJECTDIR}/snake_nomain.o;\
+	fi
+
 ${OBJECTDIR}/trudpcat_nomain.o: ${OBJECTDIR}/trudpcat.o trudpcat.c 
 	${MKDIR} -p ${OBJECTDIR}
 	@NMOUTPUT=`${NM} ${OBJECTDIR}/trudpcat.o`; \
@@ -346,7 +365,7 @@ ${OBJECTDIR}/trudpcat_nomain.o: ${OBJECTDIR}/trudpcat.o trudpcat.c
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.c) -g -DHAVE_MINGW -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/trudpcat_nomain.o trudpcat.c;\
+	    $(COMPILE.c) -g -DHAVE_MINGW -include /usr/include/ev.h -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/trudpcat_nomain.o trudpcat.c;\
 	else  \
 	    ${CP} ${OBJECTDIR}/trudpcat.o ${OBJECTDIR}/trudpcat_nomain.o;\
 	fi
@@ -359,7 +378,7 @@ ${OBJECTDIR}/trudpcat_ev_nomain.o: ${OBJECTDIR}/trudpcat_ev.o trudpcat_ev.c
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.c) -g -DHAVE_MINGW -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/trudpcat_ev_nomain.o trudpcat_ev.c;\
+	    $(COMPILE.c) -g -DHAVE_MINGW -include /usr/include/ev.h -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/trudpcat_ev_nomain.o trudpcat_ev.c;\
 	else  \
 	    ${CP} ${OBJECTDIR}/trudpcat_ev.o ${OBJECTDIR}/trudpcat_ev_nomain.o;\
 	fi

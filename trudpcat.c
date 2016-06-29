@@ -279,7 +279,7 @@ static void network_loop(trudpData *td) {
     }
 
     // Process send queue
-    trudpProcessSendQueue(td);
+    trudpProcessSendQueue(td, 0);
 
     // Process write queue
     while(trudpProcessWriteQueue(td));
@@ -333,7 +333,7 @@ static void network_select_loop(trudpData *td, int timeout) {
 
         // Process send queue
         if(timeout_sq != UINT32_MAX) {
-            int rv = trudpProcessSendQueue(td);
+            int rv = trudpProcessSendQueue(td, 0);
             debug("process send queue ... %d\n", rv);
         }
     }

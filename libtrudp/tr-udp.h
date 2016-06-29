@@ -36,15 +36,26 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+// TR-UDP constants    
+#define MAX_KEY_LENGTH 64 // Maximum key length
+#define MAX_OUTRUNNING 500 // Maximum outrunning in receive queue to send reset
+#define START_MIDDLE_TIME (MAX_ACK_WAIT/5) * 1000000 // Midle time at start       
+#define RESET_AFTER_ID (UINT32_MAX - 1024) // Reset if send id more than this constant
+#define MAX_TRIPTIME_MIDDLE 5757575 // Maximum number of Middle triptime
+#define MAX_LAST_RECEIVE MAX_TRIPTIME_MIDDLE // Disconnect after last receved packet time older than this constant
+#define SEND_PING_AFTER 2500000   
+#define MAP_SIZE_DEFAULT 1000 // Default map size; map stored connected channels and can auto resize
+#define USE_WRITE_QUEUE 0 // Use write queue instead of direct write to socket
+#define MAX_RTT 50000 // 250000; This constant used in send queue expected time calculation
+
+//#define MIN_RETRIEVES_TIME 3 * 1000 * 1000   
+//#define SEND_QUEUE_MAX 500
+//#define MAX_RETRIEVES 200
     
-#define CS_KEY_LENGTH 64    
-#define MAX_RETRIEVES 10
-#define MAX_OUTRUNNING 10    
-#define MAX_RETRIEVES_TIME 2 * 1000 * 1000
-#define START_MIDDLE_TIME (MAX_ACK_WAIT/5) * 1000000    
-    
-#define RESET_AFTER_ID (UINT32_MAX - 1024)
-    
+/**
+ * Get pointer to trudpData from trudpChannelData
+ */    
 #define TD(tcd) ((trudpData*)tcd->td)    
     
 /**
@@ -108,7 +119,7 @@ typedef struct last10_data {
 typedef struct trudpStatChannelData {
     
     #define LAST10_SIZE 10
-    char key[CS_KEY_LENGTH]; ///< Channel key 
+    char key[MAX_KEY_LENGTH]; ///< Channel key 
     uint32_t triptime_last; ///< Last trip time
     uint32_t triptime_max; ///< Max trip time
     uint32_t triptime_last_max; ///< Max trip time in last 10 packets
@@ -145,12 +156,14 @@ typedef struct trudpChannelData {
     uint32_t triptime; ///< Trip time 
     double triptimeFactor; ///< Triptime factor
     uint32_t triptimeMiddle; ///< Trip time middle
+//    uint32_t lastSend; ///< Last send time
     
     trudpWriteQueue *writeQueue; ///< Pointer to write queue trudpWriteQueue
         
     uint32_t receiveExpectedId; ///< Ecpected recive Id
     trudpPacketQueue *receiveQueue; ///< Pointer to recive queue receiveQueue
     int outrunning_cnt; ///< Receive queue outrunning count
+    uint64_t lastReceived; ///< Last received time
 
     // Link to parent trudpData
     void *td; ///< Pointer to trudpData
@@ -212,8 +225,10 @@ void trudpDestroy(trudpData* trudp);
 trudpCb trudpSetCallback(trudpData *td, trudpCallbsckType type, trudpCb cb);
 trudpChannelData *trudpCheckRemoteAddr(trudpData *td, struct sockaddr_in *remaddr, 
         socklen_t addr_length, int channel);
-int trudpProcessSendQueue(trudpData *td);
+int trudpProcessSendQueue(trudpData *td, uint64_t *next_et);
 size_t trudpProcessWriteQueue(trudpData *td);
+void trudpSendResetAll(trudpData *td);
+size_t trudpKeepConnection(trudpData *td);
 
 trudpChannelData *trudpNewChannel(trudpData *td, char *remote_address, int remote_port_i, int channel); // void *user_data, trudpDataCb processDataCb, trudpDataCb sendPacketCb);
 void trudpDestroyChannel(trudpChannelData *tcd);
@@ -225,6 +240,8 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
 char *trudpMakeKeyCannel(trudpChannelData *tcd);
 
 char *trudpMakeKey(char *addr, int port, int channel, size_t *key_length);
+size_t trudpGetSendQueueMax(trudpData *td);
+size_t trudpGetReceiveQueueMax(trudpData *td);
 
 #ifdef __cplusplus
 }

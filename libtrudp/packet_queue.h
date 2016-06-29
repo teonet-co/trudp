@@ -45,7 +45,7 @@ typedef struct trudpPacketQueue {
 
 typedef struct trudpPacketQueueData {
 
-    uint32_t expected_time;
+    uint64_t expected_time;
     uint32_t packet_length;
     uint32_t retrieves;
     uint32_t retrieves_start;
@@ -60,11 +60,14 @@ inline int trudpPacketQueueFree(trudpPacketQueue *tq);
 inline size_t trudpPacketQueueSize(trudpPacketQueue *tq);
 inline trudpQueueData *trudpPacketQueueDataToQueueData(trudpPacketQueueData *tqd);
 
-trudpPacketQueueData *trudpPacketQueueAdd(trudpPacketQueue *tq, void *packet,
-        size_t packet_length, uint32_t expected_time);
+trudpPacketQueueData *trudpPacketQueueAdd(trudpPacketQueue *tq, 
+        void *packet, size_t packet_length, uint64_t expected_time);
+trudpPacketQueueData *trudpPacketQueueAddTime(trudpPacketQueue *tq, 
+        void *packet, size_t packet_length, uint64_t expected_time);
 inline int trudpPacketQueueDelete(trudpPacketQueue *tq, trudpPacketQueueData *tqd);
 trudpPacketQueueData *trudpPacketQueueFindById(trudpPacketQueue *tq, uint32_t id);
-trudpPacketQueueData *trudpPacketQueueFindByTime(trudpPacketQueue *tq, uint32_t t);
+trudpPacketQueueData *trudpPacketQueueFindByTime(trudpPacketQueue *tq, uint64_t t);
+trudpPacketQueueData *trudpPacketQueueGetFirst(trudpPacketQueue *tq);
 
 #ifdef __cplusplus
 }

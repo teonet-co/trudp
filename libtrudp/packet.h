@@ -38,6 +38,7 @@
 extern "C" {
 #endif
 
+// TR-UDP Protocol constants    
 #define TR_UDP_PROTOCOL_VERSION 2
 #define MIN_ACK_WAIT 0.000732  // 000.732 MS
 #define MAX_ACK_WAIT 0.500  // 500 MS
@@ -49,13 +50,17 @@ extern "C" {
  */
 typedef enum trudpPacketType {
 
-    TRU_DATA, ///< The DATA messages are carrying payload. (has payload)
+    TRU_DATA, ///< #0 The DATA messages are carrying payload. (has payload)
     /**
+     * #1 
      * The ACK messages are used to acknowledge the arrival of the DATA and
      * RESET messages. (has not payload)
      */
     TRU_ACK,
-    TRU_RESET ///< The RESET messages reset messages counter. (has not payload)
+    TRU_RESET, ///< #2 The RESET messages reset messages counter. (has not payload)
+    TRU_ACK_TRU_RESET, ///< #3 = TRU_ACK | TRU_RESET: ACK for RESET. (has not payload)  
+    TRU_PING, ///< #4 PING The DATA messages can carrying payload, does not sent to User level as DATA received. (payload allowed)
+    TRU_ACK_PING ///< #5 = TRU_ACK | TRU_PING: ACK for PING (payload allowed)
 
 } trudpPacketType;
 
@@ -63,8 +68,12 @@ inline int trudpPacketCheck(void *th, size_t packetLength);
 
 inline void *trudpPacketACKcreateNew(void *in_th);
 inline void *trudpPacketACKtoRESETcreateNew(void *in_th);
+inline void *trudpPacketACKtoPINGcreateNew(void *in_th);
 inline void *trudpPacketRESETcreateNew(uint32_t id, unsigned int channel);
-inline void *trudpPacketDATAcreateNew(uint32_t id, unsigned int channel, void *data, size_t data_length, size_t *packetLength);
+inline void *trudpPacketDATAcreateNew(uint32_t id, unsigned int channel, 
+        void *data, size_t data_length, size_t *packetLength);
+inline void *trudpPacketPINGcreateNew(uint32_t id, unsigned int channel,
+        void *data, size_t data_length, size_t *packetLength);
 
 inline size_t trudpPacketACKlength();
 inline size_t trudpPacketRESETlength();
@@ -76,12 +85,14 @@ inline void *trudpPacketGetData(void *packet);
 inline uint16_t trudpPacketGetDataLength(void *packet);
 inline size_t trudpPacketGetHeaderLength(void *packet);
 inline void *trudpPacketGetPacket(void *data);
+inline size_t trudpPacketGetPacketLength(void *packet);
 inline trudpPacketType trudpPacketGetType(void *packet);
+inline void trudpPacketSetType(void *packet, trudpPacketType message_type);
 inline uint32_t trudpPacketGetTimestamp(void *packet);
 
 inline void trudpPacketCreatedFree(void *in_th);
 
-inline unsigned long long trudpGetTimestampFull();
+inline uint64_t /*unsigned long long*/ trudpGetTimestampFull();
 inline uint32_t trudpGetTimestamp();
 
 #ifdef __cplusplus

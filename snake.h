@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License
  *
  * Copyright 2016 Kirill Scherba <kirill@scherba.ru>.
@@ -20,45 +20,28 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- *
- * \file   tr-udp_stat.h
- * \author Kirill Scherba <kirill@scherba.ru>
- *
- * Created on June 11, 2016, 4:40 PM
  */
 
-#ifndef TRU_UDP_STAT_H
-#define TRU_UDP_STAT_H
+/* 
+ * File:   snake.h
+ * Author: Kirill Scherba <kirill@scherba.ru>
+ *
+ * Created on June 24, 2016, 3:50 PM
+ */
 
-#include "tr-udp.h"
+#ifndef SNAKE_H
+#define SNAKE_H
+
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-    
-typedef enum trudpStatType {
- 
-    BINARY_TYPE,
-    JSON_TYPE
-            
-} trudpStatType;    
-    
-inline trudpStatData *trudpStatInit(trudpData *td);
-inline trudpStatData *trudpStatReset(trudpData *td);
 
-inline void trudpStatChannelInit(trudpChannelData *tcd);
-inline void trudpStatChannelReset(trudpChannelData *tcd);
-
-void trudpStatProcessLast10Send(trudpChannelData *tcd, void *packet, size_t send_data_length);
-void trudpStatProcessLast10Receive(trudpChannelData *tcd, void *packet);
-
-void *trudpStatGet(trudpData *td, int type, size_t *stat_len);
-char *ksnTRUDPstatShowStr(trudpData *td);
-
-char *trudpStatShowQueueStr(trudpChannelData *tcd, int type);
+void run_snake();
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* TRU_UDP_STAT_H */
+#endif /* SNAKE_H */
+

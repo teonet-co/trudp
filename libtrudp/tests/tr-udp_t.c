@@ -251,16 +251,16 @@ static void send_process_received_packet_test() {
     
     idx = 1;
     // Test send queue retrieves
-      void *wc = td_A->sendCb; td_A->sendCb = NULL; // Stop write callback
-      CU_ASSERT(trudpSendData(tcd_A, data[idx], data_length[idx]) > 0);
-      usleep(tcd_A->triptime); td_A->sendCb = wc; // Sleep and restore calback
-      #if !NO_MESSAGES
-      printf("\ntrudpProcessSendQueue begin");
-      #endif    
-      int r = trudpProcessChannelSendQueue(tcd_A);
-      #if !NO_MESSAGES
-      printf("send queue processed times: %d ...\ntrudpProcessSendQueue end\n", r);
-      #endif
+       void *wc = td_A->sendCb; td_A->sendCb = NULL; // Stop write callback
+       CU_ASSERT(trudpSendData(tcd_A, data[idx], data_length[idx]) > 0);
+       usleep(tcd_A->triptime); td_A->sendCb = wc; // Sleep and restore calback
+       #if !NO_MESSAGES
+       printf("\ntrudpProcessSendQueue begin");
+       #endif    
+       int r = trudpProcessChannelSendQueue(tcd_A, trudpGetTimestamp(), NULL);
+       #if !NO_MESSAGES
+       printf("send queue processed times: %d ...\ntrudpProcessSendQueue end\n", r);
+       #endif
     // end test send queue retrieves
     CU_ASSERT(trudpSendData(tcd_B, data[num_packets-idx-1], data_length[num_packets-idx-1]) > 0);
      
