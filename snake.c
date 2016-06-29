@@ -34,9 +34,9 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#include "libtrudp/utils_r.h"
-#include "libtrudp/queue.h"
-#include "libtrudp/packet.h"
+#include "libtrudp/src/utils_r.h"
+#include "libtrudp/src/queue.h"
+#include "libtrudp/src/packet.h"
 
 // Box characters
 #define RB "\e(0\x6a\e(B" // 188 Right Bottom corner

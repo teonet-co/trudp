@@ -42,12 +42,12 @@
 extern int usleep (__useconds_t __useconds);
 #endif
 
-#include "libtrudp/tr-udp.h"
-#include "libtrudp/utils_r.h"
-#include "libtrudp/tr-udp_stat.h"
+#include "libtrudp/src/tr-udp.h"
+#include "libtrudp/src/utils_r.h"
+#include "libtrudp/src/tr-udp_stat.h"
 
 // Application version
-#define APP_VERSION "0.0.17"
+#define APP_VERSION "0.0.18"
 
 // Application constants
 #define SEND_MESSAGE_AFTER_MIN  15000 /* 16667 */ // uSec (mSec * 1000)

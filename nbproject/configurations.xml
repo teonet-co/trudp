@@ -16,27 +16,27 @@
       <logicalFolder name="libtrudp" displayName="libtrudp" projectFiles="true">
         <logicalFolder name="tests" displayName="tests" projectFiles="true">
         </logicalFolder>
-        <itemPath>libtrudp/hash.c</itemPath>
-        <itemPath>libtrudp/hash.h</itemPath>
-        <itemPath>libtrudp/map.c</itemPath>
-        <itemPath>libtrudp/map.h</itemPath>
-        <itemPath>libtrudp/packet.c</itemPath>
-        <itemPath>libtrudp/packet.h</itemPath>
-        <itemPath>libtrudp/packet_queue.c</itemPath>
-        <itemPath>libtrudp/packet_queue.h</itemPath>
-        <itemPath>libtrudp/queue.c</itemPath>
-        <itemPath>libtrudp/queue.h</itemPath>
-        <itemPath>libtrudp/tr-udp.c</itemPath>
-        <itemPath>libtrudp/tr-udp.h</itemPath>
-        <itemPath>libtrudp/tr-udp_stat.c</itemPath>
-        <itemPath>libtrudp/tr-udp_stat.h</itemPath>
-        <itemPath>libtrudp/udp.c</itemPath>
-        <itemPath>libtrudp/udp.h</itemPath>
-        <itemPath>libtrudp/utils.c</itemPath>
-        <itemPath>libtrudp/utils.h</itemPath>
-        <itemPath>libtrudp/utils_r.h</itemPath>
-        <itemPath>libtrudp/write_queue.c</itemPath>
-        <itemPath>libtrudp/write_queue.h</itemPath>
+        <itemPath>libtrudp/src/hash.c</itemPath>
+        <itemPath>libtrudp/src/hash.h</itemPath>
+        <itemPath>libtrudp/src/map.c</itemPath>
+        <itemPath>libtrudp/src/map.h</itemPath>
+        <itemPath>libtrudp/src/packet.c</itemPath>
+        <itemPath>libtrudp/src/packet.h</itemPath>
+        <itemPath>libtrudp/src/packet_queue.c</itemPath>
+        <itemPath>libtrudp/src/packet_queue.h</itemPath>
+        <itemPath>libtrudp/src/queue.c</itemPath>
+        <itemPath>libtrudp/src/queue.h</itemPath>
+        <itemPath>libtrudp/src/tr-udp.c</itemPath>
+        <itemPath>libtrudp/src/tr-udp.h</itemPath>
+        <itemPath>libtrudp/src/tr-udp_stat.c</itemPath>
+        <itemPath>libtrudp/src/tr-udp_stat.h</itemPath>
+        <itemPath>libtrudp/src/udp.c</itemPath>
+        <itemPath>libtrudp/src/udp.h</itemPath>
+        <itemPath>libtrudp/src/utils.c</itemPath>
+        <itemPath>libtrudp/src/utils.h</itemPath>
+        <itemPath>libtrudp/src/utils_r.h</itemPath>
+        <itemPath>libtrudp/src/write_queue.c</itemPath>
+        <itemPath>libtrudp/src/write_queue.h</itemPath>
       </logicalFolder>
       <itemPath>main.cpp</itemPath>
       <itemPath>snake.c</itemPath>
@@ -94,25 +94,47 @@
           </linkerLibItems>
         </linkerTool>
       </folder>
-      <item path="libtrudp/hash.c" ex="false" tool="0" flavor2="0">
+      <item path="libtrudp/src/hash.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="libtrudp/hash.h" ex="false" tool="3" flavor2="0">
+      <item path="libtrudp/src/hash.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="libtrudp/map.c" ex="false" tool="0" flavor2="0">
+      <item path="libtrudp/src/map.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="libtrudp/map.h" ex="false" tool="3" flavor2="0">
+      <item path="libtrudp/src/map.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="libtrudp/packet.c" ex="false" tool="0" flavor2="0">
+      <item path="libtrudp/src/packet.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="libtrudp/packet.h" ex="false" tool="3" flavor2="0">
+      <item path="libtrudp/src/packet.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="libtrudp/packet_queue.c" ex="false" tool="0" flavor2="0">
+      <item path="libtrudp/src/packet_queue.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="libtrudp/packet_queue.h" ex="false" tool="3" flavor2="0">
+      <item path="libtrudp/src/packet_queue.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="libtrudp/queue.c" ex="false" tool="0" flavor2="0">
+      <item path="libtrudp/src/queue.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="libtrudp/queue.h" ex="false" tool="3" flavor2="0">
+      <item path="libtrudp/src/queue.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/src/tr-udp.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="libtrudp/src/tr-udp.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/src/tr-udp_stat.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="libtrudp/src/tr-udp_stat.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/src/udp.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="libtrudp/src/udp.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/src/utils.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="libtrudp/src/utils.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/src/utils_r.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/src/write_queue.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="libtrudp/src/write_queue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="libtrudp/tests/map_t.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -123,28 +145,6 @@
       <item path="libtrudp/tests/queue_t.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="libtrudp/tests/tr-udp_t.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="libtrudp/tr-udp.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="libtrudp/tr-udp.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="libtrudp/tr-udp_stat.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="libtrudp/tr-udp_stat.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="libtrudp/udp.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="libtrudp/udp.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="libtrudp/utils.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="libtrudp/utils.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="libtrudp/utils_r.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="libtrudp/write_queue.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="libtrudp/write_queue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="main.cpp" ex="false" tool="1" flavor2="0">
       </item>
@@ -190,25 +190,47 @@
           </linkerLibItems>
         </linkerTool>
       </folder>
-      <item path="libtrudp/hash.c" ex="false" tool="0" flavor2="0">
+      <item path="libtrudp/src/hash.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="libtrudp/hash.h" ex="false" tool="3" flavor2="0">
+      <item path="libtrudp/src/hash.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="libtrudp/map.c" ex="false" tool="0" flavor2="0">
+      <item path="libtrudp/src/map.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="libtrudp/map.h" ex="false" tool="3" flavor2="0">
+      <item path="libtrudp/src/map.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="libtrudp/packet.c" ex="false" tool="0" flavor2="0">
+      <item path="libtrudp/src/packet.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="libtrudp/packet.h" ex="false" tool="3" flavor2="0">
+      <item path="libtrudp/src/packet.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="libtrudp/packet_queue.c" ex="false" tool="0" flavor2="0">
+      <item path="libtrudp/src/packet_queue.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="libtrudp/packet_queue.h" ex="false" tool="3" flavor2="0">
+      <item path="libtrudp/src/packet_queue.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="libtrudp/queue.c" ex="false" tool="0" flavor2="0">
+      <item path="libtrudp/src/queue.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="libtrudp/queue.h" ex="false" tool="3" flavor2="0">
+      <item path="libtrudp/src/queue.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/src/tr-udp.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="libtrudp/src/tr-udp.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/src/tr-udp_stat.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="libtrudp/src/tr-udp_stat.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/src/udp.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="libtrudp/src/udp.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/src/utils.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="libtrudp/src/utils.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/src/utils_r.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/src/write_queue.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="libtrudp/src/write_queue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="libtrudp/tests/map_t.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -219,28 +241,6 @@
       <item path="libtrudp/tests/queue_t.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="libtrudp/tests/tr-udp_t.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="libtrudp/tr-udp.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="libtrudp/tr-udp.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="libtrudp/tr-udp_stat.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="libtrudp/tr-udp_stat.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="libtrudp/udp.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="libtrudp/udp.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="libtrudp/utils.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="libtrudp/utils.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="libtrudp/utils_r.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="libtrudp/write_queue.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="libtrudp/write_queue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="main.cpp" ex="false" tool="1" flavor2="0">
       </item>
@@ -275,25 +275,47 @@
           </linkerLibItems>
         </linkerTool>
       </folder>
-      <item path="libtrudp/hash.c" ex="false" tool="0" flavor2="0">
+      <item path="libtrudp/src/hash.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="libtrudp/hash.h" ex="false" tool="3" flavor2="0">
+      <item path="libtrudp/src/hash.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="libtrudp/map.c" ex="false" tool="0" flavor2="0">
+      <item path="libtrudp/src/map.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="libtrudp/map.h" ex="false" tool="3" flavor2="0">
+      <item path="libtrudp/src/map.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="libtrudp/packet.c" ex="false" tool="0" flavor2="9">
+      <item path="libtrudp/src/packet.c" ex="false" tool="0" flavor2="9">
       </item>
-      <item path="libtrudp/packet.h" ex="false" tool="3" flavor2="0">
+      <item path="libtrudp/src/packet.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="libtrudp/packet_queue.c" ex="false" tool="0" flavor2="9">
+      <item path="libtrudp/src/packet_queue.c" ex="false" tool="0" flavor2="9">
       </item>
-      <item path="libtrudp/packet_queue.h" ex="false" tool="3" flavor2="0">
+      <item path="libtrudp/src/packet_queue.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="libtrudp/queue.c" ex="false" tool="0" flavor2="9">
+      <item path="libtrudp/src/queue.c" ex="false" tool="0" flavor2="9">
       </item>
-      <item path="libtrudp/queue.h" ex="false" tool="3" flavor2="0">
+      <item path="libtrudp/src/queue.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/src/tr-udp.c" ex="false" tool="0" flavor2="9">
+      </item>
+      <item path="libtrudp/src/tr-udp.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/src/tr-udp_stat.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="libtrudp/src/tr-udp_stat.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/src/udp.c" ex="false" tool="0" flavor2="9">
+      </item>
+      <item path="libtrudp/src/udp.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/src/utils.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="libtrudp/src/utils.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/src/utils_r.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/src/write_queue.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="libtrudp/src/write_queue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="libtrudp/tests/map_t.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -304,28 +326,6 @@
       <item path="libtrudp/tests/queue_t.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="libtrudp/tests/tr-udp_t.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="libtrudp/tr-udp.c" ex="false" tool="0" flavor2="9">
-      </item>
-      <item path="libtrudp/tr-udp.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="libtrudp/tr-udp_stat.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="libtrudp/tr-udp_stat.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="libtrudp/udp.c" ex="false" tool="0" flavor2="9">
-      </item>
-      <item path="libtrudp/udp.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="libtrudp/utils.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="libtrudp/utils.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="libtrudp/utils_r.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="libtrudp/write_queue.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="libtrudp/write_queue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="main.cpp" ex="false" tool="1" flavor2="9">
       </item>
@@ -368,25 +368,47 @@
           </linkerLibItems>
         </linkerTool>
       </folder>
-      <item path="libtrudp/hash.c" ex="false" tool="0" flavor2="0">
+      <item path="libtrudp/src/hash.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="libtrudp/hash.h" ex="false" tool="3" flavor2="0">
+      <item path="libtrudp/src/hash.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="libtrudp/map.c" ex="false" tool="0" flavor2="0">
+      <item path="libtrudp/src/map.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="libtrudp/map.h" ex="false" tool="3" flavor2="0">
+      <item path="libtrudp/src/map.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="libtrudp/packet.c" ex="false" tool="0" flavor2="9">
+      <item path="libtrudp/src/packet.c" ex="false" tool="0" flavor2="9">
       </item>
-      <item path="libtrudp/packet.h" ex="false" tool="3" flavor2="0">
+      <item path="libtrudp/src/packet.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="libtrudp/packet_queue.c" ex="false" tool="0" flavor2="9">
+      <item path="libtrudp/src/packet_queue.c" ex="false" tool="0" flavor2="9">
       </item>
-      <item path="libtrudp/packet_queue.h" ex="false" tool="3" flavor2="0">
+      <item path="libtrudp/src/packet_queue.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="libtrudp/queue.c" ex="false" tool="0" flavor2="9">
+      <item path="libtrudp/src/queue.c" ex="false" tool="0" flavor2="9">
       </item>
-      <item path="libtrudp/queue.h" ex="false" tool="3" flavor2="0">
+      <item path="libtrudp/src/queue.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/src/tr-udp.c" ex="false" tool="0" flavor2="9">
+      </item>
+      <item path="libtrudp/src/tr-udp.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/src/tr-udp_stat.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="libtrudp/src/tr-udp_stat.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/src/udp.c" ex="false" tool="0" flavor2="9">
+      </item>
+      <item path="libtrudp/src/udp.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/src/utils.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="libtrudp/src/utils.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/src/utils_r.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/src/write_queue.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="libtrudp/src/write_queue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="libtrudp/tests/map_t.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -397,28 +419,6 @@
       <item path="libtrudp/tests/queue_t.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="libtrudp/tests/tr-udp_t.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="libtrudp/tr-udp.c" ex="false" tool="0" flavor2="9">
-      </item>
-      <item path="libtrudp/tr-udp.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="libtrudp/tr-udp_stat.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="libtrudp/tr-udp_stat.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="libtrudp/udp.c" ex="false" tool="0" flavor2="9">
-      </item>
-      <item path="libtrudp/udp.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="libtrudp/utils.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="libtrudp/utils.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="libtrudp/utils_r.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="libtrudp/write_queue.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="libtrudp/write_queue.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="main.cpp" ex="false" tool="1" flavor2="9">
       </item>
