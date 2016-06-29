@@ -23,8 +23,7 @@
  */
 
 /*
- * Snake network game.
- * Terminal module and basic function
+ * Console Snake game.
  *
  * \file   snake.h
  * \author Kirill Scherba <kirill@scherba.ru>
@@ -57,6 +56,13 @@
 #define SNAKE_HEAD_OTHER "H"
 #define SHAKE_BODY "X"
 
+/**
+ * Print horizontal line
+ * 
+ * @param x X position
+ * @param y Y position
+ * @param width Line width
+ */
 static void show_line_horizontal(int x, int y, int width) {
 
     int i;
@@ -65,6 +71,13 @@ static void show_line_horizontal(int x, int y, int width) {
         printf(HL);
 }
 
+/**
+ * Show vertical line
+ * 
+ * @param x X position
+ * @param y Y position
+ * @param height Line height
+ */
 static void show_line_vertical(int x, int y, int height) {
 
     int i;
@@ -88,17 +101,40 @@ typedef struct scene {
     
 } scene;
 
-
+/**
+ * Get matrix character at x,y position 
+ * 
+ * @param sc Pointer to scena
+ * @param x X position
+ * @param y Y position
+ * @return 
+ */
 static char get_matrix_char(scene *sc, int x, int y) {
     
     return *(sc->matrix + (x) + (y) * sc->width);
 }
 
+/**
+ * Set matrix character at x,y position 
+ * 
+ * @param sc Pointer to scena
+ * @param x X position
+ * @param y Y position
+ * @param ch Character
+ * @return 
+ */
 static void set_matrix_char(scene *sc, int x, int y, int ch) {
     
     *(sc->matrix + (x) + (y) * sc->width) = (char)ch;
 }
 
+/**
+ * Print matrix char
+ * 
+ * @param sc Pointer to scena
+ * @param x X position
+ * @param y Y position
+ */
 static void show_matrix_char(scene *sc, int x, int y) {
     int ch = get_matrix_char(sc, x, y);
     if(ch != ' ') {
@@ -107,6 +143,11 @@ static void show_matrix_char(scene *sc, int x, int y) {
     }
 }
 
+/**
+ * Print matrix
+ * 
+ * @param sc Pointer to scena
+ */
 static void show_matrix(scene *sc) {
     int i, j;
     for(i = 0; i < sc->width; i++)
@@ -114,6 +155,11 @@ static void show_matrix(scene *sc) {
             show_matrix_char(sc, i, j);
 }
 
+/**
+ * Generate and print food
+ * 
+ * @param sc
+ */
 static void generate_food(scene *sc) {
     
     static int tic = 0;
@@ -128,7 +174,18 @@ static void generate_food(scene *sc) {
     }
 }
 
-static void show_scene(scene *sc, int width, int height, char*matrix, int *out_x, int *out_y) {
+/**
+ * Initialize and(or) print scene
+ * 
+ * @param sc
+ * @param width
+ * @param height
+ * @param matrix
+ * @param out_x
+ * @param out_y
+ */
+static void show_scene(scene *sc, int width, int height, char*matrix, 
+        int *out_x, int *out_y) {
     
     if(!sc->initialized) {
         sc->snakes = trudpQueueNew();
@@ -234,6 +291,15 @@ typedef struct snake {
 
 } snake;
 
+/**
+ * Check that snake is at position
+ * 
+ * @param sn Pointer to snake
+ * @param x X position
+ * @param y Y position
+ * 
+ * @return Return 0 if snake is at x,y position
+ */
 static int check_snake(snake *sn, int x, int y) {
     
     int rv = 1;
@@ -243,7 +309,8 @@ static int check_snake(snake *sn, int x, int y) {
         trudpQueueIterator *it = trudpQueueIteratorNew(sn->body);
         if(it != NULL) {
             while(trudpQueueIteratorNext(it)) {
-                snake_body_data *b = (snake_body_data *)trudpQueueIteratorElement(it)->data;
+                snake_body_data *
+                b = (snake_body_data *)trudpQueueIteratorElement(it)->data;
                 if(b->x == x && b->y == y) { 
                     rv = 0; 
                     break; 
@@ -256,6 +323,16 @@ static int check_snake(snake *sn, int x, int y) {
     return rv;
 }
 
+/**
+ * Can move snake. Check scene and snakes (include himself)
+ * 
+ * @param sc Pointer to scene
+ * @param sn Pointer to snake
+ * @param x X position
+ * @param y Y position
+ * 
+ * @return True if can move to x,y position
+ */
 static int can_move_snake(scene *sc, snake *sn, int x, int y) {
 
     int rv = 1;
@@ -292,6 +369,15 @@ static int can_move_snake(scene *sc, snake *sn, int x, int y) {
     return rv;
 }
 
+/**
+ * Can eat. Check matrix position and remove food if it present
+ * 
+ * @param sc Pointer to scene
+ * @param sn Pointer to snake
+ * @param x X position
+ * @param y Y position
+ * @return 
+ */
 static int can_eat(scene *sc, snake *sn, int x, int y) {
     
     int rv = 0;
@@ -305,6 +391,13 @@ static int can_eat(scene *sc, snake *sn, int x, int y) {
     return rv;
 }
 
+/**
+ * Increment snake
+ * 
+ * @param sn Pointer to snake
+ * @param x X position
+ * @param y Y position
+ */
 static void increment_snake(snake *sn, int x, int y) {
     
     snake_body_data body;
@@ -315,6 +408,12 @@ static void increment_snake(snake *sn, int x, int y) {
     ((snake_body_data*)sn->body->last->data)->color = _ANSI_GREEN;
 }
 
+/**
+ * Print snake and calculate next position
+ * 
+ * @param sc Pointer to scene
+ * @param sn Pointer to snake
+ */
 static void printf_snake(scene *sc, snake *sn) {
 
     // Print body
@@ -391,10 +490,14 @@ static void printf_snake(scene *sc, snake *sn) {
     else {
         trudpQueueDeleteLast(sn->body);
     }
-
 }
 
-echo_off(snake *sn) {
+/**
+ * Echo off (and save terminal configuration)
+ * 
+ * @param sn Pointer to snake
+ */
+static void echo_off(snake *sn) {
     
     #if !defined(_WIN32) && !defined(_WIN64)
     struct termios newt;
@@ -405,6 +508,10 @@ echo_off(snake *sn) {
     #endif
 }
 
+/**
+ * Restore terminal configuration echo
+ * @param sn
+ */
 static void restore_terminal(snake *sn) {
 
     // Show cursor and Turn echoing on
@@ -416,6 +523,20 @@ static void restore_terminal(snake *sn) {
     #endif
 }
 
+/**
+ * Initialize and(or) print snake
+ * 
+ * @param sc
+ * @param sn
+ * @param start_x
+ * @param start_y
+ * @param scene_left
+ * @param scene_top
+ * @param width
+ * @param height
+ * @param start_direction
+ * @param snake_head_char
+ */
 void show_snake(scene *sc, snake *sn, int start_x, int start_y, int scene_left,
         int scene_top, int width, int height, int start_direction, 
         char* snake_head_char) {
@@ -471,6 +592,15 @@ void show_snake(scene *sc, snake *sn, int start_x, int start_y, int scene_left,
     printf_snake(sc, sn);
 }
 
+/**
+ * Check key pressed (to move snake)
+ * 
+ * @param sn Pointer to snake
+ * @return Pressed key code
+ * @retval up - 14, down - 15, left - 16, right - 17 key code
+ * @retval q,s - quit snake
+ * @retval 0 - any other key
+ */
 static int check_key_snake(snake *sn) {
 
     int rv = 1;
@@ -491,6 +621,11 @@ static int check_key_snake(snake *sn) {
     return rv;
 }
 
+/**
+ * Run snake (one tick)
+ * 
+ * @return 
+ */
 int run_snake() {
 
     srand(trudpGetTimestampFull());
