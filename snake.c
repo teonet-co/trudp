@@ -91,34 +91,40 @@ typedef struct scene {
 
 static char get_matrix_char(scene *sc, int x, int y) {
     
-    return *(sc->matrix + (x-1) * sc->width + (y-1));
+    return *(sc->matrix + (x) + (y) * sc->width);
 }
 
 static void set_matrix_char(scene *sc, int x, int y, int ch) {
     
-    *(sc->matrix + (x-1) * sc->width + (y-1)) = ch;
+    *(sc->matrix + (x) + (y) * sc->width) = (char)ch;
 }
 
 static void show_matrix_char(scene *sc, int x, int y) {
-    gotoxy(sc->scene_left + x, sc->scene_top + y);
-    printf("%c", get_matrix_char(sc, x, y));
+    int ch = get_matrix_char(sc, x, y);
+    if(ch != ' ') {
+        gotoxy(sc->scene_left + x, sc->scene_top + y);
+        printf("%c", ch);
+    }
 }
 
 static void show_matrix(scene *sc) {
     int i, j;
-    for(i = 1; i <= sc->width; i++)
-        for(j = 1; i <= sc->height; i++)
+    for(i = 0; i < sc->width; i++)
+        for(j = 0; j < sc->height; j++)
             show_matrix_char(sc, i, j);
 }
 
 static void generate_food(scene *sc) {
     
-    int x = rand() % sc->width + 1;
-    int y = rand() % sc->height + 1;
-    printf("x %d, y %d\n", x, y);
-    if(get_matrix_char(sc, x, y) == ' ') {
-        set_matrix_char(sc, x, y, '*');
-        show_matrix_char(sc, x, y);
+    static int tic = 0;
+    if(tic++ && !(tic % 20)) {
+            
+        int x = rand() % sc->width;
+        int y = rand() % sc->height;
+        if(get_matrix_char(sc, x, y) == ' ') {
+            set_matrix_char(sc, x, y, '*');
+            show_matrix_char(sc, x, y);
+        }
     }
 }
 
@@ -129,10 +135,13 @@ static void show_scene(scene *sc, int width, int height, char*matrix, int *out_x
         sc->width = width;
         sc->height = height;
         sc->matrix = matrix;
-        int i,j;
-        for(i = 1; i <= sc->width; i++)
-            for(j = 1; i <= sc->height; i++)
-                set_matrix_char(sc, i, j, ' ');
+        
+        { // Initialize the matrix 
+            int i, j;
+            for(i = 0; i < sc->width; i++)
+                for(j = 0; j < sc->height; j++)
+                    set_matrix_char(sc, i, j, ' ');
+        }
         
         sc->initialized = 1;
     }
@@ -283,6 +292,29 @@ static int can_move_snake(scene *sc, snake *sn, int x, int y) {
     return rv;
 }
 
+static int can_eat(scene *sc, snake *sn, int x, int y) {
+    
+    int rv = 0;
+    
+    if(get_matrix_char(sc, x, y) == '*') {
+        set_matrix_char(sc, x, y, ' ');
+        
+        rv = 1;
+    }
+    
+    return rv;
+}
+
+static void increment_snake(snake *sn, int x, int y) {
+    
+    snake_body_data body;
+    body.x = x;
+    body.y = y;            
+    body.color = _ANSI_NONE;
+    trudpQueueAddTop(sn->body, (void*)&body, sizeof(snake_body_data));
+    ((snake_body_data*)sn->body->last->data)->color = _ANSI_GREEN;
+}
+
 static void printf_snake(scene *sc, snake *sn) {
 
     // Print body
@@ -298,6 +330,9 @@ static void printf_snake(scene *sc, snake *sn) {
     // Print head
     gotoxy(sn->scene_left + sn->x, sn->scene_top + sn->y);
     printf("%s", sn->head_char);
+    
+    // Eat matrix element
+    int do_can_eat = can_eat(sc, sn, sn->x, sn->y);
 
     // Calculate next head position
     int can_move = 0, x = sn->x, y = sn->y, direction = sn->direction;
@@ -342,13 +377,8 @@ static void printf_snake(scene *sc, snake *sn) {
     // Move body end to first position    
     if(can_move) {
         // Auto increment
-        if(sn->auto_increment && sn->tic && !(sn->tic % sn->auto_increment)) {
-            snake_body_data body;
-            body.x = x;
-            body.y = y;            
-            body.color = _ANSI_NONE;
-            trudpQueueAddTop(sn->body, (void*)&body, sizeof(snake_body_data));
-            ((snake_body_data*)sn->body->last->data)->color = _ANSI_GREEN;
+        if(do_can_eat || sn->auto_increment && sn->tic && !(sn->tic % sn->auto_increment)) {
+            increment_snake(sn, x, y);
         }
         else if(trudpQueueSize(sn->body)) {
             ((snake_body_data *)sn->body->last->data)->x = x;
@@ -407,7 +437,7 @@ void show_snake(scene *sc, snake *sn, int start_x, int start_y, int scene_left,
 
         sn->x = start_x;
         sn->y = start_y;
-        sn->auto_increment = 10;
+        sn->auto_increment = *snake_head_char == SNAKE_HEAD[0] ? 0 : 20;
         sn->auto_change_direction = 1;
         sn->random_direction = 1;
         sn->direction = start_direction;
@@ -470,7 +500,7 @@ int run_snake() {
     int rv, x,y; 
     #define WIDTH 100
     #define HEIGHT 50    
-    static char matrix[WIDTH*HEIGHT*10000];
+    static char matrix[(WIDTH+1)*(HEIGHT+1)];
     
     // Show scene
     show_scene(&sc, WIDTH, HEIGHT, (char*)matrix, &x, &y);
