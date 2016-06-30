@@ -4,11 +4,21 @@
 # TR-UDP: Teonet Real time communications over UDP protocol
 #
 
+# SUBROUTINE
+#
+# AC_DEFINE_SUBST(NAME, VALUE, DESCRIPTION)
+# -----------------------------------------
+AC_DEFUN([AC_DEFINE_SUBST], [
+AC_DEFINE([$1], [$2], [$3])
+AC_SUBST([$1], ['$2'])
+])
+# END
+
 AC_PREREQ([2.69])
 AC_INIT([trudp], [0.2.0], [kirill@scherba.ru])
 AC_DEFINE_SUBST(LIBRARY_MAJOR_VERSION, 1, [TR-UDP dynamic library version])
 AC_DEFINE(COPYRIGHT, ["(c) Kirsoft Inc., 1996-2016"], [TR-UDP library copyright])
-AC_CONFIG_SRCDIR([udp.c])
+AC_CONFIG_SRCDIR([src/tr-udp.c])
 AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.
