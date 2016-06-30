@@ -272,10 +272,11 @@ static inline uint64_t trudpCalculateExpectedTime(trudpChannelData *tcd,
 
     uint64_t expected_time = current_time + tcd->triptimeMiddle + 2 * MAX_RTT;
 
-    if(tcd->sendQueue->q->last)
-        if(((trudpPacketQueueData*)tcd->sendQueue->q->last->data)->expected_time > expected_time)
-            expected_time = ((trudpPacketQueueData*)tcd->sendQueue->q->last->data)->expected_time;
-
+    if(tcd->sendQueue->q->last) {        
+        trudpPacketQueueData *pqd = (trudpPacketQueueData*) tcd->sendQueue->q->last->data;
+        if(pqd->expected_time > expected_time) expected_time = pqd->expected_time;
+    }
+    
     return expected_time;
 }
 
@@ -1131,11 +1132,8 @@ uint32_t trudpGetChannelSendQueueTimeout(trudpChannelData *tcd) {
     // Get sendQueue timeout
     uint32_t timeout_sq = UINT32_MAX;
     if(tcd->sendQueue->q->first) {
-
-        uint64_t
-        expected_t = ((trudpPacketQueueData *)tcd->sendQueue->q->first->data)->expected_time,
-        current_t = trudpGetTimestampFull();
-        
+        trudpPacketQueueData *pqd = (trudpPacketQueueData *)tcd->sendQueue->q->first->data;
+        uint64_t expected_t = pqd->expected_time, current_t = trudpGetTimestampFull();        
         timeout_sq = current_t < expected_t ? expected_t - current_t : 0;
     }
 

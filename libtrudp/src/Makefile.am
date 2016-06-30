@@ -52,7 +52,12 @@ libtrudp_la_SOURCES = \
 	udp.c \
 	utils.c \
 	write_queue.c
+	/teonet	
+libtrudpincludedir=$(includedir)
+	
+nobase_libtrudpinclude_HEADERS = \
+	tr-udp.h
 
-libtrudp_la_LDFLAGS =
+libtrudp_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(LIBRARY_MAJOR_VERSION):0:0
 
 libtrudp_la_LIBADD = $(TRUDP_LIBS)
