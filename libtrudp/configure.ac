@@ -26,6 +26,7 @@ AM_INIT_AUTOMAKE
 AM_INIT_AUTOMAKE([subdir-objects])
 AM_SILENT_RULES([yes])
 
+AM_PROG_LIBTOOL
 AC_USE_SYSTEM_EXTENSIONS
 
 # Checks for programs.
@@ -213,6 +214,8 @@ DX_PS_FEATURE(OFF)
 DX_INIT_DOXYGEN(Teonet, Doxyfile, docs)
 
 fi
+
+AC_CACHE_SAVE
 
 LT_INIT
 
