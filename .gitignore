@@ -3,3 +3,15 @@
 /dist/
 /libtrudp/autoscan.log
 /libtrudp/configure.scan
+/libtrudp/autom4te.cache/
+/libtrudp/config.log
+/libtrudp/aclocal.m4
+/libtrudp/configure
+/libtrudp/intltool-update.in
+/libtrudp/po/Makefile.in.in
+/libtrudp/intltool-merge.in
+/libtrudp/config.guess
+/libtrudp/config.h.in
+/libtrudp/intltool-extract.in
+/libtrudp/config.sub
+/libtrudp/depcomp
