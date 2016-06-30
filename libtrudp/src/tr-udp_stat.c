@@ -344,7 +344,6 @@ static char* trimLeadingZerro(char *str) {
     size_t i = 0, len = strlen(str);
     
     while(i<len) {
-        str[i];
         if(str[i] != ' ' && !(str[i] == '0' && str[i+1] != '.') ) { 
             ret_str = str + i; 
             break; 

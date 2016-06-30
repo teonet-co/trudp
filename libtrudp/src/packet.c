@@ -199,7 +199,7 @@ static void trudpHeaderCreate(trudpHeader *th, uint32_t id,
  * @param out_th Output buffer to create ACK header
  * @param in_th Input buffer with received TR-UDP package (header)
  */
-static inline void *trudpHeaderACKcreate(trudpHeader *out_th, trudpHeader *in_th) {
+static inline void trudpHeaderACKcreate(trudpHeader *out_th, trudpHeader *in_th) {
 
     trudpHeaderCreate(out_th, in_th->id, TRU_ACK, in_th->channel, 0, in_th->timestamp);
 }
@@ -210,7 +210,7 @@ static inline void *trudpHeaderACKcreate(trudpHeader *out_th, trudpHeader *in_th
  * @param out_th Output buffer to create ACK header
  * @param in_th Input buffer with received TR-UDP package (header)
  */
-static inline void *trudpHeaderACKtoRESETcreate(trudpHeader *out_th, trudpHeader *in_th) {
+static inline void trudpHeaderACKtoRESETcreate(trudpHeader *out_th, trudpHeader *in_th) {
 
     trudpHeaderCreate(out_th, in_th->id, TRU_ACK | TRU_RESET, in_th->channel, 0, in_th->timestamp);
 }
@@ -221,7 +221,7 @@ static inline void *trudpHeaderACKtoRESETcreate(trudpHeader *out_th, trudpHeader
  * @param out_th Output buffer to create ACK header
  * @param in_th Input buffer with received TR-UDP package (header)
  */
-static inline void *trudpHeaderACKtoPINGcreate(trudpHeader *out_th, trudpHeader *in_th, void *data, size_t data_length) {
+static inline void trudpHeaderACKtoPINGcreate(trudpHeader *out_th, trudpHeader *in_th, void *data, size_t data_length) {
 
     trudpHeaderCreate(out_th, in_th->id, TRU_ACK | TRU_PING, in_th->channel, in_th->payload_length, in_th->timestamp);
     if(data && data_length)

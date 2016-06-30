@@ -33,6 +33,8 @@
 #include <string.h>
 
 #include "map.h"
+#include "hash.h"
+#include "packet.h"
 
 // Local functions
 static inline trudpQueueData *_trudpMapValueDataToQueueData(trudpMapElementData *mvd);

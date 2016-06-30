@@ -56,6 +56,7 @@ typedef struct trudpWriteQueueData {
 inline trudpWriteQueue *trudpWriteQueueNew();
 inline void trudpWriteQueueDestroy(trudpWriteQueue *wq);
 inline int trudpWriteQueueFree(trudpWriteQueue *wq);
+inline size_t trudpWriteQueueSize(trudpWriteQueue *wq);
 
 trudpWriteQueueData *trudpWriteQueueAdd(trudpWriteQueue *wq, void *packet, 
         void *packet_ptr, size_t packet_length);

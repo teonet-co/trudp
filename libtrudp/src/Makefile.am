@@ -42,7 +42,16 @@ LIBS =
 lib_LTLIBRARIES = libtrudp.la
 
 libtrudp_la_SOURCES = \
-	tr-udp.c
+	hash.c \
+	map.c \
+	packet.c \
+	packet_queue.c \
+	queue.c \
+	tr-udp.c \
+	tr-udp_stat.c \
+	udp.c \
+	utils.c \
+	write_queue.c
 
 libtrudp_la_LDFLAGS =
 

@@ -37,6 +37,7 @@ extern int inet_aton (const char *__cp, struct in_addr *__inp) __THROW;
 #endif
 
 #include "udp.h"
+#include "utils.h"
 
 // UDP / UDT functions
 #define ksn_socket(domain, type, protocol) socket(domain, type, protocol)
@@ -235,7 +236,7 @@ int isReadable(int sd, uint32_t timeOut) {
 
     rv = select(sd + 1, &socketReadSet, NULL, NULL, &tv);
 
-    return ;
+    return rv;
 }
 
 /**
@@ -259,7 +260,7 @@ int isWritable(int sd, uint32_t timeOut) {
     rv = select(sd + 1, NULL, &socketWriteSet, NULL, &tv);
     if(rv <= 0) printf("isWritable timeout\n");
 
-    return ;
+    return rv;
 }
 
 /**

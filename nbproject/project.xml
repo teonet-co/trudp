@@ -36,6 +36,7 @@
         </data>
         <spellchecker-wordlist xmlns="http://www.netbeans.org/ns/spellchecker-wordlist/1">
             <word>addr</word>
+            <word>automake</word>
             <word>fd</word>
             <word>gethostbyname</word>
             <word>ioctlsocket</word>

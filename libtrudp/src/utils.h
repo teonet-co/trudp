@@ -30,12 +30,15 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include <time.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 char *formatMessage(const char *fmt, ...);
 char *sformatMessage(char *str_to_free, const char *fmt, ...);
+struct timeval *usecToTv(struct timeval *tv, uint32_t usec);
 
 
 #ifdef __cplusplus

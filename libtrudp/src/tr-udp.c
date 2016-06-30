@@ -34,6 +34,7 @@
 #include "tr-udp.h"
 #include "packet.h"
 #include "tr-udp_stat.h"
+#include "packet_queue.h"
 
 /**
  * Set default trudpChannelData values
@@ -291,11 +292,11 @@ static inline uint64_t trudpCalculateExpectedTime(trudpChannelData *tcd,
 static size_t trudpSendPacket(trudpChannelData *tcd, void *packetDATA,
         size_t packetLength, int save_to_send_queue) {
 
-    trudpPacketQueueData *tpqd;
+    //trudpPacketQueueData *tpqd;
 
     // Save packet to send queue
     if(save_to_send_queue) {
-        tpqd = trudpPacketQueueAdd(tcd->sendQueue,
+        /*tpqd = */trudpPacketQueueAdd(tcd->sendQueue,
             packetDATA,
             packetLength,
             trudpCalculateExpectedTime(tcd, trudpGetTimestampFull())
@@ -556,7 +557,7 @@ static inline void trudpSendRESET(trudpChannelData *tcd) {
  */
 void trudpSendResetAll(trudpData *td) {
 
-    size_t retval = 0;
+    //size_t retval = 0;
     trudpMapElementData *el;
     trudpMapIterator *it;
     if((it = trudpMapIteratorNew(td->map))) {
@@ -937,7 +938,7 @@ int trudpProcessSendQueue(trudpData *td, uint64_t *next_et) {
             }
             trudpMapIteratorDestroy(it);
         }
-    } while(retval == -1 || retval > 0 && /*min_expected_time != UINT64_MAX &&*/ min_expected_time <= ts);
+    } while(retval == -1 || (retval > 0 && /*min_expected_time != UINT64_MAX &&*/ min_expected_time <= ts));
 
     if(next_et) *next_et = min_expected_time != UINT64_MAX ? min_expected_time : 0;
 

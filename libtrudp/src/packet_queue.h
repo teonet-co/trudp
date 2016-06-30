@@ -64,6 +64,8 @@ trudpPacketQueueData *trudpPacketQueueAdd(trudpPacketQueue *tq,
         void *packet, size_t packet_length, uint64_t expected_time);
 trudpPacketQueueData *trudpPacketQueueAddTime(trudpPacketQueue *tq, 
         void *packet, size_t packet_length, uint64_t expected_time);
+inline trudpPacketQueueData *trudpPacketQueueMoveToEnd(trudpPacketQueue *tq,
+        trudpPacketQueueData *tqd);
 inline int trudpPacketQueueDelete(trudpPacketQueue *tq, trudpPacketQueueData *tqd);
 trudpPacketQueueData *trudpPacketQueueFindById(trudpPacketQueue *tq, uint32_t id);
 trudpPacketQueueData *trudpPacketQueueFindByTime(trudpPacketQueue *tq, uint64_t t);
