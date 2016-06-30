@@ -15,3 +15,8 @@
 /libtrudp/intltool-extract.in
 /libtrudp/config.sub
 /libtrudp/depcomp
+/libtrudp/config.status
+/libtrudp/compile
+/libtrudp/install-sh
+/libtrudp/po/POTFILES
+/libtrudp/missing

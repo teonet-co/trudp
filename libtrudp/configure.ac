@@ -21,6 +21,12 @@ AC_DEFINE(COPYRIGHT, ["(c) Kirsoft Inc., 1996-2016"], [TR-UDP library copyright]
 AC_CONFIG_SRCDIR([src/tr-udp.c])
 AC_CONFIG_HEADERS([config.h])
 
+AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([subdir-objects])
+AM_SILENT_RULES([yes])
+
+AC_USE_SYSTEM_EXTENSIONS
+
 # Checks for programs.
 AC_PROG_CC
 
