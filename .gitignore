@@ -20,3 +20,17 @@
 /libtrudp/install-sh
 /libtrudp/po/POTFILES
 /libtrudp/missing
+/libtrudp/docs/
+/libtrudp/src/.libs/
+/libtrudp/src/libtrudp.pc
+/libtrudp/po/Makefile.in
+/libtrudp/po/Makefile
+/libtrudp/Makefile.in
+/libtrudp/src/Makefile
+/libtrudp/po/stamp-it
+/libtrudp/ltmain.sh
+/libtrudp/Makefile
+/libtrudp/libtool
+/libtrudp/src/Makefile.in
+/libtrudp/stamp-h1
+/libtrudp/config.h

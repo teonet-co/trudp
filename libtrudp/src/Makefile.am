@@ -1,6 +1,8 @@
 ## Process this file with automake to produce Makefile.in
 #
 
+ACLOCAL_AMFLAGS = -I m4
+
 AM_CPPFLAGS = \
 	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
 	-DPACKAGE_SRC_DIR=\""$(srcdir)"\" \
@@ -44,4 +46,4 @@ libtrudp_la_SOURCES = \
 
 libtrudp_la_LDFLAGS =
 
-libtrudp_la_LDADD = $(TRUDP_LIBS)
+libtrudp_la_LIBADD = $(TRUDP_LIBS)

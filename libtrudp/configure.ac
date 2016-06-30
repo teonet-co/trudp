@@ -20,6 +20,7 @@ AC_DEFINE_SUBST(LIBRARY_MAJOR_VERSION, 1, [TR-UDP dynamic library version])
 AC_DEFINE(COPYRIGHT, ["(c) Kirsoft Inc., 1996-2016"], [TR-UDP library copyright])
 AC_CONFIG_SRCDIR([src/tr-udp.c])
 AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_MACRO_DIR([m4])
 
 AM_INIT_AUTOMAKE
 AM_INIT_AUTOMAKE([subdir-objects])
@@ -201,10 +202,10 @@ if test $HAVE_DOXYGEN = "false"; then
     AC_MSG_WARN([*** doxygen not found, docs will not be built])
 else
 
-DX_HTML_FEATURE(ON)
+DX_HTML_FEATURE(OFF)
 DX_CHM_FEATURE(OFF)
 DX_CHI_FEATURE(OFF)
-DX_MAN_FEATURE(ON)
+DX_MAN_FEATURE(OFF)
 DX_RTF_FEATURE(OFF)
 DX_XML_FEATURE(OFF)
 DX_PDF_FEATURE(OFF)
