@@ -3,7 +3,7 @@
     <type>org.netbeans.modules.cnd.makeproject</type>
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/make-project/1">
-            <name>trudp</name>
+            <name>tr-udp</name>
             <c-extensions>c</c-extensions>
             <cpp-extensions>cpp</cpp-extensions>
             <header-extensions>h</header-extensions>
@@ -36,8 +36,6 @@
         </data>
         <spellchecker-wordlist xmlns="http://www.netbeans.org/ns/spellchecker-wordlist/1">
             <word>addr</word>
-            <word>automake</word>
-            <word>Doxygen</word>
             <word>fd</word>
             <word>gethostbyname</word>
             <word>ioctlsocket</word>
@@ -62,7 +60,6 @@
             <word>trudp</word>
             <word>trudpcat</word>
             <word>Unhandled</word>
-            <word>uninstall</word>
             <word>utils</word>
             <word>wqd</word>
         </spellchecker-wordlist>

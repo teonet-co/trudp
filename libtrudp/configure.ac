@@ -17,6 +17,8 @@ AC_SUBST([$1], ['$2'])
 AC_PREREQ([2.69])
 AC_INIT([trudp], [0.2.0], [kirill@scherba.ru])
 AC_DEFINE_SUBST(LIBRARY_MAJOR_VERSION, 1, [TR-UDP dynamic library version])
+AC_DEFINE([PACKAGE_DESCRIPTION], ["TR-UDP: Teonet Real time communications over UDP protocol"], [Application description])
+AC_DEFINE([PACKAGE_DEPENDENCIES], ["libev"], [Application dependencies])
 AC_DEFINE(COPYRIGHT, ["(c) Kirsoft Inc., 1996-2016"], [TR-UDP library copyright])
  AC_PREFIX_DEFAULT([/usr])
 AC_CONFIG_SRCDIR([src/tr-udp.c])
@@ -235,5 +237,6 @@ AC_CONFIG_FILES([
     src/Makefile
     tests/Makefile
     examples/Makefile
+    ci-build/Makefile
 ])
 AC_OUTPUT
