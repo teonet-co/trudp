@@ -4,7 +4,6 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
-      <itemPath>snake.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ResourceFiles"
                    displayName="Resource Files"
@@ -175,8 +174,6 @@
       </item>
       <item path="main.cpp" ex="false" tool="1" flavor2="0">
       </item>
-      <item path="snake.h" ex="false" tool="3" flavor2="0">
-      </item>
     </conf>
     <conf name="Release" type="1">
       <toolsSet>
@@ -283,8 +280,6 @@
       </item>
       <item path="main.cpp" ex="false" tool="1" flavor2="0">
       </item>
-      <item path="snake.h" ex="false" tool="3" flavor2="0">
-      </item>
     </conf>
     <conf name="MinGW-w64-Debug" type="1">
       <toolsSet>
@@ -379,8 +374,6 @@
       <item path="libtrudp/tests/tr-udp_t.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="main.cpp" ex="false" tool="1" flavor2="9">
-      </item>
-      <item path="snake.h" ex="false" tool="3" flavor2="0">
       </item>
     </conf>
     <conf name="MinGW-w64-Win32-Debug" type="1">
@@ -484,8 +477,6 @@
       <item path="libtrudp/tests/tr-udp_t.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="main.cpp" ex="false" tool="1" flavor2="9">
-      </item>
-      <item path="snake.h" ex="false" tool="3" flavor2="0">
       </item>
     </conf>
   </confs>
