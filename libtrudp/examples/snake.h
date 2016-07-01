@@ -20,27 +20,28 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- * 
- * \file   utils.h
- * \author Kirill Scherba <kirill@scherba.ru>
- *
- * Created on June 12, 2016, 12:45 AM
  */
 
-#ifndef UTILS_H
-#define UTILS_H
+/* 
+ * File:   snake.h
+ * Author: Kirill Scherba <kirill@scherba.ru>
+ *
+ * Created on June 24, 2016, 3:50 PM
+ */
+
+#ifndef SNAKE_H
+#define SNAKE_H
+
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-char *formatMessage(const char *fmt, ...);
-char *sformatMessage(char *str_to_free, const char *fmt, ...);
-
+int run_snake();
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* UTILS_H */
+#endif /* SNAKE_H */
 

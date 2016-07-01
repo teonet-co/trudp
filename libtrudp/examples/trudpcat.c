@@ -42,9 +42,9 @@
 extern int usleep (__useconds_t __useconds);
 #endif
 
-#include "libtrudp/tr-udp.h"
-#include "libtrudp/utils_r.h"
-#include "libtrudp/tr-udp_stat.h"
+#include "libtrudp/src/tr-udp.h"
+#include "libtrudp/src/utils_r.h"
+#include "libtrudp/src/tr-udp_stat.h"
 
 // Integer options
 static int o_debug = 0,

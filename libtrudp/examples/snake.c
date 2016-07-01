@@ -32,11 +32,12 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdint.h>
 
-#include "libtrudp/utils_r.h"
-#include "libtrudp/queue.h"
-#include "libtrudp/packet.h"
+#include "utils_r.h"
+#include "queue.h"
+#include "packet.h"
 
 // Box characters
 #define RB "\e(0\x6a\e(B" // 188 Right Bottom corner
@@ -476,7 +477,7 @@ static void printf_snake(scene *sc, snake *sn) {
     // Move body end to first position    
     if(can_move) {
         // Auto increment
-        if(do_can_eat || sn->auto_increment && sn->tic && !(sn->tic % sn->auto_increment)) {
+        if(do_can_eat || (sn->auto_increment && sn->tic && !(sn->tic % sn->auto_increment))) {
             increment_snake(sn, x, y);
         }
         else if(trudpQueueSize(sn->body)) {

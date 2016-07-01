@@ -7,10 +7,12 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <CUnit/Basic.h>
-#include "../tr-udp.h"
-#include "../packet.h"   
-#include "../tr-udp_stat.h"
+
+#include "tr-udp.h"
+#include "packet.h"   
+#include "tr-udp_stat.h"
 
 // For tests use only
 static inline uint32_t trudpGetNewId(trudpChannelData *td) {
@@ -72,9 +74,9 @@ static void send_data_test() {
  */
 static void trudpProcessDataCb(void *td, void *data, size_t data_length, void *user_data) {
     
+    #if !NO_MESSAGES
     void *packet = trudpPacketGetPacket(data);
     double tt = (trudpGetTimestamp() - trudpPacketGetTimestamp(packet) )/1000.0;
-    #if !NO_MESSAGES
     printf("\n%s DATA: \"%s\" processed %.3f ms ...", user_data ? (char*)user_data : "", (char*)data, tt);
     printf("\n");
     #endif
@@ -89,9 +91,9 @@ static void trudpProcessDataCb(void *td, void *data, size_t data_length, void *u
  */
 static void trudpProcessAckCb(void *td, void *data, size_t data_length, void *user_data) {
     
+    #if !NO_MESSAGES
     void *packet = trudpPacketGetPacket(data);
     double tt = (trudpGetTimestamp() - trudpPacketGetTimestamp(packet) )/1000.0;
-    #if !NO_MESSAGES
     printf("\n%s ACK processed %.3f ms ...", (char*)user_data, tt );
     #endif
     
@@ -187,7 +189,7 @@ trudpChannelData *tcd_A, *tcd_B;
 
 void td_A_sendCb(void *td, void *packet, size_t packet_length, void *user_data) {
     
-    int type = trudpPacketGetType(packet);
+    /*int type = */trudpPacketGetType(packet);
     #if !NO_MESSAGES
     printf("\n%s_writeCb %s %s ...", user_data ? (char*)user_data : "", type == 0x0 ? "DATA" : type == 0x1 ? "ACK" : "RESET", type == 0x0 ? (char*)trudpPacketGetData(packet) : "");
     #endif
@@ -196,13 +198,13 @@ void td_A_sendCb(void *td, void *packet, size_t packet_length, void *user_data) 
     size_t processedData_length;
     void *rv = trudpProcessChannelReceivedPacket(tcd_B, packet, packet_length, &processedData_length);
 //    _showProcessResult(rv, td_B->user_data);
-    CU_ASSERT(!rv || rv && rv != (void*)-1);
+    CU_ASSERT(!rv || (rv && rv != (void*)-1));
     
 }
 
 void td_B_sendCb(void *td, void *packet, size_t packet_length, void *user_data) {
     
-    int type = trudpPacketGetType(packet);
+    /*int type = */trudpPacketGetType(packet);
     #if !NO_MESSAGES
     printf("\n%s_writeCb %s %s ...", user_data ? (char*)user_data : "", type == 0x0 ? "DATA" : type == 0x1 ? "ACK" : "RESET", type == 0x0 ? (char*)trudpPacketGetData(packet) : "");
     #endif
@@ -211,7 +213,7 @@ void td_B_sendCb(void *td, void *packet, size_t packet_length, void *user_data) 
     size_t processedData_length;
     void *rv = trudpProcessChannelReceivedPacket(tcd_A, packet, packet_length, &processedData_length);
 //    _showProcessResult(rv, td_A->user_data);
-    CU_ASSERT(!rv || rv && rv != (void*)-1);
+    CU_ASSERT(!rv || (rv && rv != (void*)-1));
 }
 
 /**
@@ -257,7 +259,7 @@ static void send_process_received_packet_test() {
        #if !NO_MESSAGES
        printf("\ntrudpProcessSendQueue begin");
        #endif    
-       int r = trudpProcessChannelSendQueue(tcd_A, trudpGetTimestamp(), NULL);
+       /*int r = */trudpProcessChannelSendQueue(tcd_A, trudpGetTimestamp(), NULL);
        #if !NO_MESSAGES
        printf("send queue processed times: %d ...\ntrudpProcessSendQueue end\n", r);
        #endif

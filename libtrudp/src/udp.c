@@ -37,6 +37,7 @@ extern int inet_aton (const char *__cp, struct in_addr *__inp) __THROW;
 #endif
 
 #include "udp.h"
+#include "utils.h"
 
 // UDP / UDT functions
 #define ksn_socket(domain, type, protocol) socket(domain, type, protocol)
@@ -148,7 +149,7 @@ inline char *trudpUdpGetAddr(__CONST_SOCKADDR_ARG remaddr, int *port) {
  * Create and bind UDP socket for client/server
  *
  * @param[in][out] port Pointer to Port number
- * @param[in] allow_port_inc_f Allow port increment flag
+ * @param[in] allow_port_increment_f Allow port increment flag
  * @return File descriptor or error if return value < 0:
  *         -1 - cannot create socket; -2 - can't bind on port
  */
@@ -201,16 +202,18 @@ int trudpUdpBindRaw(int *port, int allow_port_increment_f) {
  * @param fd
  * @param buffer
  * @param buffer_size
- * @return
+ * @param remaddr
+ * @param addr_length
+ * @return 
  */
 inline ssize_t trudpUdpRecvfrom(int fd, void *buffer, size_t buffer_size,
-        __SOCKADDR_ARG remaddr, socklen_t *addr_len) {
+        __SOCKADDR_ARG remaddr, socklen_t *addr_length) {
 
     int flags = 0;
 
     // Read UDP data
     ssize_t recvlen = recvfrom(fd, buffer, buffer_size, flags,
-            (__SOCKADDR_ARG)remaddr, addr_len);
+            (__SOCKADDR_ARG)remaddr, addr_length);
 
     return recvlen;
 }
@@ -218,8 +221,8 @@ inline ssize_t trudpUdpRecvfrom(int fd, void *buffer, size_t buffer_size,
 /**
  * Wait while socket read available or timeout occurred
  *
- * @param fd File descriptor
- * @param timeout Timeout in uSec
+ * @param sd File descriptor
+ * @param timeOut Timeout in uSec
  *
  * @return -1 - error; 0 - timeout; >0 ready
  */
@@ -235,14 +238,14 @@ int isReadable(int sd, uint32_t timeOut) {
 
     rv = select(sd + 1, &socketReadSet, NULL, NULL, &tv);
 
-    return ;
+    return rv;
 }
 
 /**
  * Wait while socket write available or timeout occurred
  *
- * @param fd File descriptor
- * @param timeout Timeout in uSec
+ * @param sd File descriptor
+ * @param timeOut Timeout in uSec
  *
  * @return -1 - error; 0 - timeout; >0 ready
  */
@@ -259,7 +262,7 @@ int isWritable(int sd, uint32_t timeOut) {
     rv = select(sd + 1, NULL, &socketWriteSet, NULL, &tv);
     if(rv <= 0) printf("isWritable timeout\n");
 
-    return ;
+    return rv;
 }
 
 /**

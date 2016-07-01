@@ -1,0 +1,10 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: @PACKAGE_NAME@
+Description: TR-UDP: Teonet Real time communications over UDP protocol
+Version: @PACKAGE_VERSION@
+Cflags: -I${includedir}
+Libs: -L${libdir}

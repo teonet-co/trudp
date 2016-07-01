@@ -35,20 +35,20 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
-	${OBJECTDIR}/libtrudp/hash.o \
-	${OBJECTDIR}/libtrudp/map.o \
-	${OBJECTDIR}/libtrudp/packet.o \
-	${OBJECTDIR}/libtrudp/packet_queue.o \
-	${OBJECTDIR}/libtrudp/queue.o \
-	${OBJECTDIR}/libtrudp/tr-udp.o \
-	${OBJECTDIR}/libtrudp/tr-udp_stat.o \
-	${OBJECTDIR}/libtrudp/udp.o \
-	${OBJECTDIR}/libtrudp/utils.o \
-	${OBJECTDIR}/libtrudp/write_queue.o \
-	${OBJECTDIR}/main.o \
-	${OBJECTDIR}/snake.o \
-	${OBJECTDIR}/trudpcat.o \
-	${OBJECTDIR}/trudpcat_ev.o
+	${OBJECTDIR}/libtrudp/examples/snake.o \
+	${OBJECTDIR}/libtrudp/examples/trudpcat.o \
+	${OBJECTDIR}/libtrudp/examples/trudpcat_ev.o \
+	${OBJECTDIR}/libtrudp/src/hash.o \
+	${OBJECTDIR}/libtrudp/src/map.o \
+	${OBJECTDIR}/libtrudp/src/packet.o \
+	${OBJECTDIR}/libtrudp/src/packet_queue.o \
+	${OBJECTDIR}/libtrudp/src/queue.o \
+	${OBJECTDIR}/libtrudp/src/tr-udp.o \
+	${OBJECTDIR}/libtrudp/src/tr-udp_stat.o \
+	${OBJECTDIR}/libtrudp/src/udp.o \
+	${OBJECTDIR}/libtrudp/src/utils.o \
+	${OBJECTDIR}/libtrudp/src/write_queue.o \
+	${OBJECTDIR}/main.o
 
 # Test Directory
 TESTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}/tests
@@ -83,81 +83,81 @@ LDLIBSOPTIONS=-lev
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
-	"${MAKE}"  -f nbproject/Makefile-${CND_CONF}.mk ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/tr-udp
+	"${MAKE}"  -f nbproject/Makefile-${CND_CONF}.mk ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/trudp
 
-${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/tr-udp: ${OBJECTFILES}
+${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/trudp: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
-	${LINK.cc} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/tr-udp ${OBJECTFILES} ${LDLIBSOPTIONS}
+	${LINK.cc} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/trudp ${OBJECTFILES} ${LDLIBSOPTIONS}
 
-${OBJECTDIR}/libtrudp/hash.o: libtrudp/hash.c 
-	${MKDIR} -p ${OBJECTDIR}/libtrudp
+${OBJECTDIR}/libtrudp/examples/snake.o: libtrudp/examples/snake.c 
+	${MKDIR} -p ${OBJECTDIR}/libtrudp/examples
 	${RM} "$@.d"
-	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/hash.o libtrudp/hash.c
+	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/examples/snake.o libtrudp/examples/snake.c
 
-${OBJECTDIR}/libtrudp/map.o: libtrudp/map.c 
-	${MKDIR} -p ${OBJECTDIR}/libtrudp
+${OBJECTDIR}/libtrudp/examples/trudpcat.o: libtrudp/examples/trudpcat.c 
+	${MKDIR} -p ${OBJECTDIR}/libtrudp/examples
 	${RM} "$@.d"
-	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/map.o libtrudp/map.c
+	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/examples/trudpcat.o libtrudp/examples/trudpcat.c
 
-${OBJECTDIR}/libtrudp/packet.o: libtrudp/packet.c 
-	${MKDIR} -p ${OBJECTDIR}/libtrudp
+${OBJECTDIR}/libtrudp/examples/trudpcat_ev.o: libtrudp/examples/trudpcat_ev.c 
+	${MKDIR} -p ${OBJECTDIR}/libtrudp/examples
 	${RM} "$@.d"
-	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/packet.o libtrudp/packet.c
+	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/examples/trudpcat_ev.o libtrudp/examples/trudpcat_ev.c
 
-${OBJECTDIR}/libtrudp/packet_queue.o: libtrudp/packet_queue.c 
-	${MKDIR} -p ${OBJECTDIR}/libtrudp
+${OBJECTDIR}/libtrudp/src/hash.o: libtrudp/src/hash.c 
+	${MKDIR} -p ${OBJECTDIR}/libtrudp/src
 	${RM} "$@.d"
-	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/packet_queue.o libtrudp/packet_queue.c
+	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/src/hash.o libtrudp/src/hash.c
 
-${OBJECTDIR}/libtrudp/queue.o: libtrudp/queue.c 
-	${MKDIR} -p ${OBJECTDIR}/libtrudp
+${OBJECTDIR}/libtrudp/src/map.o: libtrudp/src/map.c 
+	${MKDIR} -p ${OBJECTDIR}/libtrudp/src
 	${RM} "$@.d"
-	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/queue.o libtrudp/queue.c
+	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/src/map.o libtrudp/src/map.c
 
-${OBJECTDIR}/libtrudp/tr-udp.o: libtrudp/tr-udp.c 
-	${MKDIR} -p ${OBJECTDIR}/libtrudp
+${OBJECTDIR}/libtrudp/src/packet.o: libtrudp/src/packet.c 
+	${MKDIR} -p ${OBJECTDIR}/libtrudp/src
 	${RM} "$@.d"
-	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/tr-udp.o libtrudp/tr-udp.c
+	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/src/packet.o libtrudp/src/packet.c
 
-${OBJECTDIR}/libtrudp/tr-udp_stat.o: libtrudp/tr-udp_stat.c 
-	${MKDIR} -p ${OBJECTDIR}/libtrudp
+${OBJECTDIR}/libtrudp/src/packet_queue.o: libtrudp/src/packet_queue.c 
+	${MKDIR} -p ${OBJECTDIR}/libtrudp/src
 	${RM} "$@.d"
-	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/tr-udp_stat.o libtrudp/tr-udp_stat.c
+	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/src/packet_queue.o libtrudp/src/packet_queue.c
 
-${OBJECTDIR}/libtrudp/udp.o: libtrudp/udp.c 
-	${MKDIR} -p ${OBJECTDIR}/libtrudp
+${OBJECTDIR}/libtrudp/src/queue.o: libtrudp/src/queue.c 
+	${MKDIR} -p ${OBJECTDIR}/libtrudp/src
 	${RM} "$@.d"
-	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/udp.o libtrudp/udp.c
+	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/src/queue.o libtrudp/src/queue.c
 
-${OBJECTDIR}/libtrudp/utils.o: libtrudp/utils.c 
-	${MKDIR} -p ${OBJECTDIR}/libtrudp
+${OBJECTDIR}/libtrudp/src/tr-udp.o: libtrudp/src/tr-udp.c 
+	${MKDIR} -p ${OBJECTDIR}/libtrudp/src
 	${RM} "$@.d"
-	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/utils.o libtrudp/utils.c
+	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/src/tr-udp.o libtrudp/src/tr-udp.c
 
-${OBJECTDIR}/libtrudp/write_queue.o: libtrudp/write_queue.c 
-	${MKDIR} -p ${OBJECTDIR}/libtrudp
+${OBJECTDIR}/libtrudp/src/tr-udp_stat.o: libtrudp/src/tr-udp_stat.c 
+	${MKDIR} -p ${OBJECTDIR}/libtrudp/src
 	${RM} "$@.d"
-	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/write_queue.o libtrudp/write_queue.c
+	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/src/tr-udp_stat.o libtrudp/src/tr-udp_stat.c
+
+${OBJECTDIR}/libtrudp/src/udp.o: libtrudp/src/udp.c 
+	${MKDIR} -p ${OBJECTDIR}/libtrudp/src
+	${RM} "$@.d"
+	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/src/udp.o libtrudp/src/udp.c
+
+${OBJECTDIR}/libtrudp/src/utils.o: libtrudp/src/utils.c 
+	${MKDIR} -p ${OBJECTDIR}/libtrudp/src
+	${RM} "$@.d"
+	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/src/utils.o libtrudp/src/utils.c
+
+${OBJECTDIR}/libtrudp/src/write_queue.o: libtrudp/src/write_queue.c 
+	${MKDIR} -p ${OBJECTDIR}/libtrudp/src
+	${RM} "$@.d"
+	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/src/write_queue.o libtrudp/src/write_queue.c
 
 ${OBJECTDIR}/main.o: main.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.cc) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/main.o main.cpp
-
-${OBJECTDIR}/snake.o: snake.c 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} "$@.d"
-	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/snake.o snake.c
-
-${OBJECTDIR}/trudpcat.o: trudpcat.c 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} "$@.d"
-	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/trudpcat.o trudpcat.c
-
-${OBJECTDIR}/trudpcat_ev.o: trudpcat_ev.c 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} "$@.d"
-	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/trudpcat_ev.o trudpcat_ev.c
 
 # Subprojects
 .build-subprojects:
@@ -201,134 +201,173 @@ ${TESTDIR}/libtrudp/tests/tr-udp_t.o: libtrudp/tests/tr-udp_t.c
 	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${TESTDIR}/libtrudp/tests/tr-udp_t.o libtrudp/tests/tr-udp_t.c
 
 
-${OBJECTDIR}/libtrudp/hash_nomain.o: ${OBJECTDIR}/libtrudp/hash.o libtrudp/hash.c 
-	${MKDIR} -p ${OBJECTDIR}/libtrudp
-	@NMOUTPUT=`${NM} ${OBJECTDIR}/libtrudp/hash.o`; \
+${OBJECTDIR}/libtrudp/examples/snake_nomain.o: ${OBJECTDIR}/libtrudp/examples/snake.o libtrudp/examples/snake.c 
+	${MKDIR} -p ${OBJECTDIR}/libtrudp/examples
+	@NMOUTPUT=`${NM} ${OBJECTDIR}/libtrudp/examples/snake.o`; \
 	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
 	   (echo "$$NMOUTPUT" | ${GREP} 'T main$$') || \
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.c) -O2 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/hash_nomain.o libtrudp/hash.c;\
+	    $(COMPILE.c) -O2 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/examples/snake_nomain.o libtrudp/examples/snake.c;\
 	else  \
-	    ${CP} ${OBJECTDIR}/libtrudp/hash.o ${OBJECTDIR}/libtrudp/hash_nomain.o;\
+	    ${CP} ${OBJECTDIR}/libtrudp/examples/snake.o ${OBJECTDIR}/libtrudp/examples/snake_nomain.o;\
 	fi
 
-${OBJECTDIR}/libtrudp/map_nomain.o: ${OBJECTDIR}/libtrudp/map.o libtrudp/map.c 
-	${MKDIR} -p ${OBJECTDIR}/libtrudp
-	@NMOUTPUT=`${NM} ${OBJECTDIR}/libtrudp/map.o`; \
+${OBJECTDIR}/libtrudp/examples/trudpcat_nomain.o: ${OBJECTDIR}/libtrudp/examples/trudpcat.o libtrudp/examples/trudpcat.c 
+	${MKDIR} -p ${OBJECTDIR}/libtrudp/examples
+	@NMOUTPUT=`${NM} ${OBJECTDIR}/libtrudp/examples/trudpcat.o`; \
 	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
 	   (echo "$$NMOUTPUT" | ${GREP} 'T main$$') || \
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.c) -O2 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/map_nomain.o libtrudp/map.c;\
+	    $(COMPILE.c) -O2 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/examples/trudpcat_nomain.o libtrudp/examples/trudpcat.c;\
 	else  \
-	    ${CP} ${OBJECTDIR}/libtrudp/map.o ${OBJECTDIR}/libtrudp/map_nomain.o;\
+	    ${CP} ${OBJECTDIR}/libtrudp/examples/trudpcat.o ${OBJECTDIR}/libtrudp/examples/trudpcat_nomain.o;\
 	fi
 
-${OBJECTDIR}/libtrudp/packet_nomain.o: ${OBJECTDIR}/libtrudp/packet.o libtrudp/packet.c 
-	${MKDIR} -p ${OBJECTDIR}/libtrudp
-	@NMOUTPUT=`${NM} ${OBJECTDIR}/libtrudp/packet.o`; \
+${OBJECTDIR}/libtrudp/examples/trudpcat_ev_nomain.o: ${OBJECTDIR}/libtrudp/examples/trudpcat_ev.o libtrudp/examples/trudpcat_ev.c 
+	${MKDIR} -p ${OBJECTDIR}/libtrudp/examples
+	@NMOUTPUT=`${NM} ${OBJECTDIR}/libtrudp/examples/trudpcat_ev.o`; \
 	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
 	   (echo "$$NMOUTPUT" | ${GREP} 'T main$$') || \
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.c) -O2 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/packet_nomain.o libtrudp/packet.c;\
+	    $(COMPILE.c) -O2 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/examples/trudpcat_ev_nomain.o libtrudp/examples/trudpcat_ev.c;\
 	else  \
-	    ${CP} ${OBJECTDIR}/libtrudp/packet.o ${OBJECTDIR}/libtrudp/packet_nomain.o;\
+	    ${CP} ${OBJECTDIR}/libtrudp/examples/trudpcat_ev.o ${OBJECTDIR}/libtrudp/examples/trudpcat_ev_nomain.o;\
 	fi
 
-${OBJECTDIR}/libtrudp/packet_queue_nomain.o: ${OBJECTDIR}/libtrudp/packet_queue.o libtrudp/packet_queue.c 
-	${MKDIR} -p ${OBJECTDIR}/libtrudp
-	@NMOUTPUT=`${NM} ${OBJECTDIR}/libtrudp/packet_queue.o`; \
+${OBJECTDIR}/libtrudp/src/hash_nomain.o: ${OBJECTDIR}/libtrudp/src/hash.o libtrudp/src/hash.c 
+	${MKDIR} -p ${OBJECTDIR}/libtrudp/src
+	@NMOUTPUT=`${NM} ${OBJECTDIR}/libtrudp/src/hash.o`; \
 	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
 	   (echo "$$NMOUTPUT" | ${GREP} 'T main$$') || \
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.c) -O2 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/packet_queue_nomain.o libtrudp/packet_queue.c;\
+	    $(COMPILE.c) -O2 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/src/hash_nomain.o libtrudp/src/hash.c;\
 	else  \
-	    ${CP} ${OBJECTDIR}/libtrudp/packet_queue.o ${OBJECTDIR}/libtrudp/packet_queue_nomain.o;\
+	    ${CP} ${OBJECTDIR}/libtrudp/src/hash.o ${OBJECTDIR}/libtrudp/src/hash_nomain.o;\
 	fi
 
-${OBJECTDIR}/libtrudp/queue_nomain.o: ${OBJECTDIR}/libtrudp/queue.o libtrudp/queue.c 
-	${MKDIR} -p ${OBJECTDIR}/libtrudp
-	@NMOUTPUT=`${NM} ${OBJECTDIR}/libtrudp/queue.o`; \
+${OBJECTDIR}/libtrudp/src/map_nomain.o: ${OBJECTDIR}/libtrudp/src/map.o libtrudp/src/map.c 
+	${MKDIR} -p ${OBJECTDIR}/libtrudp/src
+	@NMOUTPUT=`${NM} ${OBJECTDIR}/libtrudp/src/map.o`; \
 	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
 	   (echo "$$NMOUTPUT" | ${GREP} 'T main$$') || \
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.c) -O2 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/queue_nomain.o libtrudp/queue.c;\
+	    $(COMPILE.c) -O2 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/src/map_nomain.o libtrudp/src/map.c;\
 	else  \
-	    ${CP} ${OBJECTDIR}/libtrudp/queue.o ${OBJECTDIR}/libtrudp/queue_nomain.o;\
+	    ${CP} ${OBJECTDIR}/libtrudp/src/map.o ${OBJECTDIR}/libtrudp/src/map_nomain.o;\
 	fi
 
-${OBJECTDIR}/libtrudp/tr-udp_nomain.o: ${OBJECTDIR}/libtrudp/tr-udp.o libtrudp/tr-udp.c 
-	${MKDIR} -p ${OBJECTDIR}/libtrudp
-	@NMOUTPUT=`${NM} ${OBJECTDIR}/libtrudp/tr-udp.o`; \
+${OBJECTDIR}/libtrudp/src/packet_nomain.o: ${OBJECTDIR}/libtrudp/src/packet.o libtrudp/src/packet.c 
+	${MKDIR} -p ${OBJECTDIR}/libtrudp/src
+	@NMOUTPUT=`${NM} ${OBJECTDIR}/libtrudp/src/packet.o`; \
 	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
 	   (echo "$$NMOUTPUT" | ${GREP} 'T main$$') || \
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.c) -O2 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/tr-udp_nomain.o libtrudp/tr-udp.c;\
+	    $(COMPILE.c) -O2 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/src/packet_nomain.o libtrudp/src/packet.c;\
 	else  \
-	    ${CP} ${OBJECTDIR}/libtrudp/tr-udp.o ${OBJECTDIR}/libtrudp/tr-udp_nomain.o;\
+	    ${CP} ${OBJECTDIR}/libtrudp/src/packet.o ${OBJECTDIR}/libtrudp/src/packet_nomain.o;\
 	fi
 
-${OBJECTDIR}/libtrudp/tr-udp_stat_nomain.o: ${OBJECTDIR}/libtrudp/tr-udp_stat.o libtrudp/tr-udp_stat.c 
-	${MKDIR} -p ${OBJECTDIR}/libtrudp
-	@NMOUTPUT=`${NM} ${OBJECTDIR}/libtrudp/tr-udp_stat.o`; \
+${OBJECTDIR}/libtrudp/src/packet_queue_nomain.o: ${OBJECTDIR}/libtrudp/src/packet_queue.o libtrudp/src/packet_queue.c 
+	${MKDIR} -p ${OBJECTDIR}/libtrudp/src
+	@NMOUTPUT=`${NM} ${OBJECTDIR}/libtrudp/src/packet_queue.o`; \
 	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
 	   (echo "$$NMOUTPUT" | ${GREP} 'T main$$') || \
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.c) -O2 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/tr-udp_stat_nomain.o libtrudp/tr-udp_stat.c;\
+	    $(COMPILE.c) -O2 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/src/packet_queue_nomain.o libtrudp/src/packet_queue.c;\
 	else  \
-	    ${CP} ${OBJECTDIR}/libtrudp/tr-udp_stat.o ${OBJECTDIR}/libtrudp/tr-udp_stat_nomain.o;\
+	    ${CP} ${OBJECTDIR}/libtrudp/src/packet_queue.o ${OBJECTDIR}/libtrudp/src/packet_queue_nomain.o;\
 	fi
 
-${OBJECTDIR}/libtrudp/udp_nomain.o: ${OBJECTDIR}/libtrudp/udp.o libtrudp/udp.c 
-	${MKDIR} -p ${OBJECTDIR}/libtrudp
-	@NMOUTPUT=`${NM} ${OBJECTDIR}/libtrudp/udp.o`; \
+${OBJECTDIR}/libtrudp/src/queue_nomain.o: ${OBJECTDIR}/libtrudp/src/queue.o libtrudp/src/queue.c 
+	${MKDIR} -p ${OBJECTDIR}/libtrudp/src
+	@NMOUTPUT=`${NM} ${OBJECTDIR}/libtrudp/src/queue.o`; \
 	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
 	   (echo "$$NMOUTPUT" | ${GREP} 'T main$$') || \
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.c) -O2 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/udp_nomain.o libtrudp/udp.c;\
+	    $(COMPILE.c) -O2 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/src/queue_nomain.o libtrudp/src/queue.c;\
 	else  \
-	    ${CP} ${OBJECTDIR}/libtrudp/udp.o ${OBJECTDIR}/libtrudp/udp_nomain.o;\
+	    ${CP} ${OBJECTDIR}/libtrudp/src/queue.o ${OBJECTDIR}/libtrudp/src/queue_nomain.o;\
 	fi
 
-${OBJECTDIR}/libtrudp/utils_nomain.o: ${OBJECTDIR}/libtrudp/utils.o libtrudp/utils.c 
-	${MKDIR} -p ${OBJECTDIR}/libtrudp
-	@NMOUTPUT=`${NM} ${OBJECTDIR}/libtrudp/utils.o`; \
+${OBJECTDIR}/libtrudp/src/tr-udp_nomain.o: ${OBJECTDIR}/libtrudp/src/tr-udp.o libtrudp/src/tr-udp.c 
+	${MKDIR} -p ${OBJECTDIR}/libtrudp/src
+	@NMOUTPUT=`${NM} ${OBJECTDIR}/libtrudp/src/tr-udp.o`; \
 	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
 	   (echo "$$NMOUTPUT" | ${GREP} 'T main$$') || \
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.c) -O2 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/utils_nomain.o libtrudp/utils.c;\
+	    $(COMPILE.c) -O2 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/src/tr-udp_nomain.o libtrudp/src/tr-udp.c;\
 	else  \
-	    ${CP} ${OBJECTDIR}/libtrudp/utils.o ${OBJECTDIR}/libtrudp/utils_nomain.o;\
+	    ${CP} ${OBJECTDIR}/libtrudp/src/tr-udp.o ${OBJECTDIR}/libtrudp/src/tr-udp_nomain.o;\
 	fi
 
-${OBJECTDIR}/libtrudp/write_queue_nomain.o: ${OBJECTDIR}/libtrudp/write_queue.o libtrudp/write_queue.c 
-	${MKDIR} -p ${OBJECTDIR}/libtrudp
-	@NMOUTPUT=`${NM} ${OBJECTDIR}/libtrudp/write_queue.o`; \
+${OBJECTDIR}/libtrudp/src/tr-udp_stat_nomain.o: ${OBJECTDIR}/libtrudp/src/tr-udp_stat.o libtrudp/src/tr-udp_stat.c 
+	${MKDIR} -p ${OBJECTDIR}/libtrudp/src
+	@NMOUTPUT=`${NM} ${OBJECTDIR}/libtrudp/src/tr-udp_stat.o`; \
 	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
 	   (echo "$$NMOUTPUT" | ${GREP} 'T main$$') || \
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.c) -O2 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/write_queue_nomain.o libtrudp/write_queue.c;\
+	    $(COMPILE.c) -O2 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/src/tr-udp_stat_nomain.o libtrudp/src/tr-udp_stat.c;\
 	else  \
-	    ${CP} ${OBJECTDIR}/libtrudp/write_queue.o ${OBJECTDIR}/libtrudp/write_queue_nomain.o;\
+	    ${CP} ${OBJECTDIR}/libtrudp/src/tr-udp_stat.o ${OBJECTDIR}/libtrudp/src/tr-udp_stat_nomain.o;\
+	fi
+
+${OBJECTDIR}/libtrudp/src/udp_nomain.o: ${OBJECTDIR}/libtrudp/src/udp.o libtrudp/src/udp.c 
+	${MKDIR} -p ${OBJECTDIR}/libtrudp/src
+	@NMOUTPUT=`${NM} ${OBJECTDIR}/libtrudp/src/udp.o`; \
+	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
+	then  \
+	    ${RM} "$@.d";\
+	    $(COMPILE.c) -O2 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/src/udp_nomain.o libtrudp/src/udp.c;\
+	else  \
+	    ${CP} ${OBJECTDIR}/libtrudp/src/udp.o ${OBJECTDIR}/libtrudp/src/udp_nomain.o;\
+	fi
+
+${OBJECTDIR}/libtrudp/src/utils_nomain.o: ${OBJECTDIR}/libtrudp/src/utils.o libtrudp/src/utils.c 
+	${MKDIR} -p ${OBJECTDIR}/libtrudp/src
+	@NMOUTPUT=`${NM} ${OBJECTDIR}/libtrudp/src/utils.o`; \
+	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
+	then  \
+	    ${RM} "$@.d";\
+	    $(COMPILE.c) -O2 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/src/utils_nomain.o libtrudp/src/utils.c;\
+	else  \
+	    ${CP} ${OBJECTDIR}/libtrudp/src/utils.o ${OBJECTDIR}/libtrudp/src/utils_nomain.o;\
+	fi
+
+${OBJECTDIR}/libtrudp/src/write_queue_nomain.o: ${OBJECTDIR}/libtrudp/src/write_queue.o libtrudp/src/write_queue.c 
+	${MKDIR} -p ${OBJECTDIR}/libtrudp/src
+	@NMOUTPUT=`${NM} ${OBJECTDIR}/libtrudp/src/write_queue.o`; \
+	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
+	then  \
+	    ${RM} "$@.d";\
+	    $(COMPILE.c) -O2 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/src/write_queue_nomain.o libtrudp/src/write_queue.c;\
+	else  \
+	    ${CP} ${OBJECTDIR}/libtrudp/src/write_queue.o ${OBJECTDIR}/libtrudp/src/write_queue_nomain.o;\
 	fi
 
 ${OBJECTDIR}/main_nomain.o: ${OBJECTDIR}/main.o main.cpp 
@@ -344,45 +383,6 @@ ${OBJECTDIR}/main_nomain.o: ${OBJECTDIR}/main.o main.cpp
 	    ${CP} ${OBJECTDIR}/main.o ${OBJECTDIR}/main_nomain.o;\
 	fi
 
-${OBJECTDIR}/snake_nomain.o: ${OBJECTDIR}/snake.o snake.c 
-	${MKDIR} -p ${OBJECTDIR}
-	@NMOUTPUT=`${NM} ${OBJECTDIR}/snake.o`; \
-	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
-	   (echo "$$NMOUTPUT" | ${GREP} 'T main$$') || \
-	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
-	then  \
-	    ${RM} "$@.d";\
-	    $(COMPILE.c) -O2 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/snake_nomain.o snake.c;\
-	else  \
-	    ${CP} ${OBJECTDIR}/snake.o ${OBJECTDIR}/snake_nomain.o;\
-	fi
-
-${OBJECTDIR}/trudpcat_nomain.o: ${OBJECTDIR}/trudpcat.o trudpcat.c 
-	${MKDIR} -p ${OBJECTDIR}
-	@NMOUTPUT=`${NM} ${OBJECTDIR}/trudpcat.o`; \
-	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
-	   (echo "$$NMOUTPUT" | ${GREP} 'T main$$') || \
-	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
-	then  \
-	    ${RM} "$@.d";\
-	    $(COMPILE.c) -O2 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/trudpcat_nomain.o trudpcat.c;\
-	else  \
-	    ${CP} ${OBJECTDIR}/trudpcat.o ${OBJECTDIR}/trudpcat_nomain.o;\
-	fi
-
-${OBJECTDIR}/trudpcat_ev_nomain.o: ${OBJECTDIR}/trudpcat_ev.o trudpcat_ev.c 
-	${MKDIR} -p ${OBJECTDIR}
-	@NMOUTPUT=`${NM} ${OBJECTDIR}/trudpcat_ev.o`; \
-	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
-	   (echo "$$NMOUTPUT" | ${GREP} 'T main$$') || \
-	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
-	then  \
-	    ${RM} "$@.d";\
-	    $(COMPILE.c) -O2 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/trudpcat_ev_nomain.o trudpcat_ev.c;\
-	else  \
-	    ${CP} ${OBJECTDIR}/trudpcat_ev.o ${OBJECTDIR}/trudpcat_ev_nomain.o;\
-	fi
-
 # Run Test Targets
 .test-conf:
 	@if [ "${TEST}" = "" ]; \
@@ -395,7 +395,7 @@ ${OBJECTDIR}/trudpcat_ev_nomain.o: ${OBJECTDIR}/trudpcat_ev.o trudpcat_ev.c
 # Clean Targets
 .clean-conf: ${CLEAN_SUBPROJECTS}
 	${RM} -r ${CND_BUILDDIR}/${CND_CONF}
-	${RM} ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/tr-udp
+	${RM} ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/trudp
 
 # Subprojects
 .clean-subprojects:

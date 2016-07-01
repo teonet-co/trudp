@@ -10,7 +10,9 @@
 #include <CUnit/Basic.h>
 #include <CUnit/CUnit.h>
 
-#include "../map.h"
+#include "map.h"
+#include "hash.h"
+#include "packet.h"
 
 /*
  * CUnit Test Suite
@@ -25,25 +27,25 @@ void check_hash() {
     char *key = "127.0.0.1:8000";
     uint32_t hash = SuperFastHash(key, strlen(key) + 1);
     printf("\nHash1 of key %s = %010u ", key, hash);
-    hash = hash_f(key, strlen(key) + 1, 0);
+    hash = hash_f((ub1*)key, strlen(key) + 1, 0);
     printf("\nHash2 of key %s = %010u ", key, hash);
     
     key = "127.0.0.1:8001";
     hash = SuperFastHash(key, strlen(key) + 1);
     printf("\nHash1 of key %s = %010u ", key, hash);
-    hash = hash_f(key, strlen(key) + 1, 0);
+    hash = hash_f((ub1*)key, strlen(key) + 1, 0);
     printf("\nHash2 of key %s = %010u ", key, hash);
 
     key = "192.168.101.11:8000";
     hash = SuperFastHash(key, strlen(key) + 1);
     printf("\nHash1 of key %s = %010u ", key, hash);
-    hash = hash_f(key, strlen(key) + 1, 0);
+    hash = hash_f((ub1*)key, strlen(key) + 1, 0);
     printf("\nHash2 of key %s = %010u ", key, hash);
 
     key = "192.168.101.11:8001";
     hash = SuperFastHash(key, strlen(key) + 1);
     printf("\nHash1 of key %s = %010u ", key, hash);
-    hash = hash_f(key, strlen(key) + 1, 0);
+    hash = hash_f((ub1*)key, strlen(key) + 1, 0);
     printf("\nHash2 of key %s = %010u \n   ", key, hash);
     
     CU_ASSERT(2 * 2 == 4);
@@ -74,7 +76,7 @@ static char* randIpPort() {
 // Check hash table. Add and get several records
 void check_map() {
     
-    int i, j;
+    int i;
     const size_t NUM_KEYS = 10000;
 
     srand(trudpGetTimestamp());
@@ -156,9 +158,9 @@ void check_map() {
         i++;
         trudpMapElementData *el = trudpMapIteratorElement(it);
         size_t key_lenth;
-        void *key = trudpMapIteratorElementKey(el, &key_lenth);
+        /*void *key =*/ trudpMapIteratorElementKey(el, &key_lenth);
         size_t data_lenth;
-        void *data = trudpMapIteratorElementData(el, &data_lenth);
+        /*void *data =*/ trudpMapIteratorElementData(el, &data_lenth);
         //printf("\n #%d, idx: %u, hash: %010u, key: %s, data: %s ", 
         //       i, it->idx, el->hash, (char*)key, (char*)data);        
     }

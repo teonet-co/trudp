@@ -181,7 +181,7 @@ trudpQueueData *trudpQueueAddAfter(trudpQueue *q, void *data, size_t data_length
             
     if(q) {
         // Add to last position
-        if(!q->last || qd && qd == q->last) new_qd = trudpQueueAdd(q, data, data_length);
+        if(!q->last || (qd && qd == q->last)) new_qd = trudpQueueAdd(q, data, data_length);
         else {
             // Create new trudpQueueData
             new_qd = (trudpQueueData *) malloc(sizeof(trudpQueueData) + data_length);

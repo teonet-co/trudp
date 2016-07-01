@@ -1,0 +1,3 @@
+[submodule "libtrudp/ci-build"]
+	path = libtrudp/ci-build
+	url = git@gitlab.ksproject.org:teonet/ci-build.git

@@ -244,8 +244,8 @@ trudpPacketQueueData *trudpPacketQueueGetFirst(trudpPacketQueue *tq) {
 /**
  * Move element to the end of list
  *
- * @param q Pointer to trudpPacketQueue
- * @param qd Pointer to trudpPacketQueueData
+ * @param tq Pointer to trudpPacketQueue
+ * @param tqd Pointer to trudpPacketQueueData
  * @return Zero at success
  */
 inline trudpPacketQueueData *trudpPacketQueueMoveToEnd(trudpPacketQueue *tq,

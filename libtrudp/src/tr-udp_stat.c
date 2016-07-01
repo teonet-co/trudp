@@ -344,7 +344,6 @@ static char* trimLeadingZerro(char *str) {
     size_t i = 0, len = strlen(str);
     
     while(i<len) {
-        str[i];
         if(str[i] != ' ' && !(str[i] == '0' && str[i+1] != '.') ) { 
             ret_str = str + i; 
             break; 
@@ -395,7 +394,7 @@ static char* showTime(double t) {
  *
  * Return string with statistics. It should be free after use.
  *
- * @param tu
+ * @param td
  *
  * @return Pointer to allocated string with statistics
  */

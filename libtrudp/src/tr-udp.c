@@ -34,6 +34,7 @@
 #include "tr-udp.h"
 #include "packet.h"
 #include "tr-udp_stat.h"
+#include "packet_queue.h"
 
 /**
  * Set default trudpChannelData values
@@ -96,6 +97,7 @@ void trudpDestroy(trudpData* trudp) {
 /**
  * Set TR-UDP callback
  *
+ * @param td Pointer to trudpData
  * @param type
  * @param cb
  * @return
@@ -140,7 +142,8 @@ trudpCb trudpSetCallback(trudpData *td, trudpCallbsckType type, trudpCb cb) {
  * @param td Pointer to trudpData
  * @param remote_address
  * @param remote_port_i
- * @return
+ * @param channel
+ * @return 
  */
 trudpChannelData *trudpNewChannel(trudpData *td, char *remote_address,
         int remote_port_i, int channel) {
@@ -271,10 +274,11 @@ static inline uint64_t trudpCalculateExpectedTime(trudpChannelData *tcd,
 
     uint64_t expected_time = current_time + tcd->triptimeMiddle + 2 * MAX_RTT;
 
-    if(tcd->sendQueue->q->last)
-        if(((trudpPacketQueueData*)tcd->sendQueue->q->last->data)->expected_time > expected_time)
-            expected_time = ((trudpPacketQueueData*)tcd->sendQueue->q->last->data)->expected_time;
-
+    if(tcd->sendQueue->q->last) {        
+        trudpPacketQueueData *pqd = (trudpPacketQueueData*) tcd->sendQueue->q->last->data;
+        if(pqd->expected_time > expected_time) expected_time = pqd->expected_time;
+    }
+    
     return expected_time;
 }
 
@@ -291,11 +295,11 @@ static inline uint64_t trudpCalculateExpectedTime(trudpChannelData *tcd,
 static size_t trudpSendPacket(trudpChannelData *tcd, void *packetDATA,
         size_t packetLength, int save_to_send_queue) {
 
-    trudpPacketQueueData *tpqd;
+    //trudpPacketQueueData *tpqd;
 
     // Save packet to send queue
     if(save_to_send_queue) {
-        tpqd = trudpPacketQueueAdd(tcd->sendQueue,
+        /*tpqd = */trudpPacketQueueAdd(tcd->sendQueue,
             packetDATA,
             packetLength,
             trudpCalculateExpectedTime(tcd, trudpGetTimestampFull())
@@ -322,7 +326,7 @@ static size_t trudpSendPacket(trudpChannelData *tcd, void *packetDATA,
 /**
  * Send data
  *
- * @param td Pointer to trudpChannelData
+ * @param tcd Pointer to trudpChannelData
  * @param data Pointer to send data
  * @param data_length Data length
  *
@@ -556,7 +560,7 @@ static inline void trudpSendRESET(trudpChannelData *tcd) {
  */
 void trudpSendResetAll(trudpData *td) {
 
-    size_t retval = 0;
+    //size_t retval = 0;
     trudpMapElementData *el;
     trudpMapIterator *it;
     if((it = trudpMapIteratorNew(td->map))) {
@@ -937,7 +941,7 @@ int trudpProcessSendQueue(trudpData *td, uint64_t *next_et) {
             }
             trudpMapIteratorDestroy(it);
         }
-    } while(retval == -1 || retval > 0 && /*min_expected_time != UINT64_MAX &&*/ min_expected_time <= ts);
+    } while(retval == -1 || (retval > 0 && /*min_expected_time != UINT64_MAX &&*/ min_expected_time <= ts));
 
     if(next_et) *next_et = min_expected_time != UINT64_MAX ? min_expected_time : 0;
 
@@ -1099,6 +1103,7 @@ char *trudpMakeKeyCannel(trudpChannelData *tcd) {
  * @param td Pointer to trudpData
  * @param remaddr Pointer to sockaddr_in remote address
  * @param addr_length Remote address length
+ * @param channel TR-UDP channel
  */
 trudpChannelData *trudpCheckRemoteAddr(trudpData *td,
         struct sockaddr_in *remaddr, socklen_t addr_length, int channel) {
@@ -1122,7 +1127,7 @@ trudpChannelData *trudpCheckRemoteAddr(trudpData *td,
 /**
  * Get channel send queue timeout
  *
- * @param td Pointer to trudpChannelData
+ * @param tcd Pointer to trudpChannelData
  * @return Send queue timeout (may by 0) or UINT32_MAX if send queue is empty
  */
 uint32_t trudpGetChannelSendQueueTimeout(trudpChannelData *tcd) {
@@ -1130,11 +1135,8 @@ uint32_t trudpGetChannelSendQueueTimeout(trudpChannelData *tcd) {
     // Get sendQueue timeout
     uint32_t timeout_sq = UINT32_MAX;
     if(tcd->sendQueue->q->first) {
-
-        uint64_t
-        expected_t = ((trudpPacketQueueData *)tcd->sendQueue->q->first->data)->expected_time,
-        current_t = trudpGetTimestampFull();
-        
+        trudpPacketQueueData *pqd = (trudpPacketQueueData *)tcd->sendQueue->q->first->data;
+        uint64_t expected_t = pqd->expected_time, current_t = trudpGetTimestampFull();        
         timeout_sq = current_t < expected_t ? expected_t - current_t : 0;
     }
 
