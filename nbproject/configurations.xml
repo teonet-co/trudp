@@ -75,8 +75,6 @@
       <itemPath>README.md</itemPath>
       <itemPath>trudpcat.sh</itemPath>
     </logicalFolder>
-    <itemPath>libtrudp/tests/Makefile.am</itemPath>
-    <itemPath>libtrudp/examples/Makefile.am</itemPath>
   </logicalFolder>
   <sourceRootList>
     <Elem>libtrudp</Elem>
@@ -114,8 +112,6 @@
             ex="false"
             tool="3"
             flavor2="0">
-      </item>
-      <item path="libtrudp/examples/Makefile.am" ex="false" tool="3" flavor2="0">
       </item>
       <item path="libtrudp/examples/snake.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -166,8 +162,6 @@
       <item path="libtrudp/src/write_queue.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="libtrudp/src/write_queue.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="libtrudp/tests/Makefile.am" ex="false" tool="3" flavor2="0">
       </item>
       <item path="libtrudp/tests/map_t.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -227,8 +221,6 @@
             tool="3"
             flavor2="0">
       </item>
-      <item path="libtrudp/examples/Makefile.am" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="libtrudp/examples/snake.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="libtrudp/examples/snake.h" ex="false" tool="3" flavor2="0">
@@ -278,8 +270,6 @@
       <item path="libtrudp/src/write_queue.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="libtrudp/src/write_queue.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="libtrudp/tests/Makefile.am" ex="false" tool="3" flavor2="0">
       </item>
       <item path="libtrudp/tests/map_t.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -328,8 +318,6 @@
             tool="3"
             flavor2="0">
       </item>
-      <item path="libtrudp/examples/Makefile.am" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="libtrudp/examples/snake.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="libtrudp/examples/snake.h" ex="false" tool="3" flavor2="0">
@@ -379,8 +367,6 @@
       <item path="libtrudp/src/write_queue.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="libtrudp/src/write_queue.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="libtrudp/tests/Makefile.am" ex="false" tool="3" flavor2="0">
       </item>
       <item path="libtrudp/tests/map_t.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -437,8 +423,6 @@
             tool="3"
             flavor2="0">
       </item>
-      <item path="libtrudp/examples/Makefile.am" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="libtrudp/examples/snake.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="libtrudp/examples/snake.h" ex="false" tool="3" flavor2="0">
@@ -488,8 +472,6 @@
       <item path="libtrudp/src/write_queue.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="libtrudp/src/write_queue.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="libtrudp/tests/Makefile.am" ex="false" tool="3" flavor2="0">
       </item>
       <item path="libtrudp/tests/map_t.c" ex="false" tool="0" flavor2="0">
       </item>
