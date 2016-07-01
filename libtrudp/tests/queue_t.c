@@ -10,7 +10,7 @@
 #include <string.h>
 #include <CUnit/Basic.h>
 
-#include "../queue.h"
+#include "queue.h"
 
 /*
  * CUnit Test Suite
@@ -77,9 +77,9 @@ void add_elements_to_queue() {
         CU_ASSERT(q->length); // length not null
         CU_ASSERT(q->last == qd); // last element equal to this
         CU_ASSERT(q->first && q->last); // first and last element are present
-        CU_ASSERT(i || !i && q->first == qd); // for fist added: first element equal to this
-        CU_ASSERT(i || !i && !qd->prev); // for fist added: previous is null
-        CU_ASSERT(!i || i && qd->prev); // for non fist added: previous is not null
+        CU_ASSERT(i || (!i && q->first == qd)); // for fist added: first element equal to this
+        CU_ASSERT(i || (!i && !qd->prev)); // for fist added: previous is null
+        CU_ASSERT(!i || (i && qd->prev)); // for non fist added: previous is not null
         CU_ASSERT(!qd->next); // next is null
         CU_ASSERT_PTR_NOT_NULL_FATAL(qd);
         CU_ASSERT_STRING_EQUAL_FATAL(data[i], qd->data);
@@ -292,6 +292,11 @@ void delete_elements_from_queue() {
     int rv = trudpQueueDestroy(q);
     CU_ASSERT(!rv);    
 }
+
+int packetSuiteAdd();
+int timedQueueSuiteAdd();
+int trUdpSuiteAdd();
+int hashSuiteAdd();
 
 int main() {
     

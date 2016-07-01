@@ -10,7 +10,7 @@
 #include <string.h>
 #include <CUnit/Basic.h>
 
-#include "../packet.h"
+#include "packet.h"
 
 /*
  * CUnit Test Suite

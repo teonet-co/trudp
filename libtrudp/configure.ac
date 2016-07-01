@@ -232,5 +232,7 @@ AC_CONFIG_FILES([
     po/Makefile.in
     src/libtrudp.pc
     src/Makefile
+    tests/Makefile
+    examples/Makefile
 ])
 AC_OUTPUT

@@ -229,14 +229,18 @@ int trudpProcessSendQueue(trudpData *td, uint64_t *next_et);
 size_t trudpProcessWriteQueue(trudpData *td);
 void trudpSendResetAll(trudpData *td);
 size_t trudpKeepConnection(trudpData *td);
+uint32_t trudpGetSendQueueTimeout(trudpData *td);
 
 trudpChannelData *trudpNewChannel(trudpData *td, char *remote_address, int remote_port_i, int channel); // void *user_data, trudpDataCb processDataCb, trudpDataCb sendPacketCb);
 void trudpDestroyChannel(trudpChannelData *tcd);
 void trudpFreeChannel(trudpChannelData *tcd);
 void trudpResetChannel(trudpChannelData *tcd);
 size_t trudpSendData(trudpChannelData *tcd, void *data, size_t data_length);
+size_t trudpSendDataToAll(trudpData *td, void *data, size_t data_length);
 void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet, 
         size_t packet_length, size_t *data_length);
+int trudpProcessChannelSendQueue(trudpChannelData *tcd, uint64_t ts,
+        uint64_t *next_expected_time);
 char *trudpMakeKeyCannel(trudpChannelData *tcd);
 
 char *trudpMakeKey(char *addr, int port, int channel, size_t *key_length);

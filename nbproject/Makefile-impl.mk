@@ -24,7 +24,7 @@ CLEAN_SUBPROJECTS=${CLEAN_SUBPROJECTS_${SUBPROJECTS}}
 
 
 # Project Name
-PROJECTNAME=tr-udp
+PROJECTNAME=trudp
 
 # Active Configuration
 DEFAULTCONF=Debug

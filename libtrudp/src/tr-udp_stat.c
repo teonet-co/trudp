@@ -394,7 +394,7 @@ static char* showTime(double t) {
  *
  * Return string with statistics. It should be free after use.
  *
- * @param tu
+ * @param td
  *
  * @return Pointer to allocated string with statistics
  */

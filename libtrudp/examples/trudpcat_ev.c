@@ -41,10 +41,11 @@
 #if __STDC_VERSION__ >= 201112L
 extern int usleep (__useconds_t __useconds);
 #endif
+#include "snake.h"
 
-#include "libtrudp/src/tr-udp.h"
-#include "libtrudp/src/utils_r.h"
-#include "libtrudp/src/tr-udp_stat.h"
+#include "tr-udp.h"
+#include "utils_r.h"
+#include "tr-udp_stat.h"
 
 // Application version
 #define APP_VERSION "0.0.18"
@@ -137,9 +138,8 @@ static process_send_queue_data psd;
 static options o = { 0, 0, 0, 0, 0, 0, 0, 4096, NULL, NULL, NULL, NULL, 0 };
 
 // Application exit code and flags
-static int exit_code = EXIT_SUCCESS,
-    connected_flag = 0,
-    quit_flag = 0;
+//static int exit_code = EXIT_SUCCESS, quit_flag = 0;
+static int connected_flag = 0;
 
 // Read buffer
 static char *buffer;
@@ -535,7 +535,7 @@ static void process_send_queue_cb(EV_P_ ev_timer *w, int revents) {
     // Process send queue
     debug("process send queue ... \n");
     uint64_t next_expected_time;
-    int rv = trudpProcessSendQueue(psd->td, &next_expected_time);
+    /*int rv = */trudpProcessSendQueue(psd->td, &next_expected_time);
 
     // Start new process_send_queue timer
     if(next_expected_time)
@@ -830,7 +830,7 @@ int main(int argc, char** argv) {
     ev_timer send_message_w;
     show_statistic_data ssd;
     send_message_data smd;
-    ev_timer show_stat_w;
+//    ev_timer show_stat_w;
     ev_timer connect_w;
     ev_io w;
 

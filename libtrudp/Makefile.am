@@ -27,7 +27,7 @@ DX_CLEANFILES = -rf @DX_DOCDIR@
 
 endif
 
-SUBDIRS = src po
+SUBDIRS = src po tests examples
 
 trudpdocdir = ${prefix}/doc/@PACKAGE@
 trudpdoc_DATA = \
@@ -53,3 +53,6 @@ DISTCLEANFILES = intltool-extract \
 # Remove doc directory on uninstall
 uninstall-local:
 	-rm -r $(trudpdocdir)
+	
+test:	tests/trudp_tst
+	tests/trudp_tst	

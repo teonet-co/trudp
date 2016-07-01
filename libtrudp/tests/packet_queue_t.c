@@ -10,8 +10,8 @@
 #include <unistd.h>
 #include <CUnit/Basic.h>
 
-#include "../packet.h"
-#include "../packet_queue.h"
+#include "packet.h"
+#include "packet_queue.h"
 
 /*
  * CUnit Test Suite

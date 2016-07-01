@@ -37,7 +37,7 @@
 extern "C" {
 #endif
 
-void run_snake();
+int run_snake();
 
 #ifdef __cplusplus
 }

@@ -97,6 +97,7 @@ void trudpDestroy(trudpData* trudp) {
 /**
  * Set TR-UDP callback
  *
+ * @param td Pointer to trudpData
  * @param type
  * @param cb
  * @return
@@ -141,7 +142,8 @@ trudpCb trudpSetCallback(trudpData *td, trudpCallbsckType type, trudpCb cb) {
  * @param td Pointer to trudpData
  * @param remote_address
  * @param remote_port_i
- * @return
+ * @param channel
+ * @return 
  */
 trudpChannelData *trudpNewChannel(trudpData *td, char *remote_address,
         int remote_port_i, int channel) {
@@ -324,7 +326,7 @@ static size_t trudpSendPacket(trudpChannelData *tcd, void *packetDATA,
 /**
  * Send data
  *
- * @param td Pointer to trudpChannelData
+ * @param tcd Pointer to trudpChannelData
  * @param data Pointer to send data
  * @param data_length Data length
  *
@@ -1101,6 +1103,7 @@ char *trudpMakeKeyCannel(trudpChannelData *tcd) {
  * @param td Pointer to trudpData
  * @param remaddr Pointer to sockaddr_in remote address
  * @param addr_length Remote address length
+ * @param channel TR-UDP channel
  */
 trudpChannelData *trudpCheckRemoteAddr(trudpData *td,
         struct sockaddr_in *remaddr, socklen_t addr_length, int channel) {
@@ -1124,7 +1127,7 @@ trudpChannelData *trudpCheckRemoteAddr(trudpData *td,
 /**
  * Get channel send queue timeout
  *
- * @param td Pointer to trudpChannelData
+ * @param tcd Pointer to trudpChannelData
  * @return Send queue timeout (may by 0) or UINT32_MAX if send queue is empty
  */
 uint32_t trudpGetChannelSendQueueTimeout(trudpChannelData *tcd) {

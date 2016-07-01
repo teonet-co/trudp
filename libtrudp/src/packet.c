@@ -356,6 +356,7 @@ inline void *trudpPacketRESETcreateNew(uint32_t id, unsigned int channel) {
  * Create DATA package
  *
  * @param id Packet ID
+ * @param channel TR-UDP channel
  * @param data Pointer to package data
  * @param data_length Package data length
  * @param packetLength
@@ -376,6 +377,7 @@ inline void *trudpPacketDATAcreateNew(uint32_t id, unsigned int channel,
  * Create PING package
  *
  * @param id Packet ID (last send Id)
+ * @param channel TR-UDP cannel
  * @param data Pointer to packet data
  * @param data_length Packet data length
  * @param packetLength [out]
@@ -528,6 +530,7 @@ inline trudpPacketType trudpPacketGetType(void *packet) {
  * Set packet data type
  *
  * @param packet Pointer to packet
+ * @param message_type
  */
 inline void trudpPacketSetType(void *packet, trudpPacketType message_type) {
 

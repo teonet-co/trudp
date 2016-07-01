@@ -35,3 +35,11 @@
 /libtrudp/stamp-h1
 /libtrudp/config.h
 /libtrudp/m4/
+/libtrudp/tests/Makefile.in
+/libtrudp/tests/Makefile
+/libtrudp/tests/.libs/
+/libtrudp/tests/trudp_tst
+/libtrudp/examples/Makefile
+/libtrudp/examples/Makefile.in
+/libtrudp/examples/trudpcat_ev
+/libtrudp/examples/.libs/

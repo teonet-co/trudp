@@ -9,23 +9,18 @@ AM_CPPFLAGS = \
 	-DPACKAGE_DATA_DIR=\""$(datadir)"\" $(TRUDP_CFLAGS)
 
 AM_CFLAGS = \
-	 -Wall \
-	 -g
+	 -g -Wall \
+	 -fPIC	  
 	
 #	 -std=c11 
 #	 -I$(HOME)/Projects/teonet/src/ 
-#	 -I$(HOME)/Projects/teonet/embedded/libpbl/src 
-#	 -I$(HOME)/Projects/teonet/embedded/teocli/libteol0 
-#	 -I/usr/include/teonet
-
-AM_LDFLAGS = 
 
 AM_CXX = clang++
 AM_CXXFLAGS = \
-         -g -Wall
+         -g -Wall \
+	 -fPIC
 
 #	 -std=c++11 
-#	 -I/opt/localionclude 
 #	 -I$(HOME)/Projects/teonet/src/
 
 ## Debug info
@@ -36,6 +31,8 @@ else
   AM_CFLAGS += -O2
   AM_CXXFLAGS += -O2
 endif
+
+AM_LDFLAGS = 
 
 LIBS =
 

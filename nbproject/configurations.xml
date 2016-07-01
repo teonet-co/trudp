@@ -14,7 +14,30 @@
                    displayName="Source Files"
                    projectFiles="true">
       <logicalFolder name="libtrudp" displayName="libtrudp" projectFiles="true">
+        <logicalFolder name="examples" displayName="examples" projectFiles="true">
+          <logicalFolder name=".deps" displayName=".deps" projectFiles="true">
+          </logicalFolder>
+          <logicalFolder name=".libs" displayName=".libs" projectFiles="true">
+            <itemPath>libtrudp/examples/.libs/lt-trudpcat_ev</itemPath>
+            <itemPath>libtrudp/examples/.libs/trudpcat_ev</itemPath>
+          </logicalFolder>
+          <itemPath>libtrudp/examples/Makefile</itemPath>
+          <itemPath>libtrudp/examples/Makefile.in</itemPath>
+          <itemPath>libtrudp/examples/snake.c</itemPath>
+          <itemPath>libtrudp/examples/snake.h</itemPath>
+          <itemPath>libtrudp/examples/trudpcat.c</itemPath>
+          <itemPath>libtrudp/examples/trudpcat_ev</itemPath>
+          <itemPath>libtrudp/examples/trudpcat_ev.c</itemPath>
+        </logicalFolder>
         <logicalFolder name="tests" displayName="tests" projectFiles="true">
+          <logicalFolder name=".deps" displayName=".deps" projectFiles="true">
+          </logicalFolder>
+          <logicalFolder name=".libs" displayName=".libs" projectFiles="true">
+            <itemPath>libtrudp/tests/.libs/trudp_tst</itemPath>
+          </logicalFolder>
+          <itemPath>libtrudp/tests/Makefile</itemPath>
+          <itemPath>libtrudp/tests/Makefile.in</itemPath>
+          <itemPath>libtrudp/tests/trudp_tst</itemPath>
         </logicalFolder>
         <itemPath>libtrudp/src/hash.c</itemPath>
         <itemPath>libtrudp/src/hash.h</itemPath>
@@ -39,9 +62,6 @@
         <itemPath>libtrudp/src/write_queue.h</itemPath>
       </logicalFolder>
       <itemPath>main.cpp</itemPath>
-      <itemPath>snake.c</itemPath>
-      <itemPath>trudpcat.c</itemPath>
-      <itemPath>trudpcat_ev.c</itemPath>
     </logicalFolder>
     <logicalFolder name="TestFiles"
                    displayName="Test Files"
@@ -66,6 +86,8 @@
       <itemPath>README.md</itemPath>
       <itemPath>trudpcat.sh</itemPath>
     </logicalFolder>
+    <itemPath>libtrudp/tests/Makefile.am</itemPath>
+    <itemPath>libtrudp/examples/Makefile.am</itemPath>
   </logicalFolder>
   <sourceRootList>
     <Elem>libtrudp</Elem>
@@ -94,6 +116,32 @@
           </linkerLibItems>
         </linkerTool>
       </folder>
+      <item path="libtrudp/examples/.libs/lt-trudpcat_ev"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="libtrudp/examples/.libs/trudpcat_ev"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="libtrudp/examples/Makefile" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/examples/Makefile.am" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/examples/Makefile.in" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/examples/snake.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="libtrudp/examples/snake.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/examples/trudpcat.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="libtrudp/examples/trudpcat_ev" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/examples/trudpcat_ev.c" ex="false" tool="0" flavor2="0">
+      </item>
       <item path="libtrudp/src/hash.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="libtrudp/src/hash.h" ex="false" tool="3" flavor2="0">
@@ -136,6 +184,14 @@
       </item>
       <item path="libtrudp/src/write_queue.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="libtrudp/tests/.libs/trudp_tst" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/tests/Makefile" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/tests/Makefile.am" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/tests/Makefile.in" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="libtrudp/tests/map_t.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="libtrudp/tests/packet_queue_t.c" ex="false" tool="0" flavor2="0">
@@ -146,15 +202,11 @@
       </item>
       <item path="libtrudp/tests/tr-udp_t.c" ex="false" tool="0" flavor2="0">
       </item>
+      <item path="libtrudp/tests/trudp_tst" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="main.cpp" ex="false" tool="1" flavor2="0">
       </item>
-      <item path="snake.c" ex="false" tool="0" flavor2="0">
-      </item>
       <item path="snake.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="trudpcat.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="trudpcat_ev.c" ex="false" tool="0" flavor2="0">
       </item>
     </conf>
     <conf name="Release" type="1">
@@ -190,6 +242,32 @@
           </linkerLibItems>
         </linkerTool>
       </folder>
+      <item path="libtrudp/examples/.libs/lt-trudpcat_ev"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="libtrudp/examples/.libs/trudpcat_ev"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="libtrudp/examples/Makefile" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/examples/Makefile.am" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/examples/Makefile.in" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/examples/snake.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="libtrudp/examples/snake.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/examples/trudpcat.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="libtrudp/examples/trudpcat_ev" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/examples/trudpcat_ev.c" ex="false" tool="0" flavor2="0">
+      </item>
       <item path="libtrudp/src/hash.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="libtrudp/src/hash.h" ex="false" tool="3" flavor2="0">
@@ -232,6 +310,14 @@
       </item>
       <item path="libtrudp/src/write_queue.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="libtrudp/tests/.libs/trudp_tst" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/tests/Makefile" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/tests/Makefile.am" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/tests/Makefile.in" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="libtrudp/tests/map_t.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="libtrudp/tests/packet_queue_t.c" ex="false" tool="0" flavor2="0">
@@ -242,15 +328,11 @@
       </item>
       <item path="libtrudp/tests/tr-udp_t.c" ex="false" tool="0" flavor2="0">
       </item>
+      <item path="libtrudp/tests/trudp_tst" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="main.cpp" ex="false" tool="1" flavor2="0">
       </item>
-      <item path="snake.c" ex="false" tool="0" flavor2="0">
-      </item>
       <item path="snake.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="trudpcat.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="trudpcat_ev.c" ex="false" tool="0" flavor2="0">
       </item>
     </conf>
     <conf name="MinGW-w64-Debug" type="1">
@@ -275,6 +357,32 @@
           </linkerLibItems>
         </linkerTool>
       </folder>
+      <item path="libtrudp/examples/.libs/lt-trudpcat_ev"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="libtrudp/examples/.libs/trudpcat_ev"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="libtrudp/examples/Makefile" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/examples/Makefile.am" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/examples/Makefile.in" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/examples/snake.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="libtrudp/examples/snake.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/examples/trudpcat.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="libtrudp/examples/trudpcat_ev" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/examples/trudpcat_ev.c" ex="false" tool="0" flavor2="0">
+      </item>
       <item path="libtrudp/src/hash.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="libtrudp/src/hash.h" ex="false" tool="3" flavor2="0">
@@ -317,6 +425,14 @@
       </item>
       <item path="libtrudp/src/write_queue.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="libtrudp/tests/.libs/trudp_tst" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/tests/Makefile" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/tests/Makefile.am" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/tests/Makefile.in" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="libtrudp/tests/map_t.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="libtrudp/tests/packet_queue_t.c" ex="false" tool="0" flavor2="0">
@@ -327,15 +443,11 @@
       </item>
       <item path="libtrudp/tests/tr-udp_t.c" ex="false" tool="0" flavor2="0">
       </item>
+      <item path="libtrudp/tests/trudp_tst" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="main.cpp" ex="false" tool="1" flavor2="9">
       </item>
-      <item path="snake.c" ex="false" tool="0" flavor2="0">
-      </item>
       <item path="snake.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="trudpcat.c" ex="false" tool="0" flavor2="9">
-      </item>
-      <item path="trudpcat_ev.c" ex="false" tool="0" flavor2="0">
       </item>
     </conf>
     <conf name="MinGW-w64-Win32-Debug" type="1">
@@ -368,6 +480,32 @@
           </linkerLibItems>
         </linkerTool>
       </folder>
+      <item path="libtrudp/examples/.libs/lt-trudpcat_ev"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="libtrudp/examples/.libs/trudpcat_ev"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="libtrudp/examples/Makefile" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/examples/Makefile.am" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/examples/Makefile.in" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/examples/snake.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="libtrudp/examples/snake.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/examples/trudpcat.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="libtrudp/examples/trudpcat_ev" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/examples/trudpcat_ev.c" ex="false" tool="0" flavor2="0">
+      </item>
       <item path="libtrudp/src/hash.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="libtrudp/src/hash.h" ex="false" tool="3" flavor2="0">
@@ -410,6 +548,14 @@
       </item>
       <item path="libtrudp/src/write_queue.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="libtrudp/tests/.libs/trudp_tst" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/tests/Makefile" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/tests/Makefile.am" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libtrudp/tests/Makefile.in" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="libtrudp/tests/map_t.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="libtrudp/tests/packet_queue_t.c" ex="false" tool="0" flavor2="0">
@@ -420,15 +566,11 @@
       </item>
       <item path="libtrudp/tests/tr-udp_t.c" ex="false" tool="0" flavor2="0">
       </item>
+      <item path="libtrudp/tests/trudp_tst" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="main.cpp" ex="false" tool="1" flavor2="9">
       </item>
-      <item path="snake.c" ex="false" tool="0" flavor2="0">
-      </item>
       <item path="snake.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="trudpcat.c" ex="false" tool="0" flavor2="9">
-      </item>
-      <item path="trudpcat_ev.c" ex="false" tool="0" flavor2="0">
       </item>
     </conf>
   </confs>
