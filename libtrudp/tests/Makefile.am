@@ -30,3 +30,10 @@ LIBS = -ltrudp -lcunit
 noinst_PROGRAMS = trudp_tst
 
 trudp_tst_SOURCES = map_t.c packet_queue_t.c packet_t.c queue_t.c tr-udp_t.c
+
+testsdir = $(datarootdir)/doc/@PACKAGE@/tests
+tests_DATA = $(trudp_tst_SOURCES)
+
+# Remove doc directory on uninstall
+uninstall-local:
+	-rm -r $(datarootdir)/doc/@PACKAGE@/tests

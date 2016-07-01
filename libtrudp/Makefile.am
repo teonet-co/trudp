@@ -1,5 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 
+# Doxygen ---------------------------------------------------------------------
+
 include aminclude.am
 
 #DX_CLEANFILES =
@@ -26,6 +28,13 @@ doxydoc_search_DATA = $(wildcard docs/html/search/*.*)
 DX_CLEANFILES = -rf @DX_DOCDIR@
 
 endif
+
+# Remove doc directory on uninstall
+#uninstall-local:
+	-rm -r $(datarootdir)/doc/@PACKAGE@/html
+	-rm -r $(datarootdir)/doc/@PACKAGE@
+
+# -----------------------------------------------------------------------------
 
 SUBDIRS = src po tests examples
 

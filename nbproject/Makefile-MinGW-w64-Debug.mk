@@ -35,6 +35,9 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
+	${OBJECTDIR}/libtrudp/examples/snake.o \
+	${OBJECTDIR}/libtrudp/examples/trudpcat.o \
+	${OBJECTDIR}/libtrudp/examples/trudpcat_ev.o \
 	${OBJECTDIR}/libtrudp/src/hash.o \
 	${OBJECTDIR}/libtrudp/src/map.o \
 	${OBJECTDIR}/libtrudp/src/packet.o \
@@ -45,10 +48,7 @@ OBJECTFILES= \
 	${OBJECTDIR}/libtrudp/src/udp.o \
 	${OBJECTDIR}/libtrudp/src/utils.o \
 	${OBJECTDIR}/libtrudp/src/write_queue.o \
-	${OBJECTDIR}/main.o \
-	${OBJECTDIR}/snake.o \
-	${OBJECTDIR}/trudpcat.o \
-	${OBJECTDIR}/trudpcat_ev.o
+	${OBJECTDIR}/main.o
 
 # Test Directory
 TESTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}/tests
@@ -88,6 +88,21 @@ LDLIBSOPTIONS=-lev
 ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/trudpcat: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
 	${LINK.cc} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/trudpcat ${OBJECTFILES} ${LDLIBSOPTIONS}
+
+${OBJECTDIR}/libtrudp/examples/snake.o: libtrudp/examples/snake.c 
+	${MKDIR} -p ${OBJECTDIR}/libtrudp/examples
+	${RM} "$@.d"
+	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/examples/snake.o libtrudp/examples/snake.c
+
+${OBJECTDIR}/libtrudp/examples/trudpcat.o: libtrudp/examples/trudpcat.c 
+	${MKDIR} -p ${OBJECTDIR}/libtrudp/examples
+	${RM} "$@.d"
+	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/examples/trudpcat.o libtrudp/examples/trudpcat.c
+
+${OBJECTDIR}/libtrudp/examples/trudpcat_ev.o: libtrudp/examples/trudpcat_ev.c 
+	${MKDIR} -p ${OBJECTDIR}/libtrudp/examples
+	${RM} "$@.d"
+	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/examples/trudpcat_ev.o libtrudp/examples/trudpcat_ev.c
 
 ${OBJECTDIR}/libtrudp/src/hash.o: libtrudp/src/hash.c 
 	${MKDIR} -p ${OBJECTDIR}/libtrudp/src
@@ -144,21 +159,6 @@ ${OBJECTDIR}/main.o: main.cpp
 	${RM} "$@.d"
 	$(COMPILE.cc) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/main.o main.cpp
 
-${OBJECTDIR}/snake.o: snake.c 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} "$@.d"
-	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/snake.o snake.c
-
-${OBJECTDIR}/trudpcat.o: trudpcat.c 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} "$@.d"
-	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/trudpcat.o trudpcat.c
-
-${OBJECTDIR}/trudpcat_ev.o: trudpcat_ev.c 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} "$@.d"
-	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/trudpcat_ev.o trudpcat_ev.c
-
 # Subprojects
 .build-subprojects:
 
@@ -200,6 +200,45 @@ ${TESTDIR}/libtrudp/tests/tr-udp_t.o: libtrudp/tests/tr-udp_t.c
 	${RM} "$@.d"
 	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${TESTDIR}/libtrudp/tests/tr-udp_t.o libtrudp/tests/tr-udp_t.c
 
+
+${OBJECTDIR}/libtrudp/examples/snake_nomain.o: ${OBJECTDIR}/libtrudp/examples/snake.o libtrudp/examples/snake.c 
+	${MKDIR} -p ${OBJECTDIR}/libtrudp/examples
+	@NMOUTPUT=`${NM} ${OBJECTDIR}/libtrudp/examples/snake.o`; \
+	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
+	then  \
+	    ${RM} "$@.d";\
+	    $(COMPILE.c) -g -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/examples/snake_nomain.o libtrudp/examples/snake.c;\
+	else  \
+	    ${CP} ${OBJECTDIR}/libtrudp/examples/snake.o ${OBJECTDIR}/libtrudp/examples/snake_nomain.o;\
+	fi
+
+${OBJECTDIR}/libtrudp/examples/trudpcat_nomain.o: ${OBJECTDIR}/libtrudp/examples/trudpcat.o libtrudp/examples/trudpcat.c 
+	${MKDIR} -p ${OBJECTDIR}/libtrudp/examples
+	@NMOUTPUT=`${NM} ${OBJECTDIR}/libtrudp/examples/trudpcat.o`; \
+	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
+	then  \
+	    ${RM} "$@.d";\
+	    $(COMPILE.c) -g -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/examples/trudpcat_nomain.o libtrudp/examples/trudpcat.c;\
+	else  \
+	    ${CP} ${OBJECTDIR}/libtrudp/examples/trudpcat.o ${OBJECTDIR}/libtrudp/examples/trudpcat_nomain.o;\
+	fi
+
+${OBJECTDIR}/libtrudp/examples/trudpcat_ev_nomain.o: ${OBJECTDIR}/libtrudp/examples/trudpcat_ev.o libtrudp/examples/trudpcat_ev.c 
+	${MKDIR} -p ${OBJECTDIR}/libtrudp/examples
+	@NMOUTPUT=`${NM} ${OBJECTDIR}/libtrudp/examples/trudpcat_ev.o`; \
+	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
+	then  \
+	    ${RM} "$@.d";\
+	    $(COMPILE.c) -g -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/libtrudp/examples/trudpcat_ev_nomain.o libtrudp/examples/trudpcat_ev.c;\
+	else  \
+	    ${CP} ${OBJECTDIR}/libtrudp/examples/trudpcat_ev.o ${OBJECTDIR}/libtrudp/examples/trudpcat_ev_nomain.o;\
+	fi
 
 ${OBJECTDIR}/libtrudp/src/hash_nomain.o: ${OBJECTDIR}/libtrudp/src/hash.o libtrudp/src/hash.c 
 	${MKDIR} -p ${OBJECTDIR}/libtrudp/src
@@ -342,45 +381,6 @@ ${OBJECTDIR}/main_nomain.o: ${OBJECTDIR}/main.o main.cpp
 	    $(COMPILE.cc) -g -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/main_nomain.o main.cpp;\
 	else  \
 	    ${CP} ${OBJECTDIR}/main.o ${OBJECTDIR}/main_nomain.o;\
-	fi
-
-${OBJECTDIR}/snake_nomain.o: ${OBJECTDIR}/snake.o snake.c 
-	${MKDIR} -p ${OBJECTDIR}
-	@NMOUTPUT=`${NM} ${OBJECTDIR}/snake.o`; \
-	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
-	   (echo "$$NMOUTPUT" | ${GREP} 'T main$$') || \
-	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
-	then  \
-	    ${RM} "$@.d";\
-	    $(COMPILE.c) -g -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/snake_nomain.o snake.c;\
-	else  \
-	    ${CP} ${OBJECTDIR}/snake.o ${OBJECTDIR}/snake_nomain.o;\
-	fi
-
-${OBJECTDIR}/trudpcat_nomain.o: ${OBJECTDIR}/trudpcat.o trudpcat.c 
-	${MKDIR} -p ${OBJECTDIR}
-	@NMOUTPUT=`${NM} ${OBJECTDIR}/trudpcat.o`; \
-	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
-	   (echo "$$NMOUTPUT" | ${GREP} 'T main$$') || \
-	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
-	then  \
-	    ${RM} "$@.d";\
-	    $(COMPILE.c) -g -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/trudpcat_nomain.o trudpcat.c;\
-	else  \
-	    ${CP} ${OBJECTDIR}/trudpcat.o ${OBJECTDIR}/trudpcat_nomain.o;\
-	fi
-
-${OBJECTDIR}/trudpcat_ev_nomain.o: ${OBJECTDIR}/trudpcat_ev.o trudpcat_ev.c 
-	${MKDIR} -p ${OBJECTDIR}
-	@NMOUTPUT=`${NM} ${OBJECTDIR}/trudpcat_ev.o`; \
-	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
-	   (echo "$$NMOUTPUT" | ${GREP} 'T main$$') || \
-	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
-	then  \
-	    ${RM} "$@.d";\
-	    $(COMPILE.c) -g -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/trudpcat_ev_nomain.o trudpcat_ev.c;\
-	else  \
-	    ${CP} ${OBJECTDIR}/trudpcat_ev.o ${OBJECTDIR}/trudpcat_ev_nomain.o;\
 	fi
 
 # Run Test Targets
