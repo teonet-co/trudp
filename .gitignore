@@ -46,3 +46,5 @@
 
 /config.log
 /repo/
+/libtrudp/Doxyfile.bak
+/libtrudp/trudp_0.*
