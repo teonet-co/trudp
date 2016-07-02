@@ -31,17 +31,16 @@ job_ubuntu:
   tags:
     - docker_image_run
   script:
-    - cd libtrudp
     # Install dependences   
-    - ci-build-data/build-ubuntu.sh
+    - cd libtrudp && ci-build-data/build-ubuntu.sh
     # Make  
-    - ./autogen.sh --prefix=/usr
-    - make
+    - cd libtrudp && ./autogen.sh --prefix=/usr
+    - cd libtrudp && make
     #- src/teoroom -?
     # Test
     #- make test
     # Build DEB package and upload it to repository
-    - ci-build/make_package deb
+    - cd libtrudp && ci-build/make_package deb
   only:
     - tags  
     
