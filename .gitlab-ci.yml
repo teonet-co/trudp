@@ -34,7 +34,7 @@ job_ubuntu:
     # Install dependences   
     - cd libtrudp && ci-build-data/build-ubuntu.sh
     # Make  
-    - cd libtrudp && ./autogen.sh --prefix=/usr
+    - ./autogen.sh --prefix=/usr
     - cd libtrudp && make
     #- src/teoroom -?
     # Test
