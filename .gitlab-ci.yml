@@ -35,12 +35,12 @@ job_ubuntu:
     - cd libtrudp && ci-build-data/build-ubuntu.sh
     # Make  
     - ./autogen.sh --prefix=/usr
-    - cd libtrudp && make
+    - make
     #- src/teoroom -?
     # Test
     #- make test
     # Build DEB package and upload it to repository
-    - cd libtrudp && ci-build/make_package deb
+    - ci-build/make_package deb
   only:
     - tags  
     
