@@ -258,7 +258,7 @@ inline trudpPacketQueueData *trudpPacketQueueMoveToEnd(trudpPacketQueue *tq,
 /**
  * Get number of elements in Packet queue
  *
- * @param q
+ * @param tq
  *
  * @return Number of elements in TR-UPD queue
  */

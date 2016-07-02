@@ -134,6 +134,7 @@ int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr,
 /**
  * Get address and port from address structure
  *
+ * @param remaddr
  * @param port Pointer to port to get port integer
  * @return Pointer to address string
  */
@@ -148,7 +149,7 @@ inline char *trudpUdpGetAddr(__CONST_SOCKADDR_ARG remaddr, int *port) {
 /**
  * Create and bind UDP socket for client/server
  *
- * @param[in][out] port Pointer to Port number
+ * @param[in,out] port Pointer to Port number
  * @param[in] allow_port_increment_f Allow port increment flag
  * @return File descriptor or error if return value < 0:
  *         -1 - cannot create socket; -2 - can't bind on port
@@ -267,11 +268,12 @@ int isWritable(int sd, uint32_t timeOut) {
 
 /**
  * Simple UDP sendto wrapper
+ * 
  * @param fd File descriptor
  * @param buffer
  * @param buffer_size
- * @param addr
- * @param port
+ * @param remaddr
+ * @param addrlen
  * @return
  */
 inline ssize_t trudpUdpSendto(int fd, void *buffer, size_t buffer_size,
@@ -292,13 +294,17 @@ inline ssize_t trudpUdpSendto(int fd, void *buffer, size_t buffer_size,
 /**
  * Wait socket data during timeout and call callback if data received
  *
- * @param con Pointer to teoLNullConnectData
+ * @param fd
+ * @param buffer
+ * @param buffer_size
+ * @param remaddr
+ * @param addr_length
  * @param timeout Timeout of wait socket read event in ms
- *
+ * 
  * @return 0 - if disconnected or 1 other way
  */
 ssize_t trudpUdpReadEventLoop(int fd, void *buffer, size_t buffer_size,
-        __SOCKADDR_ARG remaddr, socklen_t *addr_len, int timeout) {
+        __SOCKADDR_ARG remaddr, socklen_t *addr_length, int timeout) {
 
     int rv;
     fd_set rfds;
@@ -324,7 +330,7 @@ ssize_t trudpUdpReadEventLoop(int fd, void *buffer, size_t buffer_size,
     // There is a data in fd
     else {
         recvlen = trudpUdpRecvfrom(fd, buffer, buffer_size,
-                (__SOCKADDR_ARG)remaddr, addr_len);
+                (__SOCKADDR_ARG)remaddr, addr_length);
     }
 
     return recvlen;

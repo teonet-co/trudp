@@ -608,8 +608,6 @@ static inline void trudpCalculateTriptime(trudpChannelData *tcd, void *packet,
  * @param packet Pointer to received packet
  * @param packet_length Packet length
  * @param data_length Pointer to variable to return packets data length
- * @param user_data Pointer to send to callback as third parameter
- * @param cb callback function called when DATA packet received and checked
  *
  * @return Pointer to received data, NULL available, length of data saved to
  *         *data_length, if packet is not TR-UDP packet the (void *)-1 pointer

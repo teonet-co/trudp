@@ -85,6 +85,7 @@ inline size_t trudpWriteQueueSize(trudpWriteQueue *wq) {
  * 
  * @param wq Pointer to trudpWriteQueue
  * @param packet Pointer to Packet to add to queue
+ * @param packet_ptr Pointer to Packet to add to queue
  * @param packet_length Packet length
  * 
  * @return Pointer to added trudpWriteQueueData
@@ -134,7 +135,7 @@ static inline trudpQueueData *trudpWriteQueueDataToQueueData(trudpWriteQueueData
 /**
  * Remove element from Write queue
  * 
- * @param tq Pointer to trudpWriteQueue
+ * @param wq Pointer to trudpWriteQueue
  * @param wqd Pointer to trudpWriteQueueData to delete it
  * 
  * @return Zero at success
@@ -147,8 +148,7 @@ static inline int trudpWriteQueueDelete(trudpWriteQueue *wq, trudpWriteQueueData
 /**
  * Remove first element from Write queue
  * 
- * @param tq Pointer to trudpWriteQueue
- * @param wqd Pointer to trudpWriteQueueData to delete it
+ * @param wq Pointer to trudpWriteQueue
  * 
  * @return Zero at success
  */

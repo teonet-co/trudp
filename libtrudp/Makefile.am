@@ -31,8 +31,8 @@ endif
 
 # Remove doc directory on uninstall
 #uninstall-local:
-	-rm -r $(datarootdir)/doc/@PACKAGE@/html
-	-rm -r $(datarootdir)/doc/@PACKAGE@
+#	-rm -r $(datarootdir)/doc/@PACKAGE@/html
+#	-rm -r $(datarootdir)/doc/@PACKAGE@
 
 # -----------------------------------------------------------------------------
 
