@@ -4,7 +4,7 @@
 
     ...
 
-## 2. Installation
+## 2. Sources Installation
 
 ### Install project with submodules
 
@@ -17,6 +17,9 @@
 
 There is not dependences
 
+### First time, after got sources from subversion repository
+
+    ./autogen.sh
 
 ## 3. Make your application 
 
@@ -34,6 +37,6 @@ configure.ac
     See example [README.md](../README.md)
 
 
-## 5. Teonet documentation
+## 5. TR-UDP documentation
 
-See teonet documentation at: http://repo.ksproject.org/docs/teonet/
+See libtrudp documentation at: http://repo.ksproject.org/docs/libtrudp/
