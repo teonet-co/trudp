@@ -216,9 +216,9 @@ static void showStatistic(trudpData *td, options *o, void *user_data) {
         }
         else { cls(); puts("Queues have not been created..."); }
     }
-    
+
     else if(o->show_snake) {
-        if(!run_snake()) o->show_snake = 0; 
+        if(!run_snake()) o->show_snake = 0;
     }
 
     // Check key !!!
@@ -315,7 +315,7 @@ static void sendPacketCb(void *tcd_ptr, void *packet, size_t packet_length,
 
     // Debug message
     if(o.debug) {
-        
+
         int port,type;
         uint32_t id = trudpPacketGetId(packet);
         char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd->remaddr, &port);
@@ -326,9 +326,9 @@ static void sendPacketCb(void *tcd_ptr, void *packet, size_t packet_length,
         }
         else {
             debug("send %d bytes %s id=%u, to %s:%d\n",
-                (int)packet_length, type == 1 ? "ACK" : 
-                                    type == 2 ? "RESET" : 
-                                    type == 3 ? "ACK to RESET" : 
+                (int)packet_length, type == 1 ? "ACK" :
+                                    type == 2 ? "RESET" :
+                                    type == 3 ? "ACK to RESET" :
                                     type == 4 ? "PING" : "ACK to PING"
                                     , id, addr, port);
         }
@@ -351,9 +351,56 @@ static void sendPacketCb(void *tcd_ptr, void *packet, size_t packet_length,
 static void eventCb(void *tcd_ptr, int event, void *data, size_t data_size,
         void *user_data) {
 
+    trudpChannelData *tcd = (trudpChannelData *)tcd_ptr;
+
     switch(event) {
 
-        case DISCONNECTED: printf("Disconnected\n"); connected_flag = 0; break;
+        // CONNECTED event
+        // @param data Last packet received
+        // @param user_data NULL
+        case CONNECTED: {
+
+            char *key = trudpMakeKeyCannel(tcd);
+            fprintf(stderr, "Connect channel %s\n", key);
+            
+        } break;
+        
+        // DISCONNECTED event
+        // @param data Last packet received
+        // @param user_data NULL
+        case DISCONNECTED: {
+
+            char *key = trudpMakeKeyCannel(tcd);
+            uint32_t last_received = *(uint32_t*)data;
+            fprintf(stderr,
+                "Disconnect channel %s, last received: %.6f sec\n",
+                key, last_received / 1000000.0);
+
+            connected_flag = 0;
+            
+        } break;
+
+        // GOT_TRU_RESET event
+        // @param data NULL
+        // @param user_data NULL
+        case GOT_TRU_RESET: {
+
+            char *key = trudpMakeKeyCannel(tcd);
+            fprintf(stderr,
+                "Got TRU_RESET packet from channel %s\n",
+                key);
+
+        } break;
+
+        case SEND_TRU_RESET: {
+            
+            char *key = trudpMakeKeyCannel(tcd);
+            fprintf(stderr,
+                "Not expected packet with id = 0 received from cannel %s\n", 
+                key);
+            
+        } break;
+
         default: break;
     }
 }
@@ -428,7 +475,7 @@ static void connect_cb(EV_P_ ev_timer *w, int revents) {
         // Check all channels line (lastReceived time) and send PING if idle
         trudpKeepConnection(td);
     }
-    
+
     i++;
 }
 
@@ -462,7 +509,7 @@ static void idle_show_stat_cb(EV_P_ ev_timer *w, int revents) {
 
     trudpData *td = ssd->td;
     showStatistic(td, &o, ssd->loop);
-    start_show_stat_cb(ssd);    
+    start_show_stat_cb(ssd);
     ssd->last_show = trudpGetTimestamp();
 }
 
@@ -476,10 +523,10 @@ static void idle_show_stat_cb(EV_P_ ev_timer *w, int revents) {
 static void show_stat_cb(EV_P_ ev_timer *w, int revents) {
 
     show_statistic_data *ssd = (show_statistic_data *)w->data;
-    
+
     uint32_t tt = trudpGetTimestamp();
     if(tt - ssd->last_show > 3000000) {
-        
+
         trudpData *td = ssd->td;
         showStatistic(td, &o, ssd->loop);
         start_show_stat_cb(ssd);
@@ -548,18 +595,18 @@ static void process_send_queue_cb(EV_P_ ev_timer *w, int revents) {
  * @param psd Pointer to process_send_queue_data
  * @param next_expected_time
  */
-static void start_send_queue_cb(process_send_queue_data *psd, 
+static void start_send_queue_cb(process_send_queue_data *psd,
         uint64_t next_expected_time) {
 
     uint64_t tt, next_et = UINT64_MAX;
-    
+
     // If next_expected_time selected (non nil)
     if(next_expected_time) {
         uint64_t ts = trudpGetTimestampFull();
         next_et = ts > next_expected_time ? ts - next_expected_time : 0;
     }
-    
-    // If next_expected_time (net) or GetSendQueueTimeout 
+
+    // If next_expected_time (net) or GetSendQueueTimeout
     if((tt = next_et != UINT64_MAX ? next_et : trudpGetSendQueueTimeout(psd->td)) != UINT64_MAX) {
 
         double tt_d = tt / 1000000.0;

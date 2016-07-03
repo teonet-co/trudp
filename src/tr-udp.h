@@ -97,8 +97,30 @@ typedef enum trudpCallbsckType {
  */
 typedef enum trudpEvent {
     
+    /**
+     * TR-UDP channel disconnected event
+     * @param data NULL
+     * @param user_data NULL
+     */
     CONNECTED,
-    DISCONNECTED
+    /**
+     * TR-UDP channel disconnected event
+     * @param data Last packet received
+     * @param user_data NULL
+     */
+    DISCONNECTED,
+    /**
+     * Got TR-UDP reset packet
+     * @param data NULL
+     * @param user_data NULL
+     */
+    GOT_TRU_RESET,
+    /**
+     * Send TR-UDP reset packet
+     * @param data NULL
+     * @param user_data NULL
+     */
+    SEND_TRU_RESET
             
 } trudpEvent;
 

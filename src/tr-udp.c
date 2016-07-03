@@ -468,8 +468,10 @@ static void trudpExecProcessDataCallback(trudpChannelData *tcd, void *packet,
  * @param cb
  */
 static void trudpExecEventCallback(trudpChannelData *tcd, int event, void *data,
-        size_t data_length, void *user_data, trudpEventCb cb) {
+        size_t data_length, void *user_data) {
 
+    trudpEventCb cb = TD(tcd)->evendCb;
+            
     if(cb != NULL) cb((void*)tcd, event, data, data_length, user_data);
 }
 
@@ -679,7 +681,7 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
             // ACK to PING packet received
             case TRU_ACK | TRU_PING: /*TRU_ACK_PING:*/ {
 
-                // Send event \todo
+                // \todo Send event 
                 fprintf(stderr, "Got ACK to PING packet, data: %s\n",
                         (char*)trudpPacketGetData(packet));
 
@@ -692,7 +694,7 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
             // PING packet received
             case TRU_PING: {
 
-                // Send event \todo
+                // \todo Send event 
                 fprintf(stderr, "Got PING packet, data: %s\n",
                         (char*)trudpPacketGetData(packet));
 
@@ -755,25 +757,23 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
                         tcd->stat.packets_receive++;
                         trudpStatProcessLast10Receive(tcd, packet);
 
-                        goto skip_reset_2;
-                        // Send reset at maximum outrunning
-                        if(tcd->outrunning_cnt > MAX_OUTRUNNING) {
-                            // \todo Send event
-                            fprintf(stderr,
-                                "To match TR-UDP channel outrunning! "
-                                "Reset channel ...\n");
-                            trudpSendRESET(tcd);
-                        }
-                        skip_reset_2: ;
+//                        goto skip_reset_2;
+//                        // Send reset at maximum outrunning
+//                        if(tcd->outrunning_cnt > MAX_OUTRUNNING) {
+//                            // \todo Send event
+//                            fprintf(stderr,
+//                                "To match TR-UDP channel outrunning! "
+//                                "Reset channel ...\n");
+//                            trudpSendRESET(tcd);
+//                        }
+//                        skip_reset_2: ;
                     }
                 }
 
                 // Reset channel if packet id = 0
                 else if(!trudpPacketGetId(packet)) {
-                    // \todo Send event
-                    fprintf(stderr,"Not expected 0 Packet reseived\n");
-//                    trudpResetChannel(tcd);
-//                    tcd->receiveExpectedId = 1;
+                    // Send event
+                    trudpExecEventCallback(tcd, SEND_TRU_RESET, NULL, 0, NULL);
                     trudpSendRESET(tcd);
                 }
 
@@ -790,16 +790,14 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
             // RESET packet received
             case TRU_RESET: {
 
-                // \todo Send event
-                fprintf(stderr, "Got TRU_RESET packet\n");
+                // Send event
+                trudpExecEventCallback(tcd, GOT_TRU_RESET, NULL, 0, NULL);
 
                 // Create ACK to RESET packet and send it back to sender
                 trudpSendACKtoRESET(tcd, packet);
-                //fprintf(stderr, "Got TRU_RESET packet - 2\n");
 
                 // Reset TR-UDP
                 trudpResetChannel(tcd);
-                //fprintf(stderr, "Got TRU_RESET packet - 3\n");
 
             } break;
 
@@ -818,18 +816,22 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
     return data;
 }
 
+/**
+ * Check that channel is disconnected and send DISCONNECTED event
+ * 
+ * @param tcd Pointer to trudpChannelData
+ * @param ts Current timestamp
+ * @return 
+ */
 static int trudpCheckChannelDisconnect(trudpChannelData *tcd, uint64_t ts) {
 
     // Disconnect channel at long last receive
     if(tcd->lastReceived && ts - tcd->lastReceived > MAX_LAST_RECEIVE) {
 
-        char *key = trudpMakeKeyCannel(tcd);
-        // \todo Send event
-        fprintf(stderr, "Disconnect channel %s, last received: %.6f\n", key,
-            (ts - tcd->lastReceived) / 1000000.0);
-
-        trudpExecEventCallback(tcd, DISCONNECTED, key, strlen(key) + 1,
-            TD(tcd)->user_data, TD(tcd)->evendCb);
+        // Send disconnect event
+        uint32_t lastReceived = ts - tcd->lastReceived;
+        trudpExecEventCallback(tcd, DISCONNECTED, 
+            &lastReceived, sizeof(lastReceived), NULL);
 
         trudpDestroyChannel(tcd);
         return -1;
@@ -1114,8 +1116,8 @@ trudpChannelData *trudpCheckRemoteAddr(trudpData *td,
             key_length, &data_length);
     if(tcd == (void*)-1) {
         tcd = trudpNewChannel(td, addr, port, channel);
-        // \todo Send event
-        fprintf(stderr, "Connect channel %s\n", trudpMakeKeyCannel(tcd) );
+        // Send event
+        trudpExecEventCallback(tcd, CONNECTED, NULL, 0, NULL);        
     }
     tcd->connected_f = 1;
 
