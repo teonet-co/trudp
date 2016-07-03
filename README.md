@@ -46,7 +46,7 @@ configure.ac
 
 ### Install
 
-    sudo apt-get install -y libteonet-dev
+    sudo apt-get install -y libtrudp
 
 ## 5. Run example
     
