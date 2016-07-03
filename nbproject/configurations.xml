@@ -51,9 +51,12 @@
         <rebuildPropChanged>false</rebuildPropChanged>
       </toolsSet>
       <flagsDictionary>
-        <element flagsID="0" commonFlags="-g"/>
-        <element flagsID="1" commonFlags="-g -O2"/>
-        <element flagsID="2" commonFlags="-g -fPIC -O2 -fPIC"/>
+        <element flagsID="0"
+                 commonFlags="-mtune=generic -march=x86-64 -g -O2 -fPIC -fstack-protector"/>
+        <element flagsID="1"
+                 commonFlags="-mtune=generic -march=x86-64 -g -O2 -fstack-protector"/>
+        <element flagsID="2"
+                 commonFlags="-mtune=generic -march=x86-64 -g -fstack-protector"/>
       </flagsDictionary>
       <codeAssistance>
       </codeAssistance>
@@ -63,49 +66,52 @@
           <buildCommand>${MAKE} -f Makefile</buildCommand>
           <cleanCommand>${MAKE} -f Makefile clean</cleanCommand>
           <executablePath></executablePath>
-          <cTool>
-            <preprocessorList>
-              <Elem>HAVE_CONFIG_H</Elem>
-            </preprocessorList>
-          </cTool>
         </makeTool>
         <preBuild>
           <preBuildCommandWorkingDir>.</preBuildCommandWorkingDir>
           <preBuildCommand>./configure CC=${IDE_CC} CXX=${IDE_CXX} CFLAGS="-g3 -gdwarf-2" CXXFLAGS="-g3 -gdwarf-2"</preBuildCommand>
         </preBuild>
       </makefileType>
-      <item path="ci-build/make_package.c" ex="false" tool="0" flavor2="0">
-        <cTool flags="0">
+      <item path="ci-build/make_package.c" ex="false" tool="0" flavor2="2">
+        <cTool flags="2">
         </cTool>
       </item>
-      <item path="examples/snake.c" ex="false" tool="0" flavor2="0">
+      <item path="examples/snake.c" ex="false" tool="0" flavor2="2">
         <cTool flags="1">
         </cTool>
       </item>
-      <item path="examples/trudpcat_ev.c" ex="false" tool="0" flavor2="0">
+      <item path="examples/trudpcat_ev.c" ex="false" tool="0" flavor2="2">
         <cTool flags="1">
         </cTool>
       </item>
       <folder path="0/ci-build">
         <cTool>
           <incDir>
-            <pElem>ci-build</pElem>
             <pElem>.</pElem>
-            <pElem>src</pElem>
+            <pElem>ci-build</pElem>
           </incDir>
+          <preprocessorList>
+            <Elem>HAVE_CONFIG_H=1</Elem>
+            <Elem>__REGISTER_PREFIX__=</Elem>
+            <Elem>__USER_LABEL_PREFIX__=</Elem>
+          </preprocessorList>
         </cTool>
       </folder>
       <folder path="0/examples">
         <cTool>
           <incDir>
-            <pElem>examples</pElem>
-            <pElem>.</pElem>
             <pElem>src</pElem>
+            <pElem>examples</pElem>
           </incDir>
           <preprocessorList>
+            <Elem>HAVE_CONFIG_H=1</Elem>
             <Elem>PACKAGE_DATA_DIR="/usr/share"</Elem>
             <Elem>PACKAGE_LOCALE_DIR="/usr/share/locale"</Elem>
             <Elem>PACKAGE_SRC_DIR="."</Elem>
+            <Elem>_FORTIFY_SOURCE=2</Elem>
+            <Elem>__OPTIMIZE__=1</Elem>
+            <Elem>__REGISTER_PREFIX__=</Elem>
+            <Elem>__USER_LABEL_PREFIX__=</Elem>
           </preprocessorList>
         </cTool>
       </folder>
@@ -113,87 +119,108 @@
         <cTool>
           <incDir>
             <pElem>src</pElem>
-            <pElem>.</pElem>
           </incDir>
           <preprocessorList>
+            <Elem>HAVE_CONFIG_H=1</Elem>
             <Elem>PACKAGE_DATA_DIR="/usr/share"</Elem>
             <Elem>PACKAGE_LOCALE_DIR="/usr/share/locale"</Elem>
             <Elem>PACKAGE_SRC_DIR="."</Elem>
-            <Elem>PIC</Elem>
+            <Elem>PIC=1</Elem>
+            <Elem>_FORTIFY_SOURCE=2</Elem>
+            <Elem>__OPTIMIZE__=1</Elem>
+            <Elem>__PIC__=2</Elem>
+            <Elem>__REGISTER_PREFIX__=</Elem>
+            <Elem>__USER_LABEL_PREFIX__=</Elem>
+            <Elem>__pic__=2</Elem>
           </preprocessorList>
         </cTool>
       </folder>
       <folder path="0/tests">
         <cTool>
           <incDir>
-            <pElem>tests</pElem>
-            <pElem>.</pElem>
+            <pElem>/usr/include/CUnit</pElem>
             <pElem>src</pElem>
+            <pElem>tests</pElem>
           </incDir>
+        </cTool>
+      </folder>
+      <item path="src/hash.c" ex="false" tool="0" flavor2="2">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="src/map.c" ex="false" tool="0" flavor2="2">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="src/packet.c" ex="false" tool="0" flavor2="2">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="src/packet_queue.c" ex="false" tool="0" flavor2="2">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="src/queue.c" ex="false" tool="0" flavor2="2">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="src/tr-udp.c" ex="false" tool="0" flavor2="2">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="src/tr-udp_stat.c" ex="false" tool="0" flavor2="2">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="src/udp.c" ex="false" tool="0" flavor2="2">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="src/utils.c" ex="false" tool="0" flavor2="2">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="src/write_queue.c" ex="false" tool="0" flavor2="2">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="tests/map_t.c" ex="false" tool="0" flavor2="2">
+        <cTool flags="1">
           <preprocessorList>
+            <Elem>HAVE_CONFIG_H=1</Elem>
             <Elem>PACKAGE_DATA_DIR="/usr/share"</Elem>
             <Elem>PACKAGE_LOCALE_DIR="/usr/share/locale"</Elem>
             <Elem>PACKAGE_SRC_DIR="."</Elem>
+            <Elem>_FORTIFY_SOURCE=2</Elem>
+            <Elem>__OPTIMIZE__=1</Elem>
+            <Elem>__REGISTER_PREFIX__=</Elem>
+            <Elem>__USER_LABEL_PREFIX__=</Elem>
           </preprocessorList>
         </cTool>
-      </folder>
-      <item path="src/hash.c" ex="false" tool="0" flavor2="0">
-        <cTool flags="2">
+      </item>
+      <item path="tests/packet_queue_t.c" ex="false" tool="0" flavor2="2">
+        <cTool flags="1">
+          <preprocessorList>
+            <Elem>HAVE_CONFIG_H=1</Elem>
+            <Elem>PACKAGE_DATA_DIR="/usr/share"</Elem>
+            <Elem>PACKAGE_LOCALE_DIR="/usr/share/locale"</Elem>
+            <Elem>PACKAGE_SRC_DIR="."</Elem>
+            <Elem>_FORTIFY_SOURCE=2</Elem>
+            <Elem>__OPTIMIZE__=1</Elem>
+            <Elem>__REGISTER_PREFIX__=</Elem>
+            <Elem>__USER_LABEL_PREFIX__=</Elem>
+          </preprocessorList>
         </cTool>
       </item>
-      <item path="src/map.c" ex="false" tool="0" flavor2="0">
-        <cTool flags="2">
-        </cTool>
-      </item>
-      <item path="src/packet.c" ex="false" tool="0" flavor2="0">
-        <cTool flags="2">
-        </cTool>
-      </item>
-      <item path="src/packet_queue.c" ex="false" tool="0" flavor2="0">
-        <cTool flags="2">
-        </cTool>
-      </item>
-      <item path="src/queue.c" ex="false" tool="0" flavor2="0">
-        <cTool flags="2">
-        </cTool>
-      </item>
-      <item path="src/tr-udp.c" ex="false" tool="0" flavor2="0">
-        <cTool flags="2">
-        </cTool>
-      </item>
-      <item path="src/tr-udp_stat.c" ex="false" tool="0" flavor2="0">
-        <cTool flags="2">
-        </cTool>
-      </item>
-      <item path="src/udp.c" ex="false" tool="0" flavor2="0">
-        <cTool flags="2">
-        </cTool>
-      </item>
-      <item path="src/utils.c" ex="false" tool="0" flavor2="0">
-        <cTool flags="2">
-        </cTool>
-      </item>
-      <item path="src/write_queue.c" ex="false" tool="0" flavor2="0">
-        <cTool flags="2">
-        </cTool>
-      </item>
-      <item path="tests/map_t.c" ex="false" tool="0" flavor2="0">
+      <item path="tests/packet_t.c" ex="false" tool="0" flavor2="2">
         <cTool flags="1">
         </cTool>
       </item>
-      <item path="tests/packet_queue_t.c" ex="false" tool="0" flavor2="0">
+      <item path="tests/queue_t.c" ex="false" tool="0" flavor2="2">
         <cTool flags="1">
         </cTool>
       </item>
-      <item path="tests/packet_t.c" ex="false" tool="0" flavor2="0">
-        <cTool flags="1">
-        </cTool>
-      </item>
-      <item path="tests/queue_t.c" ex="false" tool="0" flavor2="0">
-        <cTool flags="1">
-        </cTool>
-      </item>
-      <item path="tests/tr-udp_t.c" ex="false" tool="0" flavor2="0">
+      <item path="tests/tr-udp_t.c" ex="false" tool="0" flavor2="2">
         <cTool flags="1">
         </cTool>
       </item>
