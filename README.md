@@ -1,18 +1,39 @@
-# TR_UDP 
+# TR-UDP: Teonet Real time communications over UDP protocol
 
-## Install
+## 1. Description
 
-...
+    ...
 
-## Run example application
+## 2. Installation
 
-### Server
-```dist/Debug/GNU-Linux/trudpcat -l```
+### Install project with submodules
 
-### Client
-```dist/Debug/GNU-Linux/trudpcat 127.0.0.1 8000```
+    git clone git@gitlab.ksproject.org:teonet/trudp.git
+    cd trudp
+    git submodule update --init
 
-## Develover helpers
 
-### Ncurses howto
-http://tldp.org/HOWTO/NCURSES-Programming-HOWTO/
+### Install Dependences
+
+There is not dependences
+
+
+## 3. Make your application 
+
+    make
+
+
+## 3.1 Using autoscan to Create configure.ac
+
+After make some global changes in sources code use ```autoscan``` to update projects 
+configure.ac
+
+
+## 4. Run 
+    
+    See example [README.md](../README.md)
+
+
+## 5. Teonet documentation
+
+See teonet documentation at: http://repo.ksproject.org/docs/teonet/
