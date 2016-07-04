@@ -27,8 +27,10 @@
             </formatting>
         </data>
         <spellchecker-wordlist xmlns="http://www.netbeans.org/ns/spellchecker-wordlist/1">
+            <word>libev</word>
             <word>outrunning</word>
             <word>triptime</word>
+            <word>trudp</word>
         </spellchecker-wordlist>
     </configuration>
 </project>

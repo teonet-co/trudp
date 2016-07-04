@@ -439,23 +439,23 @@ size_t trudpWriteQueueSizeAll(trudpData *td) {
     return retval;
 }
 
-/**
- * Execute trudpDataCb callback
- *
- * @param tcd
- * @param packet
- * @param data
- * @param data_length
- * @param user_data
- * @param cb
- */
-static void trudpExecProcessDataCallback(trudpChannelData *tcd, void *packet,
-        void **data, size_t *data_length, void *user_data, trudpDataCb cb) {
-
-    *data = trudpPacketGetData(packet);
-    *data_length = (size_t)trudpPacketGetDataLength(packet);
-    if(cb != NULL) cb(tcd, *data, *data_length, user_data);
-}
+///**
+// * Execute trudpDataCb callback
+// *
+// * @param tcd
+// * @param packet
+// * @param data
+// * @param data_length
+// * @param user_data
+// * @param cb
+// */
+//static void trudpExecProcessDataCallback(trudpChannelData *tcd, void *packet,
+//        void **data, size_t *data_length, void *user_data, trudpDataCb cb) {
+//
+//    *data = trudpPacketGetData(packet);
+//    *data_length = (size_t)trudpPacketGetDataLength(packet);
+//    if(cb != NULL) cb(tcd, *data, *data_length, user_data);
+//}
 
 /**
  * Execute trudpEventCb callback
@@ -472,7 +472,7 @@ static void trudpExecEventCallback(trudpChannelData *tcd, int event, void *data,
 
     trudpEventCb cb = TD(tcd)->evendCb;
             
-    if(cb != NULL) cb((void*)tcd, event, data, data_length, user_data);
+    if(cb != NULL) cb((void*)tcd, event, data, data_length, TD(tcd)->user_data);
 }
 
 /**
@@ -647,9 +647,6 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
                 trudpSetLastReceived(tcd);
 
                 // Process ACK data callback
-//                trudpExecProcessDataCallback(tcd, packet, &data, data_length,
-//                        TD(tcd)->user_data, TD(tcd)->processAckCb);
-                                    // Send event
                 trudpExecEventCallback(tcd, GOT_ACK, packet, packet_length, NULL);
 
                 // Reset if id is too big and send queue is empty
@@ -684,15 +681,15 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
             // ACK to PING packet received
             case TRU_ACK | TRU_PING: /*TRU_ACK_PING:*/ {
 
+                // Calculate Triptime
+                trudpCalculateTriptime(tcd, packet, packet_length);
+                trudpSetLastReceived(tcd);
+
                 // Send event 
                 trudpExecEventCallback(tcd, GOT_ACK_PING, 
                         trudpPacketGetData(packet), 
                         trudpPacketGetDataLength(packet), 
                         NULL);
-
-                // Calculate Triptime
-                trudpCalculateTriptime(tcd, packet, packet_length);
-                trudpSetLastReceived(tcd);
 
             } break;
 
@@ -728,18 +725,28 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
                 // Check expected Id and return data
                 if(trudpPacketGetId(packet) == tcd->receiveExpectedId) {
 
-                    // Execute trudpDataReceivedCb Callback with pointer to data
-                    trudpExecProcessDataCallback(tcd, packet, &data, data_length,
-                            TD(tcd)->user_data, TD(tcd)->processDataCb);
+//                    // Execute trudpDataReceivedCb Callback with pointer to data
+//                    trudpExecProcessDataCallback(tcd, packet, &data, 
+//                        data_length, TD(tcd)->user_data, TD(tcd)->processDataCb);
+                    // Send event 
+                    trudpExecEventCallback(tcd, GOT_DATA, 
+                            trudpPacketGetData(packet), 
+                            trudpPacketGetDataLength(packet), 
+                            NULL);
 
                     // Check received queue for saved packet with expected id
                     trudpPacketQueueData *tqd;
                     while((tqd = trudpPacketQueueFindById(tcd->receiveQueue,
                             ++tcd->receiveExpectedId)) ) {
 
-                        trudpExecProcessDataCallback(tcd, tqd->packet, &data,
-                            data_length, TD(tcd)->user_data,
-                            TD(tcd)->processDataCb);
+//                        trudpExecProcessDataCallback(tcd, tqd->packet, &data,
+//                            data_length, TD(tcd)->user_data,
+//                            TD(tcd)->processDataCb);
+                        // Send event 
+                        trudpExecEventCallback(tcd, GOT_DATA, 
+                            trudpPacketGetData(packet), 
+                            trudpPacketGetDataLength(packet), 
+                            NULL);
 
                         trudpPacketQueueDelete(tcd->receiveQueue, tqd);
                     }
