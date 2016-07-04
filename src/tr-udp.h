@@ -117,10 +117,28 @@ typedef enum trudpEvent {
     GOT_TRU_RESET,
     /**
      * Send TR-UDP reset packet
+     * @param data Pointer to uint32_t send id or NULL if received id = 0
+     * @param user_data NULL
+     */
+    SEND_TRU_RESET,
+    /**
+     * Got ACK to reset command
      * @param data NULL
      * @param user_data NULL
      */
-    SEND_TRU_RESET
+    GOT_ACK_RESET,
+    /**
+     * Got ACK to ping command
+     * @param data Pointer to ping data (usually it is a string)
+     * @param user_data NULL
+     */
+    GOT_ACK_PING,
+    /**
+     * Got PING command
+     * @param data Pointer to ping data (usually it is a string)
+     * @param user_data NULL
+     */
+    GOT_PING
             
 } trudpEvent;
 

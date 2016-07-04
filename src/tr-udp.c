@@ -642,7 +642,7 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
                     TD(tcd)->stat.sendQueue.size_current--;
                 }
 
-                // Calculate Triptime
+                // Calculate triptime
                 trudpCalculateTriptime(tcd, packet, send_data_length);
                 trudpSetLastReceived(tcd);
 
@@ -656,8 +656,9 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
                    !trudpQueueSize(tcd->sendQueue->q) &&
                    !trudpQueueSize(tcd->receiveQueue->q) ) {
 
-                    // \todo Send event
-                    fprintf(stderr, "High packet number! Reset channel ...\n");
+                    // Send event
+                    trudpExecEventCallback(tcd, SEND_TRU_RESET, &tcd->sendId, 
+                            sizeof(tcd->sendId), NULL);
                     trudpSendRESET(tcd);
                 }
                 //skip_reset_after_id: ;
@@ -667,8 +668,8 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
             // ACK to RESET packet received
             case TRU_ACK | TRU_RESET: {
 
-                // \todo Send event
-                fprintf(stderr, "Got ACK to RESET packet\n");
+                // Send event
+                trudpExecEventCallback(tcd, GOT_ACK_RESET, NULL, 0, NULL);
 
                 // Reset TR-UDP
                 trudpResetChannel(tcd);
@@ -681,9 +682,11 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
             // ACK to PING packet received
             case TRU_ACK | TRU_PING: /*TRU_ACK_PING:*/ {
 
-                // \todo Send event 
-                fprintf(stderr, "Got ACK to PING packet, data: %s\n",
-                        (char*)trudpPacketGetData(packet));
+                // Send event 
+                trudpExecEventCallback(tcd, GOT_ACK_PING, 
+                        trudpPacketGetData(packet), 
+                        trudpPacketGetDataLength(packet), 
+                        NULL);
 
                 // Calculate Triptime
                 trudpCalculateTriptime(tcd, packet, packet_length);
@@ -694,9 +697,11 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
             // PING packet received
             case TRU_PING: {
 
-                // \todo Send event 
-                fprintf(stderr, "Got PING packet, data: %s\n",
-                        (char*)trudpPacketGetData(packet));
+                // Send event 
+                trudpExecEventCallback(tcd, GOT_PING, 
+                        trudpPacketGetData(packet), 
+                        trudpPacketGetDataLength(packet), 
+                        NULL);
 
                 // Calculate Triptime
                 trudpCalculateTriptime(tcd, packet, packet_length);

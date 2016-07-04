@@ -342,21 +342,21 @@ static void sendPacketCb(void *tcd_ptr, void *packet, size_t packet_length,
 /**
  * TR-UDP event callback
  *
- * @param tcd_ptr
+ * @param tcd_pointer
  * @param event
  * @param data
- * @param data_size
+ * @param data_length
  * @param user_data
  */
-static void eventCb(void *tcd_ptr, int event, void *data, size_t data_size,
+static void eventCb(void *tcd_pointer, int event, void *data, size_t data_length,
         void *user_data) {
 
-    trudpChannelData *tcd = (trudpChannelData *)tcd_ptr;
+    trudpChannelData *tcd = (trudpChannelData *)tcd_pointer;
 
     switch(event) {
 
         // CONNECTED event
-        // @param data Last packet received
+        // @param data NULL
         // @param user_data NULL
         case CONNECTED: {
 
@@ -371,10 +371,16 @@ static void eventCb(void *tcd_ptr, int event, void *data, size_t data_size,
         case DISCONNECTED: {
 
             char *key = trudpMakeKeyCannel(tcd);
-            uint32_t last_received = *(uint32_t*)data;
-            fprintf(stderr,
-                "Disconnect channel %s, last received: %.6f sec\n",
-                key, last_received / 1000000.0);
+            if(data_length == sizeof(uint32_t)) {
+                uint32_t last_received = *(uint32_t*)data;
+                fprintf(stderr,
+                    "Disconnect channel %s, last received: %.6f sec\n",
+                    key, last_received / 1000000.0);
+            }
+            else {
+                fprintf(stderr,
+                    "Disconnect channel %s (error: wrong data sent)\n", key);                
+            }
 
             connected_flag = 0;
             
@@ -392,14 +398,59 @@ static void eventCb(void *tcd_ptr, int event, void *data, size_t data_size,
 
         } break;
 
+        // SEND_TRU_RESET event
+        // @param data Pointer to uint32_t id or NULL (data_size == 0)
+        // @param user_data NULL
         case SEND_TRU_RESET: {
             
+            uint32_t id = (data_length == sizeof(uint32_t)) ? *(uint32_t*)data:0;
+            
             char *key = trudpMakeKeyCannel(tcd);
-            fprintf(stderr,
-                "Not expected packet with id = 0 received from cannel %s\n", 
-                key);
+            if(!id)
+                fprintf(stderr,
+                  "Send reset: "
+                  "Not expected packet with id = 0 received from channel %s\n", 
+                  key);
+            else
+                fprintf(stderr, 
+                  "Send reset: "
+                  "High send packet number (%d) at channel %s\n", 
+                  id, key);
             
         } break;
+        
+        // GOT_ACK_RESET event: got ACK to reset command
+        // @param data NULL
+        // @param user_data NULL
+        case GOT_ACK_RESET: {
+            
+            char *key = trudpMakeKeyCannel(tcd);
+            fprintf(stderr, "Got ACK to RESET packet at channel %s\n", key);
+            
+        } break;
+        
+        // GOT_ACK_PING event: got ACK to ping command
+        // @param data Pointer to ping data (usually it is a string)
+        // @param user_data NULL
+        case GOT_ACK_PING: {
+            
+            char *key = trudpMakeKeyCannel(tcd);
+            fprintf(stderr, "Got ACK to PING packet at channel %s, data: %s\n", 
+                    key, (char*)data);
+            
+        } break;
+        
+        // GOT_PING event: got PING packet, data
+        // @param data Pointer to ping data (usually it is a string)
+        // @param user_data NULL
+        case GOT_PING: {
+            
+            char *key = trudpMakeKeyCannel(tcd);
+            fprintf(stderr, "Got PING packet at channel %s, data: %s\n", 
+                    key, (char*)data);
+            
+        } break;
+
 
         default: break;
     }
