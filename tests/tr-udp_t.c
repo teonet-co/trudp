@@ -82,22 +82,22 @@ static void trudpProcessDataCb(void *td, void *data, size_t data_length, void *u
     #endif
 }
 
-/**
- * Process received ACK packets data callback function
- * 
- * @param data
- * @param data_length
- * @param user_data
- */
-static void trudpProcessAckCb(void *td, void *data, size_t data_length, void *user_data) {
-    
-    #if !NO_MESSAGES
-    void *packet = trudpPacketGetPacket(data);
-    double tt = (trudpGetTimestamp() - trudpPacketGetTimestamp(packet) )/1000.0;
-    printf("\n%s ACK processed %.3f ms ...", (char*)user_data, tt );
-    #endif
-    
-}
+///**
+// * Process received ACK packets data callback function
+// * 
+// * @param data
+// * @param data_length
+// * @param user_data
+// */
+//static void trudpProcessAckCb(void *td, void *data, size_t data_length, void *user_data) {
+//    
+//    #if !NO_MESSAGES
+//    void *packet = trudpPacketGetPacket(data);
+//    double tt = (trudpGetTimestamp() - trudpPacketGetTimestamp(packet) )/1000.0;
+//    printf("\n%s ACK processed %.3f ms ...", (char*)user_data, tt );
+//    #endif
+//    
+//}
                 
 /**
  * Show process result
@@ -226,7 +226,7 @@ static void send_process_received_packet_test() {
     tcd_A = trudpNewChannel(td_A, "0", 8000, 0);
     trudpSetCallback(td_A, PROCESS_DATA, (trudpCb)trudpProcessDataCb);
     trudpSetCallback(td_A, SEND, (trudpCb)td_A_sendCb);
-    trudpSetCallback(td_A, PROCESS_ACK, (trudpCb)trudpProcessAckCb);
+//    trudpSetCallback(td_A, PROCESS_ACK, (trudpCb)trudpProcessAckCb);
     CU_ASSERT_PTR_NOT_NULL(tcd_A);
     
     // Create receiver TR-UDP
@@ -234,7 +234,7 @@ static void send_process_received_packet_test() {
     tcd_B = trudpNewChannel(td_B, "0", 8001, 0);
     trudpSetCallback(td_B, PROCESS_DATA, (trudpCb)trudpProcessDataCb);
     trudpSetCallback(td_B, SEND, (trudpCb)td_B_sendCb);
-    trudpSetCallback(td_B, PROCESS_ACK, (trudpCb)trudpProcessAckCb);
+//    trudpSetCallback(td_B, PROCESS_ACK, (trudpCb)trudpProcessAckCb);
     CU_ASSERT_PTR_NOT_NULL(tcd_B);
     
     // Create DATA packets 

@@ -273,27 +273,27 @@ static void processDataCb(void *td_ptr, void *data, size_t data_length,
     debug("\n");
 }
 
-/**
- * TR-UDP ACK processed callback
- *
- * @param td
- * @param data
- * @param data_length
- * @param user_data
- */
-static void processAckCb(void *td_ptr, void *data, size_t data_length,
-        void *user_data) {
-
-    trudpChannelData *tcd = (trudpChannelData *)td_ptr;
-
-    debug("got ACK id=%u processed %.3f(%.3f) ms\n",
-          trudpPacketGetId(trudpPacketGetPacket(data)),
-          (tcd->triptime)/1000.0, (tcd->triptimeMiddle)/1000.0);
-
-    #if USE_LIBEV
-    start_send_queue_cb(&psd, 0);
-    #endif
-}
+///**
+// * TR-UDP ACK processed callback
+// *
+// * @param td
+// * @param data
+// * @param data_length
+// * @param user_data
+// */
+//static void processAckCb(void *td_ptr, void *data, size_t data_length,
+//        void *user_data) {
+//
+//    trudpChannelData *tcd = (trudpChannelData *)td_ptr;
+//
+//    debug("got ACK id=%u processed %.3f(%.3f) ms\n",
+//          trudpPacketGetId(trudpPacketGetPacket(data)),
+//          (tcd->triptime)/1000.0, (tcd->triptimeMiddle)/1000.0);
+//
+//    #if USE_LIBEV
+//    start_send_queue_cb(&psd, 0);
+//    #endif
+//}
 
 /**
  * TR-UDP send callback
@@ -448,6 +448,18 @@ static void eventCb(void *tcd_pointer, int event, void *data, size_t data_length
             char *key = trudpMakeKeyCannel(tcd);
             fprintf(stderr, "Got PING packet at channel %s, data: %s\n", 
                     key, (char*)data);
+            
+        } break;
+        
+        case GOT_ACK: {
+            
+            fprintf(stderr, /*debug(*/"got ACK id=%u processed %.3f(%.3f) ms\n",
+                  trudpPacketGetId(data/*trudpPacketGetPacket(data)*/),
+                  (tcd->triptime)/1000.0, (tcd->triptimeMiddle)/1000.0);
+
+            #if USE_LIBEV
+            start_send_queue_cb(&psd, 0);
+            #endif
             
         } break;
 
@@ -903,7 +915,7 @@ int main(int argc, char** argv) {
     // Set callback functions
     trudpSetCallback(td, PROCESS_DATA, (trudpCb)processDataCb);
     trudpSetCallback(td, SEND, (trudpCb)sendPacketCb);
-    trudpSetCallback(td, PROCESS_ACK, (trudpCb)processAckCb);
+//    trudpSetCallback(td, PROCESS_ACK, (trudpCb)processAckCb);
     trudpSetCallback(td, EVENT, (trudpCb)eventCb);
 
     // Create messages

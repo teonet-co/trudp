@@ -86,7 +86,7 @@ typedef union trudpCb {
 typedef enum trudpCallbsckType {
     
     PROCESS_DATA,
-    PROCESS_ACK,
+//    PROCESS_ACK,
     EVENT,
     SEND
             
@@ -138,7 +138,13 @@ typedef enum trudpEvent {
      * @param data Pointer to ping data (usually it is a string)
      * @param user_data NULL
      */
-    GOT_PING
+    GOT_PING,
+    /**
+     * Got ACK command
+     * @param data Pointer to ACK packet
+     * @param user_data NULL
+     */
+    GOT_ACK
             
 } trudpEvent;
 

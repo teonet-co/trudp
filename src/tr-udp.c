@@ -113,11 +113,11 @@ trudpCb trudpSetCallback(trudpData *td, trudpCallbsckType type, trudpCb cb) {
             td->processDataCb = cb.data;
             break;
 
-        case PROCESS_ACK:
-            oldCb.data = td->processAckCb;
-            td->processAckCb = cb.data;
-            break;
-
+//        case PROCESS_ACK:
+//            oldCb.data = td->processAckCb;
+//            td->processAckCb = cb.data;
+//            break;
+//
         case EVENT:
             oldCb.event = td->evendCb;
             td->evendCb = cb.event;
@@ -630,7 +630,7 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
 
             // ACK to DATA packet received
             case TRU_ACK: {
-
+                
                 // Remove packet from send queue
                 size_t send_data_length = 0;
                 trudpPacketQueueData *tpqd = trudpPacketQueueFindById(
@@ -647,8 +647,10 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
                 trudpSetLastReceived(tcd);
 
                 // Process ACK data callback
-                trudpExecProcessDataCallback(tcd, packet, &data, data_length,
-                        TD(tcd)->user_data, TD(tcd)->processAckCb);
+//                trudpExecProcessDataCallback(tcd, packet, &data, data_length,
+//                        TD(tcd)->user_data, TD(tcd)->processAckCb);
+                                    // Send event
+                trudpExecEventCallback(tcd, GOT_ACK, packet, packet_length, NULL);
 
                 // Reset if id is too big and send queue is empty
                 //goto skip_reset_after_id;
