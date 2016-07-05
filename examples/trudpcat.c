@@ -467,7 +467,7 @@ int main_select(int argc, char** argv) {
     else fprintf(stderr, "Start listening at port %d\n", port);
 
     // Initialize TR-UDP
-    trudpData *td = trudpInit(fd, port, NULL);
+    trudpData *td = trudpInit(fd, port, 0, NULL);
 
     // Set callback functions
 //    trudpSetCallback(td, PROCESS_DATA, (trudpCb)processDataCb);

@@ -35,7 +35,7 @@ int clean_suite(void);
 static void create_test() {
     
     // Create TR-UDP
-    trudpData *td = trudpInit(0, 0, NULL);
+    trudpData *td = trudpInit(0, 0, NULL, NULL);
     CU_ASSERT_PTR_NOT_NULL(td);
     
     // Destroy TR-UDP
@@ -48,7 +48,7 @@ static void create_test() {
 static void send_data_test() {
 
     // Create TR-UDP
-    trudpData *td = trudpInit(0, 0, NULL);
+    trudpData *td = trudpInit(0, 0, NULL, NULL);
     trudpChannelData *tcd = trudpNewChannel(td, "0", 8000, 0);
     CU_ASSERT_PTR_NOT_NULL(tcd);
 
@@ -119,7 +119,7 @@ static void _showProcessResult(void *rv, void* user_data) {
 static void process_received_packet_test() {
 
     // Create TR-UDP
-    trudpData *td = trudpInit(0, 0, NULL);
+    trudpData *td = trudpInit(0, 0, 0, NULL);
     trudpChannelData *tcd = trudpNewChannel(td, "0", 8000, 0);
 //    trudpSetCallback(td, PROCESS_DATA, (trudpCb)trudpProcessDataCb);
     CU_ASSERT_PTR_NOT_NULL(tcd);
@@ -222,7 +222,7 @@ void td_B_sendCb(void *td, void *packet, size_t packet_length, void *user_data) 
 static void send_process_received_packet_test() {
 
     // Create sender TR-UDP
-    trudpData *td_A = trudpInit(0, 0, "td_A");
+    trudpData *td_A = trudpInit(0, 0, NULL, "td_A");
     tcd_A = trudpNewChannel(td_A, "0", 8000, 0);
 //    trudpSetCallback(td_A, PROCESS_DATA, (trudpCb)trudpProcessDataCb);
     trudpSetCallback(td_A, SEND, (trudpCb)td_A_sendCb);
@@ -230,7 +230,7 @@ static void send_process_received_packet_test() {
     CU_ASSERT_PTR_NOT_NULL(tcd_A);
     
     // Create receiver TR-UDP
-    trudpData *td_B = trudpInit(0, 0, "td_B");
+    trudpData *td_B = trudpInit(0, 0, NULL, "td_B");
     tcd_B = trudpNewChannel(td_B, "0", 8001, 0);
 //    trudpSetCallback(td_B, PROCESS_DATA, (trudpCb)trudpProcessDataCb);
     trudpSetCallback(td_B, SEND, (trudpCb)td_B_sendCb);

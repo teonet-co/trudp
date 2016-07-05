@@ -708,7 +708,7 @@ static void start_show_stat_cb(show_statistic_data *ssd) {
 }
 
 /**
- * 3.1) Send queue processing timer libev callback
+ * 2.1) Send queue processing timer libev callback
  *
  * @param loop
  * @param w
@@ -986,11 +986,11 @@ int main(int argc, char** argv) {
     else fprintf(stderr, "Start listening at port %d\n", port);
 
     // 1) Initialize TR-UDP
-    trudpData *td = trudpInit(fd, port, NULL);
+    trudpData *td = trudpInit(fd, port, eventCb, NULL);
 
     // 2) Set callback functions
 //    trudpSetCallback(td, SEND, (trudpCb)sendPacketCb);
-    trudpSetCallback(td, EVENT, (trudpCb)eventCb);
+//    trudpSetCallback(td, EVENT, (trudpCb)eventCb);
 
     // Create messages
     #define SEND_BUFFER_SIZE 1024 * 1
@@ -1006,7 +1006,7 @@ int main(int argc, char** argv) {
     if(!o.listen) { message = hello_c; message_length = hello_c_length; }
     else { message = hello_s; message_length = hello_s_length; }
 
-    // 3) Process networking
+    // 2) Process networking
     #if USE_LIBEV
 
     // Create event loop

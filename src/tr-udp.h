@@ -284,7 +284,7 @@ typedef struct trudpData {
     
 } trudpData;
 
-trudpData *trudpInit(int fd, int port, void *user_data);
+trudpData *trudpInit(int fd, int port, trudpEventCb event_cb, void *user_data);
 void trudpDestroy(trudpData* trudp);
 trudpCb trudpSetCallback(trudpData *td, trudpCallbsckType type, trudpCb cb);
 trudpChannelData *trudpCheckRemoteAddr(trudpData *td, struct sockaddr_in *remaddr, 

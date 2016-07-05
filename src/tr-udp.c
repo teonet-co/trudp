@@ -60,11 +60,12 @@ static void trudpSetDefaults(trudpChannelData *tcd) {
  *
  * @param fd File descriptor to read write data
  * @param port Port (optional)
+ * @param event_cb Event callback
  * @param user_data User data which will send to most library function
  *
  * @return
  */
-trudpData *trudpInit(int fd, int port, void *user_data) {
+trudpData *trudpInit(int fd, int port, trudpEventCb event_cb, void *user_data) {
 
     trudpData* trudp = (trudpData*) malloc(sizeof(trudpData));
     memset(trudp, 0, sizeof(trudpData));
@@ -77,6 +78,9 @@ trudpData *trudpInit(int fd, int port, void *user_data) {
     // Initialize statistic data
     trudpStatInit(trudp);
     trudp->started = trudpGetTimestampFull();
+    
+    // Set event callback
+    trudp->evendCb = event_cb;
 
     return trudp;
 }
@@ -117,11 +121,11 @@ trudpCb trudpSetCallback(trudpData *td, trudpCallbsckType type, trudpCb cb) {
 //            oldCb.data = td->processAckCb;
 //            td->processAckCb = cb.data;
 //            break;
-//
-        case EVENT:
-            oldCb.event = td->evendCb;
-            td->evendCb = cb.event;
-            break;
+
+//        case EVENT:
+//            oldCb.event = td->evendCb;
+//            td->evendCb = cb.event;
+//            break;
 
 //        case SEND:
 //            oldCb.send = td->sendCb;
