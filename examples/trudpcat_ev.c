@@ -296,49 +296,49 @@ static void showStatistic(trudpData *td, options *o, void *user_data) {
 //    #endif
 //}
 
-/**
- * TR-UDP send callback
- *
- * @param packet
- * @param packet_length
- * @param user_data
- */
-static void sendPacketCb(void *tcd_ptr, void *packet, size_t packet_length,
-        void *user_data) {
-
-    trudpChannelData *tcd = (trudpChannelData *)tcd_ptr;
-
-    //if(isWritable(TD(tcd)->fd, timeout) > 0) {
-    // Send to UDP
-    trudpUdpSendto(TD(tcd)->fd, packet, packet_length,
-            (__CONST_SOCKADDR_ARG) &tcd->remaddr, sizeof(tcd->remaddr));
-    //}
-
-    // Debug message
-    if(o.debug) {
-
-        int port,type;
-        uint32_t id = trudpPacketGetId(packet);
-        char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd->remaddr, &port);
-        if(!(type = trudpPacketGetType(packet))) {
-            debug("send %d bytes, id=%u, to %s:%d, %.3f(%.3f) ms\n",
-                (int)packet_length, id, addr, port,
-                tcd->triptime / 1000.0, tcd->triptimeMiddle / 1000.0);
-        }
-        else {
-            debug("send %d bytes %s id=%u, to %s:%d\n",
-                (int)packet_length, type == 1 ? "ACK" :
-                                    type == 2 ? "RESET" :
-                                    type == 3 ? "ACK to RESET" :
-                                    type == 4 ? "PING" : "ACK to PING"
-                                    , id, addr, port);
-        }
-    }
-
-    #if USE_LIBEV
-    start_send_queue_cb(&psd, 0);
-    #endif
-}
+///**
+// * TR-UDP send callback
+// *
+// * @param packet
+// * @param packet_length
+// * @param user_data
+// */
+//static void sendPacketCb(void *tcd_ptr, void *packet, size_t packet_length,
+//        void *user_data) {
+//
+//    trudpChannelData *tcd = (trudpChannelData *)tcd_ptr;
+//
+//    //if(isWritable(TD(tcd)->fd, timeout) > 0) {
+//    // Send to UDP
+//    trudpUdpSendto(TD(tcd)->fd, packet, packet_length,
+//            (__CONST_SOCKADDR_ARG) &tcd->remaddr, sizeof(tcd->remaddr));
+//    //}
+//
+//    // Debug message
+//    if(o.debug) {
+//
+//        int port,type;
+//        uint32_t id = trudpPacketGetId(packet);
+//        char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd->remaddr, &port);
+//        if(!(type = trudpPacketGetType(packet))) {
+//            debug("send %d bytes, id=%u, to %s:%d, %.3f(%.3f) ms\n",
+//                (int)packet_length, id, addr, port,
+//                tcd->triptime / 1000.0, tcd->triptimeMiddle / 1000.0);
+//        }
+//        else {
+//            debug("send %d bytes %s id=%u, to %s:%d\n",
+//                (int)packet_length, type == 1 ? "ACK" :
+//                                    type == 2 ? "RESET" :
+//                                    type == 3 ? "ACK to RESET" :
+//                                    type == 4 ? "PING" : "ACK to PING"
+//                                    , id, addr, port);
+//        }
+//    }
+//
+//    #if USE_LIBEV
+//    start_send_queue_cb(&psd, 0);
+//    #endif
+//}
 
 /**
  * TR-UDP event callback
@@ -499,6 +499,45 @@ static void eventCb(void *tcd_pointer, int event, void *data, size_t data_length
             }
             debug("\n");
 
+        } break;
+        
+        case PROCESS_RECEIVE: {
+            
+        } break;
+        
+        case PROCESS_SEND: {
+        
+            //if(isWritable(TD(tcd)->fd, timeout) > 0) {
+            // Send to UDP
+            trudpUdpSendto(TD(tcd)->fd, data, data_length,
+                    (__CONST_SOCKADDR_ARG) &tcd->remaddr, sizeof(tcd->remaddr));
+            //}
+
+            // Debug message
+            if(o.debug) {
+
+                int port,type;
+                uint32_t id = trudpPacketGetId(data);
+                char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd->remaddr, &port);
+                if(!(type = trudpPacketGetType(data))) {
+                    debug("send %d bytes, id=%u, to %s:%d, %.3f(%.3f) ms\n",
+                        (int)data_length, id, addr, port,
+                        tcd->triptime / 1000.0, tcd->triptimeMiddle / 1000.0);
+                }
+                else {
+                    debug("send %d bytes %s id=%u, to %s:%d\n",
+                        (int)data_length, type == 1 ? "ACK" :
+                                            type == 2 ? "RESET" :
+                                            type == 3 ? "ACK to RESET" :
+                                            type == 4 ? "PING" : "ACK to PING"
+                                            , id, addr, port);
+                }
+            }
+
+            #if USE_LIBEV
+            start_send_queue_cb(&psd, 0);
+            #endif
+            
         } break;
 
         default: break;
@@ -950,8 +989,7 @@ int main(int argc, char** argv) {
     trudpData *td = trudpInit(fd, port, NULL);
 
     // 2) Set callback functions
-//    trudpSetCallback(td, PROCESS_DATA, (trudpCb)processDataCb);
-    trudpSetCallback(td, SEND, (trudpCb)sendPacketCb);
+//    trudpSetCallback(td, SEND, (trudpCb)sendPacketCb);
     trudpSetCallback(td, EVENT, (trudpCb)eventCb);
 
     // Create messages

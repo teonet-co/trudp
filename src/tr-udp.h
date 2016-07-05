@@ -159,7 +159,10 @@ typedef enum trudpEvent {
      * @param data_length Length of data
      * @param user_data NULL
      */
-    GOT_DATA
+    GOT_DATA,
+            
+    PROCESS_RECEIVE,
+    PROCESS_SEND
             
 } trudpEvent;
 
@@ -271,7 +274,7 @@ typedef struct trudpData {
 //    trudpDataCb processDataCb;
 //    trudpDataCb processAckCb;
     trudpEventCb evendCb;
-    trudpDataCb sendCb;       
+//    trudpDataCb sendCb;       
     
     // Statistic
     trudpStatData stat;
