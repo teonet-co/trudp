@@ -187,33 +187,44 @@ static void process_received_packet_test() {
 
 trudpChannelData *tcd_A, *tcd_B;
 
-void td_A_sendCb(void *td, void *packet, size_t packet_length, void *user_data) {
+void td_A_eventCb(void *tcd_ptr, int event, void *packet, size_t packet_length, void *user_data) {
     
-    /*int type = */trudpPacketGetType(packet);
-    #if !NO_MESSAGES
-    printf("\n%s_writeCb %s %s ...", user_data ? (char*)user_data : "", type == 0x0 ? "DATA" : type == 0x1 ? "ACK" : "RESET", type == 0x0 ? (char*)trudpPacketGetData(packet) : "");
-    #endif
-    
-    // Receive data by B TR-UDP
-    size_t processedData_length;
-    void *rv = trudpProcessChannelReceivedPacket(tcd_B, packet, packet_length, &processedData_length);
-//    _showProcessResult(rv, td_B->user_data);
-    CU_ASSERT(!rv || (rv && rv != (void*)-1));
-    
+    switch(event) {
+        
+        case PROCESS_SEND: {
+            
+            /*int type = */trudpPacketGetType(packet);
+            #if !NO_MESSAGES
+            printf("\n%s_writeCb %s %s ...", user_data ? (char*)user_data : "", type == 0x0 ? "DATA" : type == 0x1 ? "ACK" : "RESET", type == 0x0 ? (char*)trudpPacketGetData(packet) : "");
+            #endif
+
+            // Receive data by B TR-UDP
+            size_t processedData_length;
+            void *rv = trudpProcessChannelReceivedPacket(tcd_B, packet, packet_length, &processedData_length);
+//            _showProcessResult(rv, td_B->user_data);
+            CU_ASSERT(!rv || (rv && rv != (void*)-1));
+        }
+    }
 }
 
-void td_B_sendCb(void *td, void *packet, size_t packet_length, void *user_data) {
+void td_B_eventCb(void *tcd_ptr, int event, void *packet, size_t packet_length, void *user_data) {
     
-    /*int type = */trudpPacketGetType(packet);
-    #if !NO_MESSAGES
-    printf("\n%s_writeCb %s %s ...", user_data ? (char*)user_data : "", type == 0x0 ? "DATA" : type == 0x1 ? "ACK" : "RESET", type == 0x0 ? (char*)trudpPacketGetData(packet) : "");
-    #endif
+    switch(event) {
+        
+        case PROCESS_SEND: {
+            
+            /*int type = */trudpPacketGetType(packet);
+            #if !NO_MESSAGES
+            printf("\n%s_writeCb %s %s ...", user_data ? (char*)user_data : "", type == 0x0 ? "DATA" : type == 0x1 ? "ACK" : "RESET", type == 0x0 ? (char*)trudpPacketGetData(packet) : "");
+            #endif
 
-    // Receive data by A TR-UDP
-    size_t processedData_length;
-    void *rv = trudpProcessChannelReceivedPacket(tcd_A, packet, packet_length, &processedData_length);
-//    _showProcessResult(rv, td_A->user_data);
-    CU_ASSERT(!rv || (rv && rv != (void*)-1));
+            // Receive data by A TR-UDP
+            size_t processedData_length;
+            void *rv = trudpProcessChannelReceivedPacket(tcd_A, packet, packet_length, &processedData_length);
+//            _showProcessResult(rv, td_A->user_data);
+            CU_ASSERT(!rv || (rv && rv != (void*)-1));
+        }
+    }
 }
 
 /**
@@ -222,18 +233,18 @@ void td_B_sendCb(void *td, void *packet, size_t packet_length, void *user_data) 
 static void send_process_received_packet_test() {
 
     // Create sender TR-UDP
-    trudpData *td_A = trudpInit(0, 0, NULL, "td_A");
+    trudpData *td_A = trudpInit(0, 0, td_A_eventCb, "td_A");
     tcd_A = trudpNewChannel(td_A, "0", 8000, 0);
 //    trudpSetCallback(td_A, PROCESS_DATA, (trudpCb)trudpProcessDataCb);
-    trudpSetCallback(td_A, SEND, (trudpCb)td_A_sendCb);
+//    trudpSetCallback(td_A, SEND, (trudpCb)td_A_sendCb);
 //    trudpSetCallback(td_A, PROCESS_ACK, (trudpCb)trudpProcessAckCb);
     CU_ASSERT_PTR_NOT_NULL(tcd_A);
     
     // Create receiver TR-UDP
-    trudpData *td_B = trudpInit(0, 0, NULL, "td_B");
+    trudpData *td_B = trudpInit(0, 0, td_B_eventCb, "td_B");
     tcd_B = trudpNewChannel(td_B, "0", 8001, 0);
 //    trudpSetCallback(td_B, PROCESS_DATA, (trudpCb)trudpProcessDataCb);
-    trudpSetCallback(td_B, SEND, (trudpCb)td_B_sendCb);
+//    trudpSetCallback(td_B, SEND, (trudpCb)td_B_sendCb);
 //    trudpSetCallback(td_B, PROCESS_ACK, (trudpCb)trudpProcessAckCb);
     CU_ASSERT_PTR_NOT_NULL(tcd_B);
     

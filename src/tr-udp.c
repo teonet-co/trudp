@@ -98,47 +98,47 @@ void trudpDestroy(trudpData* trudp) {
     }
 }
 
-/**
- * Set TR-UDP callback
- *
- * @param td Pointer to trudpData
- * @param type
- * @param cb
- * @return
- */
-trudpCb trudpSetCallback(trudpData *td, trudpCallbsckType type, trudpCb cb) {
-
-    trudpCb oldCb;
-
-    switch(type) {
-
-//        case PROCESS_DATA:
-//            oldCb.data = td->processDataCb;
-//            td->processDataCb = cb.data;
+///**
+// * Set TR-UDP callback
+// *
+// * @param td Pointer to trudpData
+// * @param type
+// * @param cb
+// * @return
+// */
+//trudpCb trudpSetCallback(trudpData *td, trudpCallbsckType type, trudpCb cb) {
+//
+//    trudpCb oldCb;
+//
+//    switch(type) {
+//
+////        case PROCESS_DATA:
+////            oldCb.data = td->processDataCb;
+////            td->processDataCb = cb.data;
+////            break;
+//
+////        case PROCESS_ACK:
+////            oldCb.data = td->processAckCb;
+////            td->processAckCb = cb.data;
+////            break;
+//
+////        case EVENT:
+////            oldCb.event = td->evendCb;
+////            td->evendCb = cb.event;
+////            break;
+//
+////        case SEND:
+////            oldCb.send = td->sendCb;
+////            td->sendCb = cb.send;
+////            break;
+//
+//        default:
+//            oldCb.ptr = NULL;
 //            break;
-
-//        case PROCESS_ACK:
-//            oldCb.data = td->processAckCb;
-//            td->processAckCb = cb.data;
-//            break;
-
-//        case EVENT:
-//            oldCb.event = td->evendCb;
-//            td->evendCb = cb.event;
-//            break;
-
-//        case SEND:
-//            oldCb.send = td->sendCb;
-//            td->sendCb = cb.send;
-//            break;
-
-        default:
-            oldCb.ptr = NULL;
-            break;
-    }
-
-    return oldCb;
-}
+//    }
+//
+//    return oldCb;
+//}
 
 /**
  * Create trudp chanel

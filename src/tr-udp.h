@@ -80,17 +80,17 @@ typedef union trudpCb {
     
 } trudpCb;
 
-/**
- * Enumeration of callback types
- */
-typedef enum trudpCallbsckType {
-    
-//   PROCESS_DATA,
-//    PROCESS_ACK,
-    EVENT,
-    SEND
-            
-} trudpCallbsckType;
+///**
+// * Enumeration of callback types
+// */
+//typedef enum trudpCallbsckType {
+//    
+////   PROCESS_DATA,
+////    PROCESS_ACK,
+//    EVENT,
+//    SEND
+//            
+//} trudpCallbsckType;
 
 /**
  * Enumeration of TR-UDP events
@@ -286,7 +286,7 @@ typedef struct trudpData {
 
 trudpData *trudpInit(int fd, int port, trudpEventCb event_cb, void *user_data);
 void trudpDestroy(trudpData* trudp);
-trudpCb trudpSetCallback(trudpData *td, trudpCallbsckType type, trudpCb cb);
+//trudpCb trudpSetCallback(trudpData *td, trudpCallbsckType type, trudpCb cb);
 trudpChannelData *trudpCheckRemoteAddr(trudpData *td, struct sockaddr_in *remaddr, 
         socklen_t addr_length, int channel);
 int trudpProcessSendQueue(trudpData *td, uint64_t *next_et);
