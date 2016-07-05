@@ -225,8 +225,8 @@
         <rebuildPropChanged>false</rebuildPropChanged>
       </toolsSet>
       <flagsDictionary>
-        <element flagsID="0" commonFlags="-g"/>
-        <element flagsID="1" commonFlags="-g -fPIC -fPIC"/>
+        <element flagsID="0" commonFlags="-g -fPIC -g -O2 -fPIC"/>
+        <element flagsID="1" commonFlags="-g -g -O2"/>
       </flagsDictionary>
       <codeAssistance>
       </codeAssistance>
@@ -243,11 +243,11 @@
         </preBuild>
       </makefileType>
       <item path="ci-build/make_package.c" ex="false" tool="0" flavor2="2">
-        <cTool flags="0">
+        <cTool flags="1">
         </cTool>
       </item>
       <item path="examples/snake.c" ex="false" tool="0" flavor2="2">
-        <cTool flags="0">
+        <cTool flags="1">
           <incDir>
             <pElem>examples</pElem>
             <pElem>.</pElem>
@@ -264,7 +264,7 @@
       <item path="examples/trudpcat.c" ex="false" tool="0" flavor2="2">
       </item>
       <item path="examples/trudpcat_ev.c" ex="false" tool="0" flavor2="2">
-        <cTool flags="0">
+        <cTool flags="1">
           <incDir>
             <pElem>examples</pElem>
             <pElem>.</pElem>
@@ -321,63 +321,63 @@
         </cTool>
       </folder>
       <item path="src/hash.c" ex="false" tool="0" flavor2="2">
-        <cTool flags="1">
+        <cTool flags="0">
         </cTool>
       </item>
       <item path="src/map.c" ex="false" tool="0" flavor2="2">
-        <cTool flags="1">
+        <cTool flags="0">
         </cTool>
       </item>
       <item path="src/packet.c" ex="false" tool="0" flavor2="2">
-        <cTool flags="1">
+        <cTool flags="0">
         </cTool>
       </item>
       <item path="src/packet_queue.c" ex="false" tool="0" flavor2="2">
-        <cTool flags="1">
+        <cTool flags="0">
         </cTool>
       </item>
       <item path="src/queue.c" ex="false" tool="0" flavor2="2">
-        <cTool flags="1">
+        <cTool flags="0">
         </cTool>
       </item>
       <item path="src/tr-udp.c" ex="false" tool="0" flavor2="2">
-        <cTool flags="1">
+        <cTool flags="0">
         </cTool>
       </item>
       <item path="src/tr-udp_stat.c" ex="false" tool="0" flavor2="2">
-        <cTool flags="1">
+        <cTool flags="0">
         </cTool>
       </item>
       <item path="src/udp.c" ex="false" tool="0" flavor2="2">
-        <cTool flags="1">
+        <cTool flags="0">
         </cTool>
       </item>
       <item path="src/utils.c" ex="false" tool="0" flavor2="2">
-        <cTool flags="1">
+        <cTool flags="0">
         </cTool>
       </item>
       <item path="src/write_queue.c" ex="false" tool="0" flavor2="2">
-        <cTool flags="1">
+        <cTool flags="0">
         </cTool>
       </item>
       <item path="tests/map_t.c" ex="false" tool="0" flavor2="2">
-        <cTool flags="0">
+        <cTool flags="1">
         </cTool>
       </item>
       <item path="tests/packet_queue_t.c" ex="false" tool="0" flavor2="2">
-        <cTool flags="0">
+        <cTool flags="1">
         </cTool>
       </item>
       <item path="tests/packet_t.c" ex="false" tool="0" flavor2="2">
-        <cTool flags="0">
+        <cTool flags="1">
         </cTool>
       </item>
       <item path="tests/queue_t.c" ex="false" tool="0" flavor2="2">
-        <cTool flags="0">
+        <cTool flags="1">
         </cTool>
       </item>
       <item path="tests/tr-udp_t.c" ex="false" tool="0" flavor2="2">
-        <cTool flags="0">
+        <cTool flags="1">
         </cTool>
       </item>
     </conf>

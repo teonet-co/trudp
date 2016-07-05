@@ -470,9 +470,9 @@ int main_select(int argc, char** argv) {
     trudpData *td = trudpInit(fd, port, NULL);
 
     // Set callback functions
-    trudpSetCallback(td, PROCESS_DATA, (trudpCb)processDataCb);
+//    trudpSetCallback(td, PROCESS_DATA, (trudpCb)processDataCb);
     trudpSetCallback(td, SEND, (trudpCb)sendPacketCb);
-    trudpSetCallback(td, PROCESS_ACK, (trudpCb)processAckCb);
+//    trudpSetCallback(td, PROCESS_ACK, (trudpCb)processAckCb);
     trudpSetCallback(td, EVENT, (trudpCb)eventCb);
 
     // Create messages

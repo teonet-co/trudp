@@ -73,7 +73,7 @@ typedef void (*trudpEventCb)(void *tcd, int event, void *data, size_t data_lengt
  */
 typedef union trudpCb {
     
-    trudpDataCb data;
+//    trudpDataCb data;
     trudpDataCb send;
     trudpEventCb event;
     void *ptr;
@@ -85,7 +85,7 @@ typedef union trudpCb {
  */
 typedef enum trudpCallbsckType {
     
-    PROCESS_DATA,
+//   PROCESS_DATA,
 //    PROCESS_ACK,
     EVENT,
     SEND
@@ -117,14 +117,14 @@ typedef enum trudpEvent {
      * @param data_length 0
      * @param user_data NULL
      */
-    GOT_TRU_RESET,
+    GOT_RESET,
     /**
      * Send TR-UDP reset packet
      * @param data Pointer to uint32_t send id or NULL if received id = 0
      * @param data_length Size of uint32_t or 0
      * @param user_data NULL
      */
-    SEND_TRU_RESET,
+    SEND_RESET,
     /**
      * Got ACK to reset command
      * @param data NULL
@@ -268,8 +268,8 @@ typedef struct trudpData {
     int fd; ///< File descriptor
                  
     // Callback
-    trudpDataCb processDataCb;
-    trudpDataCb processAckCb;
+//    trudpDataCb processDataCb;
+//    trudpDataCb processAckCb;
     trudpEventCb evendCb;
     trudpDataCb sendCb;       
     

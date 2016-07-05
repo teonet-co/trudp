@@ -65,22 +65,22 @@ static void send_data_test() {
 }
 
 
-/**
- * Process received DATA packets data callback function
- * 
- * @param data
- * @param data_length
- * @param user_data
- */
-static void trudpProcessDataCb(void *td, void *data, size_t data_length, void *user_data) {
-    
-    #if !NO_MESSAGES
-    void *packet = trudpPacketGetPacket(data);
-    double tt = (trudpGetTimestamp() - trudpPacketGetTimestamp(packet) )/1000.0;
-    printf("\n%s DATA: \"%s\" processed %.3f ms ...", user_data ? (char*)user_data : "", (char*)data, tt);
-    printf("\n");
-    #endif
-}
+///**
+// * Process received DATA packets data callback function
+// * 
+// * @param data
+// * @param data_length
+// * @param user_data
+// */
+//static void trudpProcessDataCb(void *td, void *data, size_t data_length, void *user_data) {
+//    
+//    #if !NO_MESSAGES
+//    void *packet = trudpPacketGetPacket(data);
+//    double tt = (trudpGetTimestamp() - trudpPacketGetTimestamp(packet) )/1000.0;
+//    printf("\n%s DATA: \"%s\" processed %.3f ms ...", user_data ? (char*)user_data : "", (char*)data, tt);
+//    printf("\n");
+//    #endif
+//}
 
 ///**
 // * Process received ACK packets data callback function
@@ -121,7 +121,7 @@ static void process_received_packet_test() {
     // Create TR-UDP
     trudpData *td = trudpInit(0, 0, NULL);
     trudpChannelData *tcd = trudpNewChannel(td, "0", 8000, 0);
-    trudpSetCallback(td, PROCESS_DATA, (trudpCb)trudpProcessDataCb);
+//    trudpSetCallback(td, PROCESS_DATA, (trudpCb)trudpProcessDataCb);
     CU_ASSERT_PTR_NOT_NULL(tcd);
     
     // Create DATA packets 
@@ -146,27 +146,27 @@ static void process_received_packet_test() {
     id = 0;
     rv = trudpProcessChannelReceivedPacket(tcd, packetDATA[id], packetLength[id], &processedData_length);
     _showProcessResult(rv, TD(tcd)->user_data);
-    CU_ASSERT(rv && rv != (void*)-1);
+    CU_ASSERT_FATAL(rv && rv != (void*)-1);
     CU_ASSERT_STRING_EQUAL(data[id], rv);
     
     // Process received packet (id 1) test
     id = 1;
     rv = trudpProcessChannelReceivedPacket(tcd, packetDATA[id], packetLength[id], &processedData_length);
     _showProcessResult(rv, TD(tcd)->user_data);
-    CU_ASSERT(rv && rv != (void*)-1);
+    CU_ASSERT_FATAL(rv && rv != (void*)-1);
     CU_ASSERT_STRING_EQUAL(data[id], rv);
     
     // Process received packet (id 3) test
     id = 3;
     rv = trudpProcessChannelReceivedPacket(tcd, packetDATA[id], packetLength[id], &processedData_length);
     _showProcessResult(rv, TD(tcd)->user_data);
-    CU_ASSERT(rv == NULL); // The trudpProcessReceivedPacket save this packet to receiveQueue and return NULL
+    CU_ASSERT_FATAL(rv == NULL); // The trudpProcessReceivedPacket save this packet to receiveQueue and return NULL
     
     // Process received packet (id 2) test
     id = 2;
     rv = trudpProcessChannelReceivedPacket(tcd, packetDATA[id], packetLength[id], &processedData_length);
     _showProcessResult(rv, TD(tcd)->user_data);
-    CU_ASSERT(rv && rv != (void*)-1);
+    CU_ASSERT_FATAL(rv && rv != (void*)-1);
     CU_ASSERT_STRING_EQUAL(data[3], rv); // The trudpProcessReceivedPacket process this package, and package from queue, and return data of last processed - id = 3
     
     // Process wrong packet
@@ -174,7 +174,7 @@ static void process_received_packet_test() {
     size_t wrongPacketLength = strlen(wrongPacket) + 1;
     rv = trudpProcessChannelReceivedPacket(tcd, wrongPacket, wrongPacketLength, &processedData_length);
     _showProcessResult(rv, TD(tcd)->user_data);
-    CU_ASSERT(rv == (void*)-1);
+    CU_ASSERT_FATAL(rv == (void*)-1);
     
     // Free packets
     int i; for(i=0; i < 4; i++) trudpPacketCreatedFree(packetDATA[i]);
@@ -224,7 +224,7 @@ static void send_process_received_packet_test() {
     // Create sender TR-UDP
     trudpData *td_A = trudpInit(0, 0, "td_A");
     tcd_A = trudpNewChannel(td_A, "0", 8000, 0);
-    trudpSetCallback(td_A, PROCESS_DATA, (trudpCb)trudpProcessDataCb);
+//    trudpSetCallback(td_A, PROCESS_DATA, (trudpCb)trudpProcessDataCb);
     trudpSetCallback(td_A, SEND, (trudpCb)td_A_sendCb);
 //    trudpSetCallback(td_A, PROCESS_ACK, (trudpCb)trudpProcessAckCb);
     CU_ASSERT_PTR_NOT_NULL(tcd_A);
@@ -232,7 +232,7 @@ static void send_process_received_packet_test() {
     // Create receiver TR-UDP
     trudpData *td_B = trudpInit(0, 0, "td_B");
     tcd_B = trudpNewChannel(td_B, "0", 8001, 0);
-    trudpSetCallback(td_B, PROCESS_DATA, (trudpCb)trudpProcessDataCb);
+//    trudpSetCallback(td_B, PROCESS_DATA, (trudpCb)trudpProcessDataCb);
     trudpSetCallback(td_B, SEND, (trudpCb)td_B_sendCb);
 //    trudpSetCallback(td_B, PROCESS_ACK, (trudpCb)trudpProcessAckCb);
     CU_ASSERT_PTR_NOT_NULL(tcd_B);

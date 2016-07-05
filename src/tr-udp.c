@@ -108,10 +108,10 @@ trudpCb trudpSetCallback(trudpData *td, trudpCallbsckType type, trudpCb cb) {
 
     switch(type) {
 
-        case PROCESS_DATA:
-            oldCb.data = td->processDataCb;
-            td->processDataCb = cb.data;
-            break;
+//        case PROCESS_DATA:
+//            oldCb.data = td->processDataCb;
+//            td->processDataCb = cb.data;
+//            break;
 
 //        case PROCESS_ACK:
 //            oldCb.data = td->processAckCb;
@@ -656,7 +656,7 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
                    !trudpQueueSize(tcd->receiveQueue->q) ) {
 
                     // Send event
-                    trudpExecEventCallback(tcd, SEND_TRU_RESET, &tcd->sendId, 
+                    trudpExecEventCallback(tcd, SEND_RESET, &tcd->sendId, 
                             sizeof(tcd->sendId), NULL);
                     trudpSendRESET(tcd);
                 }
@@ -725,13 +725,12 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
                 // Check expected Id and return data
                 if(trudpPacketGetId(packet) == tcd->receiveExpectedId) {
 
-//                    // Execute trudpDataReceivedCb Callback with pointer to data
-//                    trudpExecProcessDataCallback(tcd, packet, &data, 
-//                        data_length, TD(tcd)->user_data, TD(tcd)->processDataCb);
                     // Send event 
+                    data = trudpPacketGetData(packet);
+                    *data_length = trudpPacketGetDataLength(packet);
                     trudpExecEventCallback(tcd, GOT_DATA, 
-                            trudpPacketGetData(packet), 
-                            trudpPacketGetDataLength(packet), 
+                            data, 
+                            *data_length, 
                             NULL);
 
                     // Check received queue for saved packet with expected id
@@ -739,13 +738,12 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
                     while((tqd = trudpPacketQueueFindById(tcd->receiveQueue,
                             ++tcd->receiveExpectedId)) ) {
 
-//                        trudpExecProcessDataCallback(tcd, tqd->packet, &data,
-//                            data_length, TD(tcd)->user_data,
-//                            TD(tcd)->processDataCb);
                         // Send event 
+                        data = trudpPacketGetData(tqd->packet);
+                        *data_length = trudpPacketGetDataLength(tqd->packet);
                         trudpExecEventCallback(tcd, GOT_DATA, 
-                            trudpPacketGetData(packet), 
-                            trudpPacketGetDataLength(packet), 
+                            data, 
+                            *data_length, 
                             NULL);
 
                         trudpPacketQueueDelete(tcd->receiveQueue, tqd);
@@ -787,7 +785,7 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
                 // Reset channel if packet id = 0
                 else if(!trudpPacketGetId(packet)) {
                     // Send event
-                    trudpExecEventCallback(tcd, SEND_TRU_RESET, NULL, 0, NULL);
+                    trudpExecEventCallback(tcd, SEND_RESET, NULL, 0, NULL);
                     trudpSendRESET(tcd);
                 }
 
@@ -805,7 +803,7 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
             case TRU_RESET: {
 
                 // Send event
-                trudpExecEventCallback(tcd, GOT_TRU_RESET, NULL, 0, NULL);
+                trudpExecEventCallback(tcd, GOT_RESET, NULL, 0, NULL);
 
                 // Create ACK to RESET packet and send it back to sender
                 trudpSendACKtoRESET(tcd, packet);

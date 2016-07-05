@@ -387,10 +387,10 @@ static void eventCb(void *tcd_pointer, int event, void *data, size_t data_length
 
         } break;
 
-        // GOT_TRU_RESET event
+        // GOT_RESET event
         // @param data NULL
         // @param user_data NULL
-        case GOT_TRU_RESET: {
+        case GOT_RESET: {
 
             char *key = trudpMakeKeyCannel(tcd);
             fprintf(stderr,
@@ -399,10 +399,10 @@ static void eventCb(void *tcd_pointer, int event, void *data, size_t data_length
 
         } break;
 
-        // SEND_TRU_RESET event
+        // SEND_RESET event
         // @param data Pointer to uint32_t id or NULL (data_size == 0)
         // @param user_data NULL
-        case SEND_TRU_RESET: {
+        case SEND_RESET: {
 
             uint32_t id = (data_length == sizeof(uint32_t)) ? *(uint32_t*)data:0;
 
