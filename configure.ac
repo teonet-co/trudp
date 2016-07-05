@@ -21,7 +21,7 @@ AC_DEFINE([PACKAGE_DESCRIPTION], ["TR-UDP library: Teonet Real time communicatio
 AC_DEFINE([PACKAGE_DEPENDENCIES], ["libev"], [Application dependencies])
 AC_DEFINE(COPYRIGHT, ["(c) Kirsoft Inc., 1996-2016"], [TR-UDP library copyright])
  AC_PREFIX_DEFAULT([/usr])
-AC_CONFIG_SRCDIR([src/tr-udp.c])
+AC_CONFIG_SRCDIR([src/trudp.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 
