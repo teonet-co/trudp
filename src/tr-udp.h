@@ -160,8 +160,19 @@ typedef enum trudpEvent {
      * @param user_data NULL
      */
     GOT_DATA,
-            
+    /**
+     * Process received data
+     * @param tcd Pointer to trudpData
+     * @param data Pointer to receive buffer
+     * @param data_length Receive buffer length
+     * @param user_data NULL
+     */ 
     PROCESS_RECEIVE,
+    /** Process send data
+     * @param data Pointer to send data
+     * @param data_length Length of send
+     * @param user_data NULL            
+     */ 
     PROCESS_SEND
             
 } trudpEvent;
@@ -265,6 +276,7 @@ typedef struct trudpStatData {
  */
 typedef struct trudpData {
 
+    uint32_t trudp_data_label[2]; ///< Labele to distinguish trudpData and trudpChannelData
     trudpMapData *map; ///< Channels map (key: ip:port:channel)
     void* user_data; ///< User data
     int port; ///< Port
@@ -294,6 +306,8 @@ size_t trudpProcessWriteQueue(trudpData *td);
 void trudpSendResetAll(trudpData *td);
 size_t trudpKeepConnection(trudpData *td);
 uint32_t trudpGetSendQueueTimeout(trudpData *td);
+void trudpSendEvent(trudpChannelData *tcd, int event, void *data,
+        size_t data_length, void *user_data);
 
 trudpChannelData *trudpNewChannel(trudpData *td, char *remote_address, int remote_port_i, int channel); // void *user_data, trudpDataCb processDataCb, trudpDataCb sendPacketCb);
 void trudpDestroyChannel(trudpChannelData *tcd);
@@ -301,6 +315,7 @@ void trudpFreeChannel(trudpChannelData *tcd);
 void trudpResetChannel(trudpChannelData *tcd);
 size_t trudpSendData(trudpChannelData *tcd, void *data, size_t data_length);
 size_t trudpSendDataToAll(trudpData *td, void *data, size_t data_length);
+void trudpProcessReceive(trudpData *td, void *data, size_t data_length);
 void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet, 
         size_t packet_length, size_t *data_length);
 int trudpProcessChannelSendQueue(trudpChannelData *tcd, uint64_t ts,

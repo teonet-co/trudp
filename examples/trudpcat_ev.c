@@ -240,106 +240,6 @@ static void showStatistic(trudpData *td, options *o, void *user_data) {
     }
 }
 
-///**
-// * TR-UDP process data callback
-// *
-// * @param td_pointer
-// * @param data
-// * @param data_length
-// * @param user_data
-// */
-//static void processDataCb(void *td_pointer, void *data, size_t data_length,
-//        void *user_data) {
-//
-//    trudpChannelData *tcd = (trudpChannelData *)td_pointer;
-//
-//
-//    debug("got %d byte data, id=%u: ", (int)data_length,
-//                trudpPacketGetId(trudpPacketGetPacket(data)));
-//
-//    if(!o.show_statistic && !o.show_send_queue && !o.show_snake) {
-//        if(!o.debug)
-//            printf("#%u at %.3f [%.3f(%.3f) ms] ",
-//                   tcd->receiveExpectedId,
-//                   (double)trudpGetTimestamp() / 1000.0,
-//                   (double)tcd->triptime / 1000.0,
-//                   (double)tcd->triptimeMiddle / 1000.0);
-//
-//        printf("%s\n",(char*)data);
-//    }
-//    else {
-//        // Show statistic window
-//        //showStatistic(TD(tcd));
-//    }
-//    debug("\n");
-//}
-
-///**
-// * TR-UDP ACK processed callback
-// *
-// * @param td
-// * @param data
-// * @param data_length
-// * @param user_data
-// */
-//static void processAckCb(void *td_ptr, void *data, size_t data_length,
-//        void *user_data) {
-//
-//    trudpChannelData *tcd = (trudpChannelData *)td_ptr;
-//
-//    debug("got ACK id=%u processed %.3f(%.3f) ms\n",
-//          trudpPacketGetId(trudpPacketGetPacket(data)),
-//          (tcd->triptime)/1000.0, (tcd->triptimeMiddle)/1000.0);
-//
-//    #if USE_LIBEV
-//    start_send_queue_cb(&psd, 0);
-//    #endif
-//}
-
-///**
-// * TR-UDP send callback
-// *
-// * @param packet
-// * @param packet_length
-// * @param user_data
-// */
-//static void sendPacketCb(void *tcd_ptr, void *packet, size_t packet_length,
-//        void *user_data) {
-//
-//    trudpChannelData *tcd = (trudpChannelData *)tcd_ptr;
-//
-//    //if(isWritable(TD(tcd)->fd, timeout) > 0) {
-//    // Send to UDP
-//    trudpUdpSendto(TD(tcd)->fd, packet, packet_length,
-//            (__CONST_SOCKADDR_ARG) &tcd->remaddr, sizeof(tcd->remaddr));
-//    //}
-//
-//    // Debug message
-//    if(o.debug) {
-//
-//        int port,type;
-//        uint32_t id = trudpPacketGetId(packet);
-//        char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd->remaddr, &port);
-//        if(!(type = trudpPacketGetType(packet))) {
-//            debug("send %d bytes, id=%u, to %s:%d, %.3f(%.3f) ms\n",
-//                (int)packet_length, id, addr, port,
-//                tcd->triptime / 1000.0, tcd->triptimeMiddle / 1000.0);
-//        }
-//        else {
-//            debug("send %d bytes %s id=%u, to %s:%d\n",
-//                (int)packet_length, type == 1 ? "ACK" :
-//                                    type == 2 ? "RESET" :
-//                                    type == 3 ? "ACK to RESET" :
-//                                    type == 4 ? "PING" : "ACK to PING"
-//                                    , id, addr, port);
-//        }
-//    }
-//
-//    #if USE_LIBEV
-//    start_send_queue_cb(&psd, 0);
-//    #endif
-//}
-
 /**
  * TR-UDP event callback
  *
@@ -404,19 +304,30 @@ static void eventCb(void *tcd_pointer, int event, void *data, size_t data_length
         // @param user_data NULL
         case SEND_RESET: {
 
-            uint32_t id = (data_length == sizeof(uint32_t)) ? *(uint32_t*)data:0;
 
             char *key = trudpMakeKeyCannel(tcd);
-            if(!id)
+            
+            if(!data)
                 fprintf(stderr,
                   "Send reset: "
-                  "Not expected packet with id = 0 received from channel %s\n",
+                  "to channel %s\n",
                   key);
-            else
-                fprintf(stderr,
-                  "Send reset: "
-                  "High send packet number (%d) at channel %s\n",
-                  id, key);
+
+            else {
+            
+                uint32_t id = (data_length == sizeof(uint32_t)) ? *(uint32_t*)data:0;
+
+                if(!id)
+                    fprintf(stderr,
+                      "Send reset: "
+                      "Not expected packet with id = 0 received from channel %s\n",
+                      key);
+                else
+                    fprintf(stderr,
+                      "Send reset: "
+                      "High send packet number (%d) at channel %s\n",
+                      id, key);
+                }
 
         } break;
 
@@ -479,8 +390,9 @@ static void eventCb(void *tcd_pointer, int event, void *data, size_t data_length
         case GOT_DATA: {
 
             char *key = trudpMakeKeyCannel(tcd);
-            debug("got %d byte data at channel %s, id=%u: ", (int)data_length,
-                        key, trudpPacketGetId(trudpPacketGetPacket(data)));
+            debug("got %d byte data at channel %s, id=%u: ", 
+                trudpPacketGetPacketLength(trudpPacketGetPacket(data))/*(int)data_length*/,
+                key, trudpPacketGetId(trudpPacketGetPacket(data)));
 
             if(!o.show_statistic && !o.show_send_queue && !o.show_snake) {
                 if(!o.debug)
@@ -501,10 +413,22 @@ static void eventCb(void *tcd_pointer, int event, void *data, size_t data_length
 
         } break;
         
+        // Process received data
+        // @param tcd Pointer to trudpData
+        // @param data Pointer to receive buffer
+        // @param data_length Receive buffer length
+        // @param user_data NULL
         case PROCESS_RECEIVE: {
             
+            trudpData *td = (trudpData *)tcd;
+            trudpProcessReceive(td, data, data_length);
+                        
         } break;
         
+        // Process send data
+        // @param data Pointer to send data
+        // @param data_length Length of send
+        // @param user_data NULL
         case PROCESS_SEND: {
         
             //if(isWritable(TD(tcd)->fd, timeout) > 0) {
@@ -526,11 +450,12 @@ static void eventCb(void *tcd_pointer, int event, void *data, size_t data_length
                 }
                 else {
                     debug("send %d bytes %s id=%u, to %s:%d\n",
-                        (int)data_length, type == 1 ? "ACK" :
-                                            type == 2 ? "RESET" :
-                                            type == 3 ? "ACK to RESET" :
-                                            type == 4 ? "PING" : "ACK to PING"
-                                            , id, addr, port);
+                        (int)data_length, 
+                        type == 1 ? "ACK" :
+                        type == 2 ? "RESET" :
+                        type == 3 ? "ACK to RESET" :
+                        type == 4 ? "PING" : "ACK to PING"
+                        , id, addr, port);
                 }
             }
 
@@ -579,19 +504,8 @@ static trudpChannelData *connectToPeer(trudpData *td) {
  */
 static void host_cb(EV_P_ ev_io *w, int revents) {
 
-    trudpData *td = (trudpData *)w->data;
-
-    struct sockaddr_in remaddr; // remote address
-    socklen_t addr_len = sizeof(remaddr);
-    ssize_t recvlen = trudpUdpRecvfrom(td->fd, buffer, o.buf_size,
-            (__SOCKADDR_ARG)&remaddr, &addr_len);
-
-    // Process received packet
-    if(recvlen > 0) {
-        size_t data_length;
-        trudpChannelData *tcd = trudpCheckRemoteAddr(td, &remaddr, addr_len, 0);
-        trudpProcessChannelReceivedPacket(tcd, buffer, recvlen, &data_length);
-    }
+    //trudpData *td = (trudpData *)w->data;
+    trudpSendEvent(w->data, PROCESS_RECEIVE, buffer, o.buf_size, NULL);
 }
 
 /**
