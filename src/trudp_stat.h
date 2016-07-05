@@ -30,7 +30,7 @@
 #ifndef TRU_UDP_STAT_H
 #define TRU_UDP_STAT_H
 
-#include "tr-udp.h"
+#include "trudp.h"
 
 #ifdef __cplusplus
 extern "C" {
