@@ -20,9 +20,10 @@ AC_DEFINE_SUBST(LIBRARY_MAJOR_VERSION, 1, [TR-UDP dynamic library version])
 AC_DEFINE([PACKAGE_DESCRIPTION], ["TR-UDP library: Teonet Real time communications over UDP protocol"], [Application description])
 AC_DEFINE([PACKAGE_DEPENDENCIES], ["libev"], [Application dependencies])
 AC_DEFINE(COPYRIGHT, ["(c) Kirsoft Inc., 1996-2016"], [TR-UDP library copyright])
- AC_PREFIX_DEFAULT([/usr])
-AC_CONFIG_SRCDIR([src/trudp.c])
+
+AC_PREFIX_DEFAULT([/usr])
 AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_SRCDIR([src/trudp.c])
 AC_CONFIG_MACRO_DIR([m4])
 
 AC_USE_SYSTEM_EXTENSIONS
@@ -44,6 +45,10 @@ AC_PROG_MAKE_SET
 AC_PROG_RANLIB
 
 # Checks for libraries.
+# FIXME: Replace `main' with a function in `-lcunit':
+AC_CHECK_LIB([cunit], [main])
+# FIXME: Replace `main' with a function in `-lev':
+AC_CHECK_LIB([ev], [main])
 
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h netdb.h stddef.h stdint.h stdlib.h string.h sys/ioctl.h sys/socket.h sys/time.h termios.h unistd.h])

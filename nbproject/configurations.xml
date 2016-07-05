@@ -217,7 +217,7 @@
         <rebuildPropChanged>false</rebuildPropChanged>
       </toolsSet>
       <flagsDictionary>
-        <element flagsID="0" commonFlags="-mtune=generic -march=x86-64 -g -g -O2"/>
+        <element flagsID="0" commonFlags="-g -g -O2"/>
         <element flagsID="1" commonFlags="-mtune=generic -march=x86-64 -g -g -O2 -O2"/>
         <element flagsID="2"
                  commonFlags="-mtune=generic -march=x86-64 -g -g -O2 -O2 -fPIC"/>
@@ -262,7 +262,12 @@
         <cTool>
           <incDir>
             <pElem>ci-build</pElem>
+            <pElem>.</pElem>
+            <pElem>src</pElem>
           </incDir>
+          <preprocessorList>
+            <Elem>HAVE_CONFIG_H</Elem>
+          </preprocessorList>
         </cTool>
       </folder>
       <folder path="0/src">
