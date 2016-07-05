@@ -10,9 +10,9 @@
 #include <unistd.h>
 #include <CUnit/Basic.h>
 
-#include "tr-udp.h"
+#include "trudp.h"
 #include "packet.h"   
-#include "tr-udp_stat.h"
+#include "trudp_stat.h"
 
 // For tests use only
 static inline uint32_t trudpGetNewId(trudpChannelData *td) {

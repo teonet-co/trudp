@@ -31,9 +31,9 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "tr-udp.h"
+#include "trudp.h"
 #include "packet.h"
-#include "tr-udp_stat.h"
+#include "trudp_stat.h"
 #include "packet_queue.h"
 
 /**

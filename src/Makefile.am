@@ -44,16 +44,16 @@ libtrudp_la_SOURCES = \
 	packet.c \
 	packet_queue.c \
 	queue.c \
-	tr-udp.c \
-	tr-udp_stat.c \
+	trudp.c \
+	trudp_stat.c \
 	udp.c \
 	utils.c \
 	write_queue.c
-	/teonet	
+	
 libtrudpincludedir=$(includedir)
 	
 nobase_libtrudpinclude_HEADERS = \
-	tr-udp.h
+	trudp.h
 
 libtrudp_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(LIBRARY_MAJOR_VERSION):0:0
 

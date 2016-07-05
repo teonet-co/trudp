@@ -43,9 +43,9 @@ extern int usleep (__useconds_t __useconds);
 #endif
 #include "snake.h"
 
-#include "tr-udp.h"
+#include "trudp.h"
 #include "utils_r.h"
-#include "tr-udp_stat.h"
+#include "trudp_stat.h"
 
 // Application version
 #define APP_VERSION "0.0.18"

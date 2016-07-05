@@ -16,8 +16,8 @@
         <in>packet.c</in>
         <in>packet_queue.c</in>
         <in>queue.c</in>
-        <in>tr-udp.c</in>
-        <in>tr-udp_stat.c</in>
+        <in>trudp.c</in>
+        <in>trudp_stat.c</in>
         <in>udp.c</in>
         <in>utils.c</in>
         <in>write_queue.c</in>
@@ -154,14 +154,6 @@
         </cTool>
       </item>
       <item path="src/queue.c" ex="false" tool="0" flavor2="2">
-        <cTool flags="0">
-        </cTool>
-      </item>
-      <item path="src/tr-udp.c" ex="false" tool="0" flavor2="2">
-        <cTool flags="0">
-        </cTool>
-      </item>
-      <item path="src/tr-udp_stat.c" ex="false" tool="0" flavor2="2">
         <cTool flags="0">
         </cTool>
       </item>
@@ -340,11 +332,11 @@
         <cTool flags="0">
         </cTool>
       </item>
-      <item path="src/tr-udp.c" ex="false" tool="0" flavor2="2">
+      <item path="src/trudp.c" ex="false" tool="0" flavor2="2">
         <cTool flags="0">
         </cTool>
       </item>
-      <item path="src/tr-udp_stat.c" ex="false" tool="0" flavor2="2">
+      <item path="src/trudp_stat.c" ex="false" tool="0" flavor2="0">
         <cTool flags="0">
         </cTool>
       </item>

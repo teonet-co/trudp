@@ -31,7 +31,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "tr-udp_stat.h"
+#include "trudp_stat.h"
 #include "utils_r.h"
 #include "utils.h"
 
