@@ -184,15 +184,15 @@ static inline uint32_t trudpMapHash(void *key, size_t key_length) {
  * @param key Key
  * @param key_length Key length
  * @param hash Hash of key
- * @param data_length [out] Pointer to returned data length (may be NULL in input)
+ * @param data_length [out] Pointer to returned data length (may be NULL)
  *
- * @return Pointer to Data of selected key or (void*)-1 if not found
+ * @return Pointer to Data of selected key or NULL if not found
  */
 static void *_trudpMapGet(trudpMapData *map, void *key, size_t key_length,
         uint32_t hash, size_t *data_length) {
 
-    void *data = (void*)-1;
-    *data_length = 0;
+    void *data = NULL; //(void*)-1;
+    if(data_length) *data_length = 0;
 
     int idx = hash % map->hash_map_size;
     trudpMapElementData *htd;
@@ -224,20 +224,20 @@ static void *_trudpMapGet(trudpMapData *map, void *key, size_t key_length,
  * Get first available element from hash table
  * 
  * @param map Pointer to trudpHashTdata
- * @param data_length [out] Pointer to returned data length (may be NULL in input)
+ * @param data_length [out] Pointer to returned data length (may be NULL)
  * 
  * @return Pointer to Data of first available element or (void*)-1 if not found
  */
 void *trudpMapGetFirst(trudpMapData *map, size_t *data_length) {
     
     void *data = (void*)-1;
+    if(data_length) *data_length = 0;
     
     trudpMapIterator *it = trudpMapIteratorNew(map);
     if(it != NULL) {
         trudpMapElementData *el;
         if((el = trudpMapIteratorNext(it))) {
-            size_t data_lenth;
-            data = trudpMapIteratorElementData(el, &data_lenth);
+            data = trudpMapIteratorElementData(el, data_length);
         }
         trudpMapIteratorDestroy(it);
     }
@@ -298,7 +298,7 @@ void *trudpMapAdd(trudpMapData *map, void *key, size_t key_length, void *data,
     size_t d_length;
     trudpQueueData *tqd;
     // Add data to map
-    if((tqd_data = _trudpMapGet(map, key, key_length, htd->hash, &d_length)) == (void*) -1) {
+    if(!(tqd_data = _trudpMapGet(map, key, key_length, htd->hash, &d_length))) {
         int idx = htd->hash % map->hash_map_size;
         tqd = trudpQueueAdd(map->q[idx], (void*)htd, htd_length);
         if(tqd) {
@@ -337,7 +337,7 @@ void *trudpMapAdd(trudpMapData *map, void *key, size_t key_length, void *data,
  * @param key_length Key length
  * @param data_length [out] Pointer to data length
  *
- * @return Data of selected key or (void*)-1 if not found
+ * @return Data of selected key (may be NULL) or (void*)-1 if not found
  */
 void *trudpMapGet(trudpMapData *map, void *key, size_t key_length,
         size_t *data_length) {
@@ -345,7 +345,8 @@ void *trudpMapGet(trudpMapData *map, void *key, size_t key_length,
     uint32_t hash = trudpMapHash(key, key_length);
     void *data = _trudpMapGet(map, key, key_length, hash, data_length);
 
-    return (void*)-1 || _trudpMapGetValueData(data, key_length)->data_length ? data : NULL;
+    return !data ? (void*)-1 : 
+           _trudpMapGetValueData(data, key_length)->data_length ? data : NULL;
 }
 
 /**
@@ -363,7 +364,7 @@ int trudpMapDelete(trudpMapData *map, void *key, size_t key_length) {
     size_t data_length;
     uint32_t hash = trudpMapHash(key, key_length);
     void *data = _trudpMapGet(map, key, key_length, hash, &data_length);
-    if(data != (void*)-1) {
+    if(data) {
         trudpMapElementData *mvd = _trudpMapGetValueData(data, key_length);
         trudpQueueData *tqd = _trudpMapValueDataToQueueData(mvd);
         int idx = mvd->hash % map->hash_map_size;
@@ -489,6 +490,6 @@ inline void *trudpMapIteratorElementKey(trudpMapElementData *el,
 inline void *trudpMapIteratorElementData(trudpMapElementData *el, 
         size_t *data_length) {
 
-    if(data_length ) *data_length = el->data_length;
+    if(data_length) *data_length = el->data_length;
     return el->data + el->key_length;
 }

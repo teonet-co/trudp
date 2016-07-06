@@ -222,7 +222,7 @@ typedef struct trudpStatChannelData {
 } trudpStatChannelData;   
 
 /**
- * Trudp channel Data Structure
+ * TR-UDP channel Data Structure
  */
 typedef struct trudpChannelData {
     
@@ -299,6 +299,8 @@ typedef struct trudpData {
 trudpData *trudpInit(int fd, int port, trudpEventCb event_cb, void *user_data);
 void trudpDestroy(trudpData* trudp);
 //trudpCb trudpSetCallback(trudpData *td, trudpCallbsckType type, trudpCb cb);
+trudpChannelData *trudpGetChannel(trudpData *td, __CONST_SOCKADDR_ARG addr, 
+        int channel);
 trudpChannelData *trudpCheckRemoteAddr(trudpData *td, struct sockaddr_in *remaddr, 
         socklen_t addr_length, int channel);
 int trudpProcessSendQueue(trudpData *td, uint64_t *next_et);
@@ -308,11 +310,15 @@ size_t trudpKeepConnection(trudpData *td);
 uint32_t trudpGetSendQueueTimeout(trudpData *td);
 void trudpSendEvent(trudpChannelData *tcd, int event, void *data,
         size_t data_length, void *user_data);
+void trudpDestroyChannelAll(trudpData *td);
+inline void trudpDestroyChannelAddr(trudpData *td, char *addr, int port, 
+        int channel);
 
-trudpChannelData *trudpNewChannel(trudpData *td, char *remote_address, int remote_port_i, int channel); // void *user_data, trudpDataCb processDataCb, trudpDataCb sendPacketCb);
+trudpChannelData *trudpNewChannel(trudpData *td, char *remote_address, 
+        int remote_port_i, int channel); 
 void trudpDestroyChannel(trudpChannelData *tcd);
-void trudpFreeChannel(trudpChannelData *tcd);
-void trudpResetChannel(trudpChannelData *tcd);
+//void trudpFreeChannel(trudpChannelData *tcd);
+inline void trudpResetChannel(trudpChannelData *tcd);
 size_t trudpSendData(trudpChannelData *tcd, void *data, size_t data_length);
 size_t trudpSendDataToAll(trudpData *td, void *data, size_t data_length);
 void trudpProcessReceive(trudpData *td, void *data, size_t data_length);
@@ -320,7 +326,7 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
         size_t packet_length, size_t *data_length);
 int trudpProcessChannelSendQueue(trudpChannelData *tcd, uint64_t ts,
         uint64_t *next_expected_time);
-char *trudpMakeKeyCannel(trudpChannelData *tcd);
+char *trudpMakeKeyChannel(trudpChannelData *tcd);
 
 char *trudpMakeKey(char *addr, int port, int channel, size_t *key_length);
 size_t trudpGetSendQueueMax(trudpData *td);

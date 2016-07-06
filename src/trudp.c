@@ -103,7 +103,7 @@ void trudpDestroy(trudpData* trudp) {
 }
 
 /**
- * Create trudp chanel
+ * Create trudp channel
  *
  * @param td Pointer to trudpData
  * @param remote_address
@@ -144,27 +144,11 @@ trudpChannelData *trudpNewChannel(trudpData *td, char *remote_address,
 }
 
 /**
- * Destroy trudp chanel
+ * Free trudp channel
  *
  * @param tcd Pointer to trudpChannelData
  */
-void trudpDestroyChannel(trudpChannelData *tcd) {
-
-    trudpFreeChannel(tcd);
-
-    int port;
-    size_t key_length;
-    char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd->remaddr, &port);
-    char *key = trudpMakeKey(addr, port, tcd->channel, &key_length);
-    trudpMapDelete(TD(tcd)->map, key, key_length);
-}
-
-/**
- * Free trudp chanel
- *
- * @param tcd Pointer to trudpChannelData
- */
-void trudpFreeChannel(trudpChannelData *tcd) {
+static void trudpFreeChannel(trudpChannelData *tcd) {
 
     TD(tcd)->stat.sendQueue.size_current -= trudpPacketQueueSize(tcd->sendQueue);
 
@@ -175,7 +159,62 @@ void trudpFreeChannel(trudpChannelData *tcd) {
 }
 
 /**
- * Reset trudp chanel
+ * Destroy trudp channel
+ *
+ * @param tcd Pointer to trudpChannelData
+ */
+void trudpDestroyChannel(trudpChannelData *tcd) {
+
+    if(tcd > 0) { // tcd && tcd != (void*) -1) {
+        
+        trudpFreeChannel(tcd);
+
+        int port;
+        size_t key_length;
+        char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd->remaddr, &port);
+        char *key = trudpMakeKey(addr, port, tcd->channel, &key_length);
+        trudpMapDelete(TD(tcd)->map, key, key_length);
+    }
+}
+
+/**
+ * Destroy all trudp channels
+ *
+ * @param tcd Pointer to trudpData
+ */
+void trudpDestroyChannelAll(trudpData *td) {
+    
+    trudpMapElementData *el;
+    trudpMapIterator *it;
+    if((it = trudpMapIteratorNew(td->map))) {
+        while((el = trudpMapIteratorNext(it))) {
+            trudpChannelData *tcd = (trudpChannelData *)
+                    trudpMapIteratorElementData(el, NULL);
+            
+            trudpDestroyChannel(tcd);
+        }
+        trudpMapIteratorDestroy(it);
+    }    
+}
+
+/**
+ * Destroy trudp channel by Address, port and channel number
+ *
+ * @param td Pointer to trudpData
+ * @param addr String with IP address
+ * @param port Port number
+ * @param channel Cannel number 0-15
+ */
+inline void trudpDestroyChannelAddr(trudpData *td, char *addr, int port, 
+        int channel) {
+    
+        size_t key_length;
+        char *key = trudpMakeKey(addr, port, channel, &key_length);
+        trudpDestroyChannel(trudpMapGet(td->map, key, key_length, NULL));    
+}
+
+/**
+ * Reset trudp channel
  *
  * @param tcd Pointer to trudpChannelData
  */
@@ -480,15 +519,17 @@ static inline void trudpSendACKtoPING(trudpChannelData *tcd, void *packet) {
  */
 static inline void trudpSendRESET(trudpChannelData *tcd, void* data, size_t data_length) {
 
-    trudpSendEvent(tcd, SEND_RESET, data, data_length, NULL);
-    
-    void *packetRESET = trudpPacketRESETcreateNew(trudpGetNewId(tcd), tcd->channel);
-    #if !USE_WRITE_QUEUE
-    trudpSendEvent(tcd, PROCESS_SEND, packetRESET, trudpPacketRESETlength(), NULL);
-    #else
-    trudpWriteQueueAdd(tcd->writeQueue, packetRESET, NULL, trudpPacketRESETlength());
-    #endif
-    trudpPacketCreatedFree(packetRESET);
+    if(tcd) {
+        trudpSendEvent(tcd, SEND_RESET, data, data_length, NULL);
+
+        void *packetRESET = trudpPacketRESETcreateNew(trudpGetNewId(tcd), tcd->channel);
+        #if !USE_WRITE_QUEUE
+        trudpSendEvent(tcd, PROCESS_SEND, packetRESET, trudpPacketRESETlength(), NULL);
+        #else
+        trudpWriteQueueAdd(tcd->writeQueue, packetRESET, NULL, trudpPacketRESETlength());
+        #endif
+        trudpPacketCreatedFree(packetRESET);
+    }
 }
 
 /**
@@ -1047,25 +1088,27 @@ size_t trudpGetReceiveQueueMax(trudpData *td) {
  * @param addr String with IP address
  * @param port Port number
  * @param channel Cannel number 0-15
- * @param key_length [out] Keys length
+ * @param key_length [out] Pointer to keys length (may be NULL)
  *
  * @return Static buffer with key ip:port:channel
  */
 char *trudpMakeKey(char *addr, int port, int channel, size_t *key_length) {
 
     static char buf[MAX_KEY_LENGTH];
-    *key_length = snprintf(buf, MAX_KEY_LENGTH, "%s:%u:%u", addr, port, channel);
+    size_t kl = snprintf(buf, MAX_KEY_LENGTH, "%s:%u:%u", addr, port, channel);
+    if(key_length) *key_length = kl;
 
     return buf;
 }
 
 /**
  * Make key from channel data
+ * 
  * @param tcd Pointer to trudpChannelData
  *
  * @return Static buffer with key ip:port:channel
  */
-char *trudpMakeKeyCannel(trudpChannelData *tcd) {
+char *trudpMakeKeyChannel(trudpChannelData *tcd) {
 
     int port;
     size_t key_length;
@@ -1086,17 +1129,36 @@ trudpChannelData *trudpCheckRemoteAddr(trudpData *td,
 
     int port;
     size_t data_length, key_length;
-    char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)remaddr, &port);
-    char *key = trudpMakeKey(addr, port, channel, &key_length);
+    char *addr_str = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)remaddr, &port);
+    char *key = trudpMakeKey(addr_str, port, channel, &key_length);
     trudpChannelData *tcd = (trudpChannelData *)trudpMapGet(td->map, key,
             key_length, &data_length);
     if(tcd == (void*)-1) {
-        tcd = trudpNewChannel(td, addr, port, channel);
+        tcd = trudpNewChannel(td, addr_str, port, channel);
         // Send event
         trudpSendEvent(tcd, CONNECTED, NULL, 0, NULL);        
     }
     tcd->connected_f = 1;
 
+    return tcd;
+}
+
+/**
+ * Get trudpChannelData by socket address and channel number 
+ * @param td
+ * @param addr
+ * @return 
+ */
+trudpChannelData *trudpGetChannel(trudpData *td, __CONST_SOCKADDR_ARG addr, 
+        int channel) {
+
+    int port;
+    size_t data_length, key_length;
+    char *addr_str = trudpUdpGetAddr(addr, &port);
+    char *key = trudpMakeKey(addr_str, port, channel, &key_length);
+    trudpChannelData *tcd = (trudpChannelData *)trudpMapGet(td->map, key,
+        key_length, &data_length);
+    
     return tcd;
 }
 
