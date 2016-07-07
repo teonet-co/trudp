@@ -721,7 +721,9 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
                 // Create ACK packet and send it back to sender
                 trudpSendACK(tcd, packet);
                 
+                // Reset when wait packet with id 0 and receive packet with another id
                 if(!tcd->receiveExpectedId && trudpPacketGetId(packet)) {
+                                    
                     // Send event
                     uint32_t id = trudpPacketGetId(packet);
                     trudpSendEvent(tcd, SEND_RESET, NULL, 0, NULL);
