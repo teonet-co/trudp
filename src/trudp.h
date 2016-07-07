@@ -104,6 +104,7 @@ typedef enum trudpEvent {
      * @param user_data NULL
      */
     CONNECTED,
+            
     /**
      * TR-UDP channel disconnected event
      * @param data Last packet received
@@ -111,6 +112,7 @@ typedef enum trudpEvent {
      * @param user_data NULL
      */
     DISCONNECTED,
+            
     /**
      * Got TR-UDP reset packet
      * @param data NULL
@@ -118,6 +120,7 @@ typedef enum trudpEvent {
      * @param user_data NULL
      */
     GOT_RESET,
+            
     /**
      * Send TR-UDP reset packet
      * @param data Pointer to uint32_t send id or NULL if received id = 0
@@ -125,6 +128,7 @@ typedef enum trudpEvent {
      * @param user_data NULL
      */
     SEND_RESET,
+            
     /**
      * Got ACK to reset command
      * @param data NULL
@@ -132,6 +136,7 @@ typedef enum trudpEvent {
      * @param user_data NULL
      */
     GOT_ACK_RESET,
+            
     /**
      * Got ACK to ping command
      * @param data Pointer to ping data (usually it is a string)
@@ -139,6 +144,7 @@ typedef enum trudpEvent {
      * @param user_data NULL
      */
     GOT_ACK_PING,
+            
     /**
      * Got PING command
      * @param data Pointer to ping data (usually it is a string)
@@ -146,6 +152,7 @@ typedef enum trudpEvent {
      * @param user_data NULL
      */
     GOT_PING,
+            
     /**
      * Got ACK command
      * @param data Pointer to ACK packet
@@ -153,6 +160,7 @@ typedef enum trudpEvent {
      * @param user_data NULL
      */
     GOT_ACK,
+            
     /**
      * Got DATA 
      * @param data Pointer to data
@@ -160,6 +168,7 @@ typedef enum trudpEvent {
      * @param user_data NULL
      */
     GOT_DATA,
+            
     /**
      * Process received data
      * @param tcd Pointer to trudpData
@@ -168,6 +177,15 @@ typedef enum trudpEvent {
      * @param user_data NULL
      */ 
     PROCESS_RECEIVE,
+
+    /** Process received not TR-UDP data
+     * @param tcd Pointer to trudpData
+     * @param data Pointer to receive buffer
+     * @param data_length Receive buffer length
+     * @param user_data NULL            
+     */ 
+    PROCESS_RECEIVE_NO_TRUDP,
+            
     /** Process send data
      * @param data Pointer to send data
      * @param data_length Length of send
