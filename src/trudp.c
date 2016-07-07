@@ -598,7 +598,9 @@ void trudpProcessReceive(trudpData *td, void *data, size_t data_length) {
     if(recvlen > 0) {
         size_t data_length;
         trudpChannelData *tcd = trudpCheckRemoteAddr(td, &remaddr, addr_len, 0);
-        trudpProcessChannelReceivedPacket(tcd, data, recvlen, &data_length);
+        if(trudpProcessChannelReceivedPacket(tcd, data, recvlen, &data_length) == (void *)-1) {
+            trudpSendEvent(tcd, PROCESS_RECEIVE_NO_TRUDP, data, recvlen, NULL);
+        }
     }
 }            
             
