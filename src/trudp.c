@@ -860,7 +860,6 @@ static int trudpCheckChannelDisconnect(trudpChannelData *tcd, uint64_t ts) {
         uint32_t lastReceived = ts - tcd->lastReceived;        
         trudpSendEvent(tcd, DISCONNECTED,
             &lastReceived, sizeof(lastReceived), NULL);
-        trudpDestroyChannel(tcd);
         return -1;
     }
     return 0;
