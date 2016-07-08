@@ -98,6 +98,18 @@ typedef union trudpCb {
 typedef enum trudpEvent {
     
     /**
+     * Initialize TR-UDP event
+     * @param td Pointer to trudpData
+     */ 
+    INITIALIZE,
+    
+    /**
+     * Destroy TR-UDP event
+     * @param td Pointer to trudpData
+     */ 
+    DESTROY,
+    
+    /**
      * TR-UDP channel disconnected event
      * @param data NULL
      * @param data_length 0
@@ -296,15 +308,13 @@ typedef struct trudpData {
 
     uint32_t trudp_data_label[2]; ///< Labele to distinguish trudpData and trudpChannelData
     trudpMapData *map; ///< Channels map (key: ip:port:channel)
+    void* process_send_queue_data; ///< Send queue process data (used in external event loop)
     void* user_data; ///< User data
     int port; ///< Port
     int fd; ///< File descriptor
                  
     // Callback
-//    trudpDataCb processDataCb;
-//    trudpDataCb processAckCb;
     trudpEventCb evendCb;
-//    trudpDataCb sendCb;       
     
     // Statistic
     trudpStatData stat;

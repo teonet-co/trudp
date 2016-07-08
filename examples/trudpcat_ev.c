@@ -635,7 +635,7 @@ static void process_send_queue_cb(EV_P_ ev_timer *w, int revents) {
     // Process send queue
     debug("process send queue ... \n");
     uint64_t next_expected_time;
-    /*int rv = */trudpProcessSendQueue(psd->td, &next_expected_time);
+    trudpProcessSendQueue(psd->td, &next_expected_time);
 
     // Start new process_send_queue timer
     if(next_expected_time)
@@ -660,12 +660,12 @@ static void start_send_queue_cb(process_send_queue_data *psd,
     }
 
     // If next_expected_time (net) or GetSendQueueTimeout
-    if((tt = next_et != UINT64_MAX ? next_et : trudpGetSendQueueTimeout(psd->td)) != UINT64_MAX) {
+    if((tt = (next_et != UINT64_MAX) ? next_et : trudpGetSendQueueTimeout(psd->td)) != UINT32_MAX) {
 
         double tt_d = tt / 1000000.0;
 
         if(!psd->inited) {
-            ev_timer_init(&psd->process_send_queue_w, process_send_queue_cb, 0.0, 0.0);
+            ev_timer_init(&psd->process_send_queue_w, process_send_queue_cb, tt_d, 0.0);
             psd->process_send_queue_w.data = (void*)psd;
             psd->inited = 1;
         }

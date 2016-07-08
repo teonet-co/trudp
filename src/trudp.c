@@ -71,6 +71,7 @@ trudpData *trudpInit(int fd, int port, trudpEventCb event_cb, void *user_data) {
     memset(trudp, 0, sizeof(trudpData));
 
     trudp->map = trudpMapNew(MAP_SIZE_DEFAULT, 1);
+    trudp->process_send_queue_data = NULL;
     trudp->user_data = user_data;
     trudp->port = port;
     trudp->fd = fd;
@@ -86,6 +87,9 @@ trudpData *trudpInit(int fd, int port, trudpEventCb event_cb, void *user_data) {
     trudp->trudp_data_label[0] = 0x77557755;
     trudp->trudp_data_label[1] = 0x55775577;
 
+    // Send INITIALIZE event
+    trudpSendEvent((void*)trudp, INITIALIZE, NULL, 0, NULL);
+    
     return trudp;
 }
 
@@ -96,7 +100,8 @@ trudpData *trudpInit(int fd, int port, trudpEventCb event_cb, void *user_data) {
  */
 void trudpDestroy(trudpData* trudp) {
 
-    if(trudp) {
+    if(trudp) {        
+        trudpSendEvent((void*)trudp, DESTROY, NULL, 0, NULL);
         trudpMapDestroy(trudp->map);
         free(trudp);
     }
