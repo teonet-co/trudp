@@ -261,7 +261,7 @@ int isWritable(int sd, uint32_t timeOut) {
     usecToTv(&tv, timeOut);
 
     rv = select(sd + 1, NULL, &socketWriteSet, NULL, &tv);
-    if(rv <= 0) printf("isWritable timeout\n");
+    //if(rv <= 0) printf("isWritable timeout\n");
 
     return rv;
 }
