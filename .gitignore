@@ -49,4 +49,5 @@
 /trudp_0.*
 /libtrudp_0.*
 *.Po
+*.Plo
 .deps
