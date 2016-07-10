@@ -64,36 +64,36 @@ typedef enum trudpPacketType {
 
 } trudpPacketType;
 
-inline int trudpPacketCheck(void *th, size_t packetLength);
+int trudpPacketCheck(void *th, size_t packetLength);
 
-inline void *trudpPacketACKcreateNew(void *in_th);
-inline void *trudpPacketACKtoRESETcreateNew(void *in_th);
-inline void *trudpPacketACKtoPINGcreateNew(void *in_th);
-inline void *trudpPacketRESETcreateNew(uint32_t id, unsigned int channel);
-inline void *trudpPacketDATAcreateNew(uint32_t id, unsigned int channel, 
+void *trudpPacketACKcreateNew(void *in_th);
+void *trudpPacketACKtoRESETcreateNew(void *in_th);
+void *trudpPacketACKtoPINGcreateNew(void *in_th);
+void *trudpPacketRESETcreateNew(uint32_t id, unsigned int channel);
+void *trudpPacketDATAcreateNew(uint32_t id, unsigned int channel, 
         void *data, size_t data_length, size_t *packetLength);
-inline void *trudpPacketPINGcreateNew(uint32_t id, unsigned int channel,
+void *trudpPacketPINGcreateNew(uint32_t id, unsigned int channel,
         void *data, size_t data_length, size_t *packetLength);
 
-inline size_t trudpPacketACKlength();
-inline size_t trudpPacketRESETlength();
+size_t trudpPacketACKlength();
+size_t trudpPacketRESETlength();
 
-inline uint32_t trudpPacketGetId(void *packet);
-inline int trudpPacketGetChannel(void *packet);
-inline int trudpPacketSetChannel(void *packet, int channel);
-inline void *trudpPacketGetData(void *packet);
-inline uint16_t trudpPacketGetDataLength(void *packet);
-inline size_t trudpPacketGetHeaderLength(void *packet);
-inline void *trudpPacketGetPacket(void *data);
-inline size_t trudpPacketGetPacketLength(void *packet);
-inline trudpPacketType trudpPacketGetType(void *packet);
-inline void trudpPacketSetType(void *packet, trudpPacketType message_type);
-inline uint32_t trudpPacketGetTimestamp(void *packet);
+uint32_t trudpPacketGetId(void *packet);
+int trudpPacketGetChannel(void *packet);
+int trudpPacketSetChannel(void *packet, int channel);
+void *trudpPacketGetData(void *packet);
+uint16_t trudpPacketGetDataLength(void *packet);
+size_t trudpPacketGetHeaderLength(void *packet);
+void *trudpPacketGetPacket(void *data);
+size_t trudpPacketGetPacketLength(void *packet);
+trudpPacketType trudpPacketGetType(void *packet);
+void trudpPacketSetType(void *packet, trudpPacketType message_type);
+uint32_t trudpPacketGetTimestamp(void *packet);
 
-inline void trudpPacketCreatedFree(void *in_th);
+void trudpPacketCreatedFree(void *in_th);
 
-inline uint64_t /*unsigned long long*/ trudpGetTimestampFull();
-inline uint32_t trudpGetTimestamp();
+uint64_t /*unsigned long long*/ trudpGetTimestampFull();
+uint32_t trudpGetTimestamp();
 
 #ifdef __cplusplus
 }

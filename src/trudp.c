@@ -518,7 +518,8 @@ static inline void trudpSendACKtoPING(trudpChannelData *tcd, void *packet) {
  * Create RESET packet and send it to sender
  *
  * @param tcd Pointer to trudpChannelData
- * @param packet Pointer to received packet
+ * @param data NULL
+ * @param data_length 0
  */
 static inline void trudpSendRESET(trudpChannelData *tcd, void* data, size_t data_length) {
 
@@ -533,6 +534,15 @@ static inline void trudpSendRESET(trudpChannelData *tcd, void* data, size_t data
         #endif
         trudpPacketCreatedFree(packetRESET);
     }
+}
+
+/**
+ * Create RESET packet and send it to sender
+ * 
+ * @param tcd Pointer to trudpChannelData
+ */
+inline void trudpSendResetChannel(trudpChannelData *tcd) {
+    trudpSendRESET(tcd, NULL, 0);
 }
 
 /**
@@ -1160,9 +1170,10 @@ trudpChannelData *trudpCheckRemoteAddr(trudpData *td,
 
 /**
  * Get trudpChannelData by socket address and channel number
- * @param td
- * @param addr
- * @return
+ * @param td Pointer to trudpData
+ * @param addr Pointer to address structure
+ * 
+ * @return Pointer to trudpChannelData or (void*)-1 if not found
  */
 trudpChannelData *trudpGetChannel(trudpData *td, __CONST_SOCKADDR_ARG addr,
         int channel) {

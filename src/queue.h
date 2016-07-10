@@ -79,7 +79,7 @@ int trudpQueueDestroy(trudpQueue *q);
 int trudpQueueFree(trudpQueue *q);
 
 trudpQueueData *trudpQueueAdd(trudpQueue *q, void *data, size_t data_length);
-inline trudpQueueData *trudpQueueAddTop(trudpQueue *q, void *data, 
+trudpQueueData *trudpQueueAddTop(trudpQueue *q, void *data, 
         size_t data_length);
 trudpQueueData *trudpQueueAddAfter(trudpQueue *q, void *data, size_t data_length, 
         trudpQueueData *qd);

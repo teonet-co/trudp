@@ -43,11 +43,11 @@ typedef enum trudpStatType {
             
 } trudpStatType;    
     
-inline trudpStatData *trudpStatInit(trudpData *td);
-inline trudpStatData *trudpStatReset(trudpData *td);
+trudpStatData *trudpStatInit(trudpData *td);
+trudpStatData *trudpStatReset(trudpData *td);
 
-inline void trudpStatChannelInit(trudpChannelData *tcd);
-inline void trudpStatChannelReset(trudpChannelData *tcd);
+void trudpStatChannelInit(trudpChannelData *tcd);
+void trudpStatChannelReset(trudpChannelData *tcd);
 
 void trudpStatProcessLast10Send(trudpChannelData *tcd, void *packet, size_t send_data_length);
 void trudpStatProcessLast10Receive(trudpChannelData *tcd, void *packet);

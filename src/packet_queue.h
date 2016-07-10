@@ -53,20 +53,20 @@ typedef struct trudpPacketQueueData {
 
 } trudpPacketQueueData;
 
-inline trudpPacketQueue *trudpPacketQueueNew();
-inline void trudpPacketQueueDestroy(trudpPacketQueue *tq);
-inline int trudpPacketQueueFree(trudpPacketQueue *tq);
+trudpPacketQueue *trudpPacketQueueNew();
+void trudpPacketQueueDestroy(trudpPacketQueue *tq);
+int trudpPacketQueueFree(trudpPacketQueue *tq);
 
-inline size_t trudpPacketQueueSize(trudpPacketQueue *tq);
-inline trudpQueueData *trudpPacketQueueDataToQueueData(trudpPacketQueueData *tqd);
+size_t trudpPacketQueueSize(trudpPacketQueue *tq);
+trudpQueueData *trudpPacketQueueDataToQueueData(trudpPacketQueueData *tqd);
 
 trudpPacketQueueData *trudpPacketQueueAdd(trudpPacketQueue *tq, 
         void *packet, size_t packet_length, uint64_t expected_time);
 trudpPacketQueueData *trudpPacketQueueAddTime(trudpPacketQueue *tq, 
         void *packet, size_t packet_length, uint64_t expected_time);
-inline trudpPacketQueueData *trudpPacketQueueMoveToEnd(trudpPacketQueue *tq,
+trudpPacketQueueData *trudpPacketQueueMoveToEnd(trudpPacketQueue *tq,
         trudpPacketQueueData *tqd);
-inline int trudpPacketQueueDelete(trudpPacketQueue *tq, trudpPacketQueueData *tqd);
+int trudpPacketQueueDelete(trudpPacketQueue *tq, trudpPacketQueueData *tqd);
 trudpPacketQueueData *trudpPacketQueueFindById(trudpPacketQueue *tq, uint32_t id);
 trudpPacketQueueData *trudpPacketQueueFindByTime(trudpPacketQueue *tq, uint64_t t);
 trudpPacketQueueData *trudpPacketQueueGetFirst(trudpPacketQueue *tq);

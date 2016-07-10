@@ -339,14 +339,14 @@ uint32_t trudpGetSendQueueTimeout(trudpData *td);
 void trudpSendEvent(trudpChannelData *tcd, int event, void *data,
         size_t data_length, void *user_data);
 void trudpDestroyChannelAll(trudpData *td);
-inline void trudpDestroyChannelAddr(trudpData *td, char *addr, int port, 
+void trudpDestroyChannelAddr(trudpData *td, char *addr, int port, 
         int channel);
 
 trudpChannelData *trudpNewChannel(trudpData *td, char *remote_address, 
         int remote_port_i, int channel); 
 void trudpDestroyChannel(trudpChannelData *tcd);
 //void trudpFreeChannel(trudpChannelData *tcd);
-inline void trudpResetChannel(trudpChannelData *tcd);
+void trudpResetChannel(trudpChannelData *tcd);
 size_t trudpSendData(trudpChannelData *tcd, void *data, size_t data_length);
 size_t trudpSendDataToAll(trudpData *td, void *data, size_t data_length);
 void trudpProcessReceive(trudpData *td, void *data, size_t data_length);
@@ -359,6 +359,7 @@ char *trudpMakeKeyChannel(trudpChannelData *tcd);
 char *trudpMakeKey(char *addr, int port, int channel, size_t *key_length);
 size_t trudpGetSendQueueMax(trudpData *td);
 size_t trudpGetReceiveQueueMax(trudpData *td);
+void trudpSendResetChannel(trudpChannelData *tcd);
 
 #ifdef __cplusplus
 }
