@@ -1138,6 +1138,45 @@ char *trudpMakeKeyChannel(trudpChannelData *tcd) {
 }
 
 /**
+ * Get trudpChannelData by address, port and channel number
+ * 
+ * @param td Pointer to trudpData
+ * @param addr Pointer to address string
+ * @param port Port number
+ * @param channel Channel number
+ * 
+ * @return Pointer to trudpChannelData or (void*)-1 if not found
+ */
+trudpChannelData *trudpGetChannelAddr(trudpData *td, char *addr, int port,
+        int channel) {
+
+    size_t data_length, key_length;
+    char *key = trudpMakeKey(addr, port, channel, &key_length);
+    trudpChannelData *tcd = (trudpChannelData *)trudpMapGet(td->map, key,
+        key_length, &data_length);
+
+    return tcd;
+}
+
+/**
+ * Get trudpChannelData by socket address and channel number
+ * 
+ * @param td Pointer to trudpData
+ * @param addr Pointer to address structure
+ * @param channel Channel number
+ * 
+ * @return Pointer to trudpChannelData or (void*)-1 if not found
+ */
+trudpChannelData *trudpGetChannel(trudpData *td, __CONST_SOCKADDR_ARG addr,
+        int channel) {
+
+    int port;
+    char *addr_str = trudpUdpGetAddr(addr, &port);
+
+    return trudpGetChannelAddr(td, addr_str, port, channel);
+}
+
+/**
  * Save check remote address and select or create new trudpChannelData
  *
  * @param td Pointer to trudpData
@@ -1151,11 +1190,8 @@ trudpChannelData *trudpCheckRemoteAddr(trudpData *td,
         struct sockaddr_in *remaddr, socklen_t addr_length, int channel) {
 
     int port;
-    size_t data_length, key_length;
-    char *addr_str = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)remaddr, &port);
-    char *key = trudpMakeKey(addr_str, port, channel, &key_length);
-    trudpChannelData *tcd = (trudpChannelData *)trudpMapGet(td->map, key,
-            key_length, &data_length);
+    char *addr_str = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)remaddr, &port);    
+    trudpChannelData *tcd = trudpGetChannelAddr(td, addr_str, port, channel);
 
     if(tcd == (void*)-1) {
         tcd = trudpNewChannel(td, addr_str, port, channel);
@@ -1164,26 +1200,6 @@ trudpChannelData *trudpCheckRemoteAddr(trudpData *td,
     }
 
     if(tcd != (void*)-1) tcd->connected_f = 1;
-
-    return tcd;
-}
-
-/**
- * Get trudpChannelData by socket address and channel number
- * @param td Pointer to trudpData
- * @param addr Pointer to address structure
- * 
- * @return Pointer to trudpChannelData or (void*)-1 if not found
- */
-trudpChannelData *trudpGetChannel(trudpData *td, __CONST_SOCKADDR_ARG addr,
-        int channel) {
-
-    int port;
-    size_t data_length, key_length;
-    char *addr_str = trudpUdpGetAddr(addr, &port);
-    char *key = trudpMakeKey(addr_str, port, channel, &key_length);
-    trudpChannelData *tcd = (trudpChannelData *)trudpMapGet(td->map, key,
-        key_length, &data_length);
 
     return tcd;
 }
