@@ -639,12 +639,17 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
             // ACK to DATA packet received
             case TRU_ACK: {
 
-                // Remove packet from send queue
+                // Find packet in send queue by id
                 size_t send_data_length = 0;
                 trudpPacketQueueData *tpqd = trudpPacketQueueFindById(
                     tcd->sendQueue, trudpPacketGetId(packet)
                 );
                 if(tpqd) {
+                                        
+                    // Process ACK data callback                    
+                    trudpSendEvent(tcd, GOT_ACK, tpqd->packet, tpqd->packet_length, NULL);
+
+                    // Remove packet from send queue
                     send_data_length = trudpPacketGetDataLength(tpqd->packet);
                     trudpPacketQueueDelete(tcd->sendQueue, tpqd);
                     TD(tcd)->stat.sendQueue.size_current--;
@@ -653,9 +658,6 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
                 // Calculate triptime
                 trudpCalculateTriptime(tcd, packet, send_data_length);
                 trudpSetLastReceived(tcd);
-
-                // Process ACK data callback
-                trudpSendEvent(tcd, GOT_ACK, packet, packet_length, NULL);
 
                 // Reset if id is too big and send queue is empty
                 //goto skip_reset_after_id;
