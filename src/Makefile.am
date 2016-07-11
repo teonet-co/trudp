@@ -10,7 +10,9 @@ AM_CPPFLAGS = \
 
 AM_CFLAGS = \
 	 -g -Wall \
-	 -fPIC	  
+	 -fPIC \
+	 -I$(HOME)/Projects/teonet/embedded/libtrudp/src \
+	 -I/usr/include/libtrudp
 	
 #	 -std=c11 
 #	 -I$(HOME)/Projects/teonet/src/ 
@@ -18,7 +20,9 @@ AM_CFLAGS = \
 AM_CXX = clang++
 AM_CXXFLAGS = \
          -g -Wall \
-	 -fPIC
+	 -fPIC \
+	 -I$(HOME)/Projects/teonet/embedded/libtrudp/src \
+	 -I/usr/include/libtrudp
 
 #	 -std=c++11 
 #	 -I$(HOME)/Projects/teonet/src/

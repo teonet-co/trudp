@@ -331,8 +331,7 @@ trudpChannelData *trudpGetChannel(trudpData *td, __CONST_SOCKADDR_ARG addr,
         int channel);
 trudpChannelData *trudpGetChannelAddr(trudpData *td, char *addr, int port,
         int channel);
-trudpChannelData *trudpCheckRemoteAddr(trudpData *td, struct sockaddr_in *remaddr, 
-        socklen_t addr_length, int channel);
+trudpChannelData *trudpCheckRemoteAddr(trudpData *td, struct sockaddr_in *remaddr, int channel);
 int trudpProcessSendQueue(trudpData *td, uint64_t *next_et);
 size_t trudpProcessWriteQueue(trudpData *td);
 void trudpSendResetAll(trudpData *td);

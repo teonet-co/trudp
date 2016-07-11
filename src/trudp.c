@@ -610,7 +610,7 @@ void trudpProcessReceive(trudpData *td, void *data, size_t data_length) {
     // Process received packet
     if(recvlen > 0) {
         size_t data_length;
-        trudpChannelData *tcd = trudpCheckRemoteAddr(td, &remaddr, addr_len, 0);
+        trudpChannelData *tcd = trudpCheckRemoteAddr(td, &remaddr, 0);
         if(tcd == (void *)-1 ||
            trudpProcessChannelReceivedPacket(tcd, data, recvlen, &data_length) == (void *)-1) {
 
@@ -1187,7 +1187,7 @@ trudpChannelData *trudpGetChannel(trudpData *td, __CONST_SOCKADDR_ARG addr,
  * @return Pointer to trudpChannelData or (void*)-1 at error
  */
 trudpChannelData *trudpCheckRemoteAddr(trudpData *td,
-        struct sockaddr_in *remaddr, socklen_t addr_length, int channel) {
+        struct sockaddr_in *remaddr, int channel) {
 
     int port;
     char *addr_str = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)remaddr, &port);    
