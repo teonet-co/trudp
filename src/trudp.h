@@ -57,6 +57,7 @@ extern "C" {
  * Get pointer to trudpData from trudpChannelData
  */    
 #define TD(tcd) ((trudpData*)tcd->td)    
+#define TD_P(td) ((trudpData*)td)
     
 /**
  * Data received/send callback
