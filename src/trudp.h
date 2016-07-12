@@ -327,7 +327,6 @@ typedef struct trudpData {
 
 trudpData *trudpInit(int fd, int port, trudpEventCb event_cb, void *user_data);
 void trudpDestroy(trudpData* trudp);
-//trudpCb trudpSetCallback(trudpData *td, trudpCallbsckType type, trudpCb cb);
 trudpChannelData *trudpGetChannel(trudpData *td, __CONST_SOCKADDR_ARG addr, 
         int channel);
 trudpChannelData *trudpGetChannelAddr(trudpData *td, char *addr, int port,
