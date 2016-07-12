@@ -902,10 +902,6 @@ int main(int argc, char** argv) {
     // 1) Initialize TR-UDP
     trudpData *td = trudpInit(fd, port, eventCb, NULL);
 
-    // 2) Set callback functions
-//    trudpSetCallback(td, SEND, (trudpCb)sendPacketCb);
-//    trudpSetCallback(td, EVENT, (trudpCb)eventCb);
-
     // Create messages
     #define SEND_BUFFER_SIZE 1024 * 1
     char hello_c[SEND_BUFFER_SIZE] =  { "Hello TR-UDP from client!" } ;

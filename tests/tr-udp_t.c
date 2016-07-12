@@ -121,7 +121,6 @@ static void process_received_packet_test() {
     // Create TR-UDP
     trudpData *td = trudpInit(0, 0, 0, NULL);
     trudpChannelData *tcd = trudpNewChannel(td, "0", 8000, 0);
-//    trudpSetCallback(td, PROCESS_DATA, (trudpCb)trudpProcessDataCb);
     CU_ASSERT_PTR_NOT_NULL(tcd);
     
     // Create DATA packets 
@@ -235,17 +234,11 @@ static void send_process_received_packet_test() {
     // Create sender TR-UDP
     trudpData *td_A = trudpInit(0, 0, td_A_eventCb, "td_A");
     tcd_A = trudpNewChannel(td_A, "0", 8000, 0);
-//    trudpSetCallback(td_A, PROCESS_DATA, (trudpCb)trudpProcessDataCb);
-//    trudpSetCallback(td_A, SEND, (trudpCb)td_A_sendCb);
-//    trudpSetCallback(td_A, PROCESS_ACK, (trudpCb)trudpProcessAckCb);
     CU_ASSERT_PTR_NOT_NULL(tcd_A);
     
     // Create receiver TR-UDP
     trudpData *td_B = trudpInit(0, 0, td_B_eventCb, "td_B");
     tcd_B = trudpNewChannel(td_B, "0", 8001, 0);
-//    trudpSetCallback(td_B, PROCESS_DATA, (trudpCb)trudpProcessDataCb);
-//    trudpSetCallback(td_B, SEND, (trudpCb)td_B_sendCb);
-//    trudpSetCallback(td_B, PROCESS_ACK, (trudpCb)trudpProcessAckCb);
     CU_ASSERT_PTR_NOT_NULL(tcd_B);
     
     // Create DATA packets 
