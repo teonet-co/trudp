@@ -286,7 +286,7 @@ void trudpSendEvent(trudpChannelData *tcd, int event, void *data,
 static inline uint64_t trudpCalculateExpectedTime(trudpChannelData *tcd,
         uint64_t current_time) {
 
-    uint64_t expected_time = current_time + tcd->triptimeMiddle + 2 * MAX_RTT;
+    uint64_t expected_time = current_time + tcd->triptimeMiddle + MAX_RTT;
 
     if(tcd->sendQueue->q->last) {
         trudpPacketQueueData *pqd = (trudpPacketQueueData*) tcd->sendQueue->q->last->data;
@@ -675,7 +675,7 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
                    !trudpQueueSize(tcd->sendQueue->q) &&
                    !trudpQueueSize(tcd->receiveQueue->q) ) {
 
-                    // Send event
+                    // Send reset
                     trudpSendRESET(tcd, &tcd->sendId, sizeof(tcd->sendId));
                 }
                 //skip_reset_after_id: ;
@@ -693,6 +693,7 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
 
                 // Statistic
                 tcd->stat.ack_receive++;
+                trudpSetLastReceived(tcd);
 
             } break;
 
@@ -897,10 +898,11 @@ int trudpProcessChannelSendQueue(trudpChannelData *tcd, uint64_t ts,
     if((tqd = trudpPacketQueueGetFirst(tcd->sendQueue)) &&
             tqd->expected_time <= ts ) {
 
-        // Move and change records with expected time
-        tqd->expected_time = trudpCalculateExpectedTime(tcd, ts) + 100000 * tqd->retrieves;
-        //printf("start sq after %.3f\n", (tqd->expected_time - ts) / 1000.0);
-        trudpPacketQueueMoveToEnd(tcd->sendQueue, tqd);
+        // Change records expected time
+        tqd->expected_time = trudpCalculateExpectedTime(tcd, ts) + MAX_RTT * tqd->retrieves;
+        
+        // Move record to the end of Queue \todo don't move record to the end of queue because it should be send first
+        //trudpPacketQueueMoveToEnd(tcd->sendQueue, tqd);
         tcd->stat.packets_attempt++; // Attempt(repeat) statistic parameter increment
         if(!tqd->retrieves) tqd->retrieves_start = ts;
 
@@ -932,15 +934,22 @@ int trudpProcessChannelSendQueue(trudpChannelData *tcd, uint64_t ts,
 //            return -1;
 //        }
 //        skip_disconnect_on_max_retrives: ;
-
+        
         // Disconnect channel at long last receive
         if(trudpCheckChannelDisconnect(tcd, ts) == -1) {
             tqd = NULL;
             rv = -1;
         }
         else {
-            // Get next value
-            tqd = trudpPacketQueueGetFirst(tcd->sendQueue);
+                        
+            // \todo Reset this channel at long retransmit
+            if(ts - tqd->retrieves_start > MAX_LAST_RECEIVE) {
+                trudpSendRESET(tcd, NULL, 0);
+            }
+            else {
+                // Get next value \todo if don't move than not need to re-get it
+                //tqd = trudpPacketQueueGetFirst(tcd->sendQueue);
+            }
         }
     }
 

@@ -47,7 +47,7 @@ extern "C" {
 #define SEND_PING_AFTER 2500000   
 #define MAP_SIZE_DEFAULT 1000 // Default map size; map stored connected channels and can auto resize
 #define USE_WRITE_QUEUE 0 // Use write queue instead of direct write to socket
-#define MAX_RTT 50000 // 250000; This constant used in send queue expected time calculation
+#define MAX_RTT 100000 // 250000; This constant used in send queue expected time calculation
 
 //#define MIN_RETRIEVES_TIME 3 * 1000 * 1000   
 //#define SEND_QUEUE_MAX 500
