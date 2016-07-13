@@ -284,11 +284,12 @@ void trudpSendEvent(trudpChannelData *tcd, int event, void *data,
  * @return Current time plus
  */
 static inline uint64_t trudpCalculateExpectedTime(trudpChannelData *tcd,
-        uint64_t current_time) {
+        uint64_t current_time, int retransmit) {
 
     uint64_t expected_time = current_time + tcd->triptimeMiddle + MAX_RTT;
 
-    if(tcd->sendQueue->q->last) {
+    // \todo it was removed for retransmit records (after the send queue record was stopped moved to the end)
+    if(retransmit && tcd->sendQueue->q->last) {
         trudpPacketQueueData *pqd = (trudpPacketQueueData*) tcd->sendQueue->q->last->data;
         if(pqd->expected_time > expected_time) expected_time = pqd->expected_time;
     }
@@ -311,10 +312,10 @@ static size_t trudpSendPacket(trudpChannelData *tcd, void *packetDATA,
 
     // Save packet to send queue
     if(save_to_write_queue) {
-        /*tpqd = */trudpPacketQueueAdd(tcd->sendQueue,
+        trudpPacketQueueAdd(tcd->sendQueue,
             packetDATA,
             packetLength,
-            trudpCalculateExpectedTime(tcd, trudpGetTimestampFull())
+            trudpCalculateExpectedTime(tcd, trudpGetTimestampFull(), 0)
         );
         TD(tcd)->stat.sendQueue.size_current++;
     }
@@ -899,7 +900,7 @@ int trudpProcessChannelSendQueue(trudpChannelData *tcd, uint64_t ts,
             tqd->expected_time <= ts ) {
 
         // Change records expected time
-        tqd->expected_time = trudpCalculateExpectedTime(tcd, ts) + MAX_RTT * tqd->retrieves;
+        tqd->expected_time = trudpCalculateExpectedTime(tcd, ts, 1) + MAX_RTT * tqd->retrieves;
         
         // Move record to the end of Queue \todo don't move record to the end of queue because it should be send first
         //trudpPacketQueueMoveToEnd(tcd->sendQueue, tqd);
