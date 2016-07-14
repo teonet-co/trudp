@@ -45,7 +45,7 @@ extern "C" {
 #define MAX_TRIPTIME_MIDDLE 5757575 // Maximum number of Middle triptime
 #define MAX_LAST_RECEIVE MAX_TRIPTIME_MIDDLE // Disconnect after last receved packet time older than this constant
 #define SEND_PING_AFTER 2500000   
-#define MAP_SIZE_DEFAULT 1000 // Default map size; map stored connected channels and can auto resize
+#define MAP_SIZE_DEFAULT 100 // Default map size; map stored connected channels and can auto resize
 #define USE_WRITE_QUEUE 0 // Use write queue instead of direct write to socket
 #define MAX_RTT 100000 // 250000; This constant used in send queue expected time calculation
 #define RESET_AT_LONG_RETRANSMIT 0 // Send rest at long retransmit retrives time     
