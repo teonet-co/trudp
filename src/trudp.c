@@ -944,13 +944,17 @@ int trudpProcessChannelSendQueue(trudpChannelData *tcd, uint64_t ts,
         else {
                         
             // \todo Reset this channel at long retransmit
+            #if RESET_AT_LONG_RETRANSMIT
             if(ts - tqd->retrieves_start > MAX_LAST_RECEIVE) {
                 trudpSendRESET(tcd, NULL, 0);
             }
-            else {
-                // Get next value \todo if don't move than not need to re-get it
-                //tqd = trudpPacketQueueGetFirst(tcd->sendQueue);
+            else {                
+            #endif
+            // Get next value \todo if don't move than not need to re-get it
+            //tqd = trudpPacketQueueGetFirst(tcd->sendQueue);
+            #if RESET_AT_LONG_RETRANSMIT
             }
+            #endif
         }
     }
 
