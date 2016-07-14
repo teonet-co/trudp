@@ -579,9 +579,11 @@ static inline void trudpCalculateTriptime(trudpChannelData *tcd, void *packet,
     tcd->triptime = trudpGetTimestamp() - trudpPacketGetTimestamp(packet);
 
     // Calculate and set Middle Triptime value
-    tcd->triptimeMiddle = tcd->triptimeMiddle == START_MIDDLE_TIME ? tcd->triptime * tcd->triptimeFactor : // Set first middle time
+    tcd->triptimeMiddle = 
+        tcd->triptimeMiddle == START_MIDDLE_TIME ? tcd->triptime * tcd->triptimeFactor : // Set first middle time
         tcd->triptime > tcd->triptimeMiddle ? tcd->triptime * tcd->triptimeFactor : // Set middle time to max triptime
-            (tcd->triptimeMiddle * 19 + tcd->triptime) / 20.0; // Calculate middle value
+        (tcd->triptimeMiddle * 19 + tcd->triptime) / 20.0; // Calculate middle value
+    
     // Correct triptimeMiddle
     if(tcd->triptimeMiddle < tcd->triptime * tcd->triptimeFactor) tcd->triptimeMiddle = tcd->triptime * tcd->triptimeFactor;
     if(tcd->triptimeMiddle > tcd->triptime * 10) tcd->triptimeMiddle = tcd->triptime * 10;
@@ -658,7 +660,8 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
                 if(tpqd) {
                                         
                     // Process ACK data callback                    
-                    trudpSendEvent(tcd, GOT_ACK, tpqd->packet, tpqd->packet_length, NULL);
+                    trudpSendEvent(tcd, GOT_ACK, tpqd->packet, 
+                            tpqd->packet_length, NULL);
 
                     // Remove packet from send queue
                     send_data_length = trudpPacketGetDataLength(tpqd->packet);
@@ -742,7 +745,8 @@ void *trudpProcessChannelReceivedPacket(trudpChannelData *tcd, void *packet,
                 // Create ACK packet and send it back to sender
                 trudpSendACK(tcd, packet);
 
-                // Reset when wait packet with id 0 and receive packet with another id
+                // Reset when wait packet with id 0 and receive packet with 
+                // another id
                 if(!tcd->receiveExpectedId && trudpPacketGetId(packet)) {
 
                     // Send event
@@ -900,11 +904,13 @@ int trudpProcessChannelSendQueue(trudpChannelData *tcd, uint64_t ts,
             tqd->expected_time <= ts ) {
 
         // Change records expected time
-        tqd->expected_time = trudpCalculateExpectedTime(tcd, ts, 1) + MAX_RTT * tqd->retrieves;
+        tqd->expected_time = trudpCalculateExpectedTime(tcd, ts, 1) + 
+                MAX_RTT * tqd->retrieves;
         
-        // Move record to the end of Queue \todo don't move record to the end of queue because it should be send first
+        // Move record to the end of Queue \todo don't move record to the end of 
+        // queue because it should be send first
         //trudpPacketQueueMoveToEnd(tcd->sendQueue, tqd);
-        tcd->stat.packets_attempt++; // Attempt(repeat) statistic parameter increment
+        tcd->stat.packets_attempt++; // Attempt statistic parameter increment
         if(!tqd->retrieves) tqd->retrieves_start = ts;
 
         tqd->retrieves++;
@@ -918,7 +924,7 @@ int trudpProcessChannelSendQueue(trudpChannelData *tcd, uint64_t ts,
         #endif
 
         // Disconnect at max retrieves
-//        goto skip_disconnect_on_max_retrives;
+//        goto skip_disconnect_on_max_retrieves;
 //        if(tqd->retrieves > MAX_RETRIEVES ||
 //           ts - tqd->retrieves_start > MAX_TRIPTIME_MIDDLE ) {
 //
@@ -934,7 +940,7 @@ int trudpProcessChannelSendQueue(trudpChannelData *tcd, uint64_t ts,
 //            //exit(-1);
 //            return -1;
 //        }
-//        skip_disconnect_on_max_retrives: ;
+//        skip_disconnect_on_max_retrieves: ;
         
         // Disconnect channel at long last receive
         if(trudpCheckChannelDisconnect(tcd, ts) == -1) {
@@ -993,7 +999,7 @@ int trudpProcessSendQueue(trudpData *td, uint64_t *next_et) {
             }
             trudpMapIteratorDestroy(it);
         }
-    } while(retval == -1 || (retval > 0 && /*min_expected_time != UINT64_MAX &&*/ min_expected_time <= ts));
+    } while(retval == -1 || (retval > 0 && min_expected_time <= ts));
 
     if(next_et) *next_et = (min_expected_time != UINT64_MAX) ? min_expected_time : 0;
 
@@ -1020,8 +1026,10 @@ size_t trudpSendDataToAll(trudpData *td, void *data, size_t data_length) {
             trudpChannelData *tcd = (trudpChannelData *)
                     trudpMapIteratorElementData(el, NULL);
 
-            if(tcd->connected_f) {
-                if(tcd->sendQueue->q->length < 100) { // drop packets if send queue > 100 \todo move it to Send Data function or something else
+            if(tcd->connected_f) {                
+                // drop packets if send queue > 100 \todo move it to Send Data 
+                // function or something else            
+                if(tcd->sendQueue->q->length < 100) { 
                     if(trudpSendData(tcd, data, data_length) < 0) break;
                     rv++;
                 }
