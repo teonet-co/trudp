@@ -50,10 +50,6 @@ extern "C" {
 #define MAX_RTT 100000 // 250000; This constant used in send queue expected time calculation
 #define RESET_AT_LONG_RETRANSMIT 0 // Send rest at long retransmit retrives time     
 
-//#define MIN_RETRIEVES_TIME 3 * 1000 * 1000   
-//#define SEND_QUEUE_MAX 500
-//#define MAX_RETRIEVES 200
-    
 /**
  * Get pointer to trudpData from trudpChannelData
  */    
@@ -69,30 +65,6 @@ typedef void (*trudpDataCb)(void *tcd, void *data, size_t data_length, void *use
  * Event callback
  */
 typedef void (*trudpEventCb)(void *tcd, int event, void *data, size_t data_length, void *user_data);
-
-/**
- * Union of TR-UDP callback
- */
-typedef union trudpCb {
-    
-//    trudpDataCb data;
-    trudpDataCb send;
-    trudpEventCb event;
-    void *ptr;
-    
-} trudpCb;
-
-///**
-// * Enumeration of callback types
-// */
-//typedef enum trudpCallbsckType {
-//    
-////   PROCESS_DATA,
-////    PROCESS_ACK,
-//    EVENT,
-//    SEND
-//            
-//} trudpCallbsckType;
 
 /**
  * Enumeration of TR-UDP events
