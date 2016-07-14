@@ -901,9 +901,10 @@ int trudpProcessChannelSendQueue(trudpChannelData *tcd, uint64_t ts,
 
     int rv = 0;
 
-    trudpPacketQueueData *tqd;
-    if((tqd = trudpPacketQueueGetFirst(tcd->sendQueue)) &&
-            tqd->expected_time <= ts ) {
+    trudpPacketQueueData *tqd = NULL;
+    if(trudpPacketQueueSize(tcd->sendQueue) &&
+       (tqd = trudpPacketQueueGetFirst(tcd->sendQueue)) &&
+        tqd->expected_time <= ts ) {
 
         // Change records expected time
         tqd->expected_time = trudpCalculateExpectedTime(tcd, ts, 1) +
@@ -946,6 +947,7 @@ int trudpProcessChannelSendQueue(trudpChannelData *tcd, uint64_t ts,
 
         // Disconnect channel at long last receive
         if(trudpCheckChannelDisconnect(tcd, ts) == -1) {
+  
             tqd = NULL;
             rv = -1;
         }
@@ -984,11 +986,10 @@ int trudpProcessSendQueue(trudpData *td, uint64_t *next_et) {
 
     int retval, rv = 0;
     uint64_t ts = trudpGetTimestampFull(), min_expected_time, next_expected_time;
-    trudpMapElementData *el;
     do {
         retval = 0;
         trudpMapIterator *it;
-        //min_expected_time = 0;
+        trudpMapElementData *el;
         min_expected_time = UINT64_MAX;
         if((it = trudpMapIteratorNew(td->map))) {
             while((el = trudpMapIteratorNext(it))) {
