@@ -267,20 +267,22 @@ static void eventCb(void *tcd_pointer, int event, void *data, size_t data_length
         } break;
 
         // DISCONNECTED event
+        // @param tcd Pointer to trudpData
         // @param data Last packet received
         // @param user_data NULL
         case DISCONNECTED: {
-
+                        
             char *key = trudpMakeKeyChannel(tcd);
             if(data_length == sizeof(uint32_t)) {
                 uint32_t last_received = *(uint32_t*)data;
                 fprintf(stderr,
-                  "Disconnect channel %s, last received: %.6f sec\n",
-                  key, last_received / 1000000.0);
+                    "Disconnect channel %s, last received: %.6f sec\n",
+                    key, last_received / 1000000.0);
+                trudpDestroyChannel(tcd);
             }
             else {
                 fprintf(stderr,
-                  "Disconnect channel %s (error: wrong data sent)\n", key);
+                    "Disconnect channel %s (error: wrong data sent)\n", key);
             }
 
             connected_flag = 0;
