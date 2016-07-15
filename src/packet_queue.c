@@ -96,6 +96,7 @@ trudpPacketQueueData *trudpPacketQueueAdd(trudpPacketQueue *tq, void *packet,
     size_t tqd_length = sizeof(trudpPacketQueueData) + packet_length;
     trudpPacketQueueData *tqd = (trudpPacketQueueData *)
             ((trudpQueueData *)trudpQueueAdd(tq->q, NULL, tqd_length))->data;
+    
     // Fill data
     memcpy(tqd->packet, packet, packet_length);
     tqd->expected_time = expected_time;
@@ -121,11 +122,13 @@ trudpPacketQueueData *trudpPacketQueueAddTime(trudpPacketQueue *tq,
         // Find expected less or equal then than selected
         trudpPacketQueueData *tpqd = trudpPacketQueueFindByTime(tq, expected_time);
         if(tpqd) {
+            
             // Add after
             size_t tqd_length = sizeof(trudpPacketQueueData) + packet_length;
             trudpPacketQueueData *tqd = (trudpPacketQueueData *)
                 ((trudpQueueData *)trudpQueueAddAfter(tq->q, NULL, tqd_length,
                     trudpPacketQueueDataToQueueData(tpqd)))->data;
+            
             // Fill data
             memcpy(tqd->packet, packet, packet_length);
             tqd->expected_time = expected_time;

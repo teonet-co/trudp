@@ -653,16 +653,15 @@ static void process_send_queue_cb(EV_P_ ev_timer *w, int revents) {
 static void start_send_queue_cb(process_send_queue_data *psd,
         uint64_t next_expected_time) {
 
-    uint64_t tt, next_et = UINT64_MAX;
+    uint64_t tt, next_et = UINT64_MAX, ts = trudpGetTimestampFull();
 
     // If next_expected_time selected (non nil)
-    if(next_expected_time) {
-        uint64_t ts = trudpGetTimestampFull();
-        next_et = ts > next_expected_time ? ts - next_expected_time : 0;
+    if(next_expected_time) {        
+        next_et = next_expected_time > ts ? next_expected_time - ts : 0;
     }
 
     // If next_expected_time (net) or GetSendQueueTimeout
-    if((tt = (next_et != UINT64_MAX) ? next_et : trudpGetSendQueueTimeout(psd->td)) != UINT32_MAX) {
+    if((tt = (next_et != UINT64_MAX) ? next_et : trudpGetSendQueueTimeout(psd->td, ts)) != UINT32_MAX) {
 
         double tt_d = tt / 1000000.0;
 
