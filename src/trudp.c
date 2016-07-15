@@ -286,13 +286,15 @@ void trudpSendEvent(trudpChannelData *tcd, int event, void *data,
 static inline uint64_t trudpCalculateExpectedTime(trudpChannelData *tcd,
         uint64_t current_time, int retransmit) {
 
-    uint64_t expected_time = current_time + tcd->triptimeMiddle + MAX_RTT;
-
+    uint32_t rtt;
+    if((rtt = RTT * retransmit) > MAX_RTT) rtt = MAX_RTT;
+    uint64_t expected_time = current_time + tcd->triptimeMiddle + RTT + rtt;
+    
     // \todo it was removed for retransmit records (after the send queue record was stopped moved to the end)
-    if(retransmit && tcd->sendQueue->q->last) {
-        trudpPacketQueueData *pqd = (trudpPacketQueueData*) tcd->sendQueue->q->last->data;
-        if(pqd->expected_time > expected_time) expected_time = pqd->expected_time;
-    }
+//    if(retransmit && tcd->sendQueue->q->last) {
+//        trudpPacketQueueData *pqd = (trudpPacketQueueData*) tcd->sendQueue->q->last->data;
+//        if(pqd->expected_time > expected_time) expected_time = pqd->expected_time;
+//    }
 
     return expected_time;
 }
@@ -324,12 +326,7 @@ static size_t trudpSendPacket(trudpChannelData *tcd, void *packetDATA,
     #if !USE_WRITE_QUEUE
     trudpSendEvent(tcd, PROCESS_SEND, packetDATA, packetLength, NULL);
     #else
-    if(save_to_send_queue)
-        // Add to write queue
-        trudpWriteQueueAdd(tcd->writeQueue, NULL, tpqd->packet, packetLength);
-    else
-        // Send PROCESS_SEND event to send packet and write it to send queue
-        trudpSendEvent(tcd, PROCESS_SEND, packetDATA, packetLength, NULL);
+    trudpWriteQueueAdd(tcd->writeQueue, NULL, tpqd->packet, packetLength);
     #endif
 
     // Statistic
@@ -907,8 +904,9 @@ int trudpProcessChannelSendQueue(trudpChannelData *tcd, uint64_t ts,
         tqd->expected_time <= ts ) {
 
         // Change records expected time
-        tqd->expected_time = trudpCalculateExpectedTime(tcd, ts, 1) +
-                MAX_RTT * tqd->retrieves;
+        uint32_t rtt = RTT * tqd->retrieves;
+        tqd->expected_time = trudpCalculateExpectedTime(tcd, ts, tqd->retrieves) +
+                (rtt < MAX_RTT) ? rtt : MAX_RTT;
 
         // Move record to the end of Queue \todo don't move record to the end of
         // queue because it should be send first
@@ -1233,16 +1231,18 @@ trudpChannelData *trudpCheckRemoteAddr(trudpData *td,
  * Get channel send queue timeout
  *
  * @param tcd Pointer to trudpChannelData
+ * @param ts Current time
+ * 
  * @return Send queue timeout (may by 0) or UINT32_MAX if send queue is empty
  */
-uint32_t trudpGetChannelSendQueueTimeout(trudpChannelData *tcd) {
+static uint32_t trudpGetChannelSendQueueTimeout(trudpChannelData *tcd, 
+        uint64_t current_t) {
 
     // Get sendQueue timeout
     uint32_t timeout_sq = UINT32_MAX;
     if(tcd->sendQueue->q->first) {
         trudpPacketQueueData *pqd = (trudpPacketQueueData *)tcd->sendQueue->q->first->data;
-        uint64_t expected_t = pqd->expected_time, current_t = trudpGetTimestampFull();
-        timeout_sq = current_t < expected_t ? expected_t - current_t : 0;
+        timeout_sq = pqd->expected_time > current_t  ? pqd->expected_time - current_t : 0;
     }
 
     return timeout_sq;
@@ -1252,24 +1252,25 @@ uint32_t trudpGetChannelSendQueueTimeout(trudpChannelData *tcd) {
  * Get minimum timeout from all trudp cannel send queue
  *
  * @param td
+ * @param ts
  *
  * @return Minimum timeout or UINT32_MAX if send queue is empty
  */
-uint32_t trudpGetSendQueueTimeout(trudpData *td) {
+uint32_t trudpGetSendQueueTimeout(trudpData *td, uint64_t ts) {
 
     trudpMapIterator *it;
     trudpMapElementData *el;
-    uint32_t timeout_sq = UINT32_MAX;
+    uint32_t min_timeout_sq = UINT32_MAX;
 
     if((it = trudpMapIteratorNew(td->map))) {
         while((el = trudpMapIteratorNext(it))) {
             trudpChannelData *tcd = (trudpChannelData *)trudpMapIteratorElementData(el, NULL);
-            uint32_t ts = trudpGetChannelSendQueueTimeout(tcd);
-            if(ts < timeout_sq) timeout_sq = ts;
-            if(!timeout_sq) break;
+            uint32_t timeout_sq = trudpGetChannelSendQueueTimeout(tcd, ts);
+            if(timeout_sq < min_timeout_sq) min_timeout_sq = timeout_sq;
+            if(!min_timeout_sq) break;
         }
         trudpMapIteratorDestroy(it);
     }
 
-    return timeout_sq;
+    return min_timeout_sq;
 }

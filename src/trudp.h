@@ -47,7 +47,8 @@ extern "C" {
 #define SEND_PING_AFTER 2500000   
 #define MAP_SIZE_DEFAULT 100 // Default map size; map stored connected channels and can auto resize
 #define USE_WRITE_QUEUE 0 // Use write queue instead of direct write to socket
-#define MAX_RTT 100000 // 250000; This constant used in send queue expected time calculation
+#define RTT 100000 // This constant used in send queue expected time calculation
+#define MAX_RTT 1000000 // This constant used in send queue expected time calculation
 #define RESET_AT_LONG_RETRANSMIT 0 // Send rest at long retransmit retrives time     
 
 /**
@@ -309,7 +310,7 @@ int trudpProcessSendQueue(trudpData *td, uint64_t *next_et);
 size_t trudpProcessWriteQueue(trudpData *td);
 void trudpSendResetAll(trudpData *td);
 size_t trudpKeepConnection(trudpData *td);
-uint32_t trudpGetSendQueueTimeout(trudpData *td);
+uint32_t trudpGetSendQueueTimeout(trudpData *td, uint64_t ts);
 void trudpSendEvent(trudpChannelData *tcd, int event, void *data,
         size_t data_length, void *user_data);
 void trudpDestroyChannelAll(trudpData *td);
