@@ -14,7 +14,8 @@ AM_CFLAGS = \
 	 -I$(HOME)/Projects/teonet/embedded/libtrudp/src \
 	 -I/usr/include/libtrudp
 	
-#	 -std=c11 
+#	 -std=gnu11 
+#	 -std=gnu89
 #	 -I$(HOME)/Projects/teonet/src/ 
 
 AM_CXX = clang++

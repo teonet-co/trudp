@@ -556,7 +556,7 @@ static void send_message_cb(EV_P_ ev_timer *w, int revents) {
  * @param w
  * @param revents
  */
-static void idle_show_stat_cb(EV_P_ ev_timer *w, int revents) {
+static void idle_show_stat_cb(EV_P_ ev_idle *w, int revents) {
 
     show_statistic_data *ssd = (show_statistic_data *)w->data;
 
@@ -610,7 +610,7 @@ static void start_show_stat_cb(show_statistic_data *ssd) {
         ssd->show_statistic_w.data = (void*)ssd;
 
         // Initialize idle watchers
-        ev_idle_init((void*)&ssd->idle_show_statistic_w, idle_show_stat_cb);
+        ev_idle_init(&ssd->idle_show_statistic_w, idle_show_stat_cb);
         ssd->idle_show_statistic_w.data = (void*)ssd;
 
         ssd->inited = 1;
