@@ -29,7 +29,11 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#if __STDC_VERSION__ >= 201112L
+#include <time.h>
+#else
 #include <sys/time.h>
+#endif
 
 #include "packet.h"
 
