@@ -33,7 +33,7 @@
 
 // C11 present
 #if __STDC_VERSION__ >= 201112L
-extern int inet_aton (const char *__cp, struct in_addr *__inp) __THROW;
+//extern int inet_aton (const char *__cp, struct in_addr *__inp) __THROW;
 #endif
 
 #include "udp.h"
