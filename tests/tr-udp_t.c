@@ -49,18 +49,18 @@ static void send_data_test() {
 
     // Create TR-UDP
     trudpData *td = trudpInit(0, 0, NULL, NULL);
-    trudpChannelData *tcd = trudpNewChannel(td, "0", 8000, 0);
+    trudpChannelData *tcd = trudp_ChannelNew(td, "0", 8000, 0);
     CU_ASSERT_PTR_NOT_NULL(tcd);
 
     // Send data
     char *data = "HelloTR-UDP!";
     size_t data_length = strlen(data) + 1;
-    CU_ASSERT(trudpSendData(tcd, data, data_length) > 0);
+    CU_ASSERT(trudp_ChannelSendData(tcd, data, data_length) > 0);
     CU_ASSERT(trudpQueueSize(tcd->sendQueue->q) == 1); // Send Queue should contain 1 element
     CU_ASSERT_PTR_NOT_NULL(trudpPacketQueueFindById(tcd->sendQueue, 0)); // Send Queue should contain an element with ID 0
     
     // Destroy TR-UDP
-    trudpDestroyChannel(tcd);
+    trudp_ChannelDestroy(tcd);
     trudpDestroy(td);
 }
 
@@ -120,7 +120,7 @@ static void process_received_packet_test() {
 
     // Create TR-UDP
     trudpData *td = trudpInit(0, 0, 0, NULL);
-    trudpChannelData *tcd = trudpNewChannel(td, "0", 8000, 0);
+    trudpChannelData *tcd = trudp_ChannelNew(td, "0", 8000, 0);
     CU_ASSERT_PTR_NOT_NULL(tcd);
     
     // Create DATA packets 
@@ -143,27 +143,27 @@ static void process_received_packet_test() {
 
     // Process received packet (id 0) test
     id = 0;
-    rv = trudpProcessChannelReceivedPacket(tcd, packetDATA[id], packetLength[id], &processedData_length);
+    rv = trudp_ChannelProcessReceivedPacket(tcd, packetDATA[id], packetLength[id], &processedData_length);
     _showProcessResult(rv, TD(tcd)->user_data);
     CU_ASSERT_FATAL(rv && rv != (void*)-1);
     CU_ASSERT_STRING_EQUAL(data[id], rv);
     
     // Process received packet (id 1) test
     id = 1;
-    rv = trudpProcessChannelReceivedPacket(tcd, packetDATA[id], packetLength[id], &processedData_length);
+    rv = trudp_ChannelProcessReceivedPacket(tcd, packetDATA[id], packetLength[id], &processedData_length);
     _showProcessResult(rv, TD(tcd)->user_data);
     CU_ASSERT_FATAL(rv && rv != (void*)-1);
     CU_ASSERT_STRING_EQUAL(data[id], rv);
     
     // Process received packet (id 3) test
     id = 3;
-    rv = trudpProcessChannelReceivedPacket(tcd, packetDATA[id], packetLength[id], &processedData_length);
+    rv = trudp_ChannelProcessReceivedPacket(tcd, packetDATA[id], packetLength[id], &processedData_length);
     _showProcessResult(rv, TD(tcd)->user_data);
     CU_ASSERT_FATAL(rv == NULL); // The trudpProcessReceivedPacket save this packet to receiveQueue and return NULL
     
     // Process received packet (id 2) test
     id = 2;
-    rv = trudpProcessChannelReceivedPacket(tcd, packetDATA[id], packetLength[id], &processedData_length);
+    rv = trudp_ChannelProcessReceivedPacket(tcd, packetDATA[id], packetLength[id], &processedData_length);
     _showProcessResult(rv, TD(tcd)->user_data);
     CU_ASSERT_FATAL(rv && rv != (void*)-1);
     CU_ASSERT_STRING_EQUAL(data[3], rv); // The trudpProcessReceivedPacket process this package, and package from queue, and return data of last processed - id = 3
@@ -171,7 +171,7 @@ static void process_received_packet_test() {
     // Process wrong packet
     void *wrongPacket = "Some wrong packet ...";
     size_t wrongPacketLength = strlen(wrongPacket) + 1;
-    rv = trudpProcessChannelReceivedPacket(tcd, wrongPacket, wrongPacketLength, &processedData_length);
+    rv = trudp_ChannelProcessReceivedPacket(tcd, wrongPacket, wrongPacketLength, &processedData_length);
     _showProcessResult(rv, TD(tcd)->user_data);
     CU_ASSERT_FATAL(rv == (void*)-1);
     
@@ -179,7 +179,7 @@ static void process_received_packet_test() {
     int i; for(i=0; i < 4; i++) trudpPacketCreatedFree(packetDATA[i]);
     
     // Destroy TR-UDP
-    trudpDestroyChannel(tcd);
+    trudp_ChannelDestroy(tcd);
     trudpDestroy(td);
 }
 
@@ -199,7 +199,7 @@ void td_A_eventCb(void *tcd_ptr, int event, void *packet, size_t packet_length, 
 
             // Receive data by B TR-UDP
             size_t processedData_length;
-            void *rv = trudpProcessChannelReceivedPacket(tcd_B, packet, packet_length, &processedData_length);
+            void *rv = trudp_ChannelProcessReceivedPacket(tcd_B, packet, packet_length, &processedData_length);
 //            _showProcessResult(rv, td_B->user_data);
             CU_ASSERT(!rv || (rv && rv != (void*)-1));
         }
@@ -219,7 +219,7 @@ void td_B_eventCb(void *tcd_ptr, int event, void *packet, size_t packet_length, 
 
             // Receive data by A TR-UDP
             size_t processedData_length;
-            void *rv = trudpProcessChannelReceivedPacket(tcd_A, packet, packet_length, &processedData_length);
+            void *rv = trudp_ChannelProcessReceivedPacket(tcd_A, packet, packet_length, &processedData_length);
 //            _showProcessResult(rv, td_A->user_data);
             CU_ASSERT(!rv || (rv && rv != (void*)-1));
         }
@@ -233,12 +233,12 @@ static void send_process_received_packet_test() {
 
     // Create sender TR-UDP
     trudpData *td_A = trudpInit(0, 0, td_A_eventCb, "td_A");
-    tcd_A = trudpNewChannel(td_A, "0", 8000, 0);
+    tcd_A = trudp_ChannelNew(td_A, "0", 8000, 0);
     CU_ASSERT_PTR_NOT_NULL(tcd_A);
     
     // Create receiver TR-UDP
     trudpData *td_B = trudpInit(0, 0, td_B_eventCb, "td_B");
-    tcd_B = trudpNewChannel(td_B, "0", 8001, 0);
+    tcd_B = trudp_ChannelNew(td_B, "0", 8001, 0);
     CU_ASSERT_PTR_NOT_NULL(tcd_B);
     
     // Create DATA packets 
@@ -252,31 +252,31 @@ static void send_process_received_packet_test() {
     
     // Send data from A to B, packet data idx = 0
     idx = 0;
-    CU_ASSERT(trudpSendData(tcd_A, data[idx], data_length[idx]) > 0);    
-    CU_ASSERT(trudpSendData(tcd_B, data[num_packets-idx-1], data_length[num_packets-idx-1]) > 0);
+    CU_ASSERT(trudp_ChannelSendData(tcd_A, data[idx], data_length[idx]) > 0);    
+    CU_ASSERT(trudp_ChannelSendData(tcd_B, data[num_packets-idx-1], data_length[num_packets-idx-1]) > 0);
     
     idx = 1;
     // Test send queue retrieves
 //       void *wc = td_A->sendCb; td_A->sendCb = NULL; // Stop send callback
-       CU_ASSERT(trudpSendData(tcd_A, data[idx], data_length[idx]) > 0);
+       CU_ASSERT(trudp_ChannelSendData(tcd_A, data[idx], data_length[idx]) > 0);
 //       usleep(tcd_A->triptime); td_A->sendCb = wc; // Sleep and restore callback
        #if !NO_MESSAGES
        printf("\ntrudpProcessSendQueue begin");
        #endif    
-       /*int r = */trudpProcessChannelSendQueue(tcd_A, trudpGetTimestamp(), NULL);
+       /*int r = */trudp_SendQueueProcessChannel(tcd_A, trudpGetTimestamp(), NULL);
        #if !NO_MESSAGES
        printf("send queue processed times: %d ...\ntrudpProcessSendQueue end\n", r);
        #endif
     // end test send queue retrieves
-    CU_ASSERT(trudpSendData(tcd_B, data[num_packets-idx-1], data_length[num_packets-idx-1]) > 0);
+    CU_ASSERT(trudp_ChannelSendData(tcd_B, data[num_packets-idx-1], data_length[num_packets-idx-1]) > 0);
      
     idx = 3;
-    CU_ASSERT(trudpSendData(tcd_A, data[idx], data_length[idx]) > 0);
-    CU_ASSERT(trudpSendData(tcd_B, data[num_packets-idx-1], data_length[num_packets-idx-1]) > 0);
+    CU_ASSERT(trudp_ChannelSendData(tcd_A, data[idx], data_length[idx]) > 0);
+    CU_ASSERT(trudp_ChannelSendData(tcd_B, data[num_packets-idx-1], data_length[num_packets-idx-1]) > 0);
     
     idx = 2;
-    CU_ASSERT(trudpSendData(tcd_A, data[idx], data_length[idx]) > 0);
-    CU_ASSERT(trudpSendData(tcd_B, data[num_packets-idx-1], data_length[num_packets-idx-1]) > 0);
+    CU_ASSERT(trudp_ChannelSendData(tcd_A, data[idx], data_length[idx]) > 0);
+    CU_ASSERT(trudp_ChannelSendData(tcd_B, data[num_packets-idx-1], data_length[num_packets-idx-1]) > 0);
     
 //    char *stat_js = trudpStatGet(TD(tcd_A), JSON_TYPE, NULL);
 //    puts(stat_js);
@@ -291,8 +291,8 @@ static void send_process_received_packet_test() {
 //    free(stat_str);
     
     // Destroy TR-UDP
-    trudpDestroyChannel(tcd_A);
-    trudpDestroyChannel(tcd_B);
+    trudp_ChannelDestroy(tcd_A);
+    trudp_ChannelDestroy(tcd_B);
 }    
 
 int trUdpSuiteAdd() {

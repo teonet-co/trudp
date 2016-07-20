@@ -261,7 +261,7 @@ static void eventCb(void *tcd_pointer, int event, void *data, size_t data_length
         // @param user_data NULL
         case CONNECTED: {
 
-            char *key = trudpMakeKeyChannel(tcd);
+            char *key = trudp_ChannelMakeKey(tcd);
             fprintf(stderr, "Connect channel %s\n", key);
 
         } break;
@@ -272,13 +272,13 @@ static void eventCb(void *tcd_pointer, int event, void *data, size_t data_length
         // @param user_data NULL
         case DISCONNECTED: {
                         
-            char *key = trudpMakeKeyChannel(tcd);
+            char *key = trudp_ChannelMakeKey(tcd);
             if(data_length == sizeof(uint32_t)) {
                 uint32_t last_received = *(uint32_t*)data;
                 fprintf(stderr,
                     "Disconnect channel %s, last received: %.6f sec\n",
                     key, last_received / 1000000.0);
-                trudpDestroyChannel(tcd);
+                trudp_ChannelDestroy(tcd);
             }
             else {
                 fprintf(stderr,
@@ -294,7 +294,7 @@ static void eventCb(void *tcd_pointer, int event, void *data, size_t data_length
         // @param user_data NULL
         case GOT_RESET: {
 
-            char *key = trudpMakeKeyChannel(tcd);
+            char *key = trudp_ChannelMakeKey(tcd);
             fprintf(stderr,
               "Got TRU_RESET packet from channel %s\n",
               key);
@@ -307,7 +307,7 @@ static void eventCb(void *tcd_pointer, int event, void *data, size_t data_length
         case SEND_RESET: {
 
 
-            char *key = trudpMakeKeyChannel(tcd);
+            char *key = trudp_ChannelMakeKey(tcd);
             
             if(!data)
                 fprintf(stderr,
@@ -338,7 +338,7 @@ static void eventCb(void *tcd_pointer, int event, void *data, size_t data_length
         // @param user_data NULL
         case GOT_ACK_RESET: {
 
-            char *key = trudpMakeKeyChannel(tcd);
+            char *key = trudp_ChannelMakeKey(tcd);
             fprintf(stderr, "Got ACK to RESET packet at channel %s\n", key);
 
         } break;
@@ -348,7 +348,7 @@ static void eventCb(void *tcd_pointer, int event, void *data, size_t data_length
         // @param user_data NULL
         case GOT_ACK_PING: {
 
-            char *key = trudpMakeKeyChannel(tcd);
+            char *key = trudp_ChannelMakeKey(tcd);
             fprintf(stderr,
               "Got ACK to PING packet at channel %s, data: %s, %.3f(%.3f) ms\n",
               key, (char*)data,
@@ -361,7 +361,7 @@ static void eventCb(void *tcd_pointer, int event, void *data, size_t data_length
         // @param user_data NULL
         case GOT_PING: {
 
-            char *key = trudpMakeKeyChannel(tcd);
+            char *key = trudp_ChannelMakeKey(tcd);
             fprintf(stderr,
               "Got PING packet at channel %s, data: %s\n",
               key, (char*)data);
@@ -374,7 +374,7 @@ static void eventCb(void *tcd_pointer, int event, void *data, size_t data_length
         // @param user_data NULL
         case GOT_ACK: {
 
-            char *key = trudpMakeKeyChannel(tcd);
+            char *key = trudp_ChannelMakeKey(tcd);
             debug("got ACK id=%u at channel %s, %.3f(%.3f) ms\n",
                   trudpPacketGetId(data/*trudpPacketGetPacket(data)*/),
                   key, (tcd->triptime)/1000.0, (tcd->triptimeMiddle)/1000.0);
@@ -391,7 +391,7 @@ static void eventCb(void *tcd_pointer, int event, void *data, size_t data_length
         // @param user_data NULL
         case GOT_DATA: {
 
-            char *key = trudpMakeKeyChannel(tcd);
+            char *key = trudp_ChannelMakeKey(tcd);
             debug("got %d byte data at channel %s, id=%u: ", 
                 trudpPacketGetPacketLength(trudpPacketGetPacket(data))/*(int)data_length*/,
                 key, trudpPacketGetId(trudpPacketGetPacket(data)));
@@ -485,8 +485,8 @@ static trudpChannelData *connectToPeer(trudpData *td) {
     if(!o.listen) {
         char *connect = "Connect with TR-UDP!";
         size_t connect_length = strlen(connect) + 1;
-        tcd = trudpNewChannel(td, o.remote_address, o.remote_port_i, 0);
-        trudpSendData(tcd, connect, connect_length);
+        tcd = trudp_ChannelNew(td, o.remote_address, o.remote_port_i, 0);
+        trudp_ChannelSendData(tcd, connect, connect_length);
         fprintf(stderr, "Connecting to %s:%u:%u\n", o.remote_address, o.remote_port_i, 0);
         connected_flag = 1;
     }
@@ -507,7 +507,7 @@ static trudpChannelData *connectToPeer(trudpData *td) {
 static void host_cb(EV_P_ ev_io *w, int revents) {
 
     //trudpData *td = (trudpData *)w->data;
-    trudpSendEvent(w->data, PROCESS_RECEIVE, buffer, o.buf_size, NULL);
+    trudpEventSend(w->data, PROCESS_RECEIVE, buffer, o.buf_size, NULL);
 }
 
 /**
@@ -528,7 +528,7 @@ static void connect_cb(EV_P_ ev_timer *w, int revents) {
     }
     else {
         // Check all channels line (lastReceived time) and send PING if idle
-        trudpKeepConnection(td);
+        trudpProcessKeepConnection(td);
     }
 
     i++;
@@ -637,7 +637,7 @@ static void process_send_queue_cb(EV_P_ ev_timer *w, int revents) {
     // Process send queue
     debug("process send queue ... \n");
     uint64_t next_expected_time;
-    trudpProcessSendQueue(psd->td, &next_expected_time);
+    trudp_SendQueueProcess(psd->td, &next_expected_time);
 
     // Start new process_send_queue timer
     if(next_expected_time)
@@ -661,7 +661,7 @@ static void start_send_queue_cb(process_send_queue_data *psd,
     }
 
     // If next_expected_time (net) or GetSendQueueTimeout
-    if((tt = (next_et != UINT64_MAX) ? next_et : trudpGetSendQueueTimeout(psd->td, ts)) != UINT32_MAX) {
+    if((tt = (next_et != UINT64_MAX) ? next_et : trudp_SendQueueGetTimeout(psd->td, ts)) != UINT32_MAX) {
 
         double tt_d = tt / 1000000.0;
 
@@ -706,7 +706,7 @@ static void network_select_loop(trudpData *td, int timeout) {
         FD_SET(td->fd, &wfds);
     }
 
-    uint32_t timeout_sq = trudpGetSendQueueTimeout(td);
+    uint32_t timeout_sq = trudp_SendQueueGetTimeout(td);
 //    debug("set timeout: %.3f ms; default: %.3f ms, send_queue: %.3f ms%s\n",
 //            (timeout_sq < timeout ? timeout_sq : timeout) / 1000.0,
 //            timeout / 1000.0,
@@ -731,7 +731,7 @@ static void network_select_loop(trudpData *td, int timeout) {
 
         // Process send queue
         if(timeout_sq != UINT32_MAX) {
-            int rv = trudpProcessSendQueue(td, 0);
+            int rv = trudp_SendQueueProcess(td, 0);
             debug("process send queue ... %d\n", rv);
         }
     }
@@ -750,15 +750,15 @@ static void network_select_loop(trudpData *td, int timeout) {
             // Process received packet
             if(recvlen > 0) {
                 size_t data_length;
-                trudpChannelData *tcd = trudpCheckRemoteAddr(td, &remaddr, addr_len, 0);
-                trudpProcessChannelReceivedPacket(tcd, buffer, recvlen, &data_length);
+                trudpChannelData *tcd = trudpGetChannelCreate(td, &remaddr, addr_len, 0);
+                trudp_ChannelProcessReceivedPacket(tcd, buffer, recvlen, &data_length);
             }
         }
 
         // Process write fd
         if(FD_ISSET(td->fd, &wfds)) {
             // Process write queue
-            while(trudpProcessWriteQueue(td));
+            while(trudpWriteQueueProcess(td));
             //trudpProcessWriteQueue(td);
         }
     }
@@ -783,15 +783,15 @@ static void network_loop(trudpData *td) {
     // Process received packet
     if(recvlen > 0) {
         size_t data_length;
-        trudpChannelData *tcd = trudpCheckRemoteAddr(td, &remaddr, addr_len, 0);
-        trudpProcessChannelReceivedPacket(tcd, buffer, recvlen, &data_length);
+        trudpChannelData *tcd = trudpGetChannelCreate(td, &remaddr, addr_len, 0);
+        trudp_ChannelProcessReceivedPacket(tcd, buffer, recvlen, &data_length);
     }
 
     // Process send queue
-    trudpProcessSendQueue(td, 0);
+    trudp_SendQueueProcess(td, 0);
 
     // Process write queue
-    while(trudpProcessWriteQueue(td));
+    while(trudpWriteQueueProcess(td));
 }
 
 #endif
