@@ -51,3 +51,8 @@
 *.Po
 *.Plo
 .deps
+/examples/*.o
+/tests/*.o
+/src/*.lo
+/src/*.o
+/src/*.la
