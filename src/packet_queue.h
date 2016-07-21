@@ -77,7 +77,21 @@ trudpPacketQueueData *trudpPacketQueueAddTime(trudpPacketQueue *tq,
         void *packet, size_t packet_length, uint64_t expected_time);
 trudpPacketQueueData *trudpPacketQueueMoveToEnd(trudpPacketQueue *tq,
         trudpPacketQueueData *tqd);
-int trudpPacketQueueDelete(trudpPacketQueue *tq, trudpPacketQueueData *tqd);
+
+/**
+ * Remove element from Packet queue
+ *
+ * @param tq Pointer to trudpPacketQueue
+ * @param tqd Pointer to trudpPacketQueueData to delete it
+ *
+ * @return Zero at success
+ */
+static inline int trudpPacketQueueDelete(trudpPacketQueue *tq, 
+        trudpPacketQueueData *tqd) {
+
+    return trudpQueueDelete(tq->q, trudpPacketQueueDataToQueueData(tqd));
+}
+
 trudpPacketQueueData *trudpPacketQueueFindById(trudpPacketQueue *tq, uint32_t id);
 trudpPacketQueueData *trudpPacketQueueFindByTime(trudpPacketQueue *tq, uint64_t t);
 trudpPacketQueueData *trudpPacketQueueGetFirst(trudpPacketQueue *tq);

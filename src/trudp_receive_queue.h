@@ -31,12 +31,91 @@
 #ifndef TRUDP_RECEIVE_QUEUE_H
 #define TRUDP_RECEIVE_QUEUE_H
 
+#include "packet_queue.h"
+
+typedef trudpPacketQueue trudpReceiveQueue;
+typedef trudpPacketQueueData trudpReceiveQueueData;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+/**
+ * Create new Receive queue
+ *
+ * @return Pointer to trudpPacketQueue
+ */
+static inline
+trudpReceiveQueue *trudpReceiveQueueNew() {
+    return trudpPacketQueueNew();
+}
 
+/**
+ * Remove all elements from Receive queue
+ *
+ * @param sq Pointer to Receive Queue (trudpReceiveQueue)
+ * @return Zero at success
+ */
+static inline int trudpReceiveQueueFree(trudpReceiveQueue *rq) {
+    return trudpPacketQueueFree(rq);
+}
 
+/**
+ * Get number of elements in Receive queue
+ *
+ * @param sq Pointer to trudpReceiveQueue
+ *
+ * @return Number of elements in TR-UPD send queue
+ */
+static inline size_t trudpReceiveQueueSize(trudpReceiveQueue *sq) {
+    return trudpPacketQueueSize(sq);
+}
+
+/**
+ * Find Receive queue data by Id
+ *
+ * @param sq Pointer to trudpReceiveQueue
+ * @param id Id to find in send queue
+ *
+ * @return Pointer to trudpReceiveQueueData or NULL if not found
+ */
+static inline
+trudpReceiveQueueData *trudpReceiveQueueFindById(trudpReceiveQueue *sq,
+        uint32_t id) {
+
+    return trudpPacketQueueFindById(sq, id);
+}
+
+/**
+ * Remove element from Receive queue
+ *
+ * @param tq Pointer to trudpReceiveQueue
+ * @param tqd Pointer to trudpReceiveQueueData to delete it
+ *
+ * @return Zero at success
+ */
+static inline int trudpReceiveQueueDelete(trudpReceiveQueue *tq,
+        trudpReceiveQueueData *tqd) {
+
+    return trudpPacketQueueDelete(tq, tqd);
+}
+
+/**
+ * Add packet to Receive queue
+ *
+ * @param sq Pointer to trudpReceiveQueue
+ * @param packet Packet to add to queue
+ * @param packet_length Packet length
+ * @param expected_time Packet expected time
+ *
+ * @return Pointer to added trudpReceiveQueueData
+ */
+static inline
+trudpReceiveQueueData *trudpReceiveQueueAdd(trudpReceiveQueue *sq, void *packet,
+        size_t packet_length, uint64_t expected_time) {
+    
+    return trudpPacketQueueAdd(sq, packet, packet_length, expected_time);
+}
 
 #ifdef __cplusplus
 }
