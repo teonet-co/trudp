@@ -702,7 +702,7 @@ static void network_select_loop(trudpData *td, int timeout) {
     FD_SET(td->fd, &rfds);
 
     // Process write queue
-    if(trudpWriteQueueSizeAll(td)) {
+    if(trudp_WriteQueueSizeAll(td)) {
         FD_SET(td->fd, &wfds);
     }
 
@@ -758,7 +758,7 @@ static void network_select_loop(trudpData *td, int timeout) {
         // Process write fd
         if(FD_ISSET(td->fd, &wfds)) {
             // Process write queue
-            while(trudpWriteQueueProcess(td));
+            while(trudp_WriteQueueProcess(td));
             //trudpProcessWriteQueue(td);
         }
     }
@@ -791,7 +791,7 @@ static void network_loop(trudpData *td) {
     trudp_SendQueueProcess(td, 0);
 
     // Process write queue
-    while(trudpWriteQueueProcess(td));
+    while(trudp_WriteQueueProcess(td));
 }
 
 #endif

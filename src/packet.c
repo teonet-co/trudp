@@ -136,7 +136,7 @@ static inline int trudpHeaderChecksumCheck(trudpHeader *th) {
  *
  * @return
  */
-inline uint64_t /*unsigned long long*/ trudpGetTimestampFull() {
+inline uint64_t trudpGetTimestampFull() {
 
 // C11 present
 #if __STDC_VERSION__ >= 201112L

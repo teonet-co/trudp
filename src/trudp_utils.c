@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License
  *
  * Copyright 2016 Kirill Scherba <kirill@scherba.ru>.
@@ -20,45 +20,29 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- *
- * \file   tr-udp_stat.h
- * \author Kirill Scherba <kirill@scherba.ru>
- *
- * Created on June 11, 2016, 4:40 PM
  */
 
-#ifndef TRU_UDP_STAT_H
-#define TRU_UDP_STAT_H
+// Utilities functions ========================================================
 
-#include "trudp.h"
+#include "trudp_utils.h"
+#include "trudp_const.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-    
-typedef enum trudpStatType {
- 
-    BINARY_TYPE,
-    JSON_TYPE
-            
-} trudpStatType;    
-    
-trudpStatData *trudpStatInit(trudpData *td);
-//trudpStatData *trudpStatReset(trudpData *td);
+/**
+ * Make TR-UDP map key
+ *
+ * @param addr String with IP address
+ * @param port Port number
+ * @param channel Cannel number 0-15
+ * @param key_length [out] Pointer to keys length (may be NULL)
+ *
+ * @return Static buffer with key ip:port:channel
+ */
+char *trudpMakeKey(char *addr, int port, int channel, size_t *key_length) 
+{
 
-void trudpStatChannelInit(trudpChannelData *tcd);
-//void trudpStatChannelReset(trudpChannelData *tcd);
+    static char buf[MAX_KEY_LENGTH];
+    size_t kl = snprintf(buf, MAX_KEY_LENGTH, "%s:%u:%u", addr, port, channel);
+    if(key_length) *key_length = kl;
 
-void trudpStatProcessLast10Send(trudpChannelData *tcd, void *packet, size_t send_data_length);
-void trudpStatProcessLast10Receive(trudpChannelData *tcd, void *packet);
-
-void *trudpStatGet(trudpData *td, int type, size_t *stat_len);
-char *ksnTRUDPstatShowStr(trudpData *td);
-
-char *trudpStatShowQueueStr(trudpChannelData *tcd, int type);
-
-#ifdef __cplusplus
+    return buf;
 }
-#endif
-
-#endif /* TRU_UDP_STAT_H */

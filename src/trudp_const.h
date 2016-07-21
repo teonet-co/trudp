@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License
  *
  * Copyright 2016 Kirill Scherba <kirill@scherba.ru>.
@@ -20,45 +20,40 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- *
- * \file   tr-udp_stat.h
- * \author Kirill Scherba <kirill@scherba.ru>
- *
- * Created on June 11, 2016, 4:40 PM
  */
 
-#ifndef TRU_UDP_STAT_H
-#define TRU_UDP_STAT_H
+/* 
+ * File:   trudp_const.h
+ * Author: kirill
+ *
+ * Created on July 21, 2016, 12:34 AM
+ */
 
-#include "trudp.h"
+#ifndef TRUDP_CONST_H
+#define TRUDP_CONST_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-    
-typedef enum trudpStatType {
- 
-    BINARY_TYPE,
-    JSON_TYPE
-            
-} trudpStatType;    
-    
-trudpStatData *trudpStatInit(trudpData *td);
-//trudpStatData *trudpStatReset(trudpData *td);
 
-void trudpStatChannelInit(trudpChannelData *tcd);
-//void trudpStatChannelReset(trudpChannelData *tcd);
+// TR-UDP constants    
+#define MAX_KEY_LENGTH 64 // Maximum key length
+#define MAX_OUTRUNNING 500 // Maximum outrunning in receive queue to send reset
+#define START_MIDDLE_TIME (MAX_ACK_WAIT/5) * 1000000 // Midle time at start       
+#define RESET_AFTER_ID (UINT32_MAX - 1024) // Reset if send id more than this constant
+#define MAX_TRIPTIME_MIDDLE 5757575 // Maximum number of Middle triptime
+#define MAX_LAST_RECEIVE MAX_TRIPTIME_MIDDLE // Disconnect after last receved packet time older than this constant
+#define SEND_PING_AFTER 2500000   
+#define MAP_SIZE_DEFAULT 100 // Default map size; map stored connected channels and can auto resize
+#define USE_WRITE_QUEUE 0 // Use write queue instead of direct write to socket
+#define RTT 100000 // This constant used in send queue expected time calculation
+#define MAX_RTT 1000000 // This constant used in send queue expected time calculation
+#define RESET_AT_LONG_RETRANSMIT 0 // Send rest at long retransmit retrives time     
 
-void trudpStatProcessLast10Send(trudpChannelData *tcd, void *packet, size_t send_data_length);
-void trudpStatProcessLast10Receive(trudpChannelData *tcd, void *packet);
-
-void *trudpStatGet(trudpData *td, int type, size_t *stat_len);
-char *ksnTRUDPstatShowStr(trudpData *td);
-
-char *trudpStatShowQueueStr(trudpChannelData *tcd, int type);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* TRU_UDP_STAT_H */
+#endif /* TRUDP_CONST_H */
+
