@@ -60,6 +60,8 @@ typedef _W64 unsigned int   ssize_t;
 #endif
 
 #include "trudp_const.h"
+#include "trudp_send_queue.h"
+
 #include "packet_queue.h"
 #include "write_queue.h"
 
@@ -165,8 +167,19 @@ int trudp_SendQueueProcessChannel(trudpChannelData *tcd, uint64_t ts,
 size_t trudp_ChannelSendPING(trudpChannelData *tcd, void *data,
         size_t data_length);
 
-uint32_t trudp_ChannelSendQueueGetTimeout(trudpChannelData *tcd, 
-        uint64_t current_t);
+/**
+ * Get channel send queue timeout
+ *
+ * @param tcd Pointer to trudpChannelData
+ * @param ts Current time
+ * 
+ * @return Send queue timeout (may by 0) or UINT32_MAX if send queue is empty
+ */
+inline uint32_t trudp_ChannelSendQueueGetTimeout(trudpChannelData *tcd, 
+        uint64_t current_t) {
+
+    return trudpSendQueueGetTimeout(tcd->sendQueue, current_t);
+}
 
 size_t trudp_ChannelWriteQueueProcess(trudpChannelData *tcd);
 

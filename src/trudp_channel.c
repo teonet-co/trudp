@@ -26,11 +26,13 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <stddef.h>
 
 #include "trudp_channel.h"
 #include "trudp_utils.h"
 #include "trudp_stat.h"
 
+#include "trudp_send_queue.h"
 #include "packet.h"
 
 /**
@@ -71,9 +73,9 @@ static void trudp_ChannelSetDefaults(trudpChannelData *tcd) {
  */
 static void trudp_ChannelFree(trudpChannelData *tcd) {
 
-    TD(tcd)->stat.sendQueue.size_current -= trudpPacketQueueSize(tcd->sendQueue);
+    TD(tcd)->stat.sendQueue.size_current -= trudpSendQueueSize(tcd->sendQueue);
 
-    trudpPacketQueueFree(tcd->sendQueue);
+    trudpSendQueueFree(tcd->sendQueue);
     trudpWriteQueueFree(tcd->writeQueue);
     trudpPacketQueueFree(tcd->receiveQueue);
     trudp_ChannelSetDefaults(tcd);
@@ -97,7 +99,7 @@ trudpChannelData *trudp_ChannelNew(void *parent, char *remote_address,
     memset(tcd, 0, sizeof(trudpChannelData));
 
     tcd->td = parent;
-    tcd->sendQueue = trudpPacketQueueNew();
+    tcd->sendQueue = trudpSendQueueNew();
     tcd->writeQueue = trudpWriteQueueNew();
     tcd->receiveQueue = trudpPacketQueueNew();
     tcd->addrlen = sizeof(tcd->remaddr);
@@ -140,7 +142,8 @@ void trudp_ChannelDestroy(trudpChannelData *tcd) {
 
     trudpEventSend(tcd, DISCONNECTED, NULL, 0, NULL);
     trudp_ChannelFree(tcd);
-
+    trudpSendQueueDestroy(tcd->sendQueue);
+    
     int port;
     size_t key_length;
     char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd->remaddr, &port);
@@ -360,6 +363,17 @@ static inline uint64_t trudp_ChannelCalculateExpectedTime(trudpChannelData *tcd,
 }
 
 /**
+ * Increment statistics send queue size value
+ * 
+ * @param sq Pointer to Send queue (trudpPacketQueue = trudpChannelData.sendQueu) 
+ */
+void trudp_ChannelIncrementStatSendQueueSize(trudpPacketQueue *sq) {
+    
+    trudpChannelData *tcd = (void *) sq - offsetof(trudpChannelData, sendQueue);
+    TD(tcd)->stat.sendQueue.size_current++;
+}
+
+/**
  * Send packet
  *
  * @param td Pointer to trudpChannelData
@@ -373,14 +387,19 @@ static size_t trudp_ChannelSendPacket(trudpChannelData *tcd, void *packetDATA,
         size_t packetLength, int save_to_send_queue) {
 
     // Save packet to send queue
-    if(save_to_send_queue) {
-        trudpPacketQueueAdd(tcd->sendQueue,
+//    if(save_to_send_queue) {
+//        trudpPacketQueueAdd(tcd->sendQueue,
+//            packetDATA,
+//            packetLength,
+//            trudp_ChannelCalculateExpectedTime(tcd, trudpGetTimestampFull(), 0)
+//        );
+//        TD(tcd)->stat.sendQueue.size_current++;
+//    }
+    trudpSendQueueAdd(tcd->sendQueue,
             packetDATA,
             packetLength,
             trudp_ChannelCalculateExpectedTime(tcd, trudpGetTimestampFull(), 0)
-        );
-        TD(tcd)->stat.sendQueue.size_current++;
-    }
+    );
 
     // Send data (add to write queue)
     #if !USE_WRITE_QUEUE
@@ -473,7 +492,7 @@ void *trudp_ChannelProcessReceivedPacket(trudpChannelData *tcd, void *packet,
 
                 // Find packet in send queue by id
                 size_t send_data_length = 0;
-                trudpPacketQueueData *tpqd = trudpPacketQueueFindById(
+                trudpPacketQueueData *tpqd = trudpSendQueueFindById(
                     tcd->sendQueue, trudpPacketGetId(packet)
                 );
                 if(tpqd) {
@@ -773,28 +792,6 @@ int trudp_SendQueueProcessChannel(trudpChannelData *tcd, uint64_t ts,
 
     return rv;
 }
-
-/**
- * Get channel send queue timeout
- *
- * @param tcd Pointer to trudpChannelData
- * @param ts Current time
- * 
- * @return Send queue timeout (may by 0) or UINT32_MAX if send queue is empty
- */
-uint32_t trudp_ChannelSendQueueGetTimeout(trudpChannelData *tcd, 
-        uint64_t current_t) {
-
-    // Get sendQueue timeout
-    uint32_t timeout_sq = UINT32_MAX;
-    if(tcd->sendQueue->q->first) {
-        trudpPacketQueueData *pqd = (trudpPacketQueueData *)tcd->sendQueue->q->first->data;
-        timeout_sq = pqd->expected_time > current_t  ? pqd->expected_time - current_t : 0;
-    }
-
-    return timeout_sq;
-}
-
 
 // Write queue functions ======================================================
 

@@ -28,3 +28,48 @@
  */
 
 #include "trudp_send_queue.h"
+
+void trudp_ChannelIncrementStatSendQueueSize(trudpPacketQueue *sq);
+
+/**
+ * Add packet to Packet queue
+ *
+ * @param tq Pointer to trudpPacketQueue
+ * @param packet Packet to add to queue
+ * @param packet_length Packet length
+ * @param expected_time Packet expected time
+ *
+ * @return Pointer to added trudpPacketQueueData
+ */
+trudpPacketQueueData *trudpSendQueueAdd(trudpPacketQueue *sq, void *packet,
+        size_t packet_length, uint64_t expected_time) {
+    
+    trudpPacketQueueData *tqd = trudpPacketQueueAdd(sq,
+        packet,
+        packet_length,
+        expected_time
+    );
+    trudp_ChannelIncrementStatSendQueueSize(sq);
+    
+    return tqd;
+}
+
+/**
+ * Get send queue timeout
+ *
+ * @param tcd Pointer to trudpChannelData
+ * @param ts Current time
+ * 
+ * @return Send queue timeout (may by 0) or UINT32_MAX if send queue is empty
+ */
+uint32_t trudpSendQueueGetTimeout(trudpPacketQueue *sq, uint64_t current_t) {
+    
+    // Get sendQueue timeout
+    uint32_t timeout_sq = UINT32_MAX;
+    if(sq->q->first) {
+        trudpPacketQueueData *pqd = (trudpPacketQueueData *) sq->q->first->data;
+        timeout_sq = pqd->expected_time > current_t ? pqd->expected_time - current_t : 0;
+    }
+    
+    return timeout_sq;
+}
