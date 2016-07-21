@@ -50,6 +50,8 @@ libtrudp_la_SOURCES = \
 	packet_queue.c \
 	queue.c \
 	trudp.c \
+	trudp_receive_queue.c \
+	trudp_send_queue.c \
 	trudp_channel.c \
 	trudp_utils.c \
 	trudp_stat.c \
