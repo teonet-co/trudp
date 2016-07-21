@@ -57,7 +57,18 @@ trudpPacketQueue *trudpPacketQueueNew();
 void trudpPacketQueueDestroy(trudpPacketQueue *tq);
 int trudpPacketQueueFree(trudpPacketQueue *tq);
 
-size_t trudpPacketQueueSize(trudpPacketQueue *tq);
+//size_t trudpPacketQueueSize(trudpPacketQueue *tq);
+/**
+ * Get number of elements in Packet queue
+ *
+ * @param tq
+ *
+ * @return Number of elements in TR-UPD queue
+ */
+static inline size_t trudpPacketQueueSize(trudpPacketQueue *tq) {
+    return trudpQueueSize(tq->q);
+}
+
 trudpQueueData *trudpPacketQueueDataToQueueData(trudpPacketQueueData *tqd);
 
 trudpPacketQueueData *trudpPacketQueueAdd(trudpPacketQueue *tq, 

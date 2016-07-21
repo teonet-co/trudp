@@ -387,14 +387,6 @@ static size_t trudp_ChannelSendPacket(trudpChannelData *tcd, void *packetDATA,
         size_t packetLength, int save_to_send_queue) {
 
     // Save packet to send queue
-//    if(save_to_send_queue) {
-//        trudpPacketQueueAdd(tcd->sendQueue,
-//            packetDATA,
-//            packetLength,
-//            trudp_ChannelCalculateExpectedTime(tcd, trudpGetTimestampFull(), 0)
-//        );
-//        TD(tcd)->stat.sendQueue.size_current++;
-//    }
     trudpSendQueueAdd(tcd->sendQueue,
             packetDATA,
             packetLength,
@@ -492,18 +484,18 @@ void *trudp_ChannelProcessReceivedPacket(trudpChannelData *tcd, void *packet,
 
                 // Find packet in send queue by id
                 size_t send_data_length = 0;
-                trudpPacketQueueData *tpqd = trudpSendQueueFindById(
+                trudpSendQueueData *sqd = trudpSendQueueFindById(
                     tcd->sendQueue, trudpPacketGetId(packet)
                 );
-                if(tpqd) {
+                if(sqd) {
 
                     // Process ACK data callback
-                    trudpEventSend(tcd, GOT_ACK, tpqd->packet,
-                            tpqd->packet_length, NULL);
+                    trudpEventSend(tcd, GOT_ACK, sqd->packet,
+                            sqd->packet_length, NULL);
 
                     // Remove packet from send queue
-                    send_data_length = trudpPacketGetDataLength(tpqd->packet);
-                    trudpPacketQueueDelete(tcd->sendQueue, tpqd);
+                    send_data_length = trudpPacketGetDataLength(sqd->packet);
+                    trudpSendQueueDelete(tcd->sendQueue, sqd);
                     TD(tcd)->stat.sendQueue.size_current--;
                 }
 
@@ -514,7 +506,7 @@ void *trudp_ChannelProcessReceivedPacket(trudpChannelData *tcd, void *packet,
                 // Reset if id is too big and send queue is empty
                 //goto skip_reset_after_id;
                 if(tcd->sendId >= RESET_AFTER_ID &&
-                   !trudpQueueSize(tcd->sendQueue->q) &&
+                   !trudpSendQueueSize(tcd->sendQueue) &&
                    !trudpQueueSize(tcd->receiveQueue->q) ) {
 
                     // Send reset
@@ -720,8 +712,8 @@ int trudp_SendQueueProcessChannel(trudpChannelData *tcd, uint64_t ts,
     int rv = 0;
 
     trudpPacketQueueData *tqd = NULL;
-    if(trudpPacketQueueSize(tcd->sendQueue) &&
-       (tqd = trudpPacketQueueGetFirst(tcd->sendQueue)) &&
+    if(trudpSendQueueSize(tcd->sendQueue) &&
+       (tqd = trudpSendQueueGetFirst(tcd->sendQueue)) &&
         tqd->expected_time <= ts ) {
 
         // Change records expected time

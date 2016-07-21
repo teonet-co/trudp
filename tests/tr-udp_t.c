@@ -56,8 +56,8 @@ static void send_data_test() {
     char *data = "HelloTR-UDP!";
     size_t data_length = strlen(data) + 1;
     CU_ASSERT(trudp_ChannelSendData(tcd, data, data_length) > 0);
-    CU_ASSERT(trudpQueueSize(tcd->sendQueue->q) == 1); // Send Queue should contain 1 element
-    CU_ASSERT_PTR_NOT_NULL(trudpPacketQueueFindById(tcd->sendQueue, 0)); // Send Queue should contain an element with ID 0
+    CU_ASSERT(trudpSendQueueSize(tcd->sendQueue) == 1); // Send Queue should contain 1 element
+    CU_ASSERT_PTR_NOT_NULL(trudpSendQueueFindById(tcd->sendQueue, 0)); // Send Queue should contain an element with ID 0
     
     // Destroy TR-UDP
     trudp_ChannelDestroy(tcd);
