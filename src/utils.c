@@ -38,7 +38,7 @@
 // \todo vformatMessage does not work under MinGW
 #define KSN_BUFFER_SM_SIZE 256; //2048;//256
 
-char *vformatMessage(const char *fmt, va_list ap) {
+static char *vformatMessage(const char *fmt, va_list ap) {
 
     int size = KSN_BUFFER_SM_SIZE; /* Guess we need no more than 100 bytes */
     char *p, *np;
