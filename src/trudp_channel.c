@@ -365,11 +365,11 @@ static inline uint64_t trudp_ChannelCalculateExpectedTime(trudpChannelData *tcd,
 /**
  * Increment statistics send queue size value
  * 
- * @param sq Pointer to Send queue (trudpPacketQueue = trudpChannelData.sendQueu) 
+ * @param tcd Pointer to trudpChannelData
  */
-void trudp_ChannelIncrementStatSendQueueSize(trudpPacketQueue *sq) {
+static inline 
+void trudp_ChannelIncrementStatSendQueueSize(trudpChannelData *tcd) {
     
-    trudpChannelData *tcd = (void *) sq - offsetof(trudpChannelData, sendQueue);
     TD(tcd)->stat.sendQueue.size_current++;
 }
 
@@ -387,11 +387,14 @@ static size_t trudp_ChannelSendPacket(trudpChannelData *tcd, void *packetDATA,
         size_t packetLength, int save_to_send_queue) {
 
     // Save packet to send queue
-    trudpSendQueueAdd(tcd->sendQueue,
+    if(save_to_send_queue) {
+        trudpSendQueueAdd(tcd->sendQueue,
             packetDATA,
             packetLength,
             trudp_ChannelCalculateExpectedTime(tcd, trudpGetTimestampFull(), 0)
-    );
+        );
+        trudp_ChannelIncrementStatSendQueueSize(tcd);
+    }
 
     // Send data (add to write queue)
     #if !USE_WRITE_QUEUE
