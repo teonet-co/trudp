@@ -24,6 +24,8 @@
 
 // Utilities functions ========================================================
 
+#include <stdio.h>
+
 #include "trudp_utils.h"
 #include "trudp_const.h"
 

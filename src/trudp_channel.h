@@ -115,7 +115,7 @@ typedef struct trudpStatChannelData {
 typedef struct trudpChannelData {
     
     uint32_t sendId; ///< Send ID
-    trudpPacketQueue *sendQueue; ///< Pointer to send queue trudpPacketQueue
+    trudpSendQueue *sendQueue; ///< Pointer to send queue trudpSendQueue
     uint32_t triptime; ///< Trip time 
     double triptimeFactor; ///< Triptime factor
     uint32_t triptimeMiddle; ///< Trip time middle
@@ -175,7 +175,7 @@ size_t trudp_ChannelSendPING(trudpChannelData *tcd, void *data,
  * 
  * @return Send queue timeout (may by 0) or UINT32_MAX if send queue is empty
  */
-inline uint32_t trudp_ChannelSendQueueGetTimeout(trudpChannelData *tcd, 
+static inline uint32_t trudp_ChannelSendQueueGetTimeout(trudpChannelData *tcd, 
         uint64_t current_t) {
 
     return trudpSendQueueGetTimeout(tcd->sendQueue, current_t);
