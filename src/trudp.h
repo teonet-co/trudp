@@ -223,6 +223,8 @@ void trudpSendResetAll(trudpData *td);
 size_t trudpProcessKeepConnection(trudpData *td);
 void trudpEventSend(void *t_pointer, int event, void *data,
         size_t data_length, void *user_data);
+void *trudpEventGotDataSend(void *t_pointer, void *packet, 
+        size_t *data_length);
 void trudp_ChannelDestroyAll(trudpData *td);
 void trudp_ChannelDestroyAddr(trudpData *td, char *addr, int port, 
         int channel);
