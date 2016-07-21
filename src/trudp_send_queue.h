@@ -122,6 +122,23 @@ trudpPacketQueueData *trudpSendQueueGetFirst(trudpSendQueue *sq) {
     return trudpPacketQueueGetFirst(sq);
 }
 
+/**
+ * Add packet to Packet queue
+ *
+ * @param sq Pointer to trudpSendQueue
+ * @param packet Packet to add to queue
+ * @param packet_length Packet length
+ * @param expected_time Packet expected time
+ *
+ * @return Pointer to added trudpPacketQueueData
+ */
+static inline
+trudpSendQueueData *trudpSendQueueAdd(trudpSendQueue *sq, void *packet,
+        size_t packet_length, uint64_t expected_time) {
+    
+    return trudpPacketQueueAdd(sq, packet, packet_length, expected_time);
+}
+
 trudpPacketQueueData *trudpSendQueueAdd(trudpSendQueue *sq, void *packet,
         size_t packet_length, uint64_t expected_time);
 
