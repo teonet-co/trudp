@@ -61,6 +61,7 @@ typedef _W64 unsigned int   ssize_t;
 
 #include "trudp_const.h"
 #include "trudp_send_queue.h"
+#include "trudp_receive_queue.h"
 
 #include "packet_queue.h"
 #include "write_queue.h"
@@ -124,7 +125,7 @@ typedef struct trudpChannelData {
     trudpWriteQueue *writeQueue; ///< Pointer to write queue trudpWriteQueue
         
     uint32_t receiveExpectedId; ///< Ecpected recive Id
-    trudpPacketQueue *receiveQueue; ///< Pointer to recive queue receiveQueue
+    trudpReceiveQueue *receiveQueue; ///< Pointer to recive queue trudpReceiveQueue
     int outrunning_cnt; ///< Receive queue outrunning count
     uint64_t lastReceived; ///< Last received time
 

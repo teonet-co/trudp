@@ -33,6 +33,7 @@
 #include "trudp_stat.h"
 
 #include "trudp_send_queue.h"
+#include "trudp_receive_queue.h"
 #include "packet.h"
 
 /**
@@ -77,7 +78,7 @@ static void trudp_ChannelFree(trudpChannelData *tcd) {
 
     trudpSendQueueFree(tcd->sendQueue);
     trudpWriteQueueFree(tcd->writeQueue);
-    trudpPacketQueueFree(tcd->receiveQueue);
+    trudpReceiveQueueFree(tcd->receiveQueue);
     trudp_ChannelSetDefaults(tcd);
 }
 
@@ -101,7 +102,7 @@ trudpChannelData *trudp_ChannelNew(void *parent, char *remote_address,
     tcd->td = parent;
     tcd->sendQueue = trudpSendQueueNew();
     tcd->writeQueue = trudpWriteQueueNew();
-    tcd->receiveQueue = trudpPacketQueueNew();
+    tcd->receiveQueue = trudpReceiveQueueNew();
     tcd->addrlen = sizeof(tcd->remaddr);
     trudpUdpMakeAddr(remote_address, remote_port_i,
             (__SOCKADDR_ARG) &tcd->remaddr, &tcd->addrlen);
@@ -510,7 +511,7 @@ void *trudp_ChannelProcessReceivedPacket(trudpChannelData *tcd, void *packet,
                 //goto skip_reset_after_id;
                 if(tcd->sendId >= RESET_AFTER_ID &&
                    !trudpSendQueueSize(tcd->sendQueue) &&
-                   !trudpQueueSize(tcd->receiveQueue->q) ) {
+                   !trudpReceiveQueueSize(tcd->receiveQueue) ) {
 
                     // Send reset
                     trudp_ChannelSendRESET(tcd, &tcd->sendId, sizeof(tcd->sendId));
@@ -601,19 +602,19 @@ void *trudp_ChannelProcessReceivedPacket(trudpChannelData *tcd, void *packet,
                                 NULL);
 
                         // Check received queue for saved packet with expected id
-                        trudpPacketQueueData *tqd;
-                        while((tqd = trudpPacketQueueFindById(tcd->receiveQueue,
+                        trudpReceiveQueueData *rqd;
+                        while((rqd = trudpReceiveQueueFindById(tcd->receiveQueue,
                                 ++tcd->receiveExpectedId)) ) {
 
                             // Send event
-                            data = trudpPacketGetData(tqd->packet);
-                            *data_length = trudpPacketGetDataLength(tqd->packet);
+                            data = trudpPacketGetData(rqd->packet);
+                            *data_length = trudpPacketGetDataLength(rqd->packet);
                             trudpEventSend(tcd, GOT_DATA,
                                 data,
                                 *data_length,
                                 NULL);
 
-                            trudpPacketQueueDelete(tcd->receiveQueue, tqd);
+                            trudpReceiveQueueDelete(tcd->receiveQueue, rqd);
                         }
 
                         // Statistic
@@ -626,10 +627,10 @@ void *trudp_ChannelProcessReceivedPacket(trudpChannelData *tcd, void *packet,
                     // Save outrunning packet to receiveQueue
                     else if(trudpPacketGetId(packet) > tcd->receiveExpectedId) {
 
-                        if(!trudpPacketQueueFindById(tcd->receiveQueue,
+                        if(!trudpReceiveQueueFindById(tcd->receiveQueue,
                                 trudpPacketGetId(packet)) ) {
 
-                            trudpPacketQueueAdd(tcd->receiveQueue, packet, packet_length, 0);
+                            trudpReceiveQueueAdd(tcd->receiveQueue, packet, packet_length, 0);
                             tcd->outrunning_cnt++; // Increment outrunning count
 
                             // Statistic

@@ -143,20 +143,6 @@ trudpPacketQueueData *trudpPacketQueueAddTime(trudpPacketQueue *tq,
 }
 
 /**
- * Remove element from Packet queue
- *
- * @param tq Pointer to trudpPacketQueue
- * @param tqd Pointer to trudpPacketQueueData to delete it
- *
- * @return Zero at success
- */
-inline int trudpPacketQueueDelete(trudpPacketQueue *tq, 
-        trudpPacketQueueData *tqd) {
-
-    return trudpQueueDelete(tq->q, trudpPacketQueueDataToQueueData(tqd));
-}
-
-/**
  * Find Packet queue data by Id
  *
  * @param tq Pointer to trudpPacketQueue

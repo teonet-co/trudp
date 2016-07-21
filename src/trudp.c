@@ -310,7 +310,7 @@ size_t trudpGetReceiveQueueMax(trudpData *td) {
         while((el = trudpMapIteratorNext(it))) {
             trudpChannelData *tcd = (trudpChannelData *)
                     trudpMapIteratorElementData(el, NULL);
-            int size = trudpPacketQueueSize(tcd->receiveQueue);
+            int size = trudpReceiveQueueSize(tcd->receiveQueue);
             if(size > rv) rv = size;
         }
         trudpMapIteratorDestroy(it);

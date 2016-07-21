@@ -235,7 +235,7 @@ void *trudpStatGet(trudpData *td, int type, size_t *stat_len) {
                         memcpy(ts->cs[i].key, key, key_length < MAX_KEY_LENGTH ?
                             key_length : MAX_KEY_LENGTH - 1);
                         ts->cs[i].sq = trudpSendQueueSize(tcd->sendQueue);
-                        ts->cs[i].rq = trudpQueueSize(tcd->receiveQueue->q);
+                        ts->cs[i].rq = trudpReceiveQueueSize(tcd->receiveQueue);
                         i++;
                     }
                     trudpMapIteratorDestroy(it);
@@ -428,7 +428,7 @@ char *ksnTRUDPstatShowStr(trudpData *td) {
             packets_dropped += tcd->stat.packets_receive_dropped;
             
             size_t sendQueueSize = trudpSendQueueSize(tcd->sendQueue);
-            size_t receiveQueueSize = trudpQueueSize(tcd->receiveQueue->q);
+            size_t receiveQueueSize = trudpReceiveQueueSize(tcd->receiveQueue);
 
             tbl_str = sformatMessage(tbl_str,
                 "%s%3d "_ANSI_BROWN"%-24.*s"_ANSI_NONE" %8d %11.3f %10.3f  %9.3f /%9.3f %8d %11.3f %10.3f %8d %8d(%d%%) %8d(%d%%) %6d %6d\n",
@@ -577,7 +577,7 @@ char *trudpStatShowQueueStr(trudpChannelData *tcd, int type) {
             "    #   Id          Expected   Retrieves\n"
             "--------------------------------------------------------------\n"
             , !type ? "Send" : "Receive"
-            , !type ? trudpSendQueueSize(tcd->sendQueue) : trudpPacketQueueSize(tcd->receiveQueue)
+            , !type ? trudpSendQueueSize(tcd->sendQueue) : trudpReceiveQueueSize(tcd->receiveQueue)
             , !type ? "next id: " : "expected id: "
             , !type ? tcd->sendId : tcd->receiveExpectedId
         );
