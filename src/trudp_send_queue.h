@@ -30,12 +30,60 @@
 #ifndef TRUDP_SEND_QUEUE_H
 #define TRUDP_SEND_QUEUE_H
 
+#include <stddef.h>
+#include <stdint.h>
+
+#include "packet_queue.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+/**
+ * Create new Send queue
+ *
+ * @return Pointer to trudpPacketQueue
+ */    
+inline trudpPacketQueue *trudpSendQueueNew() { return trudpPacketQueueNew(); }
 
+/**
+ * Remove all elements from Send queue
+ *
+ * @param tq Pointer to Send Queue (trudpPacketQueue)
+ * @return Zero at success
+ */
+inline int trudpSendQueueFree(trudpPacketQueue *sq) { return trudpPacketQueueFree(sq); }
 
+/**
+ * Destroy Send queue
+ *
+ * @param tq Pointer to Send Queue (trudpPacketQueue)
+ */
+inline void trudpSendQueueDestroy(trudpPacketQueue *sq) { trudpPacketQueueDestroy(sq); }
+
+/**
+ * Get number of elements in Send queue
+ *
+ * @param tq
+ *
+ * @return Number of elements in TR-UPD send queue
+ */
+inline size_t trudpSendQueueSize(trudpPacketQueue *sq) { return trudpPacketQueueSize(sq); }
+
+/**
+ * Find Packet queue data by Id
+ *
+ * @param tq Pointer to trudpPacketQueue
+ * @param id Id to find in send queue
+ *
+ * @return Pointer to trudpPacketQueueData or NULL if not found
+ */
+inline trudpPacketQueueData *trudpSendQueueFindById(trudpPacketQueue *tq, 
+        uint32_t id) { return trudpPacketQueueFindById(tq, id); }
+
+trudpPacketQueueData *trudpSendQueueAdd(trudpPacketQueue *sq, void *packet,
+        size_t packet_length, uint64_t expected_time);
+uint32_t trudpSendQueueGetTimeout(trudpPacketQueue *sq, uint64_t current_t);
 
 #ifdef __cplusplus
 }
