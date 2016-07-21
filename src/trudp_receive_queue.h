@@ -33,7 +33,14 @@
 
 #include "packet_queue.h"
 
+/**
+ * Receive queue type
+ */
 typedef trudpPacketQueue trudpReceiveQueue;
+
+/**
+ * Receive queue data type
+ */
 typedef trudpPacketQueueData trudpReceiveQueueData;
 
 #ifdef __cplusplus
@@ -72,18 +79,20 @@ static inline size_t trudpReceiveQueueSize(trudpReceiveQueue *sq) {
 }
 
 /**
- * Find Receive queue data by Id
+ * Add packet to Receive queue
  *
  * @param sq Pointer to trudpReceiveQueue
- * @param id Id to find in send queue
+ * @param packet Packet to add to queue
+ * @param packet_length Packet length
+ * @param expected_time Packet expected time
  *
- * @return Pointer to trudpReceiveQueueData or NULL if not found
+ * @return Pointer to added trudpReceiveQueueData
  */
 static inline
-trudpReceiveQueueData *trudpReceiveQueueFindById(trudpReceiveQueue *sq,
-        uint32_t id) {
-
-    return trudpPacketQueueFindById(sq, id);
+trudpReceiveQueueData *trudpReceiveQueueAdd(trudpReceiveQueue *sq, void *packet,
+        size_t packet_length, uint64_t expected_time) {
+    
+    return trudpPacketQueueAdd(sq, packet, packet_length, expected_time);
 }
 
 /**
@@ -101,20 +110,18 @@ static inline int trudpReceiveQueueDelete(trudpReceiveQueue *tq,
 }
 
 /**
- * Add packet to Receive queue
+ * Find Receive queue data by Id
  *
  * @param sq Pointer to trudpReceiveQueue
- * @param packet Packet to add to queue
- * @param packet_length Packet length
- * @param expected_time Packet expected time
+ * @param id Id to find in send queue
  *
- * @return Pointer to added trudpReceiveQueueData
+ * @return Pointer to trudpReceiveQueueData or NULL if not found
  */
 static inline
-trudpReceiveQueueData *trudpReceiveQueueAdd(trudpReceiveQueue *sq, void *packet,
-        size_t packet_length, uint64_t expected_time) {
-    
-    return trudpPacketQueueAdd(sq, packet, packet_length, expected_time);
+trudpReceiveQueueData *trudpReceiveQueueFindById(trudpReceiveQueue *sq,
+        uint32_t id) {
+
+    return trudpPacketQueueFindById(sq, id);
 }
 
 #ifdef __cplusplus

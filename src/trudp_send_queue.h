@@ -43,6 +43,10 @@ extern "C" {
  * Send queue type
  */    
 typedef trudpPacketQueue trudpSendQueue;
+
+/**
+ * Send queue data type
+ */ 
 typedef trudpPacketQueueData trudpSendQueueData;
 
 /**
@@ -85,16 +89,20 @@ static inline size_t trudpSendQueueSize(trudpSendQueue *sq) {
 }
 
 /**
- * Find Send queue data by Id
+ * Add packet to Send queue
  *
  * @param sq Pointer to trudpSendQueue
- * @param id Id to find in send queue
+ * @param packet Packet to add to queue
+ * @param packet_length Packet length
+ * @param expected_time Packet expected time
  *
- * @return Pointer to trudpSendQueueData or NULL if not found
+ * @return Pointer to added trudpSendQueueData
  */
-static inline 
-trudpSendQueueData *trudpSendQueueFindById(trudpSendQueue *sq, uint32_t id) {     
-    return trudpPacketQueueFindById(sq, id); 
+static inline
+trudpSendQueueData *trudpSendQueueAdd(trudpSendQueue *sq, void *packet,
+        size_t packet_length, uint64_t expected_time) {
+    
+    return trudpPacketQueueAdd(sq, packet, packet_length, expected_time);
 }
 
 /**
@@ -111,6 +119,19 @@ int trudpSendQueueDelete(trudpSendQueue *sq, trudpSendQueueData *sqd) {
 }
 
 /**
+ * Find Send queue data by Id
+ *
+ * @param sq Pointer to trudpSendQueue
+ * @param id Id to find in send queue
+ *
+ * @return Pointer to trudpSendQueueData or NULL if not found
+ */
+static inline 
+trudpSendQueueData *trudpSendQueueFindById(trudpSendQueue *sq, uint32_t id) {     
+    return trudpPacketQueueFindById(sq, id); 
+}
+
+/**
  * Get first element from Send Queue
  *
  * @param tq Pointer to trudpSendQueue
@@ -120,23 +141,6 @@ int trudpSendQueueDelete(trudpSendQueue *sq, trudpSendQueueData *sqd) {
 static inline
 trudpPacketQueueData *trudpSendQueueGetFirst(trudpSendQueue *sq) {
     return trudpPacketQueueGetFirst(sq);
-}
-
-/**
- * Add packet to Send queue
- *
- * @param sq Pointer to trudpSendQueue
- * @param packet Packet to add to queue
- * @param packet_length Packet length
- * @param expected_time Packet expected time
- *
- * @return Pointer to added trudpSendQueueData
- */
-static inline
-trudpSendQueueData *trudpSendQueueAdd(trudpSendQueue *sq, void *packet,
-        size_t packet_length, uint64_t expected_time) {
-    
-    return trudpPacketQueueAdd(sq, packet, packet_length, expected_time);
 }
 
 uint32_t trudpSendQueueGetTimeout(trudpSendQueue *sq, uint64_t current_t);

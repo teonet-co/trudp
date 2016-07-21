@@ -144,6 +144,7 @@ void trudp_ChannelDestroy(trudpChannelData *tcd) {
     trudpEventSend(tcd, DISCONNECTED, NULL, 0, NULL);
     trudp_ChannelFree(tcd);
     trudpSendQueueDestroy(tcd->sendQueue);
+    trudpSendQueueDestroy(tcd->receiveQueue);
     
     int port;
     size_t key_length;
@@ -593,27 +594,30 @@ void *trudp_ChannelProcessReceivedPacket(trudpChannelData *tcd, void *packet,
                     // Check expected Id and return data
                     if(trudpPacketGetId(packet) == tcd->receiveExpectedId) {
 
-                        // Send event
-                        data = trudpPacketGetData(packet);
-                        *data_length = trudpPacketGetDataLength(packet);
-                        trudpEventSend(tcd, GOT_DATA,
-                                data,
-                                *data_length,
-                                NULL);
+                        // Send Got Data event
+//                        data = trudpPacketGetData(packet);
+//                        *data_length = trudpPacketGetDataLength(packet);
+//                        trudpEventSend(tcd, GOT_DATA,
+//                                data,
+//                                *data_length,
+//                                NULL);
+                        data = trudpEventGotDataSend(tcd, packet, data_length);
 
                         // Check received queue for saved packet with expected id
                         trudpReceiveQueueData *rqd;
                         while((rqd = trudpReceiveQueueFindById(tcd->receiveQueue,
                                 ++tcd->receiveExpectedId)) ) {
 
-                            // Send event
-                            data = trudpPacketGetData(rqd->packet);
-                            *data_length = trudpPacketGetDataLength(rqd->packet);
-                            trudpEventSend(tcd, GOT_DATA,
-                                data,
-                                *data_length,
-                                NULL);
+                            // Send Got Data event
+//                            data = trudpPacketGetData(rqd->packet);
+//                            *data_length = trudpPacketGetDataLength(rqd->packet);
+//                            trudpEventSend(tcd, GOT_DATA,
+//                                data,
+//                                *data_length,
+//                                NULL);
+                            data = trudpEventGotDataSend(tcd, rqd->packet, data_length);
 
+                            // Delete element from received queue
                             trudpReceiveQueueDelete(tcd->receiveQueue, rqd);
                         }
 
@@ -652,7 +656,8 @@ void *trudp_ChannelProcessReceivedPacket(trudpChannelData *tcd, void *packet,
 
                     // Reset channel if packet id = 0
                     else if(!trudpPacketGetId(packet)) {
-                        // Send event
+                        
+                        // Send Send Reset event
                         trudp_ChannelSendRESET(tcd, NULL, 0);
                     }
 
@@ -670,7 +675,7 @@ void *trudp_ChannelProcessReceivedPacket(trudpChannelData *tcd, void *packet,
             // RESET packet received
             case TRU_RESET: {
 
-                // Send event
+                // Send Got Reset event
                 trudpEventSend(tcd, GOT_RESET, NULL, 0, NULL);
 
                 // Create ACK to RESET packet and send it back to sender

@@ -96,7 +96,7 @@ void trudpDestroy(trudpData* td) {
 /**
  * Execute trudpEventCb callback
  *
- * @param t_pointer
+ * @param t_pointer Pointer to trudpData or to trudpChannelData
  * @param event
  * @param data
  * @param data_length
@@ -121,6 +121,26 @@ void trudpEventSend(void *t_pointer, int event, void *data,
         trudpEventCb cb = TD(tcd)->evendCb;
         if(cb != NULL) cb((void*)tcd, event, data, data_length, TD(tcd)->user_data);
     }
+}
+
+/**
+ * Execute evetrudpEventCbnt callback with event GOT_DATA when data packet received
+ * 
+ * @param t_pointer Pointer to trudpChannelData
+ * @param packet Pointer to received packet
+ * @param data_length [out] Packets data length (NULL if not need to return it
+ * 
+ * @return  Pointer to packet data
+ */
+void *trudpEventGotDataSend(void *t_pointer, void *packet, 
+        size_t *data_length) {
+    
+    void *data = trudpPacketGetData(packet);
+    size_t data_len = trudpPacketGetDataLength(packet);
+    trudpEventSend(t_pointer, GOT_DATA, data, data_len, NULL);
+    if(data_length) *data_length = data_len;
+    
+    return data;
 }
 
 /**
