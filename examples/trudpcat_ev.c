@@ -46,6 +46,7 @@ extern int usleep (__useconds_t __useconds);
 #include "trudp.h"
 #include "utils_r.h"
 #include "trudp_stat.h"
+#include "utils_r.h"
 
 // Application version
 #define APP_VERSION "0.0.18"
@@ -481,7 +482,7 @@ static trudpChannelData *connectToPeer(trudpData *td) {
 
     trudpChannelData *tcd = NULL;
 
-    // Create remote address and Send "connect" packet
+    // Start connection and Send "connect" packet
     if(!o.listen) {
         char *connect = "Connect with TR-UDP!";
         size_t connect_length = strlen(connect) + 1;
@@ -664,7 +665,8 @@ static void start_send_queue_cb(process_send_queue_data *psd,
     if((tt = (next_et != UINT64_MAX) ? next_et : trudp_SendQueueGetTimeout(psd->td, ts)) != UINT32_MAX) {
 
         double tt_d = tt / 1000000.0;
-
+        if(tt_d == 0.0) tt_d = 0.001;
+        
         if(!psd->inited) {
             ev_timer_init(&psd->process_send_queue_w, process_send_queue_cb, tt_d, 0.0);
             psd->process_send_queue_w.data = (void*)psd;
@@ -676,6 +678,9 @@ static void start_send_queue_cb(process_send_queue_data *psd,
         }
 
         ev_timer_start(psd->loop, &psd->process_send_queue_w);
+        printf("Set send_queue timeout: "_ANSI_BROWN"%.6f"_ANSI_NONE
+               ", send queue size: %d\n", 
+               tt_d, (int)trudp_SendQueueSize(psd->td));
     }
 }
 
