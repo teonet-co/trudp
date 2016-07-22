@@ -237,6 +237,7 @@ size_t trudpSendDataToAll(trudpData *td, void *data, size_t data_length);
 size_t trudpGetReceiveQueueMax(trudpData *td);
 
 //size_t trudp_SendQueueGetSizeMax(trudpData *td);
+size_t trudp_SendQueueSize(trudpData *td);
 uint32_t trudp_SendQueueGetTimeout(trudpData *td, uint64_t ts);
 int trudp_SendQueueProcess(trudpData *td, uint64_t *next_et);
 

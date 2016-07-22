@@ -437,6 +437,29 @@ uint32_t trudp_SendQueueGetTimeout(trudpData *td, uint64_t current_time) {
 }
 
 /**
+ * Get sum of all send queues size
+ * 
+ * @param td
+ * @return 
+ */
+size_t trudp_SendQueueSize(trudpData *td) {
+    
+    uint32_t sz = 0;
+    trudpMapIterator *it;
+    trudpMapElementData *el;
+
+    if((it = trudpMapIteratorNew(td->map))) {
+        while((el = trudpMapIteratorNext(it))) {
+            trudpChannelData *tcd = (trudpChannelData *)trudpMapIteratorElementData(el, NULL);
+            sz += trudpSendQueueSize(tcd->sendQueue);
+        }
+        trudpMapIteratorDestroy(it);
+    }
+    
+    return sz;
+}
+
+/**
  * Check all peers send Queue elements and resend elements with expired time
  *
  * @param td Pointer to trudpData
