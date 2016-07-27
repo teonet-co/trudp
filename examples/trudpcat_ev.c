@@ -665,7 +665,7 @@ static void start_send_queue_cb(process_send_queue_data *psd,
     if((tt = (next_et != UINT64_MAX) ? next_et : trudp_SendQueueGetTimeout(psd->td, ts)) != UINT32_MAX) {
 
         double tt_d = tt / 1000000.0;
-        if(tt_d == 0.0) tt_d = 0.001;
+        if(tt_d == 0.0) tt_d = 0.0001;
         
         if(!psd->inited) {
             ev_timer_init(&psd->process_send_queue_w, process_send_queue_cb, tt_d, 0.0);
@@ -678,9 +678,9 @@ static void start_send_queue_cb(process_send_queue_data *psd,
         }
 
         ev_timer_start(psd->loop, &psd->process_send_queue_w);
-        printf("Set send_queue timeout: "_ANSI_BROWN"%.6f"_ANSI_NONE
-               ", send queue size: %d\n", 
-               tt_d, (int)trudp_SendQueueSize(psd->td));
+//        printf("Set send_queue timeout: "_ANSI_BROWN"%.6f"_ANSI_NONE
+//               ", send queue size: %d\n", 
+//               tt_d, (int)trudp_SendQueueSize(psd->td));
     }
 }
 
