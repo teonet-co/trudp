@@ -595,12 +595,6 @@ void *trudp_ChannelProcessReceivedPacket(trudpChannelData *tcd, void *packet,
                     if(trudpPacketGetId(packet) == tcd->receiveExpectedId) {
 
                         // Send Got Data event
-//                        data = trudpPacketGetData(packet);
-//                        *data_length = trudpPacketGetDataLength(packet);
-//                        trudpEventSend(tcd, GOT_DATA,
-//                                data,
-//                                *data_length,
-//                                NULL);
                         data = trudpEventGotDataSend(tcd, packet, data_length);
 
                         // Check received queue for saved packet with expected id
@@ -609,12 +603,6 @@ void *trudp_ChannelProcessReceivedPacket(trudpChannelData *tcd, void *packet,
                                 ++tcd->receiveExpectedId)) ) {
 
                             // Send Got Data event
-//                            data = trudpPacketGetData(rqd->packet);
-//                            *data_length = trudpPacketGetDataLength(rqd->packet);
-//                            trudpEventSend(tcd, GOT_DATA,
-//                                data,
-//                                *data_length,
-//                                NULL);
                             data = trudpEventGotDataSend(tcd, rqd->packet, data_length);
 
                             // Delete element from received queue
@@ -719,8 +707,8 @@ int trudp_SendQueueProcessChannel(trudpChannelData *tcd, uint64_t ts,
         uint64_t *next_expected_time) {
 
     int rv = 0;
-
-    trudpPacketQueueData *tqd = NULL;
+    
+    trudpSendQueueData *tqd = NULL;
     if(trudpSendQueueSize(tcd->sendQueue) &&
        (tqd = trudpSendQueueGetFirst(tcd->sendQueue)) &&
         tqd->expected_time <= ts ) {
@@ -728,7 +716,7 @@ int trudp_SendQueueProcessChannel(trudpChannelData *tcd, uint64_t ts,
         // Change records expected time
         uint32_t rtt = RTT * tqd->retrieves;
         tqd->expected_time = trudp_ChannelCalculateExpectedTime(tcd, ts, 
-                tqd->retrieves) + (rtt < MAX_RTT) ? rtt : MAX_RTT;
+                tqd->retrieves) + (rtt < MAX_RTT ? rtt : MAX_RTT);
 
         // Move record to the end of Queue \todo don't move record to the end of
         // queue because it should be send first

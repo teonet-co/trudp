@@ -139,7 +139,7 @@ trudpSendQueueData *trudpSendQueueFindById(trudpSendQueue *sq, uint32_t id) {
  * @return Pointer to trudpSendQueueData or NULL if not found
  */
 static inline
-trudpPacketQueueData *trudpSendQueueGetFirst(trudpSendQueue *sq) {
+trudpSendQueueData *trudpSendQueueGetFirst(trudpSendQueue *sq) {
     return trudpPacketQueueGetFirst(sq);
 }
 

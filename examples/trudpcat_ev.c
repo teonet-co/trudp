@@ -273,7 +273,7 @@ static void eventCb(void *tcd_pointer, int event, void *data, size_t data_length
             }
             else {
                 fprintf(stderr,
-                    "Disconnect channel %s (error: wrong data sent)\n", key);
+                    "Disconnected channel %s\n", key);
             }
 
             connected_flag = 0;
