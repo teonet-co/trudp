@@ -196,7 +196,7 @@ typedef struct trudpData {
 
     uint32_t trudp_data_label[2]; ///< Labele to distinguish trudpData and trudpChannelData
     trudpMapData *map; ///< Channels map (key: ip:port:channel)
-    void* process_send_queue_data; ///< Send queue process data (used in external event loop)
+    void* psq_data; ///< Send queue process data (used in external event loop)
     void* user_data; ///< User data
     int port; ///< Port
     int fd; ///< File descriptor

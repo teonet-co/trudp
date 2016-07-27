@@ -57,7 +57,7 @@ trudpData *trudpInit(int fd, int port, trudpEventCb event_cb, void *user_data) {
     memset(trudp, 0, sizeof(trudpData));
 
     trudp->map = trudpMapNew(MAP_SIZE_DEFAULT, 1);
-    trudp->process_send_queue_data = NULL;
+    trudp->psq_data = NULL;
     trudp->user_data = user_data;
     trudp->port = port;
     trudp->fd = fd;

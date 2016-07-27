@@ -11,6 +11,7 @@ AM_CPPFLAGS = \
 AM_CFLAGS = \
 	 -g -Wall \
 	 -fPIC \
+	 -DUSE_LIBEV \
 	 -I$(HOME)/Projects/teonet/embedded/libtrudp/src \
 	 -I/usr/include/libtrudp
 	
@@ -55,6 +56,7 @@ libtrudp_la_SOURCES = \
 	trudp_channel.c \
 	trudp_utils.c \
 	trudp_stat.c \
+	trudp_ev.c \
 	udp.c \
 	utils.c \
 	write_queue.c
