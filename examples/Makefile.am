@@ -8,6 +8,7 @@ AM_CPPFLAGS = \
 AM_CFLAGS = \
 	 -g -Wall \
 	 -fno-strict-aliasing \
+	 -DUSE_LIBEV \
 	 -I../src
 
 AM_CXX = clang++

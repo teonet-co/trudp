@@ -81,22 +81,12 @@ typedef struct options {
 
 } options;
 
-#define USE_LIBEV 1
+//#define USE_LIBEV 1
 
 #if USE_LIBEV
+
 #include <ev.h>
-
-/**
- * Send queue processing data definition
- */
-typedef struct process_send_queue_data {
-
-    int inited;
-    trudpData *td;
-    struct ev_loop *loop;
-    ev_timer process_send_queue_w;
-
-} process_send_queue_data;
+#include "trudp_ev.h"
 
 /**
  * Show statistic data definition
@@ -125,11 +115,11 @@ typedef struct send_message_data {
 } send_message_data;
 
 // Local static function definition
-static void start_send_queue_cb(process_send_queue_data *psd, uint64_t next_expected_time);
+//static void start_send_queue_cb(process_send_queue_data *psd, uint64_t next_expected_time);
 static void start_show_stat_cb(show_statistic_data *ssd);
 
 // Global data
-static process_send_queue_data psd;
+static trudpProcessSendQueueData psd;
 
 #else
 #define USE_SELECT 1
@@ -381,7 +371,7 @@ static void eventCb(void *tcd_pointer, int event, void *data, size_t data_length
                   key, (tcd->triptime)/1000.0, (tcd->triptimeMiddle)/1000.0);
 
             #if USE_LIBEV
-            start_send_queue_cb(&psd, 0);
+            trudp_start_send_queue_cb(&psd, 0);
             #endif
 
         } break;
@@ -463,7 +453,7 @@ static void eventCb(void *tcd_pointer, int event, void *data, size_t data_length
             }
 
             #if USE_LIBEV
-            start_send_queue_cb(&psd, 0);
+            trudp_start_send_queue_cb(&psd, 0);
             #endif
             
         } break;
@@ -622,66 +612,6 @@ static void start_show_stat_cb(show_statistic_data *ssd) {
     }
 
     ev_timer_start(ssd->loop, &ssd->show_statistic_w);
-}
-
-/**
- * 2.1) Send queue processing timer libev callback
- *
- * @param loop
- * @param w
- * @param revents
- */
-static void process_send_queue_cb(EV_P_ ev_timer *w, int revents) {
-
-    process_send_queue_data *psd = (process_send_queue_data *) w->data;
-
-    // Process send queue
-    debug("process send queue ... \n");
-    uint64_t next_expected_time;
-    trudp_SendQueueProcess(psd->td, &next_expected_time);
-
-    // Start new process_send_queue timer
-    if(next_expected_time)
-        start_send_queue_cb(psd, next_expected_time);
-}
-
-/**
- * Start send queue timer
- *
- * @param psd Pointer to process_send_queue_data
- * @param next_expected_time
- */
-static void start_send_queue_cb(process_send_queue_data *psd,
-        uint64_t next_expected_time) {
-
-    uint64_t tt, next_et = UINT64_MAX, ts = trudpGetTimestampFull();
-
-    // If next_expected_time selected (non nil)
-    if(next_expected_time) {        
-        next_et = next_expected_time > ts ? next_expected_time - ts : 0;
-    }
-
-    // If next_expected_time (net) or GetSendQueueTimeout
-    if((tt = (next_et != UINT64_MAX) ? next_et : trudp_SendQueueGetTimeout(psd->td, ts)) != UINT32_MAX) {
-
-        double tt_d = tt / 1000000.0;
-        if(tt_d == 0.0) tt_d = 0.001;
-        
-        if(!psd->inited) {
-            ev_timer_init(&psd->process_send_queue_w, process_send_queue_cb, tt_d, 0.0);
-            psd->process_send_queue_w.data = (void*)psd;
-            psd->inited = 1;
-        }
-        else {
-            ev_timer_stop(psd->loop, &psd->process_send_queue_w);
-            ev_timer_set(&psd->process_send_queue_w, tt_d, 0.0);
-        }
-
-        ev_timer_start(psd->loop, &psd->process_send_queue_w);
-        printf("Set send_queue timeout: "_ANSI_BROWN"%.6f"_ANSI_NONE
-               ", send queue size: %d\n", 
-               tt_d, (int)trudp_SendQueueSize(psd->td));
-    }
 }
 
 #else
