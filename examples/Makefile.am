@@ -7,6 +7,7 @@ AM_CPPFLAGS = \
 
 AM_CFLAGS = \
 	 -g -Wall \
+	 -std=gnu11 \
 	 -fno-strict-aliasing \
 	 -DUSE_LIBEV \
 	 -I../src

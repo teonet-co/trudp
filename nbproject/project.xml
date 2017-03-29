@@ -27,10 +27,13 @@
             </formatting>
         </data>
         <spellchecker-wordlist xmlns="http://www.netbeans.org/ns/spellchecker-wordlist/1">
+            <word>Kirill</word>
             <word>libev</word>
             <word>outrunning</word>
+            <word>Scherba</word>
             <word>triptime</word>
             <word>trudp</word>
+            <word>trudpcat</word>
             <word>unhandled</word>
         </spellchecker-wordlist>
     </configuration>
