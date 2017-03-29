@@ -46,7 +46,6 @@ extern int usleep (__useconds_t __useconds);
 #include "trudp.h"
 #include "utils_r.h"
 #include "trudp_stat.h"
-#include "utils_r.h"
 
 // Application version
 #define APP_VERSION "0.0.18"
@@ -123,13 +122,16 @@ static trudpProcessSendQueueData psd;
 
 #else
 #define USE_SELECT 1
+#include "utils.h"
 #endif
 
 // Application options
 static options o = { 0, 0, 0, 0, 0, 0, 0, 4096, NULL, NULL, NULL, NULL, 0 };
 
+#if USE_SELECT
 // Application exit code and flags
-//static int exit_code = EXIT_SUCCESS, quit_flag = 0;
+static int /*exit_code = EXIT_SUCCESS,*/ quit_flag = 0;
+#endif
 static int connected_flag = 0;
 
 // Read buffer
@@ -629,6 +631,7 @@ static void network_select_loop(trudpData *td, int timeout) {
     int rv = 1;
     fd_set rfds, wfds;
     struct timeval tv;
+    uint64_t /*tt, next_et = UINT64_MAX,*/ ts = trudpGetTimestampFull();
 
 //    while(rv > 0) {
     // Watch server_socket to see when it has input.
@@ -641,7 +644,7 @@ static void network_select_loop(trudpData *td, int timeout) {
         FD_SET(td->fd, &wfds);
     }
 
-    uint32_t timeout_sq = trudp_SendQueueGetTimeout(td);
+    uint32_t timeout_sq = trudp_SendQueueGetTimeout(td, ts);
 //    debug("set timeout: %.3f ms; default: %.3f ms, send_queue: %.3f ms%s\n",
 //            (timeout_sq < timeout ? timeout_sq : timeout) / 1000.0,
 //            timeout / 1000.0,
@@ -685,7 +688,7 @@ static void network_select_loop(trudpData *td, int timeout) {
             // Process received packet
             if(recvlen > 0) {
                 size_t data_length;
-                trudpChannelData *tcd = trudpGetChannelCreate(td, &remaddr, addr_len, 0);
+                trudpChannelData *tcd = trudpGetChannelCreate(td, (__SOCKADDR_ARG)&remaddr, 0);
                 trudp_ChannelProcessReceivedPacket(tcd, buffer, recvlen, &data_length);
             }
         }
@@ -718,7 +721,7 @@ static void network_loop(trudpData *td) {
     // Process received packet
     if(recvlen > 0) {
         size_t data_length;
-        trudpChannelData *tcd = trudpGetChannelCreate(td, &remaddr, addr_len, 0);
+        trudpChannelData *tcd = trudpGetChannelCreate(td, (__SOCKADDR_ARG)&remaddr, 0);
         trudp_ChannelProcessReceivedPacket(tcd, buffer, recvlen, &data_length);
     }
 

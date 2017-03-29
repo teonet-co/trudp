@@ -10,6 +10,8 @@ AM_CPPFLAGS = \
 
 AM_CFLAGS = \
 	 -g -Wall \
+	 -std=gnu11 \
+	 -fno-strict-aliasing \
 	 -fPIC \
 	 -DUSE_LIBEV \
 	 -I$(HOME)/Projects/teonet/embedded/libtrudp/src \

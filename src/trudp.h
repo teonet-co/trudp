@@ -243,6 +243,8 @@ int trudp_SendQueueProcess(trudpData *td, uint64_t *next_et);
 
 size_t trudp_WriteQueueProcess(trudpData *td);
 
+size_t trudp_WriteQueueSizeAll(trudpData *td);
+
 
 #ifdef __cplusplus
 }
