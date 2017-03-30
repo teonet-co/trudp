@@ -237,6 +237,8 @@ static inline void trudp_ChannelCalculateTriptime(trudpChannelData *tcd, void *p
     if(tcd->triptimeMiddle < tcd->triptime * tcd->triptimeFactor) tcd->triptimeMiddle = tcd->triptime * tcd->triptimeFactor;
     if(tcd->triptimeMiddle > tcd->triptime * 10) tcd->triptimeMiddle = tcd->triptime * 10;
     if(tcd->triptimeMiddle > MAX_TRIPTIME_MIDDLE) tcd->triptimeMiddle = MAX_TRIPTIME_MIDDLE;
+    
+    //tcd->triptimeMiddle *= 5;
 
     // Statistic
     tcd->stat.ack_receive++;

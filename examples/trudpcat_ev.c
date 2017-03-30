@@ -226,9 +226,9 @@ static void showStatistic(trudpData *td, options *o, void *user_data) {
             case 's': o->show_snake = !o->show_snake;           o->show_send_queue = 0; o->show_statistic = 0; break;
             #if USE_LIBEV
             case 'q': ev_break(user_data, EVBREAK_ALL);         break;
+            #endif
             case 'r': trudpSendResetAll(td);                    break;
             case 'x': o->dont_send_data = !o->dont_send_data;   break;
-            #endif
         }
     }
 }
