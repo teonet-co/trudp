@@ -373,7 +373,7 @@ static void eventCb(void *tcd_pointer, int event, void *data, size_t data_length
                   key, (tcd->triptime)/1000.0, (tcd->triptimeMiddle)/1000.0);
 
             #if USE_LIBEV
-            trudp_start_send_queue_cb(&psd, 0);
+            // trudp_start_send_queue_cb(&psd, 0);
             #endif
 
         } break;
