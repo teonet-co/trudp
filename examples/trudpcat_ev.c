@@ -54,7 +54,7 @@ extern int usleep (__useconds_t __useconds);
 #define SEND_MESSAGE_AFTER_MIN  15000 /* 16667 */ // uSec (mSec * 1000)
 #define SEND_MESSAGE_AFTER  SEND_MESSAGE_AFTER_MIN
 #define RECONNECT_AFTER 3000000 // uSec (mSec * 1000)
-#define SHOW_STATISTIC_AFTER 333000 // uSec (mSec * 1000)
+#define SHOW_STATISTIC_AFTER 500000 // uSec (mSec * 1000)
 
 // Application options structure
 typedef struct options {
@@ -390,7 +390,7 @@ static void eventCb(void *tcd_pointer, int event, void *data, size_t data_length
                 key, trudpPacketGetId(trudpPacketGetPacket(data)));
 
             if(!o.show_statistic && !o.show_send_queue && !o.show_snake) {
-                if(!o.debug)
+                if(o.debug) {
                     printf("#%u at %.3f, cannel %s [%.3f(%.3f) ms] ",
                            tcd->receiveExpectedId,
                            (double)trudpGetTimestamp() / 1000.0,
@@ -398,7 +398,8 @@ static void eventCb(void *tcd_pointer, int event, void *data, size_t data_length
                            (double)tcd->triptime / 1000.0,
                            (double)tcd->triptimeMiddle / 1000.0);
 
-                printf("%s\n",(char*)data);
+                    printf("%s\n",(char*)data);
+                }
             }
             else {
                 // Show statistic window
@@ -538,7 +539,7 @@ static void send_message_cb(EV_P_ ev_timer *w, int revents) {
 
     send_message_data *smd = (send_message_data *)w->data;
 
-    if(!smd-> o->dont_send_data)
+    if(!smd->o->dont_send_data)
         trudpSendDataToAll(smd->td, smd->message, smd->message_length);
 }
 
