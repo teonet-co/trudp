@@ -354,8 +354,8 @@ static inline uint64_t trudp_ChannelCalculateExpectedTime(trudpChannelData *tcd,
         uint64_t current_time, int retransmit) {
 
     uint32_t rtt;
-    if((rtt = RTT * retransmit) > MAX_RTT) rtt = MAX_RTT;
-    uint64_t expected_time = current_time + tcd->triptimeMiddle + RTT + rtt;
+    if((rtt = RTT * (retransmit + 1)) > MAX_RTT) rtt = MAX_RTT;
+    uint64_t expected_time = current_time + tcd->triptimeMiddle + rtt;
     
     // \todo it was removed for retransmit records (after the send queue record was stopped moved to the end)
 //    if(retransmit && tcd->sendQueue->q->last) {
@@ -389,7 +389,7 @@ void trudp_ChannelIncrementStatSendQueueSize(trudpChannelData *tcd) {
  */
 static size_t trudp_ChannelSendPacket(trudpChannelData *tcd, void *packetDATA,
         size_t packetLength, int save_to_send_queue) {
-
+    
     // Save packet to send queue
     if(save_to_send_queue) {
         trudpSendQueueAdd(tcd->sendQueue,
@@ -409,7 +409,7 @@ static size_t trudp_ChannelSendPacket(trudpChannelData *tcd, void *packetDATA,
 
     // Statistic
     tcd->stat.packets_send++;
-
+    
     return packetLength;
 }
 
@@ -446,17 +446,24 @@ inline size_t trudp_ChannelSendPING(trudpChannelData *tcd, void *data,
  * @return Zero on error
  */
 size_t trudp_ChannelSendData(trudpChannelData *tcd, void *data, size_t data_length) {
+        
+    size_t rv = 0;
+    
+    if( trudpSendQueueSize(tcd->sendQueue) <= 50 ||
+         ( tcd->sendId % 100 != 100 - trudpSendQueueSize(tcd->sendQueue) ) ) {
+            
+        // Create DATA package
+        size_t packetLength;
+        void *packetDATA = trudpPacketDATAcreateNew(trudp_ChannelGetNewId(tcd),
+                tcd->channel, data, data_length, &packetLength);    
 
-    // Create DATA package
-    size_t packetLength;
-    void *packetDATA = trudpPacketDATAcreateNew(trudp_ChannelGetNewId(tcd),
-            tcd->channel, data, data_length, &packetLength);
+        // Send data
+        rv = trudp_ChannelSendPacket(tcd, packetDATA, packetLength, 1);
 
-    // Send data
-    size_t rv = trudp_ChannelSendPacket(tcd, packetDATA, packetLength, 1);
+        // Free created packet
+        trudpPacketCreatedFree(packetDATA);
 
-    // Free created packet
-    trudpPacketCreatedFree(packetDATA);
+    }
 
     return rv;
 }
