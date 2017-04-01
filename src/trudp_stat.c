@@ -398,7 +398,7 @@ static char* showTime(double t) {
  *
  * @return Pointer to allocated string with statistics
  */
-char *ksnTRUDPstatShowStr(trudpData *td) {
+char *ksnTRUDPstatShowStr(trudpData *td, int page) {
 
     static uint32_t show_stat_time = 0;
     uint32_t ts = trudpGetTimestamp();
@@ -430,7 +430,7 @@ char *ksnTRUDPstatShowStr(trudpData *td) {
             size_t sendQueueSize = trudpSendQueueSize(tcd->sendQueue);
             size_t receiveQueueSize = trudpReceiveQueueSize(tcd->receiveQueue);
 
-            if(i<20) {
+            if(i>=page*20 && i<(page*20)) {
                 tbl_str = sformatMessage(tbl_str,
                     "%s%3d "_ANSI_BROWN"%-24.*s"_ANSI_NONE" %8d %11.3f %10.3f  %9.3f /%9.3f %8d %11.3f %10.3f %8d %8d(%d%%) %8d(%d%%) %6d %6d\n",
                     tbl_str, i + 1,
@@ -452,8 +452,8 @@ char *ksnTRUDPstatShowStr(trudpData *td) {
                     receiveQueueSize
                 );
             }
-            else if(i==20) {
-                tbl_str = sformatMessage(tbl_str, "%s...\n", tbl_str);
+            else if(i==page*20) {
+                tbl_str = sformatMessage(tbl_str, "%s... Page: %d\n", tbl_str, page+1);
             }
             totalStat.packets_send += tcd->stat.packets_send;
             totalStat.send_speed += tcd->stat.send_speed;
