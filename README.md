@@ -2,7 +2,11 @@
 
 ## 1. Description
 
-    ...
+The TR-UDP protocol is the UDP based protocol for real time communications that 
+allows sending short messages with low latency and provides protocol reliability 
+features.
+
+[Read More](https://gitlab.ksproject.org/teonet/teonet/wikis/tr-udp)
 
 ## 2. Installation from sources
 
