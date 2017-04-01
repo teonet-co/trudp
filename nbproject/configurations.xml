@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configurationDescriptor version="97">
+<configurationDescriptor version="100">
   <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
     <df root="." name="0">
       <df name="ci-build">
         <in>make_package.c</in>
       </df>
       <df name="examples">
+        <in>README.md</in>
         <in>snake.c</in>
         <in>trudpcat.c</in>
         <in>trudpcat_ev.c</in>
@@ -74,6 +75,8 @@
       <item path="ci-build/make_package.c" ex="false" tool="0" flavor2="2">
         <cTool flags="1">
         </cTool>
+      </item>
+      <item path="examples/README.md" ex="false" tool="3" flavor2="0">
       </item>
       <item path="examples/snake.c" ex="false" tool="0" flavor2="2">
         <cTool flags="1">
@@ -239,6 +242,8 @@
       <item path="ci-build/make_package.c" ex="false" tool="0" flavor2="2">
         <cTool flags="0">
         </cTool>
+      </item>
+      <item path="examples/README.md" ex="false" tool="3" flavor2="0">
       </item>
       <item path="examples/snake.c" ex="false" tool="0" flavor2="2">
         <cTool flags="1">
