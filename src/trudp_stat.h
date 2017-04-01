@@ -53,7 +53,7 @@ void trudpStatProcessLast10Send(trudpChannelData *tcd, void *packet, size_t send
 void trudpStatProcessLast10Receive(trudpChannelData *tcd, void *packet);
 
 void *trudpStatGet(trudpData *td, int type, size_t *stat_len);
-char *ksnTRUDPstatShowStr(trudpData *td);
+char *ksnTRUDPstatShowStr(trudpData *td, int page);
 
 char *trudpStatShowQueueStr(trudpChannelData *tcd, int type);
 

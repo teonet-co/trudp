@@ -282,7 +282,7 @@ static void send_process_received_packet_test() {
 //    puts(stat_js);
 //    free(stat_js);
     
-    char *stat_str = ksnTRUDPstatShowStr(TD(tcd_A));
+    char *stat_str = ksnTRUDPstatShowStr(TD(tcd_A), 0);
     puts(stat_str);
     free(stat_str);
     

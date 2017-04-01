@@ -62,6 +62,7 @@ typedef struct options {
     // Integer options
     int debug; // = 0;
     int show_statistic; // = 0;
+    int show_statistic_page;
     int show_send_queue; // = 0;
     int show_snake; // = 0;
     int listen; // = 0;
@@ -126,7 +127,7 @@ static trudpProcessSendQueueData psd;
 #endif
 
 // Application options
-static options o = { 0, 0, 0, 0, 0, 0, 0, 4096, NULL, NULL, NULL, NULL, 0 };
+static options o = { 0, 0, 0, 0, 0, 0, 0, 0, 4096, NULL, NULL, NULL, NULL, 0 };
 
 #if USE_SELECT
 // Application exit code and flags
@@ -179,10 +180,12 @@ static void debug(char *fmt, ...)
  * @param td Pointer to trudpData
  */
 static void showStatistic(trudpData *td, options *o, void *user_data) {
+    
+    #define STATISTIC_PAGE_SIZE 20
 
     if(o->show_statistic) {
         cls();
-        char *stat_str = ksnTRUDPstatShowStr(td);
+        char *stat_str = ksnTRUDPstatShowStr(td, o->show_statistic_page);
         if(stat_str) {
             puts(stat_str);
             free(stat_str);
@@ -229,6 +232,9 @@ static void showStatistic(trudpData *td, options *o, void *user_data) {
             #endif
             case 'r': trudpSendResetAll(td);                    break;
             case 'x': o->dont_send_data = !o->dont_send_data;   break;
+            // Statistic pages
+            case 'n': if(o->show_statistic && o->show_statistic_page < trudpMapSize(td->map)/STATISTIC_PAGE_SIZE -1 + (trudpMapSize(td->map)%STATISTIC_PAGE_SIZE & 1) ) o->show_statistic_page++;                 break;
+            case 'p': if(o->show_statistic && o->show_statistic_page) o->show_statistic_page--; break;
         }
     }
 }
