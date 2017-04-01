@@ -50,7 +50,7 @@ configure.ac
 
 ## 5. Run example
     
-    See example [README.md](examples/README.md)
+See example [README.md](examples/README.md)
 
 
 ## 6. TR-UDP documentation
