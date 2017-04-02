@@ -36,6 +36,9 @@
 extern "C" {
 #endif
     
+#define MAX_QUELEN_SHOW 40    
+#define NUMBER_CHANNELS_IN_CLI_PAGE 20    
+    
 typedef enum trudpStatType {
  
     BINARY_TYPE,

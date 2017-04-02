@@ -181,8 +181,6 @@ static void debug(char *fmt, ...)
  */
 static void showStatistic(trudpData *td, options *o, void *user_data) {
     
-    #define STATISTIC_PAGE_SIZE 20
-
     if(o->show_statistic) {
         cls();
         char *stat_str = ksnTRUDPstatShowStr(td, o->show_statistic_page);
@@ -240,7 +238,7 @@ static void showStatistic(trudpData *td, options *o, void *user_data) {
             // Don't send data
             case 'x': o->dont_send_data = !o->dont_send_data;   break;
             // Statistic Pages
-            case 'n': case 'N': if(o->show_statistic && o->show_statistic_page < trudpMapSize(td->map)/STATISTIC_PAGE_SIZE -1 + (trudpMapSize(td->map)%STATISTIC_PAGE_SIZE & 1) ) o->show_statistic_page++;                 break;
+            case 'n': case 'N': if(o->show_statistic && o->show_statistic_page < trudpMapSize(td->map)/NUMBER_CHANNELS_IN_CLI_PAGE -1 + (trudpMapSize(td->map)%NUMBER_CHANNELS_IN_CLI_PAGE & 1) ) o->show_statistic_page++; break;
             case 'p': case 'P': if(o->show_statistic && o->show_statistic_page) o->show_statistic_page--; break;
         }
     }

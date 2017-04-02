@@ -58,15 +58,10 @@
         <rebuildPropChanged>false</rebuildPropChanged>
       </toolsSet>
       <flagsDictionary>
-        <element flagsID="0" commonFlags="-g -std=gnu11 -O2 -g -O2"/>
-        <element flagsID="1"
-                 commonFlags="-mtune=generic -march=x86-64 -g -g -O2 -O2 -fstack-protector-strong"/>
-        <element flagsID="2"
-                 commonFlags="-mtune=generic -march=x86-64 -g -g -O2 -O2 -std=gnu11 -fPIC -fstack-protector-strong"/>
-        <element flagsID="3"
-                 commonFlags="-mtune=generic -march=x86-64 -g -g -O2 -O2 -std=gnu11 -fstack-protector-strong"/>
-        <element flagsID="4"
-                 commonFlags="-mtune=generic -march=x86-64 -g -g -O2 -fstack-protector-strong"/>
+        <element flagsID="0" commonFlags="-g -O2 -g -O2"/>
+        <element flagsID="1" commonFlags="-g -g -O2"/>
+        <element flagsID="2" commonFlags="-g -std=gnu11 -O2 -g -O2"/>
+        <element flagsID="3" commonFlags="-g -std=gnu11 -fPIC -O2 -g -O2 -fPIC"/>
       </flagsDictionary>
       <codeAssistance>
       </codeAssistance>
@@ -76,6 +71,11 @@
           <buildCommand>${MAKE} -f Makefile</buildCommand>
           <cleanCommand>${MAKE} -f Makefile clean</cleanCommand>
           <executablePath>examples/trudpcat_ev</executablePath>
+          <cTool>
+            <preprocessorList>
+              <Elem>HAVE_CONFIG_H</Elem>
+            </preprocessorList>
+          </cTool>
         </makeTool>
         <preBuild>
           <preBuildCommandWorkingDir>.</preBuildCommandWorkingDir>
@@ -83,185 +83,155 @@
         </preBuild>
       </makefileType>
       <item path="ci-build/make_package.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="4">
+        <cTool flags="1">
         </cTool>
       </item>
-      <item path="examples/snake.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="3">
-          <incDir>
-            <pElem>src</pElem>
-            <pElem>examples</pElem>
-          </incDir>
+      <item path="examples/snake.c" ex="false" tool="0" flavor2="10">
+        <cTool flags="2">
         </cTool>
       </item>
       <item path="examples/trudpcat_ev.c" ex="false" tool="0" flavor2="10">
-        <cTool flags="0">
-          <incDir>
-            <pElem>examples</pElem>
-            <pElem>.</pElem>
-            <pElem>src</pElem>
-          </incDir>
-          <preprocessorList>
-            <Elem>HAVE_CONFIG_H</Elem>
-            <Elem>PACKAGE_DATA_DIR="/usr/share"</Elem>
-            <Elem>PACKAGE_LOCALE_DIR="/usr/share/locale"</Elem>
-            <Elem>PACKAGE_SRC_DIR="."</Elem>
-            <Elem>USE_LIBEV</Elem>
-          </preprocessorList>
+        <cTool flags="2">
         </cTool>
       </item>
       <folder path="0/ci-build">
         <cTool>
           <incDir>
             <pElem>ci-build</pElem>
+            <pElem>.</pElem>
+            <pElem>../teonet</pElem>
+            <pElem>../libtrudp</pElem>
+            <pElem>../teonet/src</pElem>
+            <pElem>../teonet/embedded/libpbl/src</pElem>
+            <pElem>../teonet/embedded/libtrudp/src</pElem>
+            <pElem>../teonet/embedded/teocli/libteol0</pElem>
           </incDir>
         </cTool>
       </folder>
-      <item path="src/hash.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="2">
+      <folder path="0/examples">
+        <cTool>
           <incDir>
+            <pElem>examples</pElem>
+            <pElem>.</pElem>
             <pElem>src</pElem>
           </incDir>
+          <preprocessorList>
+            <Elem>PACKAGE_DATA_DIR="/usr/share"</Elem>
+            <Elem>PACKAGE_LOCALE_DIR="/usr/share/locale"</Elem>
+            <Elem>PACKAGE_SRC_DIR="."</Elem>
+            <Elem>USE_LIBEV</Elem>
+          </preprocessorList>
         </cTool>
-      </item>
-      <item path="src/map.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="2">
+      </folder>
+      <folder path="0/src">
+        <cTool>
           <incDir>
             <pElem>src</pElem>
+            <pElem>.</pElem>
+            <pElem>../teonet/embedded/libtrudp/src</pElem>
+            <pElem>/usr/include/libtrudp</pElem>
           </incDir>
+          <preprocessorList>
+            <Elem>PACKAGE_DATA_DIR="/usr/share"</Elem>
+            <Elem>PACKAGE_LOCALE_DIR="/usr/share/locale"</Elem>
+            <Elem>PACKAGE_SRC_DIR="."</Elem>
+            <Elem>PIC</Elem>
+            <Elem>USE_LIBEV</Elem>
+          </preprocessorList>
         </cTool>
-      </item>
-      <item path="src/packet.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="2">
+      </folder>
+      <folder path="0/tests">
+        <cTool>
           <incDir>
+            <pElem>tests</pElem>
+            <pElem>.</pElem>
             <pElem>src</pElem>
           </incDir>
+          <preprocessorList>
+            <Elem>PACKAGE_DATA_DIR="/usr/share"</Elem>
+            <Elem>PACKAGE_LOCALE_DIR="/usr/share/locale"</Elem>
+            <Elem>PACKAGE_SRC_DIR="."</Elem>
+          </preprocessorList>
+        </cTool>
+      </folder>
+      <item path="src/hash.c" ex="false" tool="0" flavor2="10">
+        <cTool flags="3">
         </cTool>
       </item>
-      <item path="src/packet_queue.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="2">
-          <incDir>
-            <pElem>src</pElem>
-          </incDir>
+      <item path="src/map.c" ex="false" tool="0" flavor2="10">
+        <cTool flags="3">
         </cTool>
       </item>
-      <item path="src/queue.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="2">
-          <incDir>
-            <pElem>src</pElem>
-          </incDir>
+      <item path="src/packet.c" ex="false" tool="0" flavor2="10">
+        <cTool flags="3">
         </cTool>
       </item>
-      <item path="src/trudp.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="2">
-          <incDir>
-            <pElem>src</pElem>
-          </incDir>
+      <item path="src/packet_queue.c" ex="false" tool="0" flavor2="10">
+        <cTool flags="3">
         </cTool>
       </item>
-      <item path="src/trudp_channel.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="2">
-          <incDir>
-            <pElem>src</pElem>
-          </incDir>
+      <item path="src/queue.c" ex="false" tool="0" flavor2="10">
+        <cTool flags="3">
         </cTool>
       </item>
-      <item path="src/trudp_ev.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="2">
-          <incDir>
-            <pElem>src</pElem>
-          </incDir>
+      <item path="src/trudp.c" ex="false" tool="0" flavor2="10">
+        <cTool flags="3">
         </cTool>
       </item>
-      <item path="src/trudp_receive_queue.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="2">
+      <item path="src/trudp_channel.c" ex="false" tool="0" flavor2="10">
+        <cTool flags="3">
         </cTool>
       </item>
-      <item path="src/trudp_send_queue.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="2">
-          <incDir>
-            <pElem>src</pElem>
-          </incDir>
+      <item path="src/trudp_ev.c" ex="false" tool="0" flavor2="10">
+        <cTool flags="3">
         </cTool>
       </item>
-      <item path="src/trudp_stat.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="2">
-          <incDir>
-            <pElem>src</pElem>
-          </incDir>
+      <item path="src/trudp_receive_queue.c" ex="false" tool="0" flavor2="10">
+        <cTool flags="3">
         </cTool>
       </item>
-      <item path="src/trudp_utils.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="2">
-          <incDir>
-            <pElem>src</pElem>
-          </incDir>
+      <item path="src/trudp_send_queue.c" ex="false" tool="0" flavor2="10">
+        <cTool flags="3">
         </cTool>
       </item>
-      <item path="src/udp.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="2">
-          <incDir>
-            <pElem>src</pElem>
-          </incDir>
+      <item path="src/trudp_stat.c" ex="false" tool="0" flavor2="10">
+        <cTool flags="3">
         </cTool>
       </item>
-      <item path="src/utils.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="2">
-          <incDir>
-            <pElem>src</pElem>
-          </incDir>
+      <item path="src/trudp_utils.c" ex="false" tool="0" flavor2="10">
+        <cTool flags="3">
         </cTool>
       </item>
-      <item path="src/write_queue.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="2">
-          <incDir>
-            <pElem>src</pElem>
-          </incDir>
+      <item path="src/udp.c" ex="false" tool="0" flavor2="10">
+        <cTool flags="3">
+        </cTool>
+      </item>
+      <item path="src/utils.c" ex="false" tool="0" flavor2="10">
+        <cTool flags="3">
+        </cTool>
+      </item>
+      <item path="src/write_queue.c" ex="false" tool="0" flavor2="10">
+        <cTool flags="3">
         </cTool>
       </item>
       <item path="tests/map_t.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="1">
-          <incDir>
-            <pElem>/usr/include/CUnit</pElem>
-            <pElem>src</pElem>
-            <pElem>tests</pElem>
-          </incDir>
+        <cTool flags="0">
         </cTool>
       </item>
       <item path="tests/packet_queue_t.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="1">
-          <incDir>
-            <pElem>src</pElem>
-            <pElem>/usr/include/CUnit</pElem>
-            <pElem>tests</pElem>
-          </incDir>
+        <cTool flags="0">
         </cTool>
       </item>
       <item path="tests/packet_t.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="1">
-          <incDir>
-            <pElem>/usr/include/CUnit</pElem>
-            <pElem>src</pElem>
-            <pElem>tests</pElem>
-          </incDir>
+        <cTool flags="0">
         </cTool>
       </item>
       <item path="tests/queue_t.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="1">
-          <incDir>
-            <pElem>/usr/include/CUnit</pElem>
-            <pElem>src</pElem>
-            <pElem>tests</pElem>
-          </incDir>
+        <cTool flags="0">
         </cTool>
       </item>
       <item path="tests/tr-udp_t.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="1">
-          <incDir>
-            <pElem>src</pElem>
-            <pElem>/usr/include/CUnit</pElem>
-            <pElem>tests</pElem>
-          </incDir>
+        <cTool flags="0">
         </cTool>
       </item>
     </conf>
