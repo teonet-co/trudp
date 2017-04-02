@@ -430,7 +430,7 @@ char *ksnTRUDPstatShowStr(trudpData *td, int page) {
             size_t sendQueueSize = trudpSendQueueSize(tcd->sendQueue);
             size_t receiveQueueSize = trudpReceiveQueueSize(tcd->receiveQueue);
 
-            if(i>=page*20 && i<(page*20)) {
+            if(i >= page*20 && i < (page+1)*20) {
                 tbl_str = sformatMessage(tbl_str,
                     "%s%3d "_ANSI_BROWN"%-24.*s"_ANSI_NONE" %8d %11.3f %10.3f  %9.3f /%9.3f %8d %11.3f %10.3f %8d %8d(%d%%) %8d(%d%%) %6d %6d\n",
                     tbl_str, i + 1,
@@ -451,9 +451,6 @@ char *ksnTRUDPstatShowStr(trudpData *td, int page) {
                     sendQueueSize,
                     receiveQueueSize
                 );
-            }
-            else if(i==page*20) {
-                tbl_str = sformatMessage(tbl_str, "%s... Page: %d\n", tbl_str, page+1);
             }
             totalStat.packets_send += tcd->stat.packets_send;
             totalStat.send_speed += tcd->stat.send_speed;
@@ -482,10 +479,11 @@ char *ksnTRUDPstatShowStr(trudpData *td, int page) {
             totalStat.wait /= i;
 
             tbl_total = sformatMessage(tbl_total,
-            "%3d                          %8d %11.3f %10.3f  %9.3f /%9.3f %8d %11.3f %10.3f %8d %8d(%d%%) %8d(%d%%) %6d %6d\n"
+            "%3d Page: %-2d [Press: N or P] %8d %11.3f %10.3f  %9.3f /%9.3f %8d %11.3f %10.3f %8d %8d(%d%%) %8d(%d%%) %6d %6d\n"
             "---------------------------------------------------------------------------------------------------------------------------------------------------------------------\n"
-        
+
             , i
+            , page+1
             , totalStat.packets_send
             , (double)(1.0 * totalStat.send_speed / 1024.0)
             , totalStat.send_total

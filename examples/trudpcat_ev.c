@@ -223,18 +223,25 @@ static void showStatistic(trudpData *td, options *o, void *user_data) {
         //printf("key %c pressed\n", ch);
 
         switch(ch) {
+            // Show Debug
             case 'd': o->debug  = !o->debug; break;
+            // Show Statistic
             case 'S': o->show_statistic  = !o->show_statistic;  o->show_send_queue = 0; o->show_snake = 0; break;
+            // Show Queues
             case 'Q': o->show_send_queue = !o->show_send_queue; o->show_statistic = 0; o->show_snake = 0;  break;
+            // Show Snake game
             case 's': o->show_snake = !o->show_snake;           o->show_send_queue = 0; o->show_statistic = 0; break;
             #if USE_LIBEV
+            // Quit application
             case 'q': ev_break(user_data, EVBREAK_ALL);         break;
             #endif
+            // Send reset to all connected
             case 'r': trudpSendResetAll(td);                    break;
+            // Don't send data
             case 'x': o->dont_send_data = !o->dont_send_data;   break;
-            // Statistic pages
-            case 'n': if(o->show_statistic && o->show_statistic_page < trudpMapSize(td->map)/STATISTIC_PAGE_SIZE -1 + (trudpMapSize(td->map)%STATISTIC_PAGE_SIZE & 1) ) o->show_statistic_page++;                 break;
-            case 'p': if(o->show_statistic && o->show_statistic_page) o->show_statistic_page--; break;
+            // Statistic Pages
+            case 'n': case 'N': if(o->show_statistic && o->show_statistic_page < trudpMapSize(td->map)/STATISTIC_PAGE_SIZE -1 + (trudpMapSize(td->map)%STATISTIC_PAGE_SIZE & 1) ) o->show_statistic_page++;                 break;
+            case 'p': case 'P': if(o->show_statistic && o->show_statistic_page) o->show_statistic_page--; break;
         }
     }
 }
