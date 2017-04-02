@@ -48,7 +48,7 @@ extern int usleep (__useconds_t __useconds);
 #include "trudp_stat.h"
 
 // Application version
-#define APP_VERSION "0.0.18"
+#define APP_VERSION "0.0.19"
 
 // Application constants
 #define SEND_MESSAGE_AFTER_MIN  15000 /* 16667 */ // uSec (mSec * 1000)
