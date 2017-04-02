@@ -41,7 +41,7 @@ extern "C" {
 #define MAX_OUTRUNNING 500 // Maximum outrunning in receive queue to send reset
 #define START_MIDDLE_TIME (MAX_ACK_WAIT/5) * 1000000 // Midle time at start       
 #define RESET_AFTER_ID (UINT32_MAX - 1024) // Reset if send id more than this constant
-#define MAX_TRIPTIME_MIDDLE 5757575 // Maximum number of Middle triptime
+#define MAX_TRIPTIME_MIDDLE 5757575/2 // Maximum number of Middle triptime
 #define MAX_LAST_RECEIVE MAX_TRIPTIME_MIDDLE // Disconnect after last receved packet time older than this constant
 #define SEND_PING_AFTER 2500000   
 #define MAP_SIZE_DEFAULT 100 // Default map size; map stored connected channels and can auto resize

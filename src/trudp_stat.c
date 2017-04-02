@@ -430,7 +430,7 @@ char *ksnTRUDPstatShowStr(trudpData *td, int page) {
             size_t sendQueueSize = trudpSendQueueSize(tcd->sendQueue);
             size_t receiveQueueSize = trudpReceiveQueueSize(tcd->receiveQueue);
 
-            if(i >= page*20 && i < (page+1)*20) {
+            if(i >= page*NUMBER_CHANNELS_IN_CLI_PAGE && i < (page+1)*NUMBER_CHANNELS_IN_CLI_PAGE) {
                 tbl_str = sformatMessage(tbl_str,
                     "%s%3d "_ANSI_BROWN"%-24.*s"_ANSI_NONE" %8d %11.3f %10.3f  %9.3f /%9.3f %8d %11.3f %10.3f %8d %8d(%d%%) %8d(%d%%) %6d %6d\n",
                     tbl_str, i + 1,
@@ -557,7 +557,6 @@ char *ksnTRUDPstatShowStr(trudpData *td, int page) {
     return ret_str;
 }
 
-#define MAX_QUELEN_SHOW 40
 char *trudpStatShowQueueStr(trudpChannelData *tcd, int type) {
     
     char *str = strdup("");

@@ -715,9 +715,10 @@ void *trudp_ChannelProcessReceivedPacket(trudpChannelData *tcd, void *packet,
 int trudp_SendQueueProcessChannel(trudpChannelData *tcd, uint64_t ts,
         uint64_t *next_expected_time) {
 
-    int rv = 0;
-    
+    int rv = 0;    
     trudpSendQueueData *tqd = NULL;
+    
+    // Get first element from send queue and check it expected time
     if(trudpSendQueueSize(tcd->sendQueue) &&
        (tqd = trudpSendQueueGetFirst(tcd->sendQueue)) &&
         tqd->expected_time <= ts ) {
