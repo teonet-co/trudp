@@ -31,6 +31,7 @@
 #ifndef TRUDP_RECEIVE_QUEUE_H
 #define TRUDP_RECEIVE_QUEUE_H
 
+#include <stdlib.h>
 #include "packet_queue.h"
 
 /**
@@ -55,6 +56,19 @@ extern "C" {
 static inline
 trudpReceiveQueue *trudpReceiveQueueNew() {
     return trudpPacketQueueNew();
+}
+
+/**
+ * Destroy Receive queue
+ * 
+ * @param sq Pointer to trudpReceiveQueue
+ */
+inline void trudpReceiveQueueDestroy(trudpReceiveQueue *rq) {
+
+    if(rq) {
+        trudpQueueDestroy(rq->q);
+        free(rq);
+    }
 }
 
 /**
