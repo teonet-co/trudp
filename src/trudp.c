@@ -301,6 +301,9 @@ size_t trudpProcessKeepConnection(trudpData *td) {
 
             if(tcd->connected_f && ts - tcd->lastReceived > SEND_PING_AFTER) {
                 if(trudp_ChannelCheckDisconnected(tcd, ts) == -1) {
+                    
+                    trudp_ChannelDestroy(tcd);
+                            
                     rv = -1;
                     break;
                 }
