@@ -144,7 +144,8 @@ void trudp_ChannelDestroy(trudpChannelData *tcd) {
     trudpEventSend(tcd, DISCONNECTED, NULL, 0, NULL);
     trudp_ChannelFree(tcd);
     trudpSendQueueDestroy(tcd->sendQueue);
-    trudpSendQueueDestroy(tcd->receiveQueue);
+    trudpWriteQueueDestroy(tcd->writeQueue);
+    trudpReceiveQueueDestroy(tcd->receiveQueue);
     
     int port;
     size_t key_length;
