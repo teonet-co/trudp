@@ -450,8 +450,8 @@ size_t trudp_ChannelSendData(trudpChannelData *tcd, void *data, size_t data_leng
         
     size_t rv = 0;
     
-    if( trudpSendQueueSize(tcd->sendQueue) <= 50 ||
-         ( tcd->sendId % 100 != 100 - trudpSendQueueSize(tcd->sendQueue) ) ) {
+//    if( trudpSendQueueSize(tcd->sendQueue) <= 50 ||
+//         ( tcd->sendId % 100 != 100 - trudpSendQueueSize(tcd->sendQueue) ) ) {
             
         // Create DATA package
         size_t packetLength;
@@ -464,7 +464,7 @@ size_t trudp_ChannelSendData(trudpChannelData *tcd, void *data, size_t data_leng
         // Free created packet
         trudpPacketCreatedFree(packetDATA);
 
-    }
+//    }
 
     return rv;
 }
