@@ -63,7 +63,7 @@ trudpReceiveQueue *trudpReceiveQueueNew() {
  * 
  * @param sq Pointer to trudpReceiveQueue
  */
-inline void trudpReceiveQueueDestroy(trudpReceiveQueue *rq) {
+static inline void trudpReceiveQueueDestroy(trudpReceiveQueue *rq) {
 
     if(rq) {
         trudpQueueDestroy(rq->q);
