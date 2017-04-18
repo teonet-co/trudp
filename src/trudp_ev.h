@@ -42,6 +42,7 @@
 typedef struct trudpProcessSendQueueData {
 
     int inited;
+    int started;
     trudpData *td;
     struct ev_loop *loop;
     ev_timer process_send_queue_w;
