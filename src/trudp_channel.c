@@ -402,11 +402,14 @@ static size_t trudp_ChannelSendPacket(trudpChannelData *tcd, void *packetDATA,
     }
 
     // Send data (add to write queue)
+//    if(!save_to_send_queue || trudpSendQueueSize(tcd->sendQueue) < 200) {
     #if !USE_WRITE_QUEUE
     trudpEventSend(tcd, PROCESS_SEND, packetDATA, packetLength, NULL);
     #else
     trudpWriteQueueAdd(tcd->writeQueue, NULL, tpqd->packet, packetLength);
     #endif
+//    }
+//    else if(save_to_send_queue) trudp_start_send_queue_cb(TD(tcd)->psq_data, 0);
 
     // Statistic
     tcd->stat.packets_send++;
@@ -729,9 +732,9 @@ int trudp_SendQueueProcessChannel(trudpChannelData *tcd, uint64_t ts,
         tqd->expected_time = trudp_ChannelCalculateExpectedTime(tcd, ts, 
                 tqd->retrieves) + (rtt < MAX_RTT ? rtt : MAX_RTT);
 
-        // Move record to the end of Queue \todo don't move record to the end of
+        // Move record to the end of Queue \todo or don't move record to the end of
         // queue because it should be send first
-        //trudpPacketQueueMoveToEnd(tcd->sendQueue, tqd);
+        trudpPacketQueueMoveToEnd(tcd->sendQueue, tqd);
         tcd->stat.packets_attempt++; // Attempt statistic parameter increment
         if(!tqd->retrieves) tqd->retrieves_start = ts;
 
@@ -788,7 +791,10 @@ int trudp_SendQueueProcessChannel(trudpChannelData *tcd, uint64_t ts,
     }
 
     // If record exists
-    if(next_expected_time) *next_expected_time = tqd ? tqd->expected_time : 0;
+    if(next_expected_time) {
+        if(rv != -1) tqd = trudpSendQueueGetFirst(tcd->sendQueue);
+        *next_expected_time = tqd ? tqd->expected_time : 0;
+    }
 
     return rv;
 }
