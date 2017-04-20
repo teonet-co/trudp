@@ -268,10 +268,10 @@ size_t trudpSendDataToAll(trudpData *td, void *data, size_t data_length) {
             if(tcd->connected_f) {
                 // drop packets if send queue > 100 \todo move it to Send Data
                 // function or something else
-                if(trudpSendQueueSize(tcd->sendQueue) < 100) {
+                //if(trudpSendQueueSize(tcd->sendQueue) < 100) {
                     if(trudp_ChannelSendData(tcd, data, data_length) < 0) break;
                     rv++;
-                }
+                //}
             }
         }
         trudpMapIteratorDestroy(it);
