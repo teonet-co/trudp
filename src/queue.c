@@ -252,10 +252,10 @@ inline trudpQueueData *trudpQueueRemove(trudpQueue *q, trudpQueueData *qd) {
         q->length--;        
         if(!q->length) { q->first = q->last = NULL; } // if this element was one in list
         else {
-            if(q->first == qd) q->first = qd->next;    // if this element is first
+            if(q->first == qd) { q->first = qd->next; q->first->prev = NULL; }   // if this element is first
             else qd->prev->next = qd->next;           // if this element is not first
 
-            if(q->last == qd) q->last = qd->prev;     // if this element is last
+            if(q->last == qd) { q->last = qd->prev; q->last->next = NULL; }     // if this element is last
             else qd->next->prev = qd->prev;           // if this element is not last
         }
         qd->prev = qd->next = NULL;
