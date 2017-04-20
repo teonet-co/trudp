@@ -630,9 +630,8 @@ void *trudp_ChannelProcessReceivedPacket(trudpChannelData *tcd, void *packet,
                     }
 
                     // Save outrunning packet to receiveQueue
-                    else if(trudpPacketGetId(packet) > tcd->receiveExpectedId) {
-
-                        if(!trudpReceiveQueueFindById(tcd->receiveQueue,
+                    else if(trudpPacketGetId(packet) > tcd->receiveExpectedId 
+                            && !trudpReceiveQueueFindById(tcd->receiveQueue,
                                 trudpPacketGetId(packet)) ) {
 
                             trudpReceiveQueueAdd(tcd->receiveQueue, packet, packet_length, 0);
@@ -651,8 +650,7 @@ void *trudp_ChannelProcessReceivedPacket(trudpChannelData *tcd, void *packet,
     //                                "Reset channel ...\n");
     //                            trudpSendRESET(tcd);
     //                        }
-    //                        skip_reset_2: ;
-                        }
+    //                        skip_reset_2: ;                        
                     }
 
                     // Reset channel if packet id = 0
