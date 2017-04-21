@@ -247,7 +247,7 @@ trudpQueueData *trudpQueueUpdate(trudpQueue *q, void *data, size_t data_length,
  */
 inline trudpQueueData *trudpQueueRemove(trudpQueue *q, trudpQueueData *qd) {
         
-    if(q && qd) {
+    if(q && q->length && qd) {
         
         q->length--;        
         if(!q->length) { q->first = q->last = NULL; } // if this element was one in list
@@ -309,19 +309,17 @@ inline int trudpQueueDeleteLast(trudpQueue *q) {
  */
 trudpQueueData *trudpQueueMoveToEnd(trudpQueue *q, trudpQueueData *qd) {
    
-    if(q && qd && qd->next) {
+    if(q && q->length > 1 && qd && qd->next) {
         
-        if(q->length > 1) {
-            
-            // Remove element
-            trudpQueueRemove(q, qd);
-            
-            // Add to the end
-            q->last->next = qd;
-            qd->prev = q->last;
-            q->last = qd;
-            q->length++;
-        }
+        // Remove element
+        trudpQueueRemove(q, qd);
+
+        // Add to the end
+        q->last->next = qd;
+        qd->prev = q->last;
+        qd->next = NULL;
+        q->last = qd;            
+        q->length++;
     }
     
     return qd;
@@ -336,20 +334,17 @@ trudpQueueData *trudpQueueMoveToEnd(trudpQueue *q, trudpQueueData *qd) {
  */
 trudpQueueData *trudpQueueMoveToTop(trudpQueue *q, trudpQueueData *qd) {
    
-    if(q && qd && qd->prev) {
-        
-        if(q->length > 1) {
-            
-            // Remove element
-            trudpQueueRemove(q, qd);
-            
-            // Add to the beginning
-            q->first->prev = qd;
-            qd->prev = NULL;
-            qd->next = q->first;
-            q->first = qd;
-            q->length++;
-        }
+    if(q && q->length > 1 && qd && qd->prev) {
+
+        // Remove element
+        trudpQueueRemove(q, qd);
+
+        // Add to the beginning
+        q->first->prev = qd;
+        qd->prev = NULL;
+        qd->next = q->first;
+        q->first = qd;
+        q->length++;
     }
     
     return qd;

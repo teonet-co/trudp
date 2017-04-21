@@ -109,19 +109,33 @@ void add_elements_to_queue() {
     qd2 = qd->next;
     trudpQueueMoveToEnd(q, qd);
     CU_ASSERT(q->last == qd);
+    CU_ASSERT(q->last->next == NULL);
     CU_ASSERT(q->first == qd2);
+    CU_ASSERT(q->first->prev == NULL);
+    CU_ASSERT(q->length == num_elements);
+    
+    // Move last element to the top of queue
+    qd = q->last;
+    qd2 = qd->prev;
+    trudpQueueMoveToTop(q, qd);
+    CU_ASSERT(q->last == qd2);
+    CU_ASSERT(q->last->next == NULL);
+    CU_ASSERT(q->first == qd);
+    CU_ASSERT(q->first->prev == NULL);
     CU_ASSERT(q->length == num_elements);
     
     // Delete first
     qd = q->first->next;
     trudpQueueDeleteFirst(q);
     CU_ASSERT(q->length == num_elements-1);
+    CU_ASSERT(q->first->prev == NULL);
     CU_ASSERT(qd == q->first);
     
     // Delete last
     qd = q->last->prev;
     trudpQueueDeleteLast(q);
     CU_ASSERT(q->length == num_elements-2);
+    CU_ASSERT(q->last->next == NULL);
     CU_ASSERT(qd == q->last);
     
     // Delete all by deleting first
