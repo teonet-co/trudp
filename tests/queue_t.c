@@ -124,6 +124,20 @@ void add_elements_to_queue() {
     CU_ASSERT(q->first->prev == NULL);
     CU_ASSERT(q->length == num_elements);
     
+    // Update first element
+    char *tst_str = "12345";
+    trudpQueueUpdate(q, tst_str, 6, q->first);
+    CU_ASSERT_STRING_EQUAL(q->first->data, tst_str);
+    // Update second element
+    trudpQueueUpdate(q, tst_str, 6, q->first->next);
+    CU_ASSERT_STRING_EQUAL(q->first->next->data, tst_str);
+    // Update last-1 element
+    trudpQueueUpdate(q, tst_str, 6, q->last->prev);
+    CU_ASSERT_STRING_EQUAL(q->last->prev->data, tst_str);
+    // Update last element
+    trudpQueueUpdate(q, tst_str, 6, q->last);
+    CU_ASSERT_STRING_EQUAL(q->last->data, tst_str);
+    
     // Delete first
     qd = q->first->next;
     trudpQueueDeleteFirst(q);
@@ -329,7 +343,7 @@ int main() {
 
     /* Add this module tests to the suite */
     if ((NULL == CU_add_test(pSuite, "queue create/destroy", queue_create_test)) ||
-        (NULL == CU_add_test(pSuite, "add elements to queue", add_elements_to_queue)) ||
+        (NULL == CU_add_test(pSuite, "add elements to queue, move and delete it", add_elements_to_queue)) ||
         (NULL == CU_add_test(pSuite, "check queue iterator", check_queue_iterator)) ||
         (NULL == CU_add_test(pSuite, "delete elements from queue", delete_elements_from_queue)) ) {
         

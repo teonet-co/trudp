@@ -123,6 +123,19 @@ trudpQueueData *trudpQueuePut(trudpQueue *q, trudpQueueData *qd) {
     return qd;
 }
 
+trudpQueueData *trudpQueueNewData(void *data, size_t data_length) {
+    
+    // Create new trudpQueueData
+    trudpQueueData *qd = (trudpQueueData *) malloc(sizeof(trudpQueueData) + data_length);
+    if(qd) {
+        // Fill Queue data structure
+        qd->data_length = data_length;
+        if(data && data_length > 0) memcpy(qd->data, data, data_length);
+    }
+
+    return qd;
+}
+
 /**
  * Add new element to the end of TR-UPD queue
  * 
@@ -138,13 +151,8 @@ trudpQueueData *trudpQueueAdd(trudpQueue *q, void *data, size_t data_length) {
     
     if(q) {
         // Create new trudpQueueData
-        qd = (trudpQueueData *) malloc(sizeof(trudpQueueData) + data_length);
-        if(qd) {
-            // Fill Queue data structure
-            qd->data_length = data_length;
-            if(data && data_length > 0) memcpy(qd->data, data, data_length);
-            trudpQueuePut(q, qd);
-        }
+        qd = trudpQueueNewData(data, data_length);
+        if(qd) trudpQueuePut(q, qd);
     }
     return qd;
 }
@@ -182,32 +190,22 @@ trudpQueueData *trudpQueueAddAfter(trudpQueue *q, void *data, size_t data_length
     if(q) {
         // Add to last position
         if(!q->last || (qd && qd == q->last)) new_qd = trudpQueueAdd(q, data, data_length);
+        // Add to first position
+        else if(!qd) new_qd = trudpQueueAddTop(q, data, data_length);
+        // Add after selected element
         else {
             // Create new trudpQueueData
-            new_qd = (trudpQueueData *) malloc(sizeof(trudpQueueData) + data_length);
-
-            // Fill Queue data structure
-            new_qd->data_length = data_length;
-            if(data && data_length > 0) memcpy(new_qd->data, data, data_length); 
+            new_qd = trudpQueueNewData(data, data_length);
 
             // Add inside of queue
-            if(qd) {
+            if(new_qd) {
                 // Change fields in queue structure
                 if(q->last == qd) q->last = new_qd; 
                 new_qd->prev = qd; // Set previous of new element to existing element
                 new_qd->next = qd->next; // Set next of new element to next of existing
                 qd->next = new_qd; // Set next of existing element to new element
-            }
-            
-            // Add to the first position
-            else {
-                new_qd->prev = NULL; // Set this element previous to null
-                new_qd->next = q->first; // Set this element next to first in queue
-                if(q->first) q->first->prev = new_qd; // Set previous of first in queue to this element
-                q->first = new_qd; // Set previous of first in queue to this element
-            }
-            
-            q->length++; // Increment length
+                q->length++; // Increment length
+            }            
         }        
     }
     
@@ -230,9 +228,20 @@ trudpQueueData *trudpQueueUpdate(trudpQueue *q, void *data, size_t data_length,
     
     if(q && qd) {
         
-        trudpQueueData *qd_after = qd->prev;
-        trudpQueueDelete(q, qd);
-        new_qd = trudpQueueAddAfter(q, data, data_length, qd_after);
+//        trudpQueueData *qd_after = qd->prev;
+//        trudpQueueDelete(q, qd);
+//        if(qd_after)
+//            new_qd = trudpQueueAddAfter(q, data, data_length, qd_after);
+//        else
+//            trudpQueueAddTop(q, data, data_length);
+        new_qd = trudpQueueNewData(data, data_length);
+        if(new_qd) {
+            new_qd->prev = qd->prev;
+            new_qd->next = qd->next;
+            if(new_qd->prev) new_qd->prev->next = new_qd;
+            if(new_qd->next) new_qd->next->prev = new_qd;
+        }
+        
     }
     
     return new_qd;
@@ -305,7 +314,7 @@ inline int trudpQueueDeleteLast(trudpQueue *q) {
  * 
  * @param q Pointer to trudpQueue
  * @param qd Pointer to trudpQueueData
- * @return Zero at success
+ * @return Pointer to input trudpQueueData
  */
 trudpQueueData *trudpQueueMoveToEnd(trudpQueue *q, trudpQueueData *qd) {
    
@@ -330,7 +339,7 @@ trudpQueueData *trudpQueueMoveToEnd(trudpQueue *q, trudpQueueData *qd) {
  * 
  * @param q Pointer to trudpQueue
  * @param qd Pointer to trudpQueueData
- * @return Zero at success
+ * @return Pointer to input trudpQueueData
  */
 trudpQueueData *trudpQueueMoveToTop(trudpQueue *q, trudpQueueData *qd) {
    

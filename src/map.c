@@ -101,8 +101,7 @@ trudpMapData *trudpMapResize(trudpMapData *map, size_t size) {
             #define _USE_PUT_ 1
             #if _USE_PUT_
             size_t qd_new_data_length = sizeof(trudpQueueData) + qd->data_length;
-            qd_new = (trudpQueueData *)malloc(qd_new_data_length);
-            memcpy(qd_new, qd, qd_new_data_length);
+            qd_new = trudpQueueNewData(qd, qd_new_data_length);
             trudpQueuePut(map_new->q[idx], qd_new);
             map_new->length++;
             #else
