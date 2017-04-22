@@ -188,10 +188,10 @@ trudpQueueData *trudpQueueAddAfter(trudpQueue *q, void *data, size_t data_length
     trudpQueueData *new_qd = NULL;
             
     if(q) {
-        // Add to last position
-        if(!q->last || (qd && qd == q->last)) new_qd = trudpQueueAdd(q, data, data_length);
         // Add to first position
-        else if(!qd) new_qd = trudpQueueAddTop(q, data, data_length);
+        if(!qd) new_qd = trudpQueueAddTop(q, data, data_length);
+        // Add to last position
+        else if(!q->last || qd == q->last) new_qd = trudpQueueAdd(q, data, data_length);
         // Add after selected element
         else {
             // Create new trudpQueueData
