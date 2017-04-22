@@ -240,6 +240,10 @@ trudpQueueData *trudpQueueUpdate(trudpQueue *q, void *data, size_t data_length,
             new_qd->next = qd->next;
             if(new_qd->prev) new_qd->prev->next = new_qd;
             if(new_qd->next) new_qd->next->prev = new_qd;
+            if(q->first == qd) q->first = new_qd;
+            if(q->last == qd) q->last = new_qd;
+            
+            free(qd);
         }
         
     }
