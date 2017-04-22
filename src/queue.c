@@ -425,8 +425,6 @@ int trudpQueueIteratorFree(trudpQueueIterator *it) {
     return 0;
 }
 
-typedef int (*trudpQueueForeachFunction)(int idx, trudpQueueData *data);
-
 /**
  * Loop through queue and call callback function with index and data in parameters
  * 
@@ -435,7 +433,7 @@ typedef int (*trudpQueueForeachFunction)(int idx, trudpQueueData *data);
  * 
  * @return Number of elements processed
  */
-int trudpQueueForeach(trudpQueue *q, trudpQueueForeachFunction callback) {
+int trudpQueueForeach(trudpQueue *q, trudpQueueForeachFunction callback, void *user_data) {
     
     int i = 0;
     trudpQueueIterator *it = trudpQueueIteratorNew(q);
@@ -443,7 +441,7 @@ int trudpQueueForeach(trudpQueue *q, trudpQueueForeachFunction callback) {
         
         while(trudpQueueIteratorNext(it)) {
             
-            if(callback(i, trudpQueueIteratorElement(it))) break;
+            if(callback(q, i, trudpQueueIteratorElement(it), user_data)) break;
         }
         trudpQueueIteratorFree(it);
     }

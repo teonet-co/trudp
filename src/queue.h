@@ -100,8 +100,8 @@ trudpQueueData *trudpQueueIteratorElement(trudpQueueIterator *it);
 trudpQueueIterator *trudpQueueIteratorReset(trudpQueueIterator *it, trudpQueue *q);
 int trudpQueueIteratorFree(trudpQueueIterator *it);
 
-typedef int (*trudpQueueForeachFunction)(int idx, trudpQueueData *data);
-int trudpQueueForeach(trudpQueue *q, trudpQueueForeachFunction callback);
+typedef int (*trudpQueueForeachFunction)(trudpQueue *q, int idx, trudpQueueData *data, void* user_data);
+int trudpQueueForeach(trudpQueue *q, trudpQueueForeachFunction callback, void *user_data);
 
 #ifdef __cplusplus
 }
