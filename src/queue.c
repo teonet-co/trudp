@@ -362,7 +362,7 @@ trudpQueueData *trudpQueueMoveToTop(trudpQueue *q, trudpQueueData *qd) {
 /**
  * Create new TR-UPD Queue iterator
  * 
- * @param q
+ * @param q Pointer to trudpQueue
  * @return 
  */
 trudpQueueIterator *trudpQueueIteratorNew(trudpQueue *q) {
@@ -381,7 +381,7 @@ trudpQueueIterator *trudpQueueIteratorNew(trudpQueue *q) {
  * Reset iterator (or swith to new Queue)
  * 
  * @param it
- * @param q
+ * @param q Pointer to trudpQueue
  * @return 
  */
 trudpQueueIterator *trudpQueueIteratorReset(trudpQueueIterator *it, trudpQueue *q) {
@@ -432,4 +432,28 @@ int trudpQueueIteratorFree(trudpQueueIterator *it) {
     
     if(it) free(it);
     return 0;
+}
+
+/**
+ * Loop through queue and call callback function with index and data in parameters
+ * 
+ * @param q Pointer to trudpQueue
+ * @param callback Pointer to callback function trudpQueueForeachFunction
+ * 
+ * @return Number of elements processed
+ */
+int trudpQueueForeach(trudpQueue *q, trudpQueueForeachFunction callback, void *user_data) {
+    
+    int i = 0;
+    trudpQueueIterator *it = trudpQueueIteratorNew(q);
+    if(it != NULL) {
+        
+        while(trudpQueueIteratorNext(it)) {
+            
+            if(callback(q, i, trudpQueueIteratorElement(it), user_data)) break;
+        }
+        trudpQueueIteratorFree(it);
+    }
+    
+    return i;
 }
