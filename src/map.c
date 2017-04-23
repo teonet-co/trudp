@@ -95,13 +95,14 @@ trudpMapData *trudpMapResize(trudpMapData *map, size_t size) {
                    i, el->hash, (char*)el->data, (char*)el->data + el->key_length);
             #endif
 
-            trudpQueueData *qd_new, *qd = _trudpMapValueDataToQueueData(el);
-            int idx = el->hash % map_new->hash_map_size;
 
             #define _USE_PUT_ 1
             #if _USE_PUT_
-            size_t qd_new_data_length = sizeof(trudpQueueData) + qd->data_length;
-            qd_new = trudpQueueNewData(qd, qd_new_data_length);
+            int idx = el->hash % map_new->hash_map_size;
+            trudpQueueData *qd_new, *qd = _trudpMapValueDataToQueueData(el);
+            qd_new = trudpQueueNewData(qd->data, qd->data_length);
+            qd_new->prev = qd->prev;
+            qd_new->next = qd->next;
             trudpQueuePut(map_new->q[idx], qd_new);
             map_new->length++;
             #else
