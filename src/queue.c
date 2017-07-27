@@ -416,6 +416,23 @@ trudpQueueData *trudpQueueIteratorNext(trudpQueueIterator *it) {
 }
 
 /**
+ * Get prev element from TR-UPD Queue iterator
+ * 
+ * @param it Pointer to trudpQueueIterator
+ * 
+ * @return Pointer to the trudpQueueData or NULL if not exists
+ */
+trudpQueueData *trudpQueueIteratorPrev(trudpQueueIterator *it) {
+    
+    if(!it) return NULL;
+    
+    if(!it->qd) it->qd = it->q->last;
+    else it->qd = it->qd->prev;
+    
+    return it->qd;
+}
+
+/**
  * Get current TR-UPD Queue iterator element
  * @param it Pointer to trudpQueueIterator
  * 
