@@ -140,6 +140,8 @@ typedef struct trudpChannelData {
     
     trudpStatChannelData stat;  ///< Channel statistic
     
+    int fd;                     ///< L0 client fd (emulation)
+    
 } trudpChannelData;
 
 #ifdef __cplusplus
