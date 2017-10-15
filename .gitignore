@@ -56,3 +56,4 @@
 /src/*.lo
 /src/*.o
 /src/*.la
+/src/.dirstamp
