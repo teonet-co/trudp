@@ -98,6 +98,7 @@ size_t trudpQueueSize(trudpQueue *q);
 
 trudpQueueIterator *trudpQueueIteratorNew(trudpQueue *q);
 trudpQueueData *trudpQueueIteratorNext(trudpQueueIterator *it);
+trudpQueueData *trudpQueueIteratorPrev(trudpQueueIterator *it);
 trudpQueueData *trudpQueueIteratorElement(trudpQueueIterator *it);
 trudpQueueIterator *trudpQueueIteratorReset(trudpQueueIterator *it, trudpQueue *q);
 int trudpQueueIteratorFree(trudpQueueIterator *it);
