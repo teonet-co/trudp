@@ -55,6 +55,7 @@ trudpChannelData *trudp_ChannelAddToMap(void *td, char *key, size_t key_length,
  */
 static void trudp_ChannelSetDefaults(trudpChannelData *tcd) {
 
+    tcd->fd = 0;
     tcd->sendId = 0;
     tcd->triptime = 0;
     tcd->triptimeFactor = 1.5;
