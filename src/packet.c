@@ -458,9 +458,9 @@ inline int trudpPacketGetChannel(void *packet) {
  * @param channel Channel number
  * @return Packet Id
  */
-inline int trudpPacketSetChannel(void *packet, int channel) {
+inline void trudpPacketSetChannel(void *packet, int channel) {
 
-    return ((trudpHeader *)packet)->channel;
+    ((trudpHeader *)packet)->channel = channel;
 }
 
 /**
