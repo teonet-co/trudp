@@ -80,7 +80,7 @@ size_t trudpPacketRESETlength();
 
 uint32_t trudpPacketGetId(void *packet);
 int trudpPacketGetChannel(void *packet);
-int trudpPacketSetChannel(void *packet, int channel);
+void trudpPacketSetChannel(void *packet, int channel);
 void *trudpPacketGetData(void *packet);
 uint16_t trudpPacketGetDataLength(void *packet);
 size_t trudpPacketGetHeaderLength(void *packet);
