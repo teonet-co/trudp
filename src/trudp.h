@@ -229,6 +229,14 @@ TRUDP_API size_t trudpGetWriteQueueSize(trudpData *td);
 TRUDP_API int trudpProcessSendQueue(trudpData *td, uint64_t *next_et);
 TRUDP_API size_t trudpProcessWriteQueue(trudpData *td);
 
+TRUDP_API void trudpChannelDestroyAddr(trudpData *td, char *addr, int port, 
+  int channel);
+TRUDP_API trudpChannelData *trudpGetChannelAddr(trudpData *td, char *addr, int port,
+        int channel);
+TRUDP_API void trudpChannelDestroyAll(trudpData *td);
+TRUDP_API trudpChannelData *trudpGetChannel(trudpData *td, __CONST_SOCKADDR_ARG addr, 
+        int channel);
+
 void *trudpSendEventGotData(void *t_pointer, void *packet, 
           size_t *data_length);
 

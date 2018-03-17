@@ -30,6 +30,8 @@
 #ifndef TRU_UDP_STAT_H
 #define TRU_UDP_STAT_H
 
+#include <string.h>
+
 #include "trudp.h"
 #include "trudp_api.h"
 

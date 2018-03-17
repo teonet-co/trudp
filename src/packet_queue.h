@@ -110,7 +110,7 @@ trudpPacketQueueData *trudpPacketQueueAdd(trudpPacketQueue *tq,
 static inline 
 trudpQueueData *trudpPacketQueueDataToQueueData(
     trudpPacketQueueData *tqd) {
-    return tqd ? (trudpQueueData *)((void*)tqd - sizeof(trudpQueueData)) : NULL;
+    return tqd ? (trudpQueueData *)((char*)tqd - sizeof(trudpQueueData)) : NULL;
 }
 /**
  * Remove element from Packet queue
