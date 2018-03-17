@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2016 Kirill Scherba <kirill@scherba.ru>.
+ * Copyright 2016-2018 Kirill Scherba <kirill@scherba.ru>.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -35,6 +35,7 @@
 
 #include "trudp_channel.h"
 #include "trudp_const.h"
+#include "trudp_api.h"
     
 #ifdef __cplusplus
 extern "C" {
@@ -212,39 +213,24 @@ typedef struct trudpData {
     
 } trudpData;
 
-trudpData *trudpInit(int fd, int port, trudpEventCb event_cb, void *user_data);
-void trudpDestroy(trudpData* td);
-trudpChannelData *trudpGetChannel(trudpData *td, __CONST_SOCKADDR_ARG addr, 
-        int channel);
-trudpChannelData *trudpGetChannelAddr(trudpData *td, char *addr, int port,
-        int channel);
-trudpChannelData *trudpGetChannelCreate(trudpData *td, __CONST_SOCKADDR_ARG addr, int channel);
-void trudpSendResetAll(trudpData *td);
-size_t trudpProcessKeepConnection(trudpData *td);
-void trudpEventSend(void *t_pointer, int event, void *data,
-        size_t data_length, void *user_data);
-void *trudpEventGotDataSend(void *t_pointer, void *packet, 
-        size_t *data_length);
-void trudp_ChannelDestroyAll(trudpData *td);
-void trudp_ChannelDestroyAddr(trudpData *td, char *addr, int port, 
-        int channel);
+TRUDP_API trudpData *trudpInit(int fd, int port, trudpEventCb event_cb, 
+            void *user_data);
+TRUDP_API void trudpDestroy(trudpData* td);
+TRUDP_API void trudpSendEvent(void *t_pointer, int event, void *data,
+            size_t data_length, void *user_data);
+TRUDP_API trudpChannelData *trudpGetChannelCreate(trudpData *td, 
+            __CONST_SOCKADDR_ARG addr, int channel);
+TRUDP_API size_t trudpProcessKeepConnection(trudpData *td);
+TRUDP_API void trudpProcessReceived(trudpData *td, void *data, size_t data_length);
+TRUDP_API size_t trudpSendDataToAll(trudpData *td, void *data, size_t data_length);
+TRUDP_API void trudpSendResetAll(trudpData *td);
+TRUDP_API uint32_t trudpGetSendQueueTimeout(trudpData *td, uint64_t ts);
+TRUDP_API size_t trudpGetWriteQueueSize(trudpData *td);
+TRUDP_API int trudpProcessSendQueue(trudpData *td, uint64_t *next_et);
+TRUDP_API size_t trudpProcessWriteQueue(trudpData *td);
 
-void trudpProcessReceive(trudpData *td, void *data, size_t data_length);
-
-size_t trudpSendDataToAll(trudpData *td, void *data, size_t data_length);
-
-
-size_t trudpGetReceiveQueueMax(trudpData *td);
-
-//size_t trudp_SendQueueGetSizeMax(trudpData *td);
-size_t trudp_SendQueueSize(trudpData *td);
-uint32_t trudp_SendQueueGetTimeout(trudpData *td, uint64_t ts);
-int trudp_SendQueueProcess(trudpData *td, uint64_t *next_et);
-
-size_t trudp_WriteQueueProcess(trudpData *td);
-
-size_t trudp_WriteQueueSizeAll(trudpData *td);
-
+void *trudpSendEventGotData(void *t_pointer, void *packet, 
+          size_t *data_length);
 
 #ifdef __cplusplus
 }

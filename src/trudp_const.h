@@ -23,8 +23,8 @@
  */
 
 /* 
- * File:   trudp_const.h
- * Author: kirill
+ * \file   trudp_const.h
+ * \author Kirill Scherba <kirill@scherba.ru>
  *
  * Created on July 21, 2016, 12:34 AM
  */

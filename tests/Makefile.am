@@ -25,7 +25,7 @@ endif
 
 AM_LDFLAGS = -L../src/.libs 
 
-LIBS = -ltrudp -lcunit -lev
+LIBS = ../src/.libs/libtrudp.a -lcunit -lev
 
 noinst_PROGRAMS = trudp_tst
 

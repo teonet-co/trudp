@@ -62,6 +62,7 @@ void timed_queue() {
     CU_ASSERT_PTR_EQUAL_FATAL(tqd, trudpPacketQueueFindById(tq, packet_id2));
 
     // Find DATA packet by time
+    #ifdef RESERVED
     usleep(10000);
     tqd = trudpPacketQueueFindById(tq, packet_id); // Get packet with Id 1
     CU_ASSERT_PTR_EQUAL_FATAL(tqd, trudpPacketQueueFindByTime(tq, trudpGetTimestampFull()));
@@ -70,6 +71,7 @@ void timed_queue() {
     tqd = trudpPacketQueueFindByTime(tq, trudpGetTimestampFull());
     trudpPacketQueueDelete(tq, tqd);
     CU_ASSERT_FATAL(trudpQueueSize(tq->q) == 1);
+    #endif
     
     // Free timed queue
     trudpPacketQueueFree(tq);

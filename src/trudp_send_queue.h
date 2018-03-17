@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2016 Kirill Scherba <kirill@scherba.ru>.
+ * Copyright 2016-2018 Kirill Scherba <kirill@scherba.ru>.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -54,7 +54,8 @@ typedef trudpPacketQueueData trudpSendQueueData;
  *
  * @return Pointer to trudpSendQueue
  */    
-static inline trudpSendQueue *trudpSendQueueNew() { 
+static inline 
+trudpSendQueue *trudpSendQueueNew() { 
     return trudpPacketQueueNew(); 
 }
 
@@ -64,7 +65,8 @@ static inline trudpSendQueue *trudpSendQueueNew() {
  * @param sq Pointer to Send Queue (trudpSendQueue)
  * @return Zero at success
  */
-static inline int trudpSendQueueFree(trudpSendQueue *sq) { 
+static inline 
+int trudpSendQueueFree(trudpSendQueue *sq) { 
     return trudpPacketQueueFree(sq); 
 }
 
@@ -73,7 +75,8 @@ static inline int trudpSendQueueFree(trudpSendQueue *sq) {
  *
  * @param sq Pointer to Send Queue (trudpSendQueue)
  */
-static inline void trudpSendQueueDestroy(trudpSendQueue *sq) { 
+static inline 
+void trudpSendQueueDestroy(trudpSendQueue *sq) { 
     trudpPacketQueueDestroy(sq); 
 }
 
@@ -84,7 +87,8 @@ static inline void trudpSendQueueDestroy(trudpSendQueue *sq) {
  *
  * @return Number of elements in TR-UPD send queue
  */
-static inline size_t trudpSendQueueSize(trudpSendQueue *sq) { 
+static inline 
+size_t trudpSendQueueSize(trudpSendQueue *sq) { 
     return trudpPacketQueueSize(sq); 
 }
 

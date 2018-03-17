@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2016 Kirill Scherba <kirill@scherba.ru>.
+ * Copyright 2016-2018 Kirill Scherba <kirill@scherba.ru>.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,51 +33,13 @@
 #include "packet_queue.h"
 #include "packet.h"
 
-/**
- * Create new Packet queue
- *
- * @return Pointer to trudpPacketQueue
- */
-inline trudpPacketQueue *trudpPacketQueueNew() {
+// Local functions
 
-    trudpPacketQueue *tq = (trudpPacketQueue *)malloc(sizeof(trudpPacketQueue));
-    tq->q = trudpQueueNew();
-
-    return tq;
-}
-
-/**
- * Destroy Packet queue
- *
- * @param tq Pointer to trudpPacketQueue
- */
-inline void trudpPacketQueueDestroy(trudpPacketQueue *tq) {
-
-    if(tq) {
-        trudpQueueDestroy(tq->q);
-        free(tq);
-    }
-}
-
-/**
- * Remove all elements from Packet queue
- *
- * @param tq Pointer to trudpPacketQueue
- * @return Zero at success
- */
-inline int trudpPacketQueueFree(trudpPacketQueue *tq) {
-
-    return tq && tq->q ? trudpQueueFree(tq->q) : -1;
-}
-
-/**
- * Get pointer to trudpQueueData from trudpPacketQueueData pointer
- * @param tqd Pointer to trudpPacketQueueData
- * @return Pointer to trudpQueueData or NULL if tqd is NULL
- */
-inline trudpQueueData *trudpPacketQueueDataToQueueData(trudpPacketQueueData *tqd) {
-    return tqd ? (trudpQueueData *)((void*)tqd - sizeof(trudpQueueData)) : NULL;
-}
+#ifdef RESERVED
+static trudpPacketQueueData *_trudpPacketQueueAddTime(trudpPacketQueue *tq, 
+        void *packet, size_t packet_length, uint64_t expected_time);
+trudpPacketQueueData *trudpPacketQueueFindByTime(trudpPacketQueue *tq, uint64_t t);
+#endif
 
 /**
  * Add packet to Packet queue
@@ -104,42 +66,6 @@ trudpPacketQueueData *trudpPacketQueueAdd(trudpPacketQueue *tq, void *packet,
     tqd->retrieves = 0;
 
     return tqd;
-}
-
-/**
- * Add packet to Packet queue and sort by expected
- *
- * @param tq
- * @param packet
- * @param packet_length
- * @param expected_time
- * @return
- */
-trudpPacketQueueData *trudpPacketQueueAddTime(trudpPacketQueue *tq,
-        void *packet, size_t packet_length, uint64_t expected_time) {
-
-    if(trudpPacketQueueSize(tq)) {
-        // Find expected less or equal then than selected
-        trudpPacketQueueData *tpqd = trudpPacketQueueFindByTime(tq, expected_time);
-        if(tpqd) {
-            
-            // Add after
-            size_t tqd_length = sizeof(trudpPacketQueueData) + packet_length;
-            trudpPacketQueueData *tqd = (trudpPacketQueueData *)
-                ((trudpQueueData *)trudpQueueAddAfter(tq->q, NULL, tqd_length,
-                    trudpPacketQueueDataToQueueData(tpqd)))->data;
-            
-            // Fill data
-            memcpy(tqd->packet, packet, packet_length);
-            tqd->expected_time = expected_time;
-            tqd->packet_length = packet_length;
-            tqd->retrieves = 0;
-
-            return tqd;
-        }
-    }
-
-    return trudpPacketQueueAdd(tq, packet, packet_length, expected_time);
 }
 
 /**
@@ -175,11 +101,35 @@ trudpPacketQueueData *trudpPacketQueueFindById(trudpPacketQueue *tq,
 }
 
 /**
+ * Get first element from Packet Queue
+ *
+ * @param tq Pointer to trudpPacketQueue
+
+ * @return Pointer to trudpPacketQueueData or NULL if not found
+ */
+trudpPacketQueueData *trudpPacketQueueGetFirst(trudpPacketQueue *tq) {
+
+    trudpPacketQueueData *tqd = NULL;
+
+    trudpQueueIterator *it = trudpQueueIteratorNew(tq->q);
+    if(it != NULL) {
+        if(trudpQueueIteratorNext(it)) {
+            tqd = (trudpPacketQueueData *)
+                    ((trudpQueueData *)trudpQueueIteratorElement(it))->data;
+        }
+        trudpQueueIteratorFree(it);
+    }
+
+    return tqd;
+}
+
+#ifdef RESERVED
+/**
  * Find Packet queue data by time
  *
  * @param tq Pointer to trudpPacketQueue
  * @param t Time to find (current time usually). This function will find first
- *          record with expected_time less or equal then this time.
+ *          record with expected_time less or equal to this time.
  *
  * @return  Pointer to trudpPacketQueueData or NULL if not found
  */
@@ -206,40 +156,42 @@ trudpPacketQueueData *trudpPacketQueueFindByTime(trudpPacketQueue *tq,
 
     return rv;
 }
+#endif
 
+#ifdef RESERVED
 /**
- * Get first element from Packet Queue
+ * Add packet to Packet queue and sort by expected
  *
- * @param tq Pointer to trudpPacketQueue
-
- * @return Pointer to trudpPacketQueueData or NULL if not found
+ * @param tq
+ * @param packet
+ * @param packet_length
+ * @param expected_time
+ * @return
  */
-trudpPacketQueueData *trudpPacketQueueGetFirst(trudpPacketQueue *tq) {
+static trudpPacketQueueData *_trudpPacketQueueAddTime(trudpPacketQueue *tq,
+        void *packet, size_t packet_length, uint64_t expected_time) {
 
-    trudpPacketQueueData *tqd = NULL;
+    if(trudpPacketQueueSize(tq)) {
+        // Find expected less or equal then than selected
+        trudpPacketQueueData *tpqd = trudpPacketQueueFindByTime(tq, expected_time);
+        if(tpqd) {
+            
+            // Add after
+            size_t tqd_length = sizeof(trudpPacketQueueData) + packet_length;
+            trudpPacketQueueData *tqd = (trudpPacketQueueData *)
+                ((trudpQueueData *)trudpQueueAddAfter(tq->q, NULL, tqd_length,
+                    _trudpPacketQueueDataToQueueData(tpqd)))->data;
+            
+            // Fill data
+            memcpy(tqd->packet, packet, packet_length);
+            tqd->expected_time = expected_time;
+            tqd->packet_length = packet_length;
+            tqd->retrieves = 0;
 
-    trudpQueueIterator *it = trudpQueueIteratorNew(tq->q);
-    if(it != NULL) {
-        if(trudpQueueIteratorNext(it)) {
-            tqd = (trudpPacketQueueData *)
-                    ((trudpQueueData *)trudpQueueIteratorElement(it))->data;
+            return tqd;
         }
-        trudpQueueIteratorFree(it);
     }
 
-    return tqd;
+    return trudpPacketQueueAdd(tq, packet, packet_length, expected_time);
 }
-
-/**
- * Move element to the end of list
- *
- * @param tq Pointer to trudpPacketQueue
- * @param tqd Pointer to trudpPacketQueueData
- * @return Zero at success
- */
-inline trudpPacketQueueData *trudpPacketQueueMoveToEnd(trudpPacketQueue *tq,
-        trudpPacketQueueData *tqd) {
-
-    return (trudpPacketQueueData *)trudpQueueMoveToEnd(tq->q,
-                trudpPacketQueueDataToQueueData(tqd))->data;
-}
+#endif

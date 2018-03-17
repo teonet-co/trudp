@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2016 Kirill Scherba <kirill@scherba.ru>.
+ * Copyright 2016-2018 Kirill Scherba <kirill@scherba.ru>.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,8 +23,8 @@
  */
 
 /* 
- * File:   trudp_channel.h
- * Author: Kirill Scherba <kirill@scherba.ru>
+ * \file   trudp_channel.h
+ * \author Kirill Scherba <kirill@scherba.ru>
  *
  * Created on July 20, 2016, 6:21 PM
  */
@@ -59,6 +59,7 @@ typedef _W64 unsigned int   ssize_t;
 #include <sys/socket.h>
 #endif
 
+#include "trudp_api.h"
 #include "trudp_const.h"
 #include "trudp_send_queue.h"
 #include "trudp_receive_queue.h"
@@ -69,13 +70,13 @@ typedef _W64 unsigned int   ssize_t;
 /**
  * Last 10 send statistic data
  */
-typedef struct last10_data {
+typedef struct trudpLast10_data {
     
     uint32_t triptime; ///< Packet triptime
     uint32_t size_b; ///< Size of backet in bites
     uint32_t ts; ///< Packet time
     
-} last10_data;  
+} trudpLast10_data;  
 
 /**
  * TR-UDP channel statistic data
@@ -101,9 +102,9 @@ typedef struct trudpStatChannelData {
     double wait; ///< Send repeat timer wait time value
     uint32_t sq; ///< Send queue length
     uint32_t rq; ///< Receive queue length
-    last10_data last_send_packets_ar[LAST10_SIZE]; ///< Last 10 send packets
+    trudpLast10_data last_send_packets_ar[LAST10_SIZE]; ///< Last 10 send packets
     size_t idx_snd; ///< Index of last_send_packet_ar
-    last10_data last_receive_packets_ar[LAST10_SIZE]; ///< Last 10 receive packets
+    trudpLast10_data last_receive_packets_ar[LAST10_SIZE]; ///< Last 10 receive packets
     size_t idx_rcv; ///< Index of last_receive_packets_ar   
     uint32_t sendQueueSize;
     uint32_t receiveQueueSize;
@@ -148,43 +149,23 @@ typedef struct trudpChannelData {
 extern "C" {
 #endif
 
-uint32_t trudp_ChannelGetNewId(trudpChannelData *tcd);
-uint32_t trudp_ChannelGetId(trudpChannelData *tcd);
-int trudp_ChannelCheckDisconnected(trudpChannelData *tcd, uint64_t ts);
-
-char *trudp_ChannelMakeKey(trudpChannelData *tcd);
-void trudp_ChannelSendReset(trudpChannelData *tcd);
-
-trudpChannelData *trudp_ChannelNew(void *td, char *remote_address, 
+TRUDP_API void trudpChannelDestroy(trudpChannelData *tcd);
+TRUDP_API char *trudpChannelMakeKey(trudpChannelData *tcd);
+TRUDP_API trudpChannelData *trudpChannelNew(void *td, char *remote_address, 
         int remote_port_i, int channel); 
-void trudp_ChannelDestroy(trudpChannelData *tcd);
-//void trudpFreeChannel(trudpChannelData *tcd);
-void trudp_ChannelReset(trudpChannelData *tcd);
-size_t trudp_ChannelSendData(trudpChannelData *tcd, void *data, size_t data_length);
-void trudp_ChannelSendRESET(trudpChannelData *tcd, void* data, size_t data_length);
+TRUDP_API size_t trudpChannelSendData(trudpChannelData *tcd, void *data, 
+  size_t data_length);
 
-void *trudp_ChannelProcessReceivedPacket(trudpChannelData *tcd, void *packet, 
+void *trudpChannelProcessReceivedPacket(trudpChannelData *tcd, void *packet, 
         size_t packet_length, size_t *data_length);
-int trudp_SendQueueProcessChannel(trudpChannelData *tcd, uint64_t ts,
+size_t trudpChannelSendPING(trudpChannelData *tcd, void *data, size_t data_length);
+uint32_t trudpChannelSendQueueGetTimeout(trudpChannelData *tcd, 
+        uint64_t current_t);
+int trudpChannelSendQueueProcess(trudpChannelData *tcd, uint64_t ts,
         uint64_t *next_expected_time);
-size_t trudp_ChannelSendPING(trudpChannelData *tcd, void *data,
-        size_t data_length);
-
-/**
- * Get channel send queue timeout
- *
- * @param tcd Pointer to trudpChannelData
- * @param ts Current time
- * 
- * @return Send queue timeout (may by 0) or UINT32_MAX if send queue is empty
- */
-static inline uint32_t trudp_ChannelSendQueueGetTimeout(trudpChannelData *tcd, 
-        uint64_t current_t) {
-
-    return trudpSendQueueGetTimeout(tcd->sendQueue, current_t);
-}
-
-size_t trudp_ChannelWriteQueueProcess(trudpChannelData *tcd);
+void trudpChannelSendRESET(trudpChannelData *tcd, void* data, size_t data_length);
+int trudpChannelCheckDisconnected(trudpChannelData *tcd, uint64_t ts);
+size_t trudpChannelWriteQueueProcess(trudpChannelData *tcd);
 
 #ifdef __cplusplus
 }

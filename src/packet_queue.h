@@ -30,6 +30,7 @@
 #ifndef SEND_QUEUE_H
 #define SEND_QUEUE_H
 
+#include <stdlib.h>
 #include <stdint.h>
 #include "queue.h"
 
@@ -53,11 +54,40 @@ typedef struct trudpPacketQueueData {
 
 } trudpPacketQueueData;
 
-trudpPacketQueue *trudpPacketQueueNew();
-void trudpPacketQueueDestroy(trudpPacketQueue *tq);
-int trudpPacketQueueFree(trudpPacketQueue *tq);
+/**
+ * Create new Packet queue
+ *
+ * @return Pointer to trudpPacketQueue
+ */
+static inline
+trudpPacketQueue *trudpPacketQueueNew() {
+    trudpPacketQueue *tq = (trudpPacketQueue *)malloc(sizeof(trudpPacketQueue));
+    tq->q = trudpQueueNew();
+    return tq;
+}
+/**
+ * Destroy Packet queue
+ *
+ * @param tq Pointer to trudpPacketQueue
+ */
+static inline
+void trudpPacketQueueDestroy(trudpPacketQueue *tq) {
+    if(tq) {
+        trudpQueueDestroy(tq->q);
+        free(tq);
+    }
+}
+/**
+ * Remove all elements from Packet queue
+ *
+ * @param tq Pointer to trudpPacketQueue
+ * @return Zero at success
+ */
+static inline 
+int trudpPacketQueueFree(trudpPacketQueue *tq) {
+    return tq && tq->q ? trudpQueueFree(tq->q) : -1;
+}
 
-//size_t trudpPacketQueueSize(trudpPacketQueue *tq);
 /**
  * Get number of elements in Packet queue
  *
@@ -65,19 +95,23 @@ int trudpPacketQueueFree(trudpPacketQueue *tq);
  *
  * @return Number of elements in TR-UPD queue
  */
-static inline size_t trudpPacketQueueSize(trudpPacketQueue *tq) {
+static inline 
+size_t trudpPacketQueueSize(trudpPacketQueue *tq) {
     return trudpQueueSize(tq->q);
 }
 
-trudpQueueData *trudpPacketQueueDataToQueueData(trudpPacketQueueData *tqd);
-
 trudpPacketQueueData *trudpPacketQueueAdd(trudpPacketQueue *tq, 
         void *packet, size_t packet_length, uint64_t expected_time);
-trudpPacketQueueData *trudpPacketQueueAddTime(trudpPacketQueue *tq, 
-        void *packet, size_t packet_length, uint64_t expected_time);
-trudpPacketQueueData *trudpPacketQueueMoveToEnd(trudpPacketQueue *tq,
-        trudpPacketQueueData *tqd);
-
+/**
+ * Get pointer to trudpQueueData from trudpPacketQueueData pointer
+ * @param tqd Pointer to trudpPacketQueueData
+ * @return Pointer to trudpQueueData or NULL if tqd is NULL
+ */
+static inline 
+trudpQueueData *trudpPacketQueueDataToQueueData(
+    trudpPacketQueueData *tqd) {
+    return tqd ? (trudpQueueData *)((void*)tqd - sizeof(trudpQueueData)) : NULL;
+}
 /**
  * Remove element from Packet queue
  *
@@ -86,14 +120,28 @@ trudpPacketQueueData *trudpPacketQueueMoveToEnd(trudpPacketQueue *tq,
  *
  * @return Zero at success
  */
-static inline int trudpPacketQueueDelete(trudpPacketQueue *tq, 
-        trudpPacketQueueData *tqd) {
-
+static inline 
+int trudpPacketQueueDelete(trudpPacketQueue *tq, 
+    trudpPacketQueueData *tqd) {
     return trudpQueueDelete(tq->q, trudpPacketQueueDataToQueueData(tqd));
 }
+/**
+ * Move element to the end of list
+ *
+ * @param tq Pointer to trudpPacketQueue
+ * @param tqd Pointer to trudpPacketQueueData
+ * @return Zero at success
+ */
+static inline 
+trudpPacketQueueData *trudpPacketQueueMoveToEnd(trudpPacketQueue *tq,
+        trudpPacketQueueData *tqd) {
+
+    return (trudpPacketQueueData *)trudpQueueMoveToEnd(tq->q,
+                trudpPacketQueueDataToQueueData(tqd))->data;
+}
+
 
 trudpPacketQueueData *trudpPacketQueueFindById(trudpPacketQueue *tq, uint32_t id);
-trudpPacketQueueData *trudpPacketQueueFindByTime(trudpPacketQueue *tq, uint64_t t);
 trudpPacketQueueData *trudpPacketQueueGetFirst(trudpPacketQueue *tq);
 
 #ifdef __cplusplus

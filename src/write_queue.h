@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2016 Kirill Scherba <kirill@scherba.ru>.
+ * Copyright 2016-2018 Kirill Scherba <kirill@scherba.ru>.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -53,16 +53,74 @@ typedef struct trudpWriteQueueData {
 
 } trudpWriteQueueData;
 
-trudpWriteQueue *trudpWriteQueueNew();
-void trudpWriteQueueDestroy(trudpWriteQueue *wq);
-int trudpWriteQueueFree(trudpWriteQueue *wq);
-size_t trudpWriteQueueSize(trudpWriteQueue *wq);
-
+/**
+ * Create new Write queue
+ * 
+ * @return Pointer to trudpWriteQueue
+ */
+static inline 
+trudpWriteQueue *trudpWriteQueueNew() {    
+    trudpWriteQueue *wq = (trudpWriteQueue *)malloc(sizeof(trudpWriteQueue));
+    wq->q = trudpQueueNew();
+    return wq;
+}
+/**
+ * Destroy Write queue
+ * 
+ * @param wq Pointer to trudpWriteQueue
+ */
+static inline 
+void trudpWriteQueueDestroy(trudpWriteQueue *wq) {
+    if(wq) {
+        trudpQueueDestroy(wq->q);
+        free(wq);
+    }
+}
+/**
+ * Remove all elements from Write queue
+ * 
+ * @param wq Pointer to trudpWriteQueue
+ * @return Zero at success
+ */
+static inline 
+int trudpWriteQueueFree(trudpWriteQueue *wq) {
+    return wq && wq->q ? trudpQueueFree(wq->q) : -1;
+}
+/**
+ * Get number of elements in Write queue
+ * 
+ * @param wq
+ * 
+ * @return Number of elements in Write queue
+ */
+static inline 
+size_t trudpWriteQueueSize(trudpWriteQueue *wq) {    
+    return wq ? trudpQueueSize(wq->q) : -1;
+}
 trudpWriteQueueData *trudpWriteQueueAdd(trudpWriteQueue *wq, void *packet, 
         void *packet_ptr, size_t packet_length);
-trudpWriteQueueData *trudpWriteQueueGetFirst(trudpWriteQueue *wq);
-int trudpWriteQueueDeleteFirst(trudpWriteQueue *wq);
-
+/**
+ * Get pointer to first element data
+ * 
+ * @param wq Pointer to trudpWriteQueue
+ * 
+ * @return Pointer to trudpWriteQueueData data or NULL
+ */
+static inline 
+trudpWriteQueueData *trudpWriteQueueGetFirst(trudpWriteQueue *wq) {    
+    return (trudpWriteQueueData *) (wq->q->first ? wq->q->first->data : NULL);
+}
+/**
+ * Remove first element from Write queue
+ * 
+ * @param wq Pointer to trudpWriteQueue
+ * 
+ * @return Zero at success
+ */
+static inline 
+int trudpWriteQueueDeleteFirst(trudpWriteQueue *wq) {
+    return trudpQueueDeleteFirst(wq->q);
+}
 
 #ifdef __cplusplus
 }

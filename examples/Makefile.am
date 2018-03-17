@@ -31,7 +31,8 @@ AM_LDFLAGS = -L../src/.libs
 LIBS = -ltrudp -lev
 
 noinst_PROGRAMS = trudpcat_ev
-trudpcat_ev_SOURCES = trudpcat_ev.c snake.c
+trudpcat_ev_SOURCES = trudpcat_ev.c 
+#snake.c
 
 examplesdir = $(datarootdir)/doc/@PACKAGE@/examples
 examples_DATA = trudpcat_ev.c snake.c
