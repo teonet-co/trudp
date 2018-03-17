@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2016 Kirill Scherba <kirill@scherba.ru>.
+ * Copyright 2016-2018 Kirill Scherba <kirill@scherba.ru>.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -63,8 +63,8 @@ trudpReceiveQueue *trudpReceiveQueueNew() {
  * 
  * @param sq Pointer to trudpReceiveQueue
  */
-static inline void trudpReceiveQueueDestroy(trudpReceiveQueue *rq) {
-
+static inline 
+void trudpReceiveQueueDestroy(trudpReceiveQueue *rq) {
     if(rq) {
         trudpQueueDestroy(rq->q);
         free(rq);
@@ -77,7 +77,8 @@ static inline void trudpReceiveQueueDestroy(trudpReceiveQueue *rq) {
  * @param sq Pointer to Receive Queue (trudpReceiveQueue)
  * @return Zero at success
  */
-static inline int trudpReceiveQueueFree(trudpReceiveQueue *rq) {
+static inline 
+int trudpReceiveQueueFree(trudpReceiveQueue *rq) {
     return trudpPacketQueueFree(rq);
 }
 
@@ -88,7 +89,8 @@ static inline int trudpReceiveQueueFree(trudpReceiveQueue *rq) {
  *
  * @return Number of elements in TR-UPD send queue
  */
-static inline size_t trudpReceiveQueueSize(trudpReceiveQueue *sq) {
+static inline 
+size_t trudpReceiveQueueSize(trudpReceiveQueue *sq) {
     return trudpPacketQueueSize(sq);
 }
 
@@ -104,8 +106,7 @@ static inline size_t trudpReceiveQueueSize(trudpReceiveQueue *sq) {
  */
 static inline
 trudpReceiveQueueData *trudpReceiveQueueAdd(trudpReceiveQueue *sq, void *packet,
-        size_t packet_length, uint64_t expected_time) {
-    
+        size_t packet_length, uint64_t expected_time) {    
     return trudpPacketQueueAdd(sq, packet, packet_length, expected_time);
 }
 
@@ -117,9 +118,9 @@ trudpReceiveQueueData *trudpReceiveQueueAdd(trudpReceiveQueue *sq, void *packet,
  *
  * @return Zero at success
  */
-static inline int trudpReceiveQueueDelete(trudpReceiveQueue *tq,
+static inline 
+int trudpReceiveQueueDelete(trudpReceiveQueue *tq,
         trudpReceiveQueueData *tqd) {
-
     return trudpPacketQueueDelete(tq, tqd);
 }
 
@@ -134,7 +135,6 @@ static inline int trudpReceiveQueueDelete(trudpReceiveQueue *tq,
 static inline
 trudpReceiveQueueData *trudpReceiveQueueFindById(trudpReceiveQueue *sq,
         uint32_t id) {
-
     return trudpPacketQueueFindById(sq, id);
 }
 

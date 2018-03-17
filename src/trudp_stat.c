@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2016 Kirill Scherba <kirill@scherba.ru>.
+ * Copyright 2016-2018 Kirill Scherba <kirill@scherba.ru>.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,50 +34,6 @@
 #include "trudp_stat.h"
 #include "utils_r.h"
 #include "utils.h"
-
-/**
- * Reset TR-UDP statistic
- *
- * @param td
- * @return
- */
-static inline trudpStatData *trudpStatReset(trudpData *td) {
-
-    memset(&td->stat, 0, sizeof(td->stat));
-    return &td->stat;
-}
-
-/**
- * Initialize TR-UDP statistic
- *
- * @param td
- * @return
- */
-inline trudpStatData *trudpStatInit(trudpData *td) {
-
-    return trudpStatReset(td);
-}
-
-/**
- * Reset TR-UDP channel statistic
- *
- * @param tcd
- */
-static inline void trudpStatChannelReset(trudpChannelData *tcd) {
-
-    memset(&tcd->stat, 0, sizeof(tcd->stat));
-    tcd->stat.triptime_min = UINT32_MAX;
-}
-
-/**
- * Reset TR-UDP channel statistic
- *
- * @param tcd
- */
-inline void trudpStatChannelInit(trudpChannelData *tcd) {
-
-    trudpStatChannelReset(tcd);
-}
 
 /**
  * Process packet and calculate last 10 send packets array

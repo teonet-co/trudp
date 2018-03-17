@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2016 Kirill Scherba <kirill@scherba.ru>.
+ * Copyright 2016-2018 Kirill Scherba <kirill@scherba.ru>.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -42,6 +42,9 @@
 #include "trudp.h"
 #include "trudp_ev.h"
 
+// Local functions
+static void _trudpSendQueueCbProcess(EV_P_ ev_timer *w, int revents);
+
 /**
  * Send queue processing timer libev callback
  *
@@ -49,21 +52,19 @@
  * @param w
  * @param revents
  */
-static void trudp_process_send_queue_cb(EV_P_ ev_timer *w, int revents) {
+static void _trudpSendQueueCbProcess(EV_P_ ev_timer *w, int revents) {
 
     trudpProcessSendQueueData *psd = (trudpProcessSendQueueData *) w->data;
 
     // Process send queue
     //debug("process send queue ... \n");
     uint64_t next_expected_time;
-    trudp_SendQueueProcess(psd->td, &next_expected_time);
+    trudpProcessSendQueue(psd->td, &next_expected_time);
     psd->started = 0;
     
     // Start new process_send_queue timer
     if(next_expected_time)
-        trudp_start_send_queue_cb(psd, next_expected_time);
-    
-//    printf("trudp_process_send_queue_cb\n");
+        trudpSendQueueCbStart(psd, next_expected_time);
 }
 
 /**
@@ -72,7 +73,7 @@ static void trudp_process_send_queue_cb(EV_P_ ev_timer *w, int revents) {
  * @param psd Pointer to process_send_queue_data
  * @param next_expected_time
  */
-void trudp_start_send_queue_cb(trudpProcessSendQueueData *psd,
+void trudpSendQueueCbStart(trudpProcessSendQueueData *psd,
         uint64_t next_expected_time) {
 
     uint64_t tt, next_et = UINT64_MAX, ts = trudpGetTimestampFull();
@@ -83,13 +84,13 @@ void trudp_start_send_queue_cb(trudpProcessSendQueueData *psd,
     }
 
     // If next_expected_time (net) or GetSendQueueTimeout
-    if((tt = (next_et != UINT64_MAX) ? next_et : trudp_SendQueueGetTimeout(psd->td, ts)) != UINT32_MAX) {
+    if((tt = (next_et != UINT64_MAX) ? next_et : trudpGetSendQueueTimeout(psd->td, ts)) != UINT32_MAX) {
 
         double tt_d = tt / 1000000.0;
         if(tt_d == 0.0) tt_d = 0.0001;
         
         if(!psd->inited) {
-            ev_timer_init(&psd->process_send_queue_w, trudp_process_send_queue_cb, tt_d, 0.0);
+            ev_timer_init(&psd->process_send_queue_w, _trudpSendQueueCbProcess, tt_d, 0.0);
             psd->process_send_queue_w.data = (void*)psd;
             psd->inited = 1;
         }

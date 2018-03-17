@@ -15,7 +15,8 @@ AM_CFLAGS = \
 	 -fPIC \
 	 -DUSE_LIBEV \
 	 -I$(HOME)/Projects/teonet/embedded/libtrudp/src \
-	 -I/usr/include/libtrudp
+	 -I/usr/include/libtrudp \
+	 -fvisibility=hidden
 	
 #	 -std=gnu11 
 #	 -std=gnu89

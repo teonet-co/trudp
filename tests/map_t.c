@@ -25,27 +25,27 @@ int clean_suite(void);
 void check_hash() {
     
     char *key = "127.0.0.1:8000";
-    uint32_t hash = SuperFastHash(key, strlen(key) + 1);
+    uint32_t hash = trudpHashSuperFast(key, strlen(key) + 1);
     printf("\nHash1 of key %s = %010u ", key, hash);
-    hash = hash_f((ub1*)key, strlen(key) + 1, 0);
+    hash = trudpHashFast((ub1*)key, strlen(key) + 1, 0);
     printf("\nHash2 of key %s = %010u ", key, hash);
     
     key = "127.0.0.1:8001";
-    hash = SuperFastHash(key, strlen(key) + 1);
+    hash = trudpHashSuperFast(key, strlen(key) + 1);
     printf("\nHash1 of key %s = %010u ", key, hash);
-    hash = hash_f((ub1*)key, strlen(key) + 1, 0);
+    hash = trudpHashFast((ub1*)key, strlen(key) + 1, 0);
     printf("\nHash2 of key %s = %010u ", key, hash);
 
     key = "192.168.101.11:8000";
-    hash = SuperFastHash(key, strlen(key) + 1);
+    hash = trudpHashSuperFast(key, strlen(key) + 1);
     printf("\nHash1 of key %s = %010u ", key, hash);
-    hash = hash_f((ub1*)key, strlen(key) + 1, 0);
+    hash = trudpHashFast((ub1*)key, strlen(key) + 1, 0);
     printf("\nHash2 of key %s = %010u ", key, hash);
 
     key = "192.168.101.11:8001";
-    hash = SuperFastHash(key, strlen(key) + 1);
+    hash = trudpHashSuperFast(key, strlen(key) + 1);
     printf("\nHash1 of key %s = %010u ", key, hash);
-    hash = hash_f((ub1*)key, strlen(key) + 1, 0);
+    hash = trudpHashFast((ub1*)key, strlen(key) + 1, 0);
     printf("\nHash2 of key %s = %010u \n   ", key, hash);
     
     CU_ASSERT(2 * 2 == 4);

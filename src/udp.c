@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2016 Kirill Scherba <kirill@scherba.ru>.
+ * Copyright 2016-2018 Kirill Scherba <kirill@scherba.ru>.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -40,16 +40,26 @@
 #include "utils.h"
 
 // UDP / UDT functions
-#define ksn_socket(domain, type, protocol) socket(domain, type, protocol)
-#define ksn_bind(fd, addr, addr_len) bind(fd, addr, addr_len)
-#define NUMBER_TRY_PORTS 1000
+#define _trudpUdpSocket(domain, type, protocol) socket(domain, type, protocol)
+#define _trudpUdpBind(fd, addr, addr_len) bind(fd, addr, addr_len)
+#define NUMBER_OF_TRY_PORTS 1000
+
+// Local functions
+static void _trudpUdpHostToIp(struct sockaddr_in *remaddr, const char *server);
+static void _trudpUdpSetNonblock(int fd);
+#ifdef RESERVED
+static int  _trudpUdpIsReadable(int sd, uint32_t timeOut);
+static int  _trudpUdpIsWritable(int sd, uint32_t timeOut);
+static ssize_t _trudpUdpReadEventLoop(int fd, void *buffer, size_t buffer_size,        
+        __SOCKADDR_ARG remaddr, socklen_t *addr_length, int timeout);
+#endif
 
 /**
  * Set socket or FD to non blocking mode
  *
  * @param fd
  */
-static void set_nonblock(int fd) {
+static void _trudpUdpSetNonblock(int fd) {
 
     #if defined(HAVE_MINGW) || defined(_WIN32) || defined(_WIN64)
     //-------------------------
@@ -80,7 +90,7 @@ static void set_nonblock(int fd) {
  * @param remaddr
  * @param server
  */
-static void hostToIp(struct sockaddr_in *remaddr, const char *server) {
+static void _trudpUdpHostToIp(struct sockaddr_in *remaddr, const char *server) {
 
     struct hostent *hostp;
 
@@ -125,7 +135,7 @@ int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr,
 //    }
 //    #else
     //((struct sockaddr_in*)remaddr)->sin_addr.s_addr = inet_addr(addr);
-    hostToIp((struct sockaddr_in*)remaddr, addr);
+    _trudpUdpHostToIp((struct sockaddr_in*)remaddr, addr);
 //    #endif
 
     return 0;
@@ -160,7 +170,7 @@ int trudpUdpBindRaw(int *port, int allow_port_increment_f) {
     struct sockaddr_in addr;	// Our address
 
     // Create an UDP socket
-    if((fd = ksn_socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) <= 0) {
+    if((fd = _trudpUdpSocket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) <= 0) {
         perror("cannot create socket\n");
         return -1;
     }
@@ -176,20 +186,20 @@ int trudpUdpBindRaw(int *port, int allow_port_increment_f) {
         addr.sin_port = htons(*port);
 
         // Try to bind
-        if(ksn_bind(fd, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
+        if(_trudpUdpBind(fd, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
             fprintf(
                 stderr,
                 "can't bind on port %d, try next port number ...\n",
                 *port
             );
             (*port)++;
-            if(allow_port_increment_f && i++ < NUMBER_TRY_PORTS) continue;
+            if(allow_port_increment_f && i++ < NUMBER_OF_TRY_PORTS) continue;
             else return -2;
         }
 
         // Bind successfully
         else {
-            set_nonblock(fd);
+            _trudpUdpSetNonblock(fd);
             break;
         }
     }
@@ -219,6 +229,7 @@ inline ssize_t trudpUdpRecvfrom(int fd, void *buffer, size_t buffer_size,
     return recvlen;
 }
 
+#ifdef RESERVED
 /**
  * Wait while socket read available or timeout occurred
  *
@@ -227,7 +238,7 @@ inline ssize_t trudpUdpRecvfrom(int fd, void *buffer, size_t buffer_size,
  *
  * @return -1 - error; 0 - timeout; >0 ready
  */
-int isReadable(int sd, uint32_t timeOut) {
+static int _trudpUdpIsReadable(int sd, uint32_t timeOut) {
 
     int rv = 1;
 
@@ -241,7 +252,9 @@ int isReadable(int sd, uint32_t timeOut) {
 
     return rv;
 }
+#endif
 
+#ifdef RESERVED
 /**
  * Wait while socket write available or timeout occurred
  *
@@ -250,7 +263,7 @@ int isReadable(int sd, uint32_t timeOut) {
  *
  * @return -1 - error; 0 - timeout; >0 ready
  */
-int isWritable(int sd, uint32_t timeOut) {
+static int _trudpUdpIsWritable(int sd, uint32_t timeOut) {
 
     int rv = 1;
 
@@ -265,6 +278,7 @@ int isWritable(int sd, uint32_t timeOut) {
 
     return rv;
 }
+#endif
 
 /**
  * Simple UDP sendto wrapper
@@ -291,6 +305,7 @@ inline ssize_t trudpUdpSendto(int fd, void *buffer, size_t buffer_size,
     return sendlen;
 }
 
+#ifdef RESERVED
 /**
  * Wait socket data during timeout and call callback if data received
  *
@@ -303,7 +318,7 @@ inline ssize_t trudpUdpSendto(int fd, void *buffer, size_t buffer_size,
  * 
  * @return 0 - if disconnected or 1 other way
  */
-ssize_t trudpUdpReadEventLoop(int fd, void *buffer, size_t buffer_size,
+static ssize_t _trudpUdpReadEventLoop(int fd, void *buffer, size_t buffer_size,
         __SOCKADDR_ARG remaddr, socklen_t *addr_length, int timeout) {
 
     int rv;
@@ -335,3 +350,4 @@ ssize_t trudpUdpReadEventLoop(int fd, void *buffer, size_t buffer_size,
 
     return recvlen;
 }
+#endif

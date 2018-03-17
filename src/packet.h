@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2016 Kirill Scherba <kirill@scherba.ru>.
+ * Copyright 2016-2018 Kirill Scherba <kirill@scherba.ru>.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,6 +34,9 @@
 
 #include <stdint.h>
 
+#include "trudp_api.h"
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -64,36 +67,30 @@ typedef enum trudpPacketType {
 
 } trudpPacketType;
 
-int trudpPacketCheck(void *th, size_t packetLength);
+TRUDP_API uint32_t trudpGetTimestamp();
+TRUDP_API uint32_t trudpPacketGetId(void *packet);
+TRUDP_API void *trudpPacketGetPacket(void *data);
+TRUDP_API trudpPacketType trudpPacketGetType(void *packet);
+TRUDP_API size_t trudpPacketGetPacketLength(void *packet);
 
+uint64_t /*unsigned long long*/ trudpGetTimestampFull();
 void *trudpPacketACKcreateNew(void *in_th);
-void *trudpPacketACKtoRESETcreateNew(void *in_th);
+size_t trudpPacketACKlength();
 void *trudpPacketACKtoPINGcreateNew(void *in_th);
-void *trudpPacketRESETcreateNew(uint32_t id, unsigned int channel);
+void *trudpPacketACKtoRESETcreateNew(void *in_th);
+int trudpPacketCheck(void *th, size_t packetLength);
+void trudpPacketCreatedFree(void *in_th);
 void *trudpPacketDATAcreateNew(uint32_t id, unsigned int channel, 
         void *data, size_t data_length, size_t *packetLength);
-void *trudpPacketPINGcreateNew(uint32_t id, unsigned int channel,
-        void *data, size_t data_length, size_t *packetLength);
-
-size_t trudpPacketACKlength();
-size_t trudpPacketRESETlength();
-
-uint32_t trudpPacketGetId(void *packet);
-int trudpPacketGetChannel(void *packet);
-void trudpPacketSetChannel(void *packet, int channel);
 void *trudpPacketGetData(void *packet);
 uint16_t trudpPacketGetDataLength(void *packet);
 size_t trudpPacketGetHeaderLength(void *packet);
-void *trudpPacketGetPacket(void *data);
-size_t trudpPacketGetPacketLength(void *packet);
-trudpPacketType trudpPacketGetType(void *packet);
-void trudpPacketSetType(void *packet, trudpPacketType message_type);
 uint32_t trudpPacketGetTimestamp(void *packet);
 
-void trudpPacketCreatedFree(void *in_th);
-
-uint64_t /*unsigned long long*/ trudpGetTimestampFull();
-uint32_t trudpGetTimestamp();
+void *trudpPacketPINGcreateNew(uint32_t id, unsigned int channel,
+        void *data, size_t data_length, size_t *packetLength);
+void *trudpPacketRESETcreateNew(uint32_t id, unsigned int channel);
+size_t trudpPacketRESETlength();
 
 #ifdef __cplusplus
 }

@@ -27,6 +27,8 @@
             </formatting>
         </data>
         <spellchecker-wordlist xmlns="http://www.netbeans.org/ns/spellchecker-wordlist/1">
+            <word>automake</word>
+            <word>const</word>
             <word>Kirill</word>
             <word>libev</word>
             <word>outrunning</word>
@@ -35,6 +37,7 @@
             <word>trudp</word>
             <word>trudpcat</word>
             <word>unhandled</word>
+            <word>utils</word>
         </spellchecker-wordlist>
     </configuration>
 </project>

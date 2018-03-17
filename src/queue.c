@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2016 Kirill Scherba <kirill@scherba.ru>.
+ * Copyright 2016-2018 Kirill Scherba <kirill@scherba.ru>.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -123,6 +123,13 @@ trudpQueueData *trudpQueuePut(trudpQueue *q, trudpQueueData *qd) {
     return qd;
 }
 
+/**
+ * Create new trudpQueueData buffer
+ * 
+ * @param data Pointer to data
+ * @param data_length Data length
+ * @return 
+ */
 trudpQueueData *trudpQueueNewData(void *data, size_t data_length) {
     
     // Create new trudpQueueData
@@ -463,7 +470,8 @@ int trudpQueueIteratorFree(trudpQueueIterator *it) {
  * 
  * @return Number of elements processed
  */
-int trudpQueueForeach(trudpQueue *q, trudpQueueForeachFunction callback, void *user_data) {
+int trudpQueueForeach(trudpQueue *q, trudpQueueForeachFunction callback, 
+        void *user_data) {
     
     int i = 0;
     trudpQueueIterator *it = trudpQueueIteratorNew(q);

@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2016 Kirill Scherba <kirill@scherba.ru>.
+ * Copyright 2016-2018 Kirill Scherba <kirill@scherba.ru>.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,55 +30,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "write_queue.h"
-
-/**
- * Create new Write queue
- * 
- * @return Pointer to trudpWriteQueue
- */
-inline trudpWriteQueue *trudpWriteQueueNew() {
-    
-    trudpWriteQueue *wq = (trudpWriteQueue *)malloc(sizeof(trudpWriteQueue));
-    wq->q = trudpQueueNew();
-    
-    return wq;
-}
-
-/**
- * Destroy Write queue
- * 
- * @param wq Pointer to trudpWriteQueue
- */
-inline void trudpWriteQueueDestroy(trudpWriteQueue *wq) {
-
-    if(wq) {
-        trudpQueueDestroy(wq->q);
-        free(wq);
-    }
-}
-
-/**
- * Remove all elements from Write queue
- * 
- * @param wq Pointer to trudpWriteQueue
- * @return Zero at success
- */
-inline int trudpWriteQueueFree(trudpWriteQueue *wq) {
-
-    return wq && wq->q ? trudpQueueFree(wq->q) : -1;
-}
-
-/**
- * Get number of elements in Write queue
- * 
- * @param wq
- * 
- * @return Number of elements in Write queue
- */
-inline size_t trudpWriteQueueSize(trudpWriteQueue *wq) {
-    
-    return wq ? trudpQueueSize(wq->q) : -1;
-}
 
 /**
  * Add packet to Write queue
@@ -110,17 +61,7 @@ trudpWriteQueueData *trudpWriteQueueAdd(trudpWriteQueue *wq, void *packet,
     return wqd;
 }
 
-/**
- * Get pointer to first element data
- * 
- * @param wq Pointer to trudpWriteQueue
- * 
- * @return Pointer to trudpWriteQueueData data or NULL
- */
-inline trudpWriteQueueData *trudpWriteQueueGetFirst(trudpWriteQueue *wq) {    
-    return (trudpWriteQueueData *) (wq->q->first ? wq->q->first->data : NULL);
-}
-
+#ifdef RESERVED
 /**
  * Get pointer to trudpQueueData from trudpWriteQueueData pointer
  * 
@@ -140,19 +81,8 @@ static inline trudpQueueData *trudpWriteQueueDataToQueueData(trudpWriteQueueData
  * 
  * @return Zero at success
  */
-static inline int trudpWriteQueueDelete(trudpWriteQueue *wq, trudpWriteQueueData *wqd) {
-    
+static inline int trudpWriteQueueDelete(trudpWriteQueue *wq, trudpWriteQueueData *wqd) {    
     return trudpQueueDelete(wq->q, trudpWriteQueueDataToQueueData(wqd));
 }
 
-/**
- * Remove first element from Write queue
- * 
- * @param wq Pointer to trudpWriteQueue
- * 
- * @return Zero at success
- */
-inline int trudpWriteQueueDeleteFirst(trudpWriteQueue *wq) {
-    
-    return trudpQueueDeleteFirst(wq->q);
-}
+#endif

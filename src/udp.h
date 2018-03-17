@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2016 Kirill Scherba <kirill@scherba.ru>.
+ * Copyright 2016-2018 Kirill Scherba <kirill@scherba.ru>.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -56,18 +56,21 @@ typedef _W64 unsigned int   ssize_t;
 #include <sys/socket.h>
 #endif
 
+#include "trudp_api.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-int trudpUdpBindRaw(int *port, int allow_port_increment_f);
+TRUDP_API ssize_t trudpUdpSendto(int fd, void *buffer, size_t buffer_size, 
+        __CONST_SOCKADDR_ARG remaddr, socklen_t addrlen);  
+TRUDP_API int trudpUdpBindRaw(int *port, int allow_port_increment_f);
+TRUDP_API char *trudpUdpGetAddr(__CONST_SOCKADDR_ARG remaddr, int *port);
+
 ssize_t trudpUdpRecvfrom(int fd, void *buffer, size_t buffer_size, 
         __SOCKADDR_ARG remaddr, socklen_t *addr_len);
-ssize_t trudpUdpSendto(int fd, void *buffer, size_t buffer_size, 
-        __CONST_SOCKADDR_ARG remaddr, socklen_t addrlen);
 int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr,
         socklen_t *addr_len);
-char *trudpUdpGetAddr(__CONST_SOCKADDR_ARG remaddr, int *port);
 
 
 #ifdef __cplusplus

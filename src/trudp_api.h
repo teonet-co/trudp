@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2016-2018 Kirill Scherba <kirill@scherba.ru>.
+ * Copyright 2018 Kirill Scherba <kirill@scherba.ru>.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,31 +20,32 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- *
- * \file   trudp_send_queue.c
+ * 
+ * \file   trudp_api.h
  * \author Kirill Scherba <kirill@scherba.ru>
  *
- * Created on July 21, 2016, 03:38
+ * Created on March 16, 2018, 4:07 PM
  */
 
-#include "trudp_send_queue.h"
+#ifndef TRUDP_API_H
+#define TRUDP_API_H
 
-/**
- * Get send queue timeout
- *
- * @param sc Pointer to trudpSendQueue
- * @param ts Current time
- * 
- * @return Send queue timeout (may by 0) or UINT32_MAX if send queue is empty
- */
-uint32_t trudpSendQueueGetTimeout(trudpSendQueue *sq, uint64_t current_t) {
-    
-    // Get sendQueue timeout
-    uint32_t timeout_sq = UINT32_MAX;
-    if(sq->q->first) {
-        trudpPacketQueueData *pqd = (trudpPacketQueueData *) sq->q->first->data;
-        timeout_sq = pqd->expected_time > current_t ? pqd->expected_time - current_t : 0;
-    }
-    
-    return timeout_sq;
+#ifdef _WINDLL
+#define TRUDP_API __declspec(dllexport)
+#else
+#define TRUDP_API __attribute__ ((visibility ("default")))
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+
+
+#ifdef __cplusplus
 }
+#endif
+
+#endif /* TRUDP_API_H */
+

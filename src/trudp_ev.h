@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2016 Kirill Scherba <kirill@scherba.ru>.
+ * Copyright 2016-2018 Kirill Scherba <kirill@scherba.ru>.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -49,11 +49,14 @@ typedef struct trudpProcessSendQueueData {
 
 } trudpProcessSendQueueData;
 
+#include "trudp_api.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void trudp_start_send_queue_cb(trudpProcessSendQueueData *psd, uint64_t next_expected_time);
+TRUDP_API void trudpSendQueueCbStart(trudpProcessSendQueueData *psd, 
+  uint64_t next_expected_time);
 
 #ifdef __cplusplus
 }
