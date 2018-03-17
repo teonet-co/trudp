@@ -54,7 +54,6 @@ static void _trudpChannelSendACKtoPING(trudpChannelData *tcd, void *packet);
 static void _trudpChannelSendACKtoRESET(trudpChannelData *tcd, void *packet);
 static size_t _trudpChannelSendPacket(trudpChannelData *tcd, void *packetDATA,
         size_t packetLength, int save_to_send_queue);
-static void _trudpChannelSendReset(trudpChannelData *tcd);
 static void _trudpChannelSetDefaults(trudpChannelData *tcd);
 static void _trudpChannelSetLastReceived(trudpChannelData *tcd); 
 
@@ -374,15 +373,6 @@ inline void trudpChannelSendRESET(trudpChannelData *tcd, void* data, size_t data
         #endif
         trudpPacketCreatedFree(packetRESET);
     }
-}
-
-/**
- * Create RESET packet and send it to sender
- *
- * @param tcd Pointer to trudpChannelData
- */
-static inline void _trudpChannelSendReset(trudpChannelData *tcd) {
-    trudpChannelSendRESET(tcd, NULL, 0);
 }
 
 /**
