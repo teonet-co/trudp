@@ -6,22 +6,22 @@ ACLOCAL_AMFLAGS = -I m4
 AM_CPPFLAGS = \
 	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
 	-DPACKAGE_SRC_DIR=\""$(srcdir)"\" \
-	-DPACKAGE_DATA_DIR=\""$(datadir)"\" $(TRUDP_CFLAGS)
+	-DPACKAGE_DATA_DIR=\""$(datadir)"\" $(TEOCCL_CFLAGS)
 
 AM_CFLAGS = \
 	 -g -Wall \
 	 -std=gnu11 \
 	 -fno-strict-aliasing \
-	 -fPIC \
-	 -fvisibility=hidden
+	 -fPIC
 
+#	 -fvisibility=hidden
 #	 -I$(HOME)/Projects/teonet/src/ 
 
 AM_CXX = clang++
 AM_CXXFLAGS = \
 	 -g -Wall \
          -std=c++17 \
-	 -fPIC \
+	 -fPIC
 	
 #	 -std=c++11 
 #	 -I$(HOME)/Projects/teonet/src/
@@ -51,4 +51,4 @@ nobase_libteocclinclude_HEADERS = \
 
 libteoccl_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(LIBRARY_MAJOR_VERSION):0:0
 
-libteoccl_la_LIBADD = $(TRUDP_LIBS)
+libteoccl_la_LIBADD = $(TEOCCL_LIBS)

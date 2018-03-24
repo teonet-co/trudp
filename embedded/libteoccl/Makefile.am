@@ -36,7 +36,7 @@ endif
 
 # -----------------------------------------------------------------------------
 
-SUBDIRS = src po tests examples ci-build
+SUBDIRS = src po #tests examples ci-build
 
 teoccldocdir = ${prefix}/doc/@PACKAGE@
 teoccldoc_DATA = \
@@ -63,5 +63,5 @@ DISTCLEANFILES = intltool-extract \
 uninstall-local:
 	-rm -r $(teoccldocdir)
 	
-test:	tests/teoccl_tst
-	tests/teoccl_tst	
+#test:	tests/teoccl_tst
+#	tests/teoccl_tst	
