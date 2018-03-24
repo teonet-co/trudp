@@ -70,12 +70,12 @@ void timed_queue() {
     // Delete packet from timed queue
     tqd = trudpPacketQueueFindByTime(tq, trudpGetTimestampFull());
     trudpPacketQueueDelete(tq, tqd);
-    CU_ASSERT_FATAL(trudpQueueSize(tq->q) == 1);
+    CU_ASSERT_FATAL(teoQueueSize(tq->q) == 1);
     #endif
     
     // Free timed queue
     trudpPacketQueueFree(tq);
-    CU_ASSERT_FATAL(trudpQueueSize(tq->q) == 0);
+    CU_ASSERT_FATAL(teoQueueSize(tq->q) == 0);
     
     // Free DATA packet
     trudpPacketCreatedFree(packetDATA);

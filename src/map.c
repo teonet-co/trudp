@@ -34,7 +34,7 @@
 
 #include "map.h"
 #include "hash.h"
-#include "packet.h"
+//#include "packet.h"
 
 // Local functions
 static void *_trudpMapGet(trudpMapData *map, void *key, size_t key_length,
@@ -43,7 +43,7 @@ static trudpMapElementData *_trudpMapGetValueData(void *tqd_data,
         uint32_t key_length);
 static uint32_t _trudpMapHash(void *key, size_t key_length);
 static trudpMapData *_trudpMapResize(trudpMapData *map, size_t size);
-static trudpQueueData *_trudpMapValueDataToQueueData(trudpMapElementData *mvd);
+static teoQueueData *_trudpMapValueDataToQueueData(trudpMapElementData *mvd);
 
 /**
  * Create new map
@@ -58,14 +58,14 @@ trudpMapData *trudpMapNew(size_t size, int auto_resize_f) {
     trudpMapData *map = (trudpMapData *)malloc(sizeof(trudpMapData));
 
     // Fill parameters
-    map->q = (trudpQueue **)malloc(size * sizeof(trudpQueue*));
+    map->q = (teoQueue **)malloc(size * sizeof(teoQueue*));
     map->auto_resize_f = auto_resize_f;
     map->hash_map_size = size;
     map->collisions = 0;
     map->length = 0;
 
     // Create Hash table
-    for(i = 0; i < size; i++) map->q[i] = trudpQueueNew();
+    for(i = 0; i < size; i++) map->q[i] = teoQueueNew();
 
     return map;
 }
@@ -80,7 +80,7 @@ trudpMapData *trudpMapNew(size_t size, int auto_resize_f) {
 static trudpMapData *_trudpMapResize(trudpMapData *map, size_t size) {
 
     // Show mime of  resize for testing
-    #define _SHOW_FUNCTION_MSG_ 1
+    // #define _SHOW_FUNCTION_MSG_ 1
     #if _SHOW_FUNCTION_MSG_
     printf("resize map from %d to %d, time: ", (int)map->hash_map_size, (int)size);
     uint64_t t_stop, t_beg = trudpGetTimestampFull();
@@ -105,11 +105,11 @@ static trudpMapData *_trudpMapResize(trudpMapData *map, size_t size) {
             #define _USE_PUT_ 1
             #if _USE_PUT_
             int idx = el->hash % map_new->hash_map_size;
-            trudpQueueData *qd_new, *qd = _trudpMapValueDataToQueueData(el);
-            qd_new = trudpQueueNewData(qd->data, qd->data_length);
+            teoQueueData *qd_new, *qd = _trudpMapValueDataToQueueData(el);
+            qd_new = teoQueueNewData(qd->data, qd->data_length);
             qd_new->prev = qd->prev;
             qd_new->next = qd->next;
-            trudpQueuePut(map_new->q[idx], qd_new);
+            teoQueuePut(map_new->q[idx], qd_new);
             map_new->length++;
             #else
             size_t key_length;
@@ -127,7 +127,7 @@ static trudpMapData *_trudpMapResize(trudpMapData *map, size_t size) {
 
     // Free existing queues and move queues pointer of new map to existing
     for(i = 0; i < map->hash_map_size; i++) {
-        trudpQueueFree(map->q[i]);
+        teoQueueFree(map->q[i]);
         free(map->q[i]);
     }
     free(map->q);
@@ -156,7 +156,7 @@ void trudpMapDestroy(trudpMapData *map) {
 
         int i;
         for(i = 0; i < map->hash_map_size; i++) {
-            trudpQueueDestroy(map->q[i]);
+            teoQueueDestroy(map->q[i]);
         }
         free(map->q);
         free(map);
@@ -202,10 +202,10 @@ static void *_trudpMapGet(trudpMapData *map, void *key, size_t key_length,
 
     int idx = hash % map->hash_map_size;
     trudpMapElementData *htd;
-    trudpQueueData *tqd;
-    trudpQueueIterator *it = trudpQueueIteratorNew(map->q[idx]);
+    teoQueueData *tqd;
+    teoQueueIterator *it = teoQueueIteratorNew(map->q[idx]);
     if(it != NULL) {
-      while((tqd = trudpQueueIteratorNext(it))) {
+      while((tqd = teoQueueIteratorNext(it))) {
 
         htd = (trudpMapElementData *)tqd->data;
         if(htd->hash == hash) {
@@ -220,7 +220,7 @@ static void *_trudpMapGet(trudpMapData *map, void *key, size_t key_length,
             else map->collisions++;
         }
       }
-      trudpQueueIteratorFree(it);
+      teoQueueIteratorFree(it);
     }
 
     return data;
@@ -269,8 +269,8 @@ static inline trudpMapElementData *_trudpMapGetValueData(void *tqd_data,
  * @param mvd Pointer to trudpMapValueData
  * @return Pointer to maps queue data
  */
-static inline trudpQueueData *_trudpMapValueDataToQueueData(trudpMapElementData *mvd) {
-    return mvd ? (trudpQueueData *)((void*)mvd - sizeof(trudpQueueData)) : NULL;
+static inline teoQueueData *_trudpMapValueDataToQueueData(trudpMapElementData *mvd) {
+    return mvd ? (teoQueueData *)((void*)mvd - sizeof(teoQueueData)) : NULL;
 }
 
 /**
@@ -302,11 +302,11 @@ void *trudpMapAdd(trudpMapData *map, void *key, size_t key_length, void *data,
     // Check that key exist and add data to map if not exists
     void *tqd_data = NULL;
     size_t d_length;
-    trudpQueueData *tqd;
+    teoQueueData *tqd;
     // Add data to map
     if(!(tqd_data = _trudpMapGet(map, key, key_length, htd->hash, &d_length))) {
         int idx = htd->hash % map->hash_map_size;
-        tqd = trudpQueueAdd(map->q[idx], (void*)htd, htd_length);
+        tqd = teoQueueAdd(map->q[idx], (void*)htd, htd_length);
         if(tqd) {
             map->length++;
 
@@ -320,7 +320,7 @@ void *trudpMapAdd(trudpMapData *map, void *key, size_t key_length, void *data,
         trudpMapElementData *htd_existing = _trudpMapGetValueData(tqd_data, key_length);
         tqd = _trudpMapValueDataToQueueData(htd_existing);
         int idx = htd->hash % map->hash_map_size;
-        tqd = trudpQueueUpdate(map->q[idx], (void*)htd, htd_length, tqd);
+        tqd = teoQueueUpdate(map->q[idx], (void*)htd, htd_length, tqd);
     }
 
     // Free allocated data
@@ -372,9 +372,9 @@ int trudpMapDelete(trudpMapData *map, void *key, size_t key_length) {
     void *data = _trudpMapGet(map, key, key_length, hash, &data_length);
     if(data) {
         trudpMapElementData *mvd = _trudpMapGetValueData(data, key_length);
-        trudpQueueData *tqd = _trudpMapValueDataToQueueData(mvd);
+        teoQueueData *tqd = _trudpMapValueDataToQueueData(mvd);
         int idx = mvd->hash % map->hash_map_size;
-        rv = trudpQueueDelete(map->q[idx], tqd);
+        rv = teoQueueDelete(map->q[idx], tqd);
         if(!rv) {
             map->length--;
 
@@ -398,7 +398,7 @@ trudpMapIterator *trudpMapIteratorNew(trudpMapData *map) {
 
     trudpMapIterator *map_it = (trudpMapIterator*)malloc(sizeof(trudpMapIterator));
     if(map_it) {
-        map_it->it = trudpQueueIteratorNew(map->q[0]);
+        map_it->it = teoQueueIteratorNew(map->q[0]);
         map_it->idx = 0;
         map_it->map = map;
         map_it->tmv = NULL;
@@ -416,7 +416,7 @@ trudpMapIterator *trudpMapIteratorNew(trudpMapData *map) {
 int trudpMapIteratorDestroy(trudpMapIterator *map_it) {
 
     if(map_it) {
-        trudpQueueIteratorFree(map_it->it);
+        teoQueueIteratorFree(map_it->it);
         free(map_it);
     }
 
@@ -433,12 +433,12 @@ trudpMapElementData *trudpMapIteratorNext(trudpMapIterator *map_it) {
 
     if(!map_it) return NULL;
 
-    trudpQueueData *tqd;
+    teoQueueData *tqd;
     trudpMapElementData *tmv = NULL;
 
-    while(!(tqd = trudpQueueIteratorNext(map_it->it))) {
+    while(!(tqd = teoQueueIteratorNext(map_it->it))) {
         if(++map_it->idx < map_it->map->hash_map_size) {
-            trudpQueueIteratorReset(map_it->it, map_it->map->q[map_it->idx]);
+            teoQueueIteratorReset(map_it->it, map_it->map->q[map_it->idx]);
         }
         else break;
     }
