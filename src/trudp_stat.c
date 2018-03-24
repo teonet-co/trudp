@@ -521,9 +521,9 @@ char *trudpStatShowQueueStr(trudpChannelData *tcd, int type) {
 //       trudpPacketQueueSize(tcd->receiveQueue) > MAX_QUELEN_SHOW) 
 //    exit(-1); 
     
-    trudpQueueIterator *it = !type ? 
-        trudpQueueIteratorNew(tcd->sendQueue->q) : 
-        trudpQueueIteratorNew(tcd->receiveQueue->q);
+    teoQueueIterator *it = !type ? 
+        teoQueueIteratorNew(tcd->sendQueue->q) : 
+        teoQueueIteratorNew(tcd->receiveQueue->q);
     
     if(it != NULL) {        
         
@@ -540,10 +540,10 @@ char *trudpStatShowQueueStr(trudpChannelData *tcd, int type) {
             , !type ? "next id: " : "expected id: "
             , !type ? tcd->sendId : tcd->receiveExpectedId
         );
-        while(trudpQueueIteratorNext(it)) {
+        while(teoQueueIteratorNext(it)) {
             
             trudpPacketQueueData *tqd = (trudpPacketQueueData *)
-                    ((trudpQueueData *)trudpQueueIteratorElement(it))->data;
+                    ((teoQueueData *)teoQueueIteratorElement(it))->data;
                         
             long timeout_sq = current_t < tqd->expected_time ? 
                 (long)(tqd->expected_time - current_t) : 
@@ -568,7 +568,7 @@ char *trudpStatShowQueueStr(trudpChannelData *tcd, int type) {
         );
 
         }
-        trudpQueueIteratorFree(it);
+        teoQueueIteratorFree(it);
     }
     
     return str;

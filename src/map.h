@@ -45,7 +45,7 @@ extern "C" {
 typedef struct trudpMapData {
     
     size_t length;
-    trudpQueue **q;
+    teoQueue **q;
     int auto_resize_f;
     uint32_t collisions;
     size_t hash_map_size;
@@ -65,7 +65,7 @@ typedef struct trudpMapIterator {
     
     uint32_t idx;
     trudpMapData *map;
-    trudpQueueIterator *it;
+    teoQueueIterator *it;
     trudpMapElementData *tmv;
     
 } trudpMapIterator;

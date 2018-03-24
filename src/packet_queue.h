@@ -40,7 +40,7 @@ extern "C" {
 
 typedef struct trudpPacketQueue {
 
-    trudpQueue *q;
+    teoQueue *q;
 
 } trudpPacketQueue;
 
@@ -62,7 +62,7 @@ typedef struct trudpPacketQueueData {
 static inline
 trudpPacketQueue *trudpPacketQueueNew() {
     trudpPacketQueue *tq = (trudpPacketQueue *)malloc(sizeof(trudpPacketQueue));
-    tq->q = trudpQueueNew();
+    tq->q = teoQueueNew();
     return tq;
 }
 /**
@@ -73,7 +73,7 @@ trudpPacketQueue *trudpPacketQueueNew() {
 static inline
 void trudpPacketQueueDestroy(trudpPacketQueue *tq) {
     if(tq) {
-        trudpQueueDestroy(tq->q);
+        teoQueueDestroy(tq->q);
         free(tq);
     }
 }
@@ -85,7 +85,7 @@ void trudpPacketQueueDestroy(trudpPacketQueue *tq) {
  */
 static inline 
 int trudpPacketQueueFree(trudpPacketQueue *tq) {
-    return tq && tq->q ? trudpQueueFree(tq->q) : -1;
+    return tq && tq->q ? teoQueueFree(tq->q) : -1;
 }
 
 /**
@@ -97,7 +97,7 @@ int trudpPacketQueueFree(trudpPacketQueue *tq) {
  */
 static inline 
 size_t trudpPacketQueueSize(trudpPacketQueue *tq) {
-    return trudpQueueSize(tq->q);
+    return teoQueueSize(tq->q);
 }
 
 trudpPacketQueueData *trudpPacketQueueAdd(trudpPacketQueue *tq, 
@@ -108,9 +108,9 @@ trudpPacketQueueData *trudpPacketQueueAdd(trudpPacketQueue *tq,
  * @return Pointer to trudpQueueData or NULL if tqd is NULL
  */
 static inline 
-trudpQueueData *trudpPacketQueueDataToQueueData(
+teoQueueData *trudpPacketQueueDataToQueueData(
     trudpPacketQueueData *tqd) {
-    return tqd ? (trudpQueueData *)((char*)tqd - sizeof(trudpQueueData)) : NULL;
+    return tqd ? (teoQueueData *)((char*)tqd - sizeof(teoQueueData)) : NULL;
 }
 /**
  * Remove element from Packet queue
@@ -123,7 +123,7 @@ trudpQueueData *trudpPacketQueueDataToQueueData(
 static inline 
 int trudpPacketQueueDelete(trudpPacketQueue *tq, 
     trudpPacketQueueData *tqd) {
-    return trudpQueueDelete(tq->q, trudpPacketQueueDataToQueueData(tqd));
+    return teoQueueDelete(tq->q, trudpPacketQueueDataToQueueData(tqd));
 }
 /**
  * Move element to the end of list
@@ -136,7 +136,7 @@ static inline
 trudpPacketQueueData *trudpPacketQueueMoveToEnd(trudpPacketQueue *tq,
         trudpPacketQueueData *tqd) {
 
-    return (trudpPacketQueueData *)trudpQueueMoveToEnd(tq->q,
+    return (trudpPacketQueueData *)teoQueueMoveToEnd(tq->q,
                 trudpPacketQueueDataToQueueData(tqd))->data;
 }
 
