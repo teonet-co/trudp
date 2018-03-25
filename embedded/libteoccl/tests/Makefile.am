@@ -7,8 +7,7 @@ AM_CPPFLAGS = \
 
 AM_CFLAGS = \
 	 -g -Wall \
-	 -I../src \
-	 -I../embedded/libteoccl/src
+	 -I../src
 
 AM_CXX = clang++
 AM_CXXFLAGS = \
@@ -26,14 +25,14 @@ endif
 
 AM_LDFLAGS = -L../src/.libs 
 
-LIBS = ../src/.libs/libtrudp.a ../embedded/libteoccl/src/.libs/libteoccl.a -lcunit -lev
+LIBS = ../src/.libs/libteoccl.a -lcunit
 
-noinst_PROGRAMS = trudp_tst
+noinst_PROGRAMS = teoccl_tst
 
-trudp_tst_SOURCES = main_t.c map_t.c packet_queue_t.c packet_t.c tr-udp_t.c
+teoccl_tst_SOURCES = main_t.c queue_t.c
 
 testsdir = $(datarootdir)/doc/@PACKAGE@/tests
-tests_DATA = $(trudp_tst_SOURCES)
+tests_DATA = $(teoccl_tst_SOURCES)
 
 # Remove doc directory on uninstall
 uninstall-local:
