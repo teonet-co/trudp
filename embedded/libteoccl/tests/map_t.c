@@ -7,12 +7,12 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/time.h>
 #include <CUnit/Basic.h>
 #include <CUnit/CUnit.h>
 
 #include "map.h"
 #include "hash.h"
-#include "packet.h"
 
 /*
  * CUnit Test Suite
@@ -21,32 +21,38 @@
 int init_suite(void);
 int clean_suite(void);
 
+long long timeInMilliseconds(void) {
+    struct timeval tv;
+    gettimeofday(&tv,NULL);
+    return (((long long)tv.tv_sec)*1000)+(tv.tv_usec/1000);
+}
+
 // Check hash function
 void check_hash() {
     
     char *key = "127.0.0.1:8000";
     uint32_t hash = teoHashSuperFast(key, strlen(key) + 1);
-    printf("\nHash1 of key %s = %010u ", key, hash);
+    printf("\n\tHash1 of key %s = %010u ", key, hash);
     hash = teoHashFast((ub1*)key, strlen(key) + 1, 0);
-    printf("\nHash2 of key %s = %010u ", key, hash);
+    printf("\n\tHash2 of key %s = %010u ", key, hash);
     
     key = "127.0.0.1:8001";
     hash = teoHashSuperFast(key, strlen(key) + 1);
-    printf("\nHash1 of key %s = %010u ", key, hash);
+    printf("\n\tHash1 of key %s = %010u ", key, hash);
     hash = teoHashFast((ub1*)key, strlen(key) + 1, 0);
-    printf("\nHash2 of key %s = %010u ", key, hash);
+    printf("\n\tHash2 of key %s = %010u ", key, hash);
 
     key = "192.168.101.11:8000";
     hash = teoHashSuperFast(key, strlen(key) + 1);
-    printf("\nHash1 of key %s = %010u ", key, hash);
+    printf("\n\tHash1 of key %s = %010u ", key, hash);
     hash = teoHashFast((ub1*)key, strlen(key) + 1, 0);
-    printf("\nHash2 of key %s = %010u ", key, hash);
+    printf("\n\tHash2 of key %s = %010u ", key, hash);
 
     key = "192.168.101.11:8001";
     hash = teoHashSuperFast(key, strlen(key) + 1);
-    printf("\nHash1 of key %s = %010u ", key, hash);
+    printf("\n\tHash1 of key %s = %010u ", key, hash);
     hash = teoHashFast((ub1*)key, strlen(key) + 1, 0);
-    printf("\nHash2 of key %s = %010u \n   ", key, hash);
+    printf("\n\tHash2 of key %s = %010u \n   ", key, hash);
     
     CU_ASSERT(2 * 2 == 4);
 }
@@ -74,12 +80,12 @@ static char* randIpPort() {
 }
 
 // Check hash table. Add and get several records
-void check_map() {
+void _check_map(const size_t NUM_KEYS) {
     
     int i;
-    const size_t NUM_KEYS = 10000;
+    //const size_t NUM_KEYS = 250000;
 
-    srand(trudpGetTimestamp());
+    srand(timeInMilliseconds());
 
     // Create keys and data
     char **key = malloc(sizeof(char*) * NUM_KEYS);
@@ -98,7 +104,7 @@ void check_map() {
         
         data[i] = malloc(BUFFER_LEN);
         data_length[i] = snprintf(data[i], BUFFER_LEN, 
-                "Hello TR-UDP hash table - %d!", i) + 1;
+                "Hello Teo ccl hash table - %d!", i) + 1;
         
         //printf("\n %s - \"%s\" ", key[i], data[i]);
     }
@@ -108,7 +114,7 @@ void check_map() {
     CU_ASSERT_PTR_NOT_NULL(map);
     
     // Add and Get data from map
-    uint32_t t_beg = trudpGetTimestamp();    
+    uint64_t t_beg = timeInMilliseconds();    
     for(i = 0; i < NUM_KEYS; i++) {
 
         // Add to map
@@ -122,8 +128,8 @@ void check_map() {
         CU_ASSERT_STRING_EQUAL(d, data[i]);
     }
     CU_ASSERT_EQUAL(NUM_KEYS, teoMapSize(map));
-    printf("\n %d records add/get, time: %.3f ms, number of collisions: %u ", 
-            (int)NUM_KEYS, (trudpGetTimestamp() - t_beg) / 1000.0, map->collisions );
+    printf("\n\t%d records add/get, time: %.3f ms, number of collisions: %u ", 
+            (int)NUM_KEYS, (timeInMilliseconds() - t_beg) / 1000.0, map->collisions );
     
     // Update data of existing key value (add existing key)
     char *data_new = "This is new data for this key ...";
@@ -147,7 +153,7 @@ void check_map() {
     teoMapAdd(map, key[1], key_length[1], data[1], data_length[1]);
     
     // Loop through map using iterator
-    t_beg = trudpGetTimestamp();
+    t_beg = timeInMilliseconds();
     // Create map iterator
     teoMapIterator *it = teoMapIteratorNew(map);
     CU_ASSERT_PTR_NOT_NULL_FATAL(it);
@@ -168,8 +174,8 @@ void check_map() {
     // Destroy map iterator
     teoMapIteratorDestroy(it);
     
-    printf("\n %d records read in iterator loop, time: %.3f ms \n   ", 
-            (int)map->length, (trudpGetTimestamp() - t_beg) / 1000.0);
+    printf("\n\t%d records read in iterator loop, time: %.3f ms \n   ", 
+            (int)map->length, (timeInMilliseconds() - t_beg) / 1000.0);
         
     // Destroy map
     teoMapDestroy(map);
@@ -182,13 +188,21 @@ void check_map() {
     free(data_length);
 }
 
+void check_map() {
+    size_t NUM_KEYS = 25;
+    for(int i=0; i < 21; i++, NUM_KEYS = i < 11 ? NUM_KEYS * 3 : NUM_KEYS / 3 )
+        _check_map(NUM_KEYS);
+    
+    //for(int i=0; i < 1024; i++) _check_map(1024);
+}
 
-int hashSuiteAdd() {
+
+int mapSuiteAdd() {
     
     CU_pSuite pSuite = NULL;
 
     /* Add a suite to the registry */
-    pSuite = CU_add_suite("TR-UDP hash", init_suite, clean_suite);
+    pSuite = CU_add_suite("Teo ccl hash map", init_suite, clean_suite);
     if (NULL == pSuite) {
         CU_cleanup_registry();
         return CU_get_error();
@@ -196,7 +210,7 @@ int hashSuiteAdd() {
 
     /* Add the tests to the suite */
     if ((NULL == CU_add_test(pSuite, "check hash functions", check_hash)) 
-     || (NULL == CU_add_test(pSuite, "check TR-UDP map", check_map)) 
+     || (NULL == CU_add_test(pSuite, "check map functions", check_map)) 
             ) {
         CU_cleanup_registry();
         return CU_get_error();

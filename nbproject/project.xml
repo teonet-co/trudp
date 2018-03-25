@@ -28,6 +28,7 @@
         </data>
         <spellchecker-wordlist xmlns="http://www.netbeans.org/ns/spellchecker-wordlist/1">
             <word>automake</word>
+            <word>ccl</word>
             <word>const</word>
             <word>Kirill</word>
             <word>libev</word>
