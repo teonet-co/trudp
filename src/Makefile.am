@@ -14,8 +14,7 @@ AM_CFLAGS = \
 	 -fno-strict-aliasing \
 	 -fPIC \
 	 -DUSE_LIBEV \
-	 -I$(HOME)/Projects/teonet/embedded/libtrudp/src \
-	 -I/usr/include/libtrudp \
+	 -I../embedded/libteoccl/src \
 	 -fvisibility=hidden
 	
 #	 -std=gnu11 
@@ -43,7 +42,7 @@ endif
 
 AM_LDFLAGS = 
 
-LIBS =
+LIBS = ../embedded/libteoccl/src/.libs/libteoccl.a
 
 lib_LTLIBRARIES = libtrudp.la
 
@@ -52,7 +51,6 @@ libtrudp_la_SOURCES = \
 	map.c \
 	packet.c \
 	packet_queue.c \
-	queue.c \
 	trudp.c \
 	trudp_receive_queue.c \
 	trudp_send_queue.c \

@@ -10,7 +10,8 @@ AM_CFLAGS = \
 	 -std=gnu11 \
 	 -fno-strict-aliasing \
 	 -DUSE_LIBEV \
-	 -I../src
+	 -I../src \
+	 -I../embedded/libteoccl/src
 
 AM_CXX = clang++
 AM_CXXFLAGS = \
