@@ -1,5 +1,5 @@
 /*
- * File:   queue.c
+ * File:   queue_t.c
  * Author: Kirill Scherba <kirill@scherba.ru>
  *
  * Created on May 30, 2016, 11:53:18 AM
@@ -12,19 +12,9 @@
 
 #include "queue.h"
 
-/*
- * CUnit Test Suite
- */
+int init_suite(void);
+int clean_suite(void);
 
-int init_suite(void) {
-    return 0;
-}
-
-int clean_suite(void) {
-    return 0;
-}
-
-//#include "header_t.c"
 
 /**
  * Create/destroy Teo queue test
@@ -321,12 +311,12 @@ void delete_elements_from_queue() {
     CU_ASSERT(!rv);    
 }
 
-int packetSuiteAdd();
-int timedQueueSuiteAdd();
-int trUdpSuiteAdd();
-int hashSuiteAdd();
-
-int main() {
+/**
+ * Queue suite add
+ * 
+ * @return 
+ */
+int queueSuiteAdd() {
     
     CU_pSuite pSuite = NULL;
 
@@ -351,14 +341,5 @@ int main() {
         return CU_get_error();
     }
     
-    packetSuiteAdd();
-    timedQueueSuiteAdd();
-    trUdpSuiteAdd();
-    hashSuiteAdd();
-
-    /* Run all tests using the CUnit Basic interface */
-    CU_basic_set_mode(CU_BRM_VERBOSE);
-    CU_basic_run_tests();
-    CU_cleanup_registry();
-    return CU_get_error();
+    return 0;
 }

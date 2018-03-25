@@ -63,5 +63,6 @@ DISTCLEANFILES = intltool-extract \
 uninstall-local:
 	-rm -r $(trudpdocdir)
 	
-test:	tests/trudp_tst
-	tests/trudp_tst	
+test:	tests/trudp_tst	
+	embedded/libteoccl/tests/teoccl_tst
+	tests/trudp_tst
