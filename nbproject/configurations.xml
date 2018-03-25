@@ -8,6 +8,8 @@
       <df name="embedded">
         <df name="libteoccl">
           <df name="src">
+            <in>hash.c</in>
+            <in>map.c</in>
             <in>queue.c</in>
           </df>
         </df>
@@ -19,8 +21,6 @@
         <in>trudpcat_ev.c</in>
       </df>
       <df name="src">
-        <in>hash.c</in>
-        <in>map.c</in>
         <in>packet.c</in>
         <in>packet_queue.c</in>
         <in>trudp.c</in>
@@ -88,6 +88,14 @@
       </makefileType>
       <item path="ci-build/make_package.c" ex="false" tool="0" flavor2="3">
         <cTool flags="1">
+        </cTool>
+      </item>
+      <item path="embedded/libteoccl/src/hash.c" ex="false" tool="0" flavor2="10">
+        <cTool flags="3">
+        </cTool>
+      </item>
+      <item path="embedded/libteoccl/src/map.c" ex="false" tool="0" flavor2="10">
+        <cTool flags="3">
         </cTool>
       </item>
       <item path="embedded/libteoccl/src/queue.c" ex="false" tool="0" flavor2="10">
@@ -184,14 +192,6 @@
           </preprocessorList>
         </cTool>
       </folder>
-      <item path="src/hash.c" ex="false" tool="0" flavor2="10">
-        <cTool flags="3">
-        </cTool>
-      </item>
-      <item path="src/map.c" ex="false" tool="0" flavor2="10">
-        <cTool flags="3">
-        </cTool>
-      </item>
       <item path="src/packet.c" ex="false" tool="0" flavor2="10">
         <cTool flags="3">
         </cTool>
@@ -291,6 +291,14 @@
         <cTool flags="0">
         </cTool>
       </item>
+      <item path="embedded/libteoccl/src/hash.c" ex="false" tool="0" flavor2="2">
+        <cTool flags="2">
+        </cTool>
+      </item>
+      <item path="embedded/libteoccl/src/map.c" ex="false" tool="0" flavor2="2">
+        <cTool flags="2">
+        </cTool>
+      </item>
       <item path="embedded/libteoccl/src/queue.c" ex="false" tool="0" flavor2="2">
         <cTool flags="2">
         </cTool>
@@ -343,14 +351,6 @@
           </incDir>
         </cTool>
       </folder>
-      <item path="src/hash.c" ex="false" tool="0" flavor2="2">
-        <cTool flags="2">
-        </cTool>
-      </item>
-      <item path="src/map.c" ex="false" tool="0" flavor2="2">
-        <cTool flags="2">
-        </cTool>
-      </item>
       <item path="src/packet.c" ex="false" tool="0" flavor2="2">
         <cTool flags="2">
         </cTool>

@@ -460,7 +460,7 @@ static void printf_snake(scene *sc, snake *sn) {
     if(sn->random_direction && 
        sn->auto_change_direction && 
        direction == sn->direction &&
-       trudpGetTimestampFull() - sn->last_key_pressed > 10000000 &&
+       teoGetTimestampFull() - sn->last_key_pressed > 10000000 &&
        sn->tic && !(sn->tic % 10) 
             ) {
         
@@ -552,7 +552,7 @@ void show_snake(scene *sc, snake *sn, int start_x, int start_y, int scene_left,
     
     if(!sn->initialized) {
         
-        uint64_t ts = trudpGetTimestampFull();
+        uint64_t ts = teoGetTimestampFull();
 
         sn->tic = 0;
         sn->head_char = snake_head_char;
@@ -616,7 +616,7 @@ static int check_key_snake(snake *sn) {
             case 'q': case 's': rv = 0; break;
             default: break;
         }
-        sn->last_key_pressed = trudpGetTimestampFull(); 
+        sn->last_key_pressed = teoGetTimestampFull(); 
     }
 
     return rv;
@@ -629,7 +629,7 @@ static int check_key_snake(snake *sn) {
  */
 int run_snake() {
 
-    srand(trudpGetTimestampFull());
+    srand(teoGetTimestampFull());
 
     static scene sc;
     static snake sn[4];
