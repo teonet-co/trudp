@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2016 Kirill Scherba <kirill@scherba.ru>.
+ * Copyright 2016-2018 Kirill Scherba <kirill@scherba.ru>.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -45,7 +45,7 @@
 
 // See definition at: http://www.azillionmonkeys.com/qed/hash.html
 
-uint32_t trudpHashSuperFast(const char * data, int len) {
+uint32_t teoHashSuperFast(const char * data, int len) {
     uint32_t hash = len, tmp;
     int rem;
 
@@ -163,7 +163,7 @@ acceptable.  Do NOT use for cryptographic purposes.
 --------------------------------------------------------------------
  */
 
-ub4 trudpHashFast(k, length, initval)
+ub4 teoHashFast(k, length, initval)
 register ub1 *k; /* the key */
 register ub4 length; /* the length of the key */
 register ub4 initval; /* the previous hash, or an arbitrary value */

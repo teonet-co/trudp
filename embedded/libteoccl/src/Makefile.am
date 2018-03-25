@@ -42,7 +42,9 @@ LIBS =
 lib_LTLIBRARIES = libteoccl.la
 
 libteoccl_la_SOURCES = \
-	queue.c
+	queue.c \
+	hash.c \
+	map.c
 	
 libteocclincludedir=$(includedir)
 	

@@ -25,27 +25,27 @@ int clean_suite(void);
 void check_hash() {
     
     char *key = "127.0.0.1:8000";
-    uint32_t hash = trudpHashSuperFast(key, strlen(key) + 1);
+    uint32_t hash = teoHashSuperFast(key, strlen(key) + 1);
     printf("\nHash1 of key %s = %010u ", key, hash);
-    hash = trudpHashFast((ub1*)key, strlen(key) + 1, 0);
+    hash = teoHashFast((ub1*)key, strlen(key) + 1, 0);
     printf("\nHash2 of key %s = %010u ", key, hash);
     
     key = "127.0.0.1:8001";
-    hash = trudpHashSuperFast(key, strlen(key) + 1);
+    hash = teoHashSuperFast(key, strlen(key) + 1);
     printf("\nHash1 of key %s = %010u ", key, hash);
-    hash = trudpHashFast((ub1*)key, strlen(key) + 1, 0);
+    hash = teoHashFast((ub1*)key, strlen(key) + 1, 0);
     printf("\nHash2 of key %s = %010u ", key, hash);
 
     key = "192.168.101.11:8000";
-    hash = trudpHashSuperFast(key, strlen(key) + 1);
+    hash = teoHashSuperFast(key, strlen(key) + 1);
     printf("\nHash1 of key %s = %010u ", key, hash);
-    hash = trudpHashFast((ub1*)key, strlen(key) + 1, 0);
+    hash = teoHashFast((ub1*)key, strlen(key) + 1, 0);
     printf("\nHash2 of key %s = %010u ", key, hash);
 
     key = "192.168.101.11:8001";
-    hash = trudpHashSuperFast(key, strlen(key) + 1);
+    hash = teoHashSuperFast(key, strlen(key) + 1);
     printf("\nHash1 of key %s = %010u ", key, hash);
-    hash = trudpHashFast((ub1*)key, strlen(key) + 1, 0);
+    hash = teoHashFast((ub1*)key, strlen(key) + 1, 0);
     printf("\nHash2 of key %s = %010u \n   ", key, hash);
     
     CU_ASSERT(2 * 2 == 4);
@@ -104,7 +104,7 @@ void check_map() {
     }
     
     // Create new map
-    trudpMapData *map = trudpMapNew(NUM_KEYS, 1);
+    teoMapData *map = teoMapNew(NUM_KEYS, 1);
     CU_ASSERT_PTR_NOT_NULL(map);
     
     // Add and Get data from map
@@ -112,16 +112,16 @@ void check_map() {
     for(i = 0; i < NUM_KEYS; i++) {
 
         // Add to map
-        trudpMapAdd(map, key[i], key_length[i], data[i], data_length[i]);
+        teoMapAdd(map, key[i], key_length[i], data[i], data_length[i]);
 
         // Get from map
         size_t d_length;
-        void *d = trudpMapGet(map, key[i], key_length[i], &d_length);
+        void *d = teoMapGet(map, key[i], key_length[i], &d_length);
         CU_ASSERT_FATAL(d != (void*)-1);
         CU_ASSERT_EQUAL_FATAL(data_length[i], d_length);
         CU_ASSERT_STRING_EQUAL(d, data[i]);
     }
-    CU_ASSERT_EQUAL(NUM_KEYS, trudpMapSize(map));
+    CU_ASSERT_EQUAL(NUM_KEYS, teoMapSize(map));
     printf("\n %d records add/get, time: %.3f ms, number of collisions: %u ", 
             (int)NUM_KEYS, (trudpGetTimestamp() - t_beg) / 1000.0, map->collisions );
     
@@ -129,50 +129,50 @@ void check_map() {
     char *data_new = "This is new data for this key ...";
     size_t data_new_length = strlen(data_new) + 1;    
     // Add to map
-    trudpMapAdd(map, key[1], key_length[1], data_new, data_new_length);  
+    teoMapAdd(map, key[1], key_length[1], data_new, data_new_length);  
     
     // Get updated key from map
     size_t d_length;
-    void *d = trudpMapGet(map, key[1], key_length[1], &d_length);
+    void *d = teoMapGet(map, key[1], key_length[1], &d_length);
     CU_ASSERT_FATAL(d != (void*)-1);
     CU_ASSERT_EQUAL_FATAL(data_new_length, d_length);
     CU_ASSERT_STRING_EQUAL(d, data_new);
     
     // Delete key from map
-    int rv = trudpMapDelete(map, key[1], key_length[1]);
+    int rv = teoMapDelete(map, key[1], key_length[1]);
     CU_ASSERT(!rv);
-    CU_ASSERT_EQUAL(NUM_KEYS - 1, trudpMapSize(map));
+    CU_ASSERT_EQUAL(NUM_KEYS - 1, teoMapSize(map));
     
     // Add deleted key
-    trudpMapAdd(map, key[1], key_length[1], data[1], data_length[1]);
+    teoMapAdd(map, key[1], key_length[1], data[1], data_length[1]);
     
     // Loop through map using iterator
     t_beg = trudpGetTimestamp();
     // Create map iterator
-    trudpMapIterator *it = trudpMapIteratorNew(map);
+    teoMapIterator *it = teoMapIteratorNew(map);
     CU_ASSERT_PTR_NOT_NULL_FATAL(it);
     
     i = 0;
     //printf("\n display %d records by iterator loop: \n", (int)map->length);
-    while(trudpMapIteratorNext(it)) {
+    while(teoMapIteratorNext(it)) {
         i++;
-        trudpMapElementData *el = trudpMapIteratorElement(it);
+        teoMapElementData *el = teoMapIteratorElement(it);
         size_t key_lenth;
-        /*void *key =*/ trudpMapIteratorElementKey(el, &key_lenth);
+        /*void *key =*/ teoMapIteratorElementKey(el, &key_lenth);
         size_t data_lenth;
-        /*void *data =*/ trudpMapIteratorElementData(el, &data_lenth);
+        /*void *data =*/ teoMapIteratorElementData(el, &data_lenth);
         //printf("\n #%d, idx: %u, hash: %010u, key: %s, data: %s ", 
         //       i, it->idx, el->hash, (char*)key, (char*)data);        
     }
     CU_ASSERT(i == map->length);
     // Destroy map iterator
-    trudpMapIteratorDestroy(it);
+    teoMapIteratorDestroy(it);
     
     printf("\n %d records read in iterator loop, time: %.3f ms \n   ", 
             (int)map->length, (trudpGetTimestamp() - t_beg) / 1000.0);
         
     // Destroy map
-    trudpMapDestroy(map);
+    teoMapDestroy(map);
     
     // Free keys and data
     for(i = 0; i < NUM_KEYS; i++) { free(key[i]); free(data[i]); }

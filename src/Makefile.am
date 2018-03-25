@@ -47,8 +47,6 @@ LIBS = ../embedded/libteoccl/src/.libs/libteoccl.a
 lib_LTLIBRARIES = libtrudp.la
 
 libtrudp_la_SOURCES = \
-	hash.c \
-	map.c \
 	packet.c \
 	packet_queue.c \
 	trudp.c \
