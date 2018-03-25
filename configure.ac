@@ -244,4 +244,8 @@ AC_CONFIG_FILES([
     examples/Makefile
     ci-build/Makefile
 ])
+
+# Call libteoccl's ./configure script recursively.
+AC_CONFIG_SUBDIRS([embedded/libteoccl])
+
 AC_OUTPUT

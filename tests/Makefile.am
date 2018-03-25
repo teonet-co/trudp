@@ -7,7 +7,8 @@ AM_CPPFLAGS = \
 
 AM_CFLAGS = \
 	 -g -Wall \
-	 -I../src
+	 -I../src \
+	 -I../embedded/libteoccl/src
 
 AM_CXX = clang++
 AM_CXXFLAGS = \
@@ -25,7 +26,7 @@ endif
 
 AM_LDFLAGS = -L../src/.libs 
 
-LIBS = ../src/.libs/libtrudp.a -lcunit -lev
+LIBS = ../src/.libs/libtrudp.a ../embedded/libteoccl/src/.libs/libteoccl.a -lcunit -lev
 
 noinst_PROGRAMS = trudp_tst
 
