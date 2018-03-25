@@ -12,7 +12,8 @@ AM_CFLAGS = \
 AM_CXX = clang++
 AM_CXXFLAGS = \
          -g -Wall \
-	 -I../src
+	 -I../src \
+	 -std=c++17
 
 ## Debug info
 if DEBUG
@@ -27,9 +28,10 @@ AM_LDFLAGS = -L../src/.libs
 
 LIBS = ../src/.libs/libteoccl.a -lcunit
 
-noinst_PROGRAMS = teoccl_tst
+noinst_PROGRAMS = teoccl_tst teoccl_cpp_tst
 
 teoccl_tst_SOURCES = main_t.c queue_t.c map_t.c 
+teoccl_cpp_tst_SOURCES = queue_cpp.cpp 
 
 testsdir = $(datarootdir)/doc/@PACKAGE@/tests
 tests_DATA = $(teoccl_tst_SOURCES)
