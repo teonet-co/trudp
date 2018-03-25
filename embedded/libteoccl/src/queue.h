@@ -81,8 +81,7 @@ int teoQueueFree(teoQueue *q);
 teoQueueData *teoQueueNewData(void *data, size_t data_length);
 
 teoQueueData *teoQueueAdd(teoQueue *q, void *data, size_t data_length);
-teoQueueData *teoQueueAddTop(teoQueue *q, void *data, 
-        size_t data_length);
+teoQueueData *teoQueueAddTop(teoQueue *q, void *data, size_t data_length);
 teoQueueData *teoQueueAddAfter(teoQueue *q, void *data, size_t data_length, 
         teoQueueData *qd);
 teoQueueData *teoQueueUpdate(teoQueue *q, void *data, size_t data_length, 
