@@ -29,7 +29,7 @@ LIBS = ../src/.libs/libteoccl.a -lcunit
 
 noinst_PROGRAMS = teoccl_tst
 
-teoccl_tst_SOURCES = main_t.c queue_t.c
+teoccl_tst_SOURCES = main_t.c queue_t.c map_t.c 
 
 testsdir = $(datarootdir)/doc/@PACKAGE@/tests
 tests_DATA = $(teoccl_tst_SOURCES)

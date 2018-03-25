@@ -26,7 +26,6 @@ int clean_suite(void) {
 int packetSuiteAdd();
 int timedQueueSuiteAdd();
 int trUdpSuiteAdd();
-int hashSuiteAdd();
 
 int main() {
     
@@ -39,7 +38,6 @@ int main() {
     packetSuiteAdd();
     timedQueueSuiteAdd();
     trUdpSuiteAdd();
-    hashSuiteAdd();
 
     /* Run all tests using the CUnit Basic interface */
     CU_basic_set_mode(CU_BRM_VERBOSE);

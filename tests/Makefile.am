@@ -30,7 +30,7 @@ LIBS = ../src/.libs/libtrudp.a ../embedded/libteoccl/src/.libs/libteoccl.a -lcun
 
 noinst_PROGRAMS = trudp_tst
 
-trudp_tst_SOURCES = main_t.c map_t.c packet_queue_t.c packet_t.c tr-udp_t.c
+trudp_tst_SOURCES = main_t.c packet_queue_t.c packet_t.c tr-udp_t.c
 
 testsdir = $(datarootdir)/doc/@PACKAGE@/tests
 tests_DATA = $(trudp_tst_SOURCES)
