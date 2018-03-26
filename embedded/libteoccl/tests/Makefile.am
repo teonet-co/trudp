@@ -26,12 +26,12 @@ endif
 
 AM_LDFLAGS = -L../src/.libs 
 
-LIBS = ../src/.libs/libteoccl.a -lcunit
+LIBS = ../src/.libs/libteoccl.a -lcunit -lCppUTest
 
 noinst_PROGRAMS = teoccl_tst teoccl_cpp_tst
 
 teoccl_tst_SOURCES = main_t.c queue_t.c map_t.c 
-teoccl_cpp_tst_SOURCES = queue_cpp.cpp 
+teoccl_cpp_tst_SOURCES = main_cpp_t.cpp queue_cpp_t.cpp
 
 testsdir = $(datarootdir)/doc/@PACKAGE@/tests
 tests_DATA = $(teoccl_tst_SOURCES)

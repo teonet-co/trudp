@@ -14,9 +14,11 @@
             <in>queue.c</in>
           </df>
           <df name="tests">
+            <in>main_cpp_t.cpp</in>
             <in>main_t.c</in>
             <in>map_t.c</in>
             <in>queue_cpp.cpp</in>
+            <in>queue_cpp_t.cpp</in>
             <in>queue_t.c</in>
           </df>
         </df>
@@ -81,6 +83,7 @@
                  commonFlags="-mtune=generic -march=x86-64 -g -g -O2 -O2 -std=gnu11 -fstack-protector-strong"/>
         <element flagsID="4"
                  commonFlags="-mtune=generic -march=x86-64 -g -g -O2 -fstack-protector-strong"/>
+        <element flagsID="5" commonFlags="-std=c++17 -O2 -O2"/>
       </flagsDictionary>
       <codeAssistance>
       </codeAssistance>
@@ -90,12 +93,6 @@
           <buildCommand>${MAKE} -f Makefile</buildCommand>
           <cleanCommand>${MAKE} -f Makefile clean</cleanCommand>
           <executablePath>examples/trudpcat_ev</executablePath>
-          <ccTool>
-            <incDir>
-              <pElem>embedded/libteoccl/src</pElem>
-              <pElem>embedded/libteoccl/tests</pElem>
-            </incDir>
-          </ccTool>
         </makeTool>
         <preBuild>
           <preBuildCommandWorkingDir>.</preBuildCommandWorkingDir>
@@ -114,27 +111,27 @@
         <cTool flags="2">
         </cTool>
       </item>
-      <item path="embedded/libteoccl/src/queue" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="embedded/libteoccl/src/queue.c" ex="false" tool="0" flavor2="3">
         <cTool flags="2">
         </cTool>
       </item>
-      <item path="embedded/libteoccl/tests/main_t.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="1">
+      <item path="embedded/libteoccl/tests/main_cpp_t.cpp"
+            ex="false"
+            tool="1"
+            flavor2="11">
+        <ccTool flags="0">
           <incDir>
-            <pElem>/usr/include/CUnit</pElem>
+            <pElem>/usr/include/CppUTest</pElem>
             <pElem>embedded/libteoccl/tests</pElem>
           </incDir>
+        </ccTool>
+      </item>
+      <item path="embedded/libteoccl/tests/main_t.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="1">
         </cTool>
       </item>
       <item path="embedded/libteoccl/tests/map_t.c" ex="false" tool="0" flavor2="3">
         <cTool flags="1">
-          <incDir>
-            <pElem>embedded/libteoccl/src</pElem>
-            <pElem>/usr/include/CUnit</pElem>
-            <pElem>embedded/libteoccl/tests</pElem>
-          </incDir>
         </cTool>
       </item>
       <item path="embedded/libteoccl/tests/queue_cpp.cpp"
@@ -142,15 +139,32 @@
             tool="1"
             flavor2="11">
         <ccTool flags="0">
+          <incDir>
+            <pElem>embedded/libteoccl/src</pElem>
+            <pElem>embedded/libteoccl/tests</pElem>
+          </incDir>
+        </ccTool>
+      </item>
+      <item path="embedded/libteoccl/tests/queue_cpp_t.cpp"
+            ex="false"
+            tool="1"
+            flavor2="11">
+        <ccTool flags="5">
+          <incDir>
+            <pElem>embedded/libteoccl/tests</pElem>
+            <pElem>embedded/libteoccl</pElem>
+            <pElem>embedded/libteoccl/src</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>HAVE_CONFIG_H</Elem>
+            <Elem>PACKAGE_DATA_DIR="/usr/share"</Elem>
+            <Elem>PACKAGE_LOCALE_DIR="/usr/share/locale"</Elem>
+            <Elem>PACKAGE_SRC_DIR="."</Elem>
+          </preprocessorList>
         </ccTool>
       </item>
       <item path="embedded/libteoccl/tests/queue_t.c" ex="false" tool="0" flavor2="3">
         <cTool flags="1">
-          <incDir>
-            <pElem>/usr/include/CUnit</pElem>
-            <pElem>embedded/libteoccl/src</pElem>
-            <pElem>embedded/libteoccl/tests</pElem>
-          </incDir>
         </cTool>
       </item>
       <item path="examples/snake.c" ex="false" tool="0" flavor2="3">
@@ -186,6 +200,14 @@
             <Elem>PACKAGE_LOCALE_DIR="/usr/share/locale"</Elem>
             <Elem>PACKAGE_SRC_DIR="."</Elem>
           </preprocessorList>
+        </cTool>
+      </folder>
+      <folder path="0/embedded/libteoccl/tests">
+        <cTool>
+          <incDir>
+            <pElem>/usr/include/CUnit</pElem>
+            <pElem>embedded/libteoccl/tests</pElem>
+          </incDir>
         </cTool>
       </folder>
       <folder path="0/examples">
@@ -365,6 +387,11 @@
         <cTool flags="2">
         </cTool>
       </item>
+      <item path="embedded/libteoccl/tests/main_cpp_t.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
       <item path="embedded/libteoccl/tests/main_t.c" ex="false" tool="0" flavor2="2">
         <cTool flags="1">
         </cTool>
@@ -374,6 +401,11 @@
         </cTool>
       </item>
       <item path="embedded/libteoccl/tests/queue_cpp.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="embedded/libteoccl/tests/queue_cpp_t.cpp"
             ex="false"
             tool="1"
             flavor2="0">

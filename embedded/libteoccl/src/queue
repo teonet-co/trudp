@@ -60,7 +60,7 @@ namespace teo {
       return teoQueueNewData(data, data_length);
     }
     inline teoQueueData *newData(std::string data) {
-      return newData((void*)data.c_str(), data.size());
+      return newData((void*)data.c_str(), data.size() + 1);
     }
     template<typename T> teoQueueData *newData(const T &data) {
       return newData((void*)&data, sizeof(T));
@@ -77,7 +77,7 @@ namespace teo {
       return teoQueueAdd(que, data, data_length);
     }
     inline teoQueueData *add(std::string data) {
-      return add((void*)data.c_str(), data.size());
+      return add((void*)data.c_str(), data.size() + 1);
     }
     template<typename T> teoQueueData *add(const T &data) {
       return add((void*)&data, sizeof(T));
@@ -88,7 +88,7 @@ namespace teo {
       return teoQueueAddTop(que, data, data_length);
     }
     inline teoQueueData *addTop(std::string data) {
-      return addTop((void*)data.c_str(), data.size());
+      return addTop((void*)data.c_str(), data.size() + 1);
     }
     template<typename T> teoQueueData *addTop(const T &data) {
       return addTop((void*)&data, sizeof(T));
@@ -99,7 +99,7 @@ namespace teo {
       return teoQueueAddAfter(que, data, data_length, after);
     }
     inline teoQueueData *addAfter(std::string data, teoQueueData *after) {
-      return addAfter((void*)data.c_str(), data.size(), after);
+      return addAfter((void*)data.c_str(), data.size() + 1, after);
     }
     template<typename T> teoQueueData *addAfter(const T &data, teoQueueData *after) {
       return addAfter((void*)&data, sizeof(T), after);
@@ -176,7 +176,7 @@ namespace teo {
     }
     
     // foreach    
-    inline int foreach(teoQueueForeachFunction callback, void *user_data) {
+    inline int foreach(teoQueueForeachFunction callback, void *user_data = NULL) {
       return teoQueueForeach(que, callback, user_data);
     }
 
