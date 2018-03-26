@@ -65,4 +65,5 @@ uninstall-local:
 	
 test:	tests/trudp_tst	
 	embedded/libteoccl/tests/teoccl_tst
+	embedded/libteoccl/tests/teoccl_cpp_tst
 	tests/trudp_tst
