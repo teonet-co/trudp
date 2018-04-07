@@ -5,7 +5,7 @@
  */
 
 #include <iostream>
-#include "../src/queue"
+#include "../src/queue.hpp"
 
 int main(int argc, char** argv) {
   
