@@ -10,8 +10,8 @@
           <df name="src">
             <in>hash.c</in>
             <in>map.c</in>
-            <in>queue</in>
             <in>queue.c</in>
+            <in>queue.hpp</in>
           </df>
           <df name="tests">
             <in>main_cpp_t.cpp</in>
@@ -381,11 +381,11 @@
         <cTool flags="2">
         </cTool>
       </item>
-      <item path="embedded/libteoccl/src/queue" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="embedded/libteoccl/src/queue.c" ex="false" tool="0" flavor2="2">
         <cTool flags="2">
         </cTool>
+      </item>
+      <item path="embedded/libteoccl/src/queue.hpp" ex="false" tool="3" flavor2="0">
       </item>
       <item path="embedded/libteoccl/tests/main_cpp_t.cpp"
             ex="false"

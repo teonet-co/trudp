@@ -13,6 +13,46 @@ TEST_GROUP(QueueSuite) {
   teo::Queue que;
 };
 
+TEST(QueueSuite, queueGetExample) {
+  que.add(7);
+  que.add(3.14);
+  que.add("Hello");
+  CHECK(que.size() == 3);
+  
+  que.foreach([](teoQueue *q, int idx, teoQueueData *data, void* user_data) {
+    
+    switch(idx) {
+      
+      case 0: {
+        auto d = teo::Queue::getData<int*>(data->data);   
+        CHECK_EQUAL(*d, 7);
+        
+        auto &d2 = *teo::Queue::getData<int*>(data->data);   
+        CHECK_EQUAL(d2, 7);
+        
+      } break;
+        
+      case 1: {
+        auto d = teo::Queue::getData<double*>(data->data);   
+        CHECK_EQUAL(*d, 3.14);
+        
+        auto &d2 = *teo::Queue::getData<double*>(data->data);   
+        CHECK_EQUAL(d2, 3.14);
+      } break;
+      
+      case 2: {
+        auto d = teo::Queue::getData<const char*>(data->data);   
+        STRCMP_EQUAL(d, "Hello");
+      } break;
+    }
+    return 0;    
+  });
+  
+  // free test queue ----
+  que.freeAll();
+  CHECK(que.size() == 0);
+}
+
 TEST(QueueSuite, queueForeachExample) {
   
   const std::string str[] = {
