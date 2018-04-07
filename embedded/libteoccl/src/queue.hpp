@@ -76,7 +76,7 @@ namespace teo {
     inline teoQueueData *add(void *data, size_t data_length) {
       return teoQueueAdd(que, data, data_length);
     }
-    inline teoQueueData *add(std::string data) {
+    inline teoQueueData *add(const std::string &data) {
       return add((void*)data.c_str(), data.size() + 1);
     }
     template<typename T> teoQueueData *add(const T &data) {
@@ -178,6 +178,12 @@ namespace teo {
     // foreach    
     inline int foreach(teoQueueForeachFunction callback, void *user_data = NULL) {
       return teoQueueForeach(que, callback, user_data);
+    }
+    
+    // get data 
+    template<typename T>
+    static inline T getData(void *data) {
+      return (T)data;
     }
 
   };
