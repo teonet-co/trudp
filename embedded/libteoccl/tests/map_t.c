@@ -189,11 +189,10 @@ void _check_map(const size_t NUM_KEYS) {
 }
 
 void check_map() {
-    size_t NUM_KEYS = 25;
-    for(int i=0; i < 21; i++, NUM_KEYS = i < 11 ? NUM_KEYS * 3 : NUM_KEYS / 3 )
-        _check_map(NUM_KEYS);
+    size_t num = 11, mul = 6, num_keys = 55;
     
-    //for(int i=0; i < 1024; i++) _check_map(1024);
+    for(int i=0; i < num; i++, num_keys = (i < (num + 1)/2 ? num_keys * mul : num_keys / mul ))
+        _check_map(num_keys);
 }
 
 

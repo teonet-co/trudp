@@ -7,7 +7,7 @@
 
 #include <iostream>
 #include <CppUTest/TestHarness.h>
-#include "../src/queue"
+#include "../src/queue.hpp"
 
 TEST_GROUP(QueueSuite) {
   teo::Queue que;
