@@ -95,13 +95,15 @@ namespace teo {
     }
 
     // add after
-    inline teoQueueData *addAfter(void *data, size_t data_length, teoQueueData *after) {
+    inline teoQueueData *addAfter(void *data, size_t data_length,
+        teoQueueData *after) {
       return teoQueueAddAfter(que, data, data_length, after);
     }
     inline teoQueueData *addAfter(std::string data, teoQueueData *after) {
       return addAfter((void*)data.c_str(), data.size() + 1, after);
     }
-    template<typename T> teoQueueData *addAfter(const T &data, teoQueueData *after) {
+    template<typename T>
+    teoQueueData *addAfter(const T &data, teoQueueData *after) {
       return addAfter((void*)&data, sizeof(T), after);
     }
 

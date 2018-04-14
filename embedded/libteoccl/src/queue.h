@@ -95,14 +95,68 @@ teoQueueData *teoQueueMoveToEnd(teoQueue *q, teoQueueData *qd);
 teoQueueData *teoQueuePut(teoQueue *q, teoQueueData *qd);
 size_t teoQueueSize(teoQueue *q);
 
+/**
+ * Create new Teo Queue iterator
+ *
+ * @param q Pointer to teoQueue
+ * @return
+ */
 teoQueueIterator *teoQueueIteratorNew(teoQueue *q);
+
+/**
+ * Get next element from Teo Queue iterator
+ *
+ * @param it Pointer to teoQueueIterator
+ *
+ * @return Pointer to the teoQueueData or NULL if not exists
+ */
 teoQueueData *teoQueueIteratorNext(teoQueueIterator *it);
+
+/**
+ * Get previous element from Teo Queue iterator
+ *
+ * @param it Pointer to teoQueueIterator
+ *
+ * @return Pointer to the teoQueueData or NULL if not exists
+ */
 teoQueueData *teoQueueIteratorPrev(teoQueueIterator *it);
+
+/**
+ * Get current Teo Queue iterator element
+ * @param it Pointer to teoQueueIterator
+ *
+ * @return Pointer to the teoQueueData or NULL if not exists
+ */
 teoQueueData *teoQueueIteratorElement(teoQueueIterator *it);
+
+/**
+ * Reset iterator (or swith to new Queue)
+ *
+ * @param it Pointer to teoQueueIterator
+ * @param q Pointer to teoQueue to switch to or NULL to reset current queue
+ * @return Pointer to input teoQueueIterator
+ */
 teoQueueIterator *teoQueueIteratorReset(teoQueueIterator *it, teoQueue *q);
+
+/**
+ * Free (destroy) Teo Queue iterator
+ *
+ * @param it Pointer to teoQueueIterator
+ * @return Zero at success
+ */
 int teoQueueIteratorFree(teoQueueIterator *it);
 
-typedef int (*teoQueueForeachFunction)(teoQueue *q, int idx, teoQueueData *data, void* user_data);
+typedef int (*teoQueueForeachFunction)(teoQueue *q, int idx, teoQueueData *data,
+        void* user_data);
+
+/**
+ * Loop through queue and call callback function with index and data in parameters
+ *
+ * @param q Pointer to teoQueue
+ * @param callback Pointer to callback function teoQueueForeachFunction
+ *
+ * @return Number of elements processed
+ */
 int teoQueueForeach(teoQueue *q, teoQueueForeachFunction callback, void *user_data);
 
 #ifdef __cplusplus
