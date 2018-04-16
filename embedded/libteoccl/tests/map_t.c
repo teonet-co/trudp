@@ -195,6 +195,31 @@ void check_map() {
         _check_map(num_keys);
 }
 
+// Binary keys check
+void check_binary_key() {
+    
+    const size_t NUM_KEYS = 20;
+    
+    // Create new map
+    teoMapData *map = teoMapNew(NUM_KEYS, 1);
+    CU_ASSERT_PTR_NOT_NULL(map);
+    
+    int key = 25;
+    int data = 125;
+    
+    // Add to map
+    teoMapAdd(map, &key, sizeof(key) , &data, sizeof(data));
+    
+    // Get from map
+    size_t d_length;
+    void *d = teoMapGet(map, &key, sizeof(key), &d_length);
+    CU_ASSERT_FATAL(d != (void*)-1);
+    CU_ASSERT_EQUAL_FATAL(sizeof(data), d_length);
+    CU_ASSERT_EQUAL(*(int*)d, data);
+
+    // Destroy map
+    teoMapDestroy(map);        
+}
 
 int mapSuiteAdd() {
     
@@ -210,6 +235,7 @@ int mapSuiteAdd() {
     /* Add the tests to the suite */
     if ((NULL == CU_add_test(pSuite, "check hash functions", check_hash)) 
      || (NULL == CU_add_test(pSuite, "check map functions", check_map)) 
+     || (NULL == CU_add_test(pSuite, "check binary keys", check_binary_key)) 
             ) {
         CU_cleanup_registry();
         return CU_get_error();
