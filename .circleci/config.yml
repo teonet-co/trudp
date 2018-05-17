@@ -55,7 +55,7 @@ jobs:
       - run: make test
       
       # Build DEB package and upload it to repository
-      - tun: ci-build/make_package deb      
+      - run: ci-build/make_package deb      
 
 #      # build the application image
 #      - run: docker build --no-cache -t $CIRCLE_PROJECT_REPONAME -f docker/Dockerfile . 
