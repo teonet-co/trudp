@@ -11,7 +11,7 @@ jobs:
     machine: true
     steps:
       - checkout
-      - git submodule update --init
+      - run: git submodule update --init
 
       # show current variables
       - run: echo $CIRCLE_PROJECT_REPONAME
