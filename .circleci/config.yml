@@ -8,7 +8,9 @@ version: 2
 jobs:
     
   un-tagged-build:
-    machine: true
+    #machine: true
+    docker: # run the steps with Docker
+      - image: gitlab.ksproject.org:5000/ci/ubuntu_teonet
     steps:
       - checkout
       - run: git submodule update --init
