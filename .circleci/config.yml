@@ -100,10 +100,9 @@ jobs:
                     
 workflows:
   version: 2
-  build:
+  un-tagged:
     jobs:
-      - testing
-      
+      - testing      
       - un-tagged-build:
           requires:
             - testing
@@ -111,6 +110,9 @@ workflows:
             tags:
                 ignore: /^v.*/
                 
+  tagged:
+    jobs:
+      - testing      
       - tagged-build:
           requires:
             - testing
