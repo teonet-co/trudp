@@ -114,8 +114,8 @@ workflows:
     jobs:
       - testing      
       - tagged-build:
-          requires:
-            - testing
+#          requires:
+#            - testing
           filters:
             branches:
               ignore: /.*/
