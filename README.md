@@ -1,5 +1,7 @@
 # TR-UDP library: Teonet Real time communications over UDP protocol
 
+[![CircleCI](https://circleci.com/gh/teonet-co/trudp.svg?style=svg)](https://circleci.com/gh/teonet-co/trudp)
+
 ## 1. Description
 
 The TR-UDP protocol is the UDP based protocol for real time communications that 
