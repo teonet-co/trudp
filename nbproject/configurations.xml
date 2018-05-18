@@ -113,12 +113,12 @@
           <incDir>
             <pElem>ci-build</pElem>
             <pElem>.</pElem>
-            <pElem>../teonet</pElem>
-            <pElem>../libtrudp</pElem>
+            <pElem>/usr/include/teonet</pElem>
+            <pElem>/usr/include/libtrudp</pElem>
             <pElem>../teonet/src</pElem>
             <pElem>../teonet/embedded/libpbl/src</pElem>
             <pElem>../teonet/embedded/libtrudp/src</pElem>
-            <pElem>../teocli/libteol0</pElem>
+            <pElem>../teonet/embedded/teocli/libteol0</pElem>
           </incDir>
           <preprocessorList>
             <Elem>HAVE_CONFIG_H</Elem>
