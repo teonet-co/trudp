@@ -105,15 +105,15 @@ workflows:
       - testing
       
       - un-tagged-build:
-#          requires:
-#            - testing
+          requires:
+            - testing
           filters:
             tags:
                 ignore: /^v.*/
                 
       - tagged-build:
-#          requires:
-#            - testing
+          requires:
+            - testing
           filters:
             branches:
               ignore: /.*/
