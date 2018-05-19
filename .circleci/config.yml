@@ -124,7 +124,7 @@ workflows:
               
       - tagged-build:
           requires:
-            - un-tagged-build
+            - testing
           filters:
             branches:
               ignore: /.*/
