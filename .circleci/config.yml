@@ -3,7 +3,6 @@
 # Check https://circleci.com/docs/2.0/language-javascript/ for more details
 #
 
-#workflows:
 version: 2
 jobs:
     
@@ -102,20 +101,30 @@ workflows:
   version: 2
   un-tagged:
     jobs:
-      - testing      
+      - testing:    
+          filters:
+            tags:
+              ignore: /^v.*/
+              
       - un-tagged-build:
           requires:
             - testing
           filters:
             tags:
-                ignore: /^v.*/
+              ignore: /^v.*/
                 
   tagged:
     jobs:
-      - testing      
+      - testing:    
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
+              
       - tagged-build:
-#          requires:
-#            - testing
+          requires:
+            - un-tagged-build
           filters:
             branches:
               ignore: /.*/
