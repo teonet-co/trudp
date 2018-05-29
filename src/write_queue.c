@@ -46,7 +46,7 @@ trudpWriteQueueData *trudpWriteQueueAdd(trudpWriteQueue *wq, void *packet,
     
     size_t wqd_length = sizeof(trudpWriteQueueData); // + packet_length;    
     trudpWriteQueueData *wqd = (trudpWriteQueueData *)(
-            (trudpQueueData *)trudpQueueAdd(wq->q, NULL, wqd_length))->data;
+            (teoQueueData *)teoQueueAdd(wq->q, NULL, wqd_length))->data;
     
     if(packet != NULL) {
         memcpy(wqd->packet, packet, packet_length < MAX_HEADER_SIZE ? packet_length : MAX_HEADER_SIZE);
@@ -69,8 +69,8 @@ trudpWriteQueueData *trudpWriteQueueAdd(trudpWriteQueue *wq, void *packet,
  * 
  * @return Pointer to trudpQueueData or NULL if wqd is NULL
  */
-static inline trudpQueueData *trudpWriteQueueDataToQueueData(trudpWriteQueueData *wqd) {
-    return wqd ? (trudpQueueData *)((void*)wqd - sizeof(trudpQueueData)) : NULL;
+static inline teoQueueData *trudpWriteQueueDataToQueueData(trudpWriteQueueData *wqd) {
+    return wqd ? (teoQueueData *)((void*)wqd - sizeof(teoQueueData)) : NULL;
 }
 
 /**
@@ -82,7 +82,7 @@ static inline trudpQueueData *trudpWriteQueueDataToQueueData(trudpWriteQueueData
  * @return Zero at success
  */
 static inline int trudpWriteQueueDelete(trudpWriteQueue *wq, trudpWriteQueueData *wqd) {    
-    return trudpQueueDelete(wq->q, trudpWriteQueueDataToQueueData(wqd));
+    return teoQueueDelete(wq->q, trudpWriteQueueDataToQueueData(wqd));
 }
 
 #endif

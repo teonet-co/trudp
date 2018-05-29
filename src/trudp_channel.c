@@ -69,7 +69,7 @@ static void _trudpChannelSetLastReceived(trudpChannelData *tcd);
 static inline trudpChannelData *_trudpChannelAddToMap(void *td, char *key, 
         size_t key_length, trudpChannelData *tcd) {
     
-    return trudpMapAdd(((trudpData *)td)->map, key, key_length, tcd, 
+    return teoMapAdd(((trudpData *)td)->map, key, key_length, tcd, 
             sizeof(trudpChannelData));
 }
 
@@ -102,7 +102,7 @@ static void _trudpChannelSetDefaults(trudpChannelData *tcd) {
     tcd->triptimeFactor = 1.5;
     tcd->outrunning_cnt = 0;
     tcd->receiveExpectedId = 0;
-    tcd->lastReceived = trudpGetTimestampFull();
+    tcd->lastReceived = teoGetTimestampFull();
     tcd->triptimeMiddle = START_MIDDLE_TIME;
 
     // Initialize statistic
@@ -193,7 +193,7 @@ void trudpChannelDestroy(trudpChannelData *tcd) {
     size_t key_length;
     char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd->remaddr, &port);
     char *key = trudpMakeKey(addr, port, tcd->channel, &key_length);
-    trudpMapDelete(TD(tcd)->map, key, key_length);
+    teoMapDelete(TD(tcd)->map, key, key_length);
 }
 
 // ============================================================================
@@ -296,7 +296,7 @@ static void _trudpChannelCalculateTriptime(trudpChannelData *tcd, void *packet,
  * @param tcd
  */
 static inline void _trudpChannelSetLastReceived(trudpChannelData *tcd) {
-    tcd->lastReceived = trudpGetTimestampFull();
+    tcd->lastReceived = teoGetTimestampFull();
 }
 
 /**
@@ -429,7 +429,7 @@ static size_t _trudpChannelSendPacket(trudpChannelData *tcd, void *packetDATA,
         trudpSendQueueAdd(tcd->sendQueue,
             packetDATA,
             packetLength,
-            _trudpChannelCalculateExpectedTime(tcd, trudpGetTimestampFull(), 0)
+            _trudpChannelCalculateExpectedTime(tcd, teoGetTimestampFull(), 0)
         );
         _trudpChannelIncrementStatSendQueueSize(tcd);
     }

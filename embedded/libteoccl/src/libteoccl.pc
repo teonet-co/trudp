@@ -1,0 +1,10 @@
+prefix=/usr
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libteoccl
+Description: Teoccl: Teonet c container library
+Version: 0.0.1
+Cflags: -I${includedir}
+Libs: -L${libdir}

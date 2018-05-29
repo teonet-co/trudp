@@ -41,7 +41,7 @@ extern "C" {
 
 typedef struct trudpWriteQueue {
 
-    trudpQueue *q;
+    teoQueue *q;
 
 } trudpWriteQueue;
 
@@ -61,7 +61,7 @@ typedef struct trudpWriteQueueData {
 static inline 
 trudpWriteQueue *trudpWriteQueueNew() {    
     trudpWriteQueue *wq = (trudpWriteQueue *)malloc(sizeof(trudpWriteQueue));
-    wq->q = trudpQueueNew();
+    wq->q = teoQueueNew();
     return wq;
 }
 /**
@@ -72,7 +72,7 @@ trudpWriteQueue *trudpWriteQueueNew() {
 static inline 
 void trudpWriteQueueDestroy(trudpWriteQueue *wq) {
     if(wq) {
-        trudpQueueDestroy(wq->q);
+        teoQueueDestroy(wq->q);
         free(wq);
     }
 }
@@ -84,7 +84,7 @@ void trudpWriteQueueDestroy(trudpWriteQueue *wq) {
  */
 static inline 
 int trudpWriteQueueFree(trudpWriteQueue *wq) {
-    return wq && wq->q ? trudpQueueFree(wq->q) : -1;
+    return wq && wq->q ? teoQueueFree(wq->q) : -1;
 }
 /**
  * Get number of elements in Write queue
@@ -95,7 +95,7 @@ int trudpWriteQueueFree(trudpWriteQueue *wq) {
  */
 static inline 
 size_t trudpWriteQueueSize(trudpWriteQueue *wq) {    
-    return wq ? trudpQueueSize(wq->q) : -1;
+    return wq ? teoQueueSize(wq->q) : -1;
 }
 trudpWriteQueueData *trudpWriteQueueAdd(trudpWriteQueue *wq, void *packet, 
         void *packet_ptr, size_t packet_length);
@@ -119,7 +119,7 @@ trudpWriteQueueData *trudpWriteQueueGetFirst(trudpWriteQueue *wq) {
  */
 static inline 
 int trudpWriteQueueDeleteFirst(trudpWriteQueue *wq) {
-    return trudpQueueDeleteFirst(wq->q);
+    return teoQueueDeleteFirst(wq->q);
 }
 
 #ifdef __cplusplus

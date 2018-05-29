@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 #
-# TR-UDP: Teonet Real time communications over UDP protocol
+# teoccl: Teonet c container library
 #
 
 # SUBROUTINE
@@ -15,15 +15,14 @@ AC_SUBST([$1], ['$2'])
 # END
 
 AC_PREREQ([2.69])
-AC_INIT([libtrudp], [0.2.7], [kirill@scherba.ru])
-AC_DEFINE_SUBST(LIBRARY_MAJOR_VERSION, 7, [TR-UDP dynamic library version])
-AC_DEFINE([PACKAGE_DESCRIPTION], ["TR-UDP library: Teonet Real time communications over UDP protocol"], [Application description])
-AC_DEFINE([PACKAGE_DEPENDENCIES], ["libev"], [Application dependencies])
-AC_DEFINE(COPYRIGHT, ["(c) Kirsoft Inc., 1996-2018"], [TR-UDP library copyright])
+AC_INIT([libteoccl], [0.0.1], [kirill@scherba.ru])
+AC_DEFINE_SUBST(LIBRARY_MAJOR_VERSION, 1, [teoccl dynamic library version])
+AC_DEFINE([PACKAGE_DESCRIPTION], ["Teoccl library: Teonet c container library"], [Application description])
+AC_DEFINE(COPYRIGHT, ["(c) Kirsoft Inc., 1996-2018"], [Teoccl library copyright])
 
 AC_PREFIX_DEFAULT([/usr])
 AC_CONFIG_HEADERS([config.h])
-AC_CONFIG_SRCDIR([src/trudp.c])
+AC_CONFIG_SRCDIR([src/queue.c])
 AC_CONFIG_MACRO_DIR([m4])
 
 AC_USE_SYSTEM_EXTENSIONS
@@ -47,11 +46,9 @@ AC_PROG_RANLIB
 # Checks for libraries.
 # FIXME: Replace `main' with a function in `-lcunit':
 AC_CHECK_LIB([cunit], [main])
-# FIXME: Replace `main' with a function in `-lev':
-AC_CHECK_LIB([ev], [main])
 
 # Checks for header files.
-AC_CHECK_HEADERS([arpa/inet.h fcntl.h netdb.h stddef.h stdint.h stdlib.h string.h sys/ioctl.h sys/socket.h sys/time.h termios.h unistd.h])
+AC_CHECK_HEADERS([stddef.h stdlib.h string.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_INLINE
@@ -65,7 +62,7 @@ AC_TYPE_UINT8_T
 # Checks for library functions.
 AC_FUNC_MALLOC
 AC_FUNC_REALLOC
-AC_CHECK_FUNCS([clock_gettime gethostbyname gettimeofday inet_ntoa memset select strdup])
+AC_CHECK_FUNCS([memset])
 
 dnl ***************************************************************************
 dnl Debug info
@@ -238,14 +235,9 @@ LT_INIT
 AC_CONFIG_FILES([
     Makefile
     po/Makefile.in
-    src/libtrudp.pc
+    src/libteoccl.pc
     src/Makefile
     tests/Makefile
-    examples/Makefile
-    ci-build/Makefile
 ])
-
-# Call libteoccl's ./configure script recursively.
-AC_CONFIG_SUBDIRS([embedded/libteoccl])
 
 AC_OUTPUT

@@ -33,29 +33,29 @@
 #include "queue.h"
 
 /**
- * Create new TR-UDP Queue
+ * Create new Teo Queue
  * 
- * @return Pointer to new TR-UDP Queue or NULL if memory allocate error
+ * @return Pointer to new Teo Queue or NULL if memory allocate error
  */
-trudpQueue *trudpQueueNew() {
+teoQueue *teoQueueNew() {
     
-    trudpQueue *q = (trudpQueue *) malloc(sizeof(trudpQueue));
-    memset(q, 0, sizeof(trudpQueue));
+    teoQueue *q = (teoQueue *) malloc(sizeof(teoQueue));
+    memset(q, 0, sizeof(teoQueue));
     
     return q;    
 }
 
 /**
- * Destroy TR-UDP Queue
+ * Destroy Teo Queue
  * 
- * @param q Pointer to existing TR-UDP Queue
+ * @param q Pointer to existing Teo Queue
  * 
  * @return Zero at success
  */
-inline int trudpQueueDestroy(trudpQueue *q) {
+inline int teoQueueDestroy(teoQueue *q) {
     
     if(q) {
-        trudpQueueFree(q);
+        teoQueueFree(q);
         free(q);
     }
     
@@ -63,36 +63,36 @@ inline int trudpQueueDestroy(trudpQueue *q) {
 }
 
 /**
- * Remove all elements from TR-UDP queue
+ * Remove all elements from Teo queue
  * 
- * @param q Pointer to existing TR-UDP Queue
+ * @param q Pointer to existing Teo Queue
  * 
  * @return Zero at success
  */
-int trudpQueueFree(trudpQueue *q) {
+int teoQueueFree(teoQueue *q) {
     
     if(!q) return -1;
     
     // Remove all elements
-    trudpQueueData *qd_next, *qd = q->first;
+    teoQueueData *qd_next, *qd = q->first;
     while(qd) {
         qd_next = qd->next;
         free(qd);
         qd = qd_next;
     }    
-    memset(q, 0, sizeof(trudpQueue));
+    memset(q, 0, sizeof(teoQueue));
     
     return 0;
 }
 
 /**
- * Get number of elements in TR-UPD queue
+ * Get number of elements in Teo queue
  * 
  * @param q
  * 
- * @return Number of elements in TR-UPD queue
+ * @return Number of elements in Teo queue
  */
-inline size_t trudpQueueSize(trudpQueue *q) {
+inline size_t teoQueueSize(teoQueue *q) {
     
     return q ? q->length : -1;
 }
@@ -100,11 +100,11 @@ inline size_t trudpQueueSize(trudpQueue *q) {
 /**
  * Put (add, copy) existing queue record to the end of selected queue
  * 
- * @param q Pointer to trudpQueue
- * @param qd Pointer to trudpQueueData
+ * @param q Pointer to teoQueue
+ * @param qd Pointer to teoQueueData
  * @return Zero at success
  */
-trudpQueueData *trudpQueuePut(trudpQueue *q, trudpQueueData *qd) {
+teoQueueData *teoQueuePut(teoQueue *q, teoQueueData *qd) {
    
     if(q) {
         if(qd) {
@@ -124,16 +124,16 @@ trudpQueueData *trudpQueuePut(trudpQueue *q, trudpQueueData *qd) {
 }
 
 /**
- * Create new trudpQueueData buffer
+ * Create new teoQueueData buffer
  * 
  * @param data Pointer to data
  * @param data_length Data length
  * @return 
  */
-trudpQueueData *trudpQueueNewData(void *data, size_t data_length) {
+teoQueueData *teoQueueNewData(void *data, size_t data_length) {
     
-    // Create new trudpQueueData
-    trudpQueueData *qd = (trudpQueueData *) malloc(sizeof(trudpQueueData) + data_length);
+    // Create new teoQueueData
+    teoQueueData *qd = (teoQueueData *) malloc(sizeof(teoQueueData) + data_length);
     if(qd) {
         // Fill Queue data structure
         qd->data_length = data_length;
@@ -144,65 +144,65 @@ trudpQueueData *trudpQueueNewData(void *data, size_t data_length) {
 }
 
 /**
- * Add new element to the end of TR-UPD queue
+ * Add new element to the end of Teo queue
  * 
- * @param q Pointer to existing TR-UDP Queue
+ * @param q Pointer to existing Teo Queue
  * @param data Pointer to data of new element
  * @param data_length Length of new element data 
  * 
- * @return Pointer to trudpQueueData of added element
+ * @return Pointer to teoQueueData of added element
  */
-trudpQueueData *trudpQueueAdd(trudpQueue *q, void *data, size_t data_length) {
+teoQueueData *teoQueueAdd(teoQueue *q, void *data, size_t data_length) {
     
-    trudpQueueData *qd = NULL;
+    teoQueueData *qd = NULL;
     
     if(q) {
-        // Create new trudpQueueData
-        qd = trudpQueueNewData(data, data_length);
-        if(qd) trudpQueuePut(q, qd);
+        // Create new teoQueueData
+        qd = teoQueueNewData(data, data_length);
+        if(qd) teoQueuePut(q, qd);
     }
     return qd;
 }
 
 /**
- * Add new element to the top of TR-UPD queue
+ * Add new element to the top of Teo queue
  * 
- * @param q Pointer to existing TR-UDP Queue
+ * @param q Pointer to existing Teo Queue
  * @param data Pointer to data of new element
  * @param data_length Length of new element data 
  * 
- * @return Pointer to trudpQueueData of added element
+ * @return Pointer to teoQueueData of added element
  */
-inline trudpQueueData *trudpQueueAddTop(trudpQueue *q, void *data, 
+inline teoQueueData *teoQueueAddTop(teoQueue *q, void *data, 
         size_t data_length) {
     
-    trudpQueueData *qd = trudpQueueAdd(q, data, data_length);
-    return trudpQueueMoveToTop(q, qd);
+    teoQueueData *qd = teoQueueAdd(q, data, data_length);
+    return teoQueueMoveToTop(q, qd);
 }
 
 /**
  * Add new element after selected in qd field
  * 
- * @param q Pointer to existing TR-UDP Queue
+ * @param q Pointer to existing Teo Queue
  * @param data Pointer to data of new element
  * @param data_length Length of new element data 
- * @param qd Pointer to trudpQueueData of existing element
+ * @param qd Pointer to teoQueueData of existing element
  * @return 
  */
-trudpQueueData *trudpQueueAddAfter(trudpQueue *q, void *data, size_t data_length, 
-        trudpQueueData *qd) {
+teoQueueData *teoQueueAddAfter(teoQueue *q, void *data, size_t data_length, 
+        teoQueueData *qd) {
     
-    trudpQueueData *new_qd = NULL;
+    teoQueueData *new_qd = NULL;
             
     if(q) {
         // Add to first position
-        if(!qd) new_qd = trudpQueueAddTop(q, data, data_length);
+        if(!qd) new_qd = teoQueueAddTop(q, data, data_length);
         // Add to last position
-        else if(!q->last || qd == q->last) new_qd = trudpQueueAdd(q, data, data_length);
+        else if(!q->last || qd == q->last) new_qd = teoQueueAdd(q, data, data_length);
         // Add after selected element
         else {
-            // Create new trudpQueueData
-            new_qd = trudpQueueNewData(data, data_length);
+            // Create new teoQueueData
+            new_qd = teoQueueNewData(data, data_length);
 
             // Add inside of queue
             if(new_qd) {
@@ -222,26 +222,26 @@ trudpQueueData *trudpQueueAddAfter(trudpQueue *q, void *data, size_t data_length
 /**
  * Update element: remove selected and set new one to it place
  * 
- * @param q
- * @param data
- * @param data_length
- * @param qd
+ * @param q Pointer to existing Teo Queue
+ * @param data Pointer to data of new element
+ * @param data_length Length of new element data 
+ * @param qd Pointer to teoQueueData of existing element
  * @return 
  */
-trudpQueueData *trudpQueueUpdate(trudpQueue *q, void *data, size_t data_length, 
-        trudpQueueData *qd) {
+teoQueueData *teoQueueUpdate(teoQueue *q, void *data, size_t data_length, 
+        teoQueueData *qd) {
     
-    trudpQueueData *new_qd = NULL;
+    teoQueueData *new_qd = NULL;
     
     if(q && qd) {
         
-//        trudpQueueData *qd_after = qd->prev;
-//        trudpQueueDelete(q, qd);
+//        teoQueueData *qd_after = qd->prev;
+//        teoQueueDelete(q, qd);
 //        if(qd_after)
-//            new_qd = trudpQueueAddAfter(q, data, data_length, qd_after);
+//            new_qd = teoQueueAddAfter(q, data, data_length, qd_after);
 //        else
-//            trudpQueueAddTop(q, data, data_length);
-        new_qd = trudpQueueNewData(data, data_length);
+//            teoQueueAddTop(q, data, data_length);
+        new_qd = teoQueueNewData(data, data_length);
         if(new_qd) {
             new_qd->prev = qd->prev;
             new_qd->next = qd->next;
@@ -252,7 +252,6 @@ trudpQueueData *trudpQueueUpdate(trudpQueue *q, void *data, size_t data_length,
             
             free(qd);
         }
-        
     }
     
     return new_qd;
@@ -261,11 +260,11 @@ trudpQueueData *trudpQueueUpdate(trudpQueue *q, void *data, size_t data_length,
 /**
  * Remove element from queue but not free it
  * 
- * @param q Pointer to trudpQueue
- * @param qd Pointer to trudpQueueData
- * @return Pointer to trudpQueueData
+ * @param q Pointer to teoQueue
+ * @param qd Pointer to teoQueueData
+ * @return Pointer to teoQueueData
  */
-inline trudpQueueData *trudpQueueRemove(trudpQueue *q, trudpQueueData *qd) {
+inline teoQueueData *teoQueueRemove(teoQueue *q, teoQueueData *qd) {
         
     if(q && q->length && qd) {
         
@@ -287,14 +286,14 @@ inline trudpQueueData *trudpQueueRemove(trudpQueue *q, trudpQueueData *qd) {
 /**
  * Delete element from queue and free it
  * 
- * @param q Pointer to trudpQueue
- * @param qd Pointer to trudpQueueData
+ * @param q Pointer to teoQueue
+ * @param qd Pointer to teoQueueData
  * @return Zero at success
  */
-inline int trudpQueueDelete(trudpQueue *q, trudpQueueData *qd) {
+inline int teoQueueDelete(teoQueue *q, teoQueueData *qd) {
        
     if(q && qd) {
-        free(trudpQueueRemove(q, qd));    
+        free(teoQueueRemove(q, qd));    
         return 0;
     }
     else return -1;
@@ -303,36 +302,36 @@ inline int trudpQueueDelete(trudpQueue *q, trudpQueueData *qd) {
 /**
  * Delete first element from queue and free it
  * 
- * @param q Pointer to trudpQueue
+ * @param q Pointer to teoQueue
  * @return Zero at success
  */
-inline int trudpQueueDeleteFirst(trudpQueue *q) {
-    return q && q->first ? trudpQueueDelete(q, q->first) : -1;
+inline int teoQueueDeleteFirst(teoQueue *q) {
+    return q && q->first ? teoQueueDelete(q, q->first) : -1;
 }
 
 /**
  * Delete last element from queue and free it
  * 
- * @param q Pointer to trudpQueue
+ * @param q Pointer to teoQueue
  * @return Zero at success
  */
-inline int trudpQueueDeleteLast(trudpQueue *q) {
-    return q && q->last ? trudpQueueDelete(q, q->last) : -1;
+inline int teoQueueDeleteLast(teoQueue *q) {
+    return q && q->last ? teoQueueDelete(q, q->last) : -1;
 }
 
 /**
  * Move element from this queue to the end of queue
  * 
- * @param q Pointer to trudpQueue
- * @param qd Pointer to trudpQueueData
- * @return Pointer to input trudpQueueData
+ * @param q Pointer to teoQueue
+ * @param qd Pointer to teoQueueData
+ * @return Pointer to input teoQueueData
  */
-trudpQueueData *trudpQueueMoveToEnd(trudpQueue *q, trudpQueueData *qd) {
+teoQueueData *teoQueueMoveToEnd(teoQueue *q, teoQueueData *qd) {
    
     if(q && q->length > 1 && qd && qd->next) {
         
         // Remove element
-        trudpQueueRemove(q, qd);
+        teoQueueRemove(q, qd);
 
         // Add to the end
         q->last->next = qd;
@@ -348,16 +347,16 @@ trudpQueueData *trudpQueueMoveToEnd(trudpQueue *q, trudpQueueData *qd) {
 /**
  * Move element from this queue to the top of queue
  * 
- * @param q Pointer to trudpQueue
- * @param qd Pointer to trudpQueueData
- * @return Pointer to input trudpQueueData
+ * @param q Pointer to teoQueue
+ * @param qd Pointer to teoQueueData
+ * @return Pointer to input teoQueueData
  */
-trudpQueueData *trudpQueueMoveToTop(trudpQueue *q, trudpQueueData *qd) {
+teoQueueData *teoQueueMoveToTop(teoQueue *q, teoQueueData *qd) {
    
     if(q && q->length > 1 && qd && qd->prev) {
 
         // Remove element
-        trudpQueueRemove(q, qd);
+        teoQueueRemove(q, qd);
 
         // Add to the beginning
         q->first->prev = qd;
@@ -371,16 +370,16 @@ trudpQueueData *trudpQueueMoveToTop(trudpQueue *q, trudpQueueData *qd) {
 }
 
 /**
- * Create new TR-UPD Queue iterator
+ * Create new Teo Queue iterator
  * 
- * @param q Pointer to trudpQueue
+ * @param q Pointer to teoQueue
  * @return 
  */
-trudpQueueIterator *trudpQueueIteratorNew(trudpQueue *q) {
+teoQueueIterator *teoQueueIteratorNew(teoQueue *q) {
     
-    trudpQueueIterator *it = NULL;
+    teoQueueIterator *it = NULL;
     if(q) {
-        it = (trudpQueueIterator *) malloc(sizeof(trudpQueueIterator));
+        it = (teoQueueIterator *) malloc(sizeof(teoQueueIterator));
         it->qd = NULL;
         it->q = q;
     }
@@ -391,14 +390,14 @@ trudpQueueIterator *trudpQueueIteratorNew(trudpQueue *q) {
 /**
  * Reset iterator (or swith to new Queue)
  * 
- * @param it
- * @param q Pointer to trudpQueue
- * @return 
+ * @param it Pointer to teoQueueIterator
+ * @param q Pointer to teoQueue to switch to or NULL to reset current queue
+ * @return Pointer to input teoQueueIterator
  */
-trudpQueueIterator *trudpQueueIteratorReset(trudpQueueIterator *it, trudpQueue *q) {
+teoQueueIterator *teoQueueIteratorReset(teoQueueIterator *it, teoQueue *q) {
     
+    it->qd = NULL;
     if(q) {
-        it->qd = NULL;
         it->q = q;
     }
     
@@ -406,13 +405,13 @@ trudpQueueIterator *trudpQueueIteratorReset(trudpQueueIterator *it, trudpQueue *
 }
 
 /**
- * Get next element from TR-UPD Queue iterator
+ * Get next element from Teo Queue iterator
  * 
- * @param it Pointer to trudpQueueIterator
+ * @param it Pointer to teoQueueIterator
  * 
- * @return Pointer to the trudpQueueData or NULL if not exists
+ * @return Pointer to the teoQueueData or NULL if not exists
  */
-trudpQueueData *trudpQueueIteratorNext(trudpQueueIterator *it) {
+teoQueueData *teoQueueIteratorNext(teoQueueIterator *it) {
     
     if(!it) return NULL;
     
@@ -423,13 +422,13 @@ trudpQueueData *trudpQueueIteratorNext(trudpQueueIterator *it) {
 }
 
 /**
- * Get prev element from TR-UPD Queue iterator
+ * Get previous element from Teo Queue iterator
  * 
- * @param it Pointer to trudpQueueIterator
+ * @param it Pointer to teoQueueIterator
  * 
- * @return Pointer to the trudpQueueData or NULL if not exists
+ * @return Pointer to the teoQueueData or NULL if not exists
  */
-trudpQueueData *trudpQueueIteratorPrev(trudpQueueIterator *it) {
+teoQueueData *teoQueueIteratorPrev(teoQueueIterator *it) {
     
     if(!it) return NULL;
     
@@ -440,23 +439,23 @@ trudpQueueData *trudpQueueIteratorPrev(trudpQueueIterator *it) {
 }
 
 /**
- * Get current TR-UPD Queue iterator element
- * @param it Pointer to trudpQueueIterator
+ * Get current Teo Queue iterator element
+ * @param it Pointer to teoQueueIterator
  * 
- * @return Pointer to the trudpQueueData or NULL if not exists
+ * @return Pointer to the teoQueueData or NULL if not exists
  */
-inline trudpQueueData *trudpQueueIteratorElement(trudpQueueIterator *it) {
+inline teoQueueData *teoQueueIteratorElement(teoQueueIterator *it) {
     
     return it ? it->qd : NULL;
 }
 
 /**
- * Free TR-UPD Queue iterator
+ * Free (destroy) Teo Queue iterator
  * 
- * @param it Pointer to trudpQueueIterator
+ * @param it Pointer to teoQueueIterator
  * @return Zero at success
  */
-int trudpQueueIteratorFree(trudpQueueIterator *it) {
+int teoQueueIteratorFree(teoQueueIterator *it) {
     
     if(it) free(it);
     return 0;
@@ -465,23 +464,22 @@ int trudpQueueIteratorFree(trudpQueueIterator *it) {
 /**
  * Loop through queue and call callback function with index and data in parameters
  * 
- * @param q Pointer to trudpQueue
- * @param callback Pointer to callback function trudpQueueForeachFunction
+ * @param q Pointer to teoQueue
+ * @param callback Pointer to callback function teoQueueForeachFunction
  * 
  * @return Number of elements processed
  */
-int trudpQueueForeach(trudpQueue *q, trudpQueueForeachFunction callback, 
+int teoQueueForeach(teoQueue *q, teoQueueForeachFunction callback, 
         void *user_data) {
     
     int i = 0;
-    trudpQueueIterator *it = trudpQueueIteratorNew(q);
+    teoQueueIterator *it = teoQueueIteratorNew(q);
     if(it != NULL) {
         
-        while(trudpQueueIteratorNext(it)) {
-            
-            if(callback(q, i, trudpQueueIteratorElement(it), user_data)) break;
+        while(teoQueueIteratorNext(it)) {            
+            if(callback(q, i++, teoQueueIteratorElement(it), user_data)) break;
         }
-        trudpQueueIteratorFree(it);
+        teoQueueIteratorFree(it);
     }
     
     return i;

@@ -66,7 +66,7 @@ trudpReceiveQueue *trudpReceiveQueueNew() {
 static inline 
 void trudpReceiveQueueDestroy(trudpReceiveQueue *rq) {
     if(rq) {
-        trudpQueueDestroy(rq->q);
+        teoQueueDestroy(rq->q);
         free(rq);
     }
 }

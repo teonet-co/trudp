@@ -76,7 +76,7 @@ static void _trudpSendQueueCbProcess(EV_P_ ev_timer *w, int revents) {
 void trudpSendQueueCbStart(trudpProcessSendQueueData *psd,
         uint64_t next_expected_time) {
 
-    uint64_t tt, next_et = UINT64_MAX, ts = trudpGetTimestampFull();
+    uint64_t tt, next_et = UINT64_MAX, ts = teoGetTimestampFull();
 
     // If next_expected_time selected (non nil)
     if(next_expected_time) {        

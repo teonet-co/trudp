@@ -98,7 +98,7 @@ typedef struct scene {
     char *matrix;    
     int width;
     int height;
-    trudpQueue *snakes;
+    teoQueue *snakes;
     
 } scene;
 
@@ -189,7 +189,7 @@ static void show_scene(scene *sc, int width, int height, char*matrix,
         int *out_x, int *out_y) {
     
     if(!sc->initialized) {
-        sc->snakes = trudpQueueNew();
+        sc->snakes = teoQueueNew();
         sc->width = width;
         sc->height = height;
         sc->matrix = matrix;
@@ -284,7 +284,7 @@ typedef struct snake {
 
     void *s_matrix;
 
-    trudpQueue *body; ///< Snake body queue
+    teoQueue *body; ///< Snake body queue
 
     #if !defined(_WIN32) && !defined(_WIN64)
     struct termios oldt;
@@ -307,17 +307,17 @@ static int check_snake(snake *sn, int x, int y) {
     
     if(sn->x == x && sn->y == y) rv = 0;
     else {
-        trudpQueueIterator *it = trudpQueueIteratorNew(sn->body);
+        teoQueueIterator *it = teoQueueIteratorNew(sn->body);
         if(it != NULL) {
-            while(trudpQueueIteratorNext(it)) {
+            while(teoQueueIteratorNext(it)) {
                 snake_body_data *
-                b = (snake_body_data *)trudpQueueIteratorElement(it)->data;
+                b = (snake_body_data *)teoQueueIteratorElement(it)->data;
                 if(b->x == x && b->y == y) { 
                     rv = 0; 
                     break; 
                 }
             }
-            trudpQueueIteratorFree(it);
+            teoQueueIteratorFree(it);
         }
     }    
     
@@ -351,10 +351,10 @@ static int can_move_snake(scene *sc, snake *sn, int x, int y) {
     
     // Check other snakes
     if(rv) {
-        trudpQueueIterator *it = trudpQueueIteratorNew(sc->snakes);
+        teoQueueIterator *it = teoQueueIteratorNew(sc->snakes);
         if(it != NULL) {
-            while(trudpQueueIteratorNext(it)) {
-                snake **sn_ptr = (snake **)trudpQueueIteratorElement(it)->data;
+            while(teoQueueIteratorNext(it)) {
+                snake **sn_ptr = (snake **)teoQueueIteratorElement(it)->data;
                 snake *s = *sn_ptr;
                 if(s != sn) {
                     if(!check_snake(s, x, y)) { 
@@ -363,7 +363,7 @@ static int can_move_snake(scene *sc, snake *sn, int x, int y) {
                     }
                 }
             }
-            trudpQueueIteratorFree(it);
+            teoQueueIteratorFree(it);
         }
     }
     
@@ -405,7 +405,7 @@ static void increment_snake(snake *sn, int x, int y) {
     body.x = x;
     body.y = y;            
     body.color = _ANSI_NONE;
-    trudpQueueAddTop(sn->body, (void*)&body, sizeof(snake_body_data));
+    teoQueueAddTop(sn->body, (void*)&body, sizeof(snake_body_data));
     ((snake_body_data*)sn->body->last->data)->color = _ANSI_GREEN;
 }
 
@@ -418,14 +418,14 @@ static void increment_snake(snake *sn, int x, int y) {
 static void printf_snake(scene *sc, snake *sn) {
 
     // Print body
-    trudpQueueIterator *it = trudpQueueIteratorNew(sn->body);
+    teoQueueIterator *it = teoQueueIteratorNew(sn->body);
     if(it != NULL) {
-        while(trudpQueueIteratorNext(it)) {
-            snake_body_data *b = (snake_body_data *)trudpQueueIteratorElement(it)->data;
+        while(teoQueueIteratorNext(it)) {
+            snake_body_data *b = (snake_body_data *)teoQueueIteratorElement(it)->data;
             gotoxy(sn->scene_left + b->x, sn->scene_top + b->y);
             printf("%s" SHAKE_BODY _ANSI_NONE,b->color);
         }
-        trudpQueueIteratorFree(it);
+        teoQueueIteratorFree(it);
     }
     // Print head
     gotoxy(sn->scene_left + sn->x, sn->scene_top + sn->y);
@@ -460,7 +460,7 @@ static void printf_snake(scene *sc, snake *sn) {
     if(sn->random_direction && 
        sn->auto_change_direction && 
        direction == sn->direction &&
-       trudpGetTimestampFull() - sn->last_key_pressed > 10000000 &&
+       teoGetTimestampFull() - sn->last_key_pressed > 10000000 &&
        sn->tic && !(sn->tic % 10) 
             ) {
         
@@ -480,16 +480,16 @@ static void printf_snake(scene *sc, snake *sn) {
         if(do_can_eat || (sn->auto_increment && sn->tic && !(sn->tic % sn->auto_increment))) {
             increment_snake(sn, x, y);
         }
-        else if(trudpQueueSize(sn->body)) {
+        else if(teoQueueSize(sn->body)) {
             ((snake_body_data *)sn->body->last->data)->x = x;
             ((snake_body_data *)sn->body->last->data)->y = y;
             ((snake_body_data *)sn->body->last->data)->color = _ANSI_NONE;
-            trudpQueueMoveToTop(sn->body, sn->body->last);
+            teoQueueMoveToTop(sn->body, sn->body->last);
         }
     }
     // Remove one body element from end
     else {
-        trudpQueueDeleteLast(sn->body);
+        teoQueueDeleteLast(sn->body);
     }
 }
 
@@ -552,7 +552,7 @@ void show_snake(scene *sc, snake *sn, int start_x, int start_y, int scene_left,
     
     if(!sn->initialized) {
         
-        uint64_t ts = trudpGetTimestampFull();
+        uint64_t ts = teoGetTimestampFull();
 
         sn->tic = 0;
         sn->head_char = snake_head_char;
@@ -570,7 +570,7 @@ void show_snake(scene *sc, snake *sn, int start_x, int start_y, int scene_left,
 
         sn->initialized = 1;
 
-        sn->body = trudpQueueNew();
+        sn->body = teoQueueNew();
 
         int i;
         const size_t START_BODY_LENGS = 9;
@@ -579,10 +579,10 @@ void show_snake(scene *sc, snake *sn, int start_x, int start_y, int scene_left,
             body.x = start_x - i -1;
             body.y = start_y;
             body.color = _ANSI_NONE;
-            trudpQueueAdd(sn->body, (void*)&body, sizeof(snake_body_data));
+            teoQueueAdd(sn->body, (void*)&body, sizeof(snake_body_data));
         }
 
-        trudpQueueAdd(sc->snakes, (void*)&sn, sizeof(snake *));
+        teoQueueAdd(sc->snakes, (void*)&sn, sizeof(snake *));
     }
     else sn->tic++;
 
@@ -616,7 +616,7 @@ static int check_key_snake(snake *sn) {
             case 'q': case 's': rv = 0; break;
             default: break;
         }
-        sn->last_key_pressed = trudpGetTimestampFull(); 
+        sn->last_key_pressed = teoGetTimestampFull(); 
     }
 
     return rv;
@@ -629,7 +629,7 @@ static int check_key_snake(snake *sn) {
  */
 int run_snake() {
 
-    srand(trudpGetTimestampFull());
+    srand(teoGetTimestampFull());
 
     static scene sc;
     static snake sn[4];

@@ -57,7 +57,7 @@ trudpPacketQueueData *trudpPacketQueueAdd(trudpPacketQueue *tq, void *packet,
     // Add
     size_t tqd_length = sizeof(trudpPacketQueueData) + packet_length;
     trudpPacketQueueData *tqd = (trudpPacketQueueData *)
-            ((trudpQueueData *)trudpQueueAdd(tq->q, NULL, tqd_length))->data;
+            ((teoQueueData *)teoQueueAdd(tq->q, NULL, tqd_length))->data;
     
     // Fill data
     memcpy(tqd->packet, packet, packet_length);
@@ -81,20 +81,20 @@ trudpPacketQueueData *trudpPacketQueueFindById(trudpPacketQueue *tq,
 
     trudpPacketQueueData *rv = NULL;
 
-    trudpQueueIterator *it = trudpQueueIteratorNew(tq->q);
+    teoQueueIterator *it = teoQueueIteratorNew(tq->q);
     if(it != NULL) {
 
-        while(trudpQueueIteratorNext(it)) {
+        while(teoQueueIteratorNext(it)) {
 
             trudpPacketQueueData *tqd = (trudpPacketQueueData *)
-                    ((trudpQueueData *)trudpQueueIteratorElement(it))->data;
+                    ((teoQueueData *)teoQueueIteratorElement(it))->data;
 
             if(trudpPacketGetId(tqd->packet) == id) {
                 rv = tqd;
                 break;
             }
         }
-        trudpQueueIteratorFree(it);
+        teoQueueIteratorFree(it);
     }
 
     return rv;
@@ -111,13 +111,13 @@ trudpPacketQueueData *trudpPacketQueueGetFirst(trudpPacketQueue *tq) {
 
     trudpPacketQueueData *tqd = NULL;
 
-    trudpQueueIterator *it = trudpQueueIteratorNew(tq->q);
+    teoQueueIterator *it = teoQueueIteratorNew(tq->q);
     if(it != NULL) {
-        if(trudpQueueIteratorNext(it)) {
+        if(teoQueueIteratorNext(it)) {
             tqd = (trudpPacketQueueData *)
-                    ((trudpQueueData *)trudpQueueIteratorElement(it))->data;
+                    ((teoQueueData *)teoQueueIteratorElement(it))->data;
         }
-        trudpQueueIteratorFree(it);
+        teoQueueIteratorFree(it);
     }
 
     return tqd;
@@ -138,20 +138,20 @@ trudpPacketQueueData *trudpPacketQueueFindByTime(trudpPacketQueue *tq,
 
     trudpPacketQueueData *rv = NULL;
 
-    trudpQueueIterator *it = trudpQueueIteratorNew(tq->q);
+    teoQueueIterator *it = teoQueueIteratorNew(tq->q);
     if(it != NULL) {
 
-        while(trudpQueueIteratorNext(it)) {
+        while(teoQueueIteratorNext(it)) {
 
             trudpPacketQueueData *tqd = (trudpPacketQueueData *)
-                    ((trudpQueueData *)trudpQueueIteratorElement(it))->data;
+                    ((teoQueueData *)teoQueueIteratorElement(it))->data;
             
             if(tqd->expected_time <= t) {
                 rv = tqd;
                 break;
             }
         }
-        trudpQueueIteratorFree(it);
+        teoQueueIteratorFree(it);
     }
 
     return rv;
@@ -179,7 +179,7 @@ static trudpPacketQueueData *_trudpPacketQueueAddTime(trudpPacketQueue *tq,
             // Add after
             size_t tqd_length = sizeof(trudpPacketQueueData) + packet_length;
             trudpPacketQueueData *tqd = (trudpPacketQueueData *)
-                ((trudpQueueData *)trudpQueueAddAfter(tq->q, NULL, tqd_length,
+                ((teoQueueData *)teoQueueAddAfter(tq->q, NULL, tqd_length,
                     _trudpPacketQueueDataToQueueData(tpqd)))->data;
             
             // Fill data

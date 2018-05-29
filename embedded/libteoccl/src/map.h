@@ -33,7 +33,6 @@
 #include <stdint.h>
 
 #include "queue.h"
-#include "trudp_api.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,77 +41,78 @@ extern "C" {
 #define HASH_TABLE_SIZE 100
 #define HASH_TABLE_INITVAL 77557755
     
-typedef struct trudpMapData {
+typedef struct teoMapData {
     
     size_t length;
-    trudpQueue **q;
+    teoQueue **q;
     int auto_resize_f;
     uint32_t collisions;
     size_t hash_map_size;
     
-} trudpMapData;    
+} teoMapData;    
 
-typedef struct trudpMapElementData {
+typedef struct teoMapElementData {
     
     uint32_t hash;
     size_t key_length;
     size_t data_length;
     char data[]; // Key + Data
     
-} trudpMapElementData;
+} teoMapElementData;
 
-typedef struct trudpMapIterator {
+typedef struct teoMapIterator {
     
     uint32_t idx;
-    trudpMapData *map;
-    trudpQueueIterator *it;
-    trudpMapElementData *tmv;
+    teoMapData *map;
+    teoQueueIterator *it;
+    teoMapElementData *tmv;
     
-} trudpMapIterator;
+} teoMapIterator;
 
-TRUDP_API void *trudpMapGetFirst(trudpMapData *map, size_t *data_length); 
+//TRUDP_API 
+void *teoMapGetFirst(teoMapData *map, size_t *data_length); 
 /**
  * Get number of elements in TR-UPD map
  *
- * @param map Pointer to trudpMapData
+ * @param map Pointer to teoMapData
  * @return Number of elements in TR-UPD map
  */
 //TRUDP_API
 static inline 
-size_t trudpMapSize(trudpMapData *map) {
+size_t teoMapSize(teoMapData *map) {
     return map ? map->length : -1;
 }
 
-trudpMapData *trudpMapNew(size_t size, int auto_resize_f);
-void trudpMapDestroy(trudpMapData *map);
-void *trudpMapAdd(trudpMapData *map, void *key, size_t key_length, void *data, 
+teoMapData *teoMapNew(size_t size, int auto_resize_f);
+void teoMapDestroy(teoMapData *map);
+void *teoMapAdd(teoMapData *map, void *key, size_t key_length, void *data, 
   size_t data_length);
-void *trudpMapGet(trudpMapData *map, void *key, size_t key_length, 
+void *teoMapGet(teoMapData *map, void *key, size_t key_length, 
   size_t *data_length);
-int trudpMapDelete(trudpMapData *map, void *key, size_t key_length);
+int teoMapDelete(teoMapData *map, void *key, size_t key_length);
 
-trudpMapIterator *trudpMapIteratorNew(trudpMapData *map);
-int trudpMapIteratorDestroy(trudpMapIterator *map_it);
-trudpMapElementData *trudpMapIteratorNext(trudpMapIterator *map_it);
+teoMapIterator *teoMapIteratorNew(teoMapData *map);
+int teoMapIteratorDestroy(teoMapIterator *map_it);
+teoMapElementData *teoMapIteratorNext(teoMapIterator *map_it);
 /**
  * Get element selected last map net or map previous iterator function
  * 
- * @param map_it Pointer to trudpMapIterator
- * @return Pointer to map element data trudpMapValueData
+ * @param map_it Pointer to teoMapIterator
+ * @return Pointer to map element data teoMapValueData
  */
 static inline 
-trudpMapElementData *trudpMapIteratorElement(trudpMapIterator *map_it) {
+teoMapElementData *teoMapIteratorElement(teoMapIterator *map_it) {
     return map_it ? map_it->tmv : NULL;
 }
 /**
  * Get key from map element data
  * 
- * @param el Pointer to trudpMapElementData
+ * @param el Pointer to teoMapElementData
  * @param key_length [out] Key length
  * @return Pointer to key
  */
 static inline 
-void *trudpMapIteratorElementKey(trudpMapElementData *el, 
+void *teoMapIteratorElementKey(teoMapElementData *el, 
         size_t *key_length) {
     if(key_length) *key_length = el->key_length;
     return el->data;
@@ -120,12 +120,12 @@ void *trudpMapIteratorElementKey(trudpMapElementData *el,
 /**
  * Get data from map element data
  * 
- * @param el Pointer to trudpMapElementData
+ * @param el Pointer to teoMapElementData
  * @param data_length [out] Data length
  * @return Pointer to data
  */
 static inline 
-void *trudpMapIteratorElementData(trudpMapElementData *el, 
+void *teoMapIteratorElementData(teoMapElementData *el, 
         size_t *data_length) {
     if(data_length) *data_length = el->data_length;
     return el->data + el->key_length;

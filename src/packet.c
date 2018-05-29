@@ -156,7 +156,7 @@ static inline int _trudpHeaderChecksumCheck(trudpHeader *th) {
  *
  * @return
  */
-inline uint64_t trudpGetTimestampFull() {
+inline uint64_t teoGetTimestampFull() {
 
 // C11 present
 #if __STDC_VERSION__ >= 201112L
@@ -192,7 +192,7 @@ inline uint64_t trudpGetTimestampFull() {
  * @return
  */
 inline uint32_t trudpGetTimestamp() {
-    return (uint32_t) (trudpGetTimestampFull() & 0xFFFFFFFF);
+    return (uint32_t) (teoGetTimestampFull() & 0xFFFFFFFF);
 }
 
 /**

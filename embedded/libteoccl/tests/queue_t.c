@@ -1,5 +1,5 @@
 /*
- * File:   queue.c
+ * File:   queue_t.c
  * Author: Kirill Scherba <kirill@scherba.ru>
  *
  * Created on May 30, 2016, 11:53:18 AM
@@ -12,36 +12,26 @@
 
 #include "queue.h"
 
-/*
- * CUnit Test Suite
- */
+int init_suite(void);
+int clean_suite(void);
 
-int init_suite(void) {
-    return 0;
-}
-
-int clean_suite(void) {
-    return 0;
-}
-
-//#include "header_t.c"
 
 /**
- * Create/destroy TR-UDP queue test
+ * Create/destroy Teo queue test
  */
 void queue_create_test() {
 
     // Create new queue
-    trudpQueue *q = trudpQueueNew();
+    teoQueue *q = teoQueueNew();
     CU_ASSERT_PTR_NOT_NULL_FATAL(q);
 
     // Destroy queue
-    int rv = trudpQueueDestroy(q);
+    int rv = teoQueueDestroy(q);
     CU_ASSERT(!rv);
 }
 
 /**
- * Add elements to TR-UDP queue test
+ * Add elements to Teo queue test
  */
 void add_elements_to_queue() {
     
@@ -49,11 +39,11 @@ void add_elements_to_queue() {
     #define NO_MESSAGES 1
     
     // Create new queue
-    trudpQueue *q = trudpQueueNew();
+    teoQueue *q = teoQueueNew();
     CU_ASSERT_PTR_NOT_NULL_FATAL(q);
     
     int i;
-    trudpQueueData *qd, *qd2;
+    teoQueueData *qd, *qd2;
     size_t data_length;
     const size_t num_elements = 3;
     const char *data_format = "Hello-%u!";
@@ -69,7 +59,7 @@ void add_elements_to_queue() {
         //char *data = "Hello-1!";
         snprintf(data[i], data_buf_length, data_format, i+1);
         data_length = strlen(data[i]) + 1;
-        qd = trudpQueueAdd(q, (void*)data[i], data_length);
+        qd = teoQueueAdd(q, (void*)data[i], data_length);
         #if !NO_MESSAGES
         printf("      data_length: %u, pointer: %p, data: %s\n", 
                 (unsigned long)data_length, data[i], data[i]);
@@ -84,7 +74,7 @@ void add_elements_to_queue() {
         CU_ASSERT_PTR_NOT_NULL_FATAL(qd);
         CU_ASSERT_STRING_EQUAL_FATAL(data[i], qd->data);
         CU_ASSERT_EQUAL_FATAL(data_length, qd->data_length);
-        CU_ASSERT_EQUAL_FATAL(trudpQueueSize(q), i+1);
+        CU_ASSERT_EQUAL_FATAL(teoQueueSize(q), i+1);
     }
     
     // Loop through all queue elements
@@ -107,7 +97,7 @@ void add_elements_to_queue() {
     // Move first element to the end of queue
     qd = q->first;
     qd2 = qd->next;
-    trudpQueueMoveToEnd(q, qd);
+    teoQueueMoveToEnd(q, qd);
     CU_ASSERT(q->last == qd);
     CU_ASSERT(q->last->next == NULL);
     CU_ASSERT(q->first == qd2);
@@ -117,7 +107,7 @@ void add_elements_to_queue() {
     // Move last element to the top of queue
     qd = q->last;
     qd2 = qd->prev;
-    trudpQueueMoveToTop(q, qd);
+    teoQueueMoveToTop(q, qd);
     CU_ASSERT(q->last == qd2);
     CU_ASSERT(q->last->next == NULL);
     CU_ASSERT(q->first == qd);
@@ -126,39 +116,39 @@ void add_elements_to_queue() {
     
     // Update first element
     char *tst_str = "12345";
-    trudpQueueUpdate(q, tst_str, 6, q->first);
+    teoQueueUpdate(q, tst_str, 6, q->first);
     CU_ASSERT_STRING_EQUAL(q->first->data, tst_str);
     // Update second element
-    trudpQueueUpdate(q, tst_str, 6, q->first->next);
+    teoQueueUpdate(q, tst_str, 6, q->first->next);
     CU_ASSERT_STRING_EQUAL(q->first->next->data, tst_str);
     // Update last-1 element
-    trudpQueueUpdate(q, tst_str, 6, q->last->prev);
+    teoQueueUpdate(q, tst_str, 6, q->last->prev);
     CU_ASSERT_STRING_EQUAL(q->last->prev->data, tst_str);
     // Update last element
-    trudpQueueUpdate(q, tst_str, 6, q->last);
+    teoQueueUpdate(q, tst_str, 6, q->last);
     CU_ASSERT_STRING_EQUAL(q->last->data, tst_str);
     
     // Delete first
     qd = q->first->next;
-    trudpQueueDeleteFirst(q);
+    teoQueueDeleteFirst(q);
     CU_ASSERT(q->length == num_elements-1);
     CU_ASSERT(q->first->prev == NULL);
     CU_ASSERT(qd == q->first);
     
     // Delete last
     qd = q->last->prev;
-    trudpQueueDeleteLast(q);
+    teoQueueDeleteLast(q);
     CU_ASSERT(q->length == num_elements-2);
     CU_ASSERT(q->last->next == NULL);
     CU_ASSERT(qd == q->last);
     
     // Delete all by deleting first
-    while(!trudpQueueDeleteFirst(q));
+    while(!teoQueueDeleteFirst(q));
     CU_ASSERT(!q->length);
     CU_ASSERT(!q->first && !q->last);
     
     // Destroy queue
-    int rv = trudpQueueDestroy(q);
+    int rv = teoQueueDestroy(q);
     CU_ASSERT(!rv);    
 }
 
@@ -171,11 +161,11 @@ void check_queue_iterator() {
     #define NO_MESSAGES 1
     
     // Create new queue
-    trudpQueue *q = trudpQueueNew();
+    teoQueue *q = teoQueueNew();
     CU_ASSERT_PTR_NOT_NULL_FATAL(q);
     
     int i;
-    trudpQueueData *qd;
+    teoQueueData *qd;
     size_t data_length;
     const size_t num = 3;
     const char *data_format = "Hello-%u!";
@@ -191,7 +181,7 @@ void check_queue_iterator() {
         //char *data = "Hello-1!";
         snprintf(data[i], data_buf_length, data_format, i+1);
         data_length = strlen(data[i]) + 1;
-        qd = trudpQueueAdd(q, (void*)data[i], data_length);
+        qd = teoQueueAdd(q, (void*)data[i], data_length);
         #if !NO_MESSAGES
         printf("      data_length: %u, pointer: %p, data: %s\n", 
                 (unsigned long)data_length, data[i], data[i]);
@@ -199,7 +189,7 @@ void check_queue_iterator() {
         CU_ASSERT_PTR_NOT_NULL_FATAL(qd);
         CU_ASSERT_STRING_EQUAL_FATAL(data[i], qd->data);
         CU_ASSERT_EQUAL_FATAL(data_length, qd->data_length);
-        CU_ASSERT_EQUAL_FATAL(trudpQueueSize(q), i+1);
+        CU_ASSERT_EQUAL_FATAL(teoQueueSize(q), i+1);
     }
 
     // Retrieve elements from Queue using iterator
@@ -208,27 +198,27 @@ void check_queue_iterator() {
     #endif
 
     i = 0;
-    trudpQueueIterator *it = trudpQueueIteratorNew(q);
+    teoQueueIterator *it = teoQueueIteratorNew(q);
     if(it != NULL) {
         
-        while(trudpQueueIteratorNext(it)) {
+        while(teoQueueIteratorNext(it)) {
             
-            qd = trudpQueueIteratorElement(it);
+            qd = teoQueueIteratorElement(it);
             #if !NO_MESSAGES
             printf("      qd->data: \"%s\", data[i]: \"%s\"\n", qd->data, data[i]);
             #endif
             CU_ASSERT_STRING_EQUAL_FATAL(qd->data, data[i++]);            
         }
-        trudpQueueIteratorFree(it);
+        teoQueueIteratorFree(it);
     }
 
     // Destroy queue
-    int rv = trudpQueueDestroy(q);
+    int rv = teoQueueDestroy(q);
     CU_ASSERT(!rv);    
 }
 
 /**
- * Delete elements from TR-UDP Queue
+ * Delete elements from Teo Queue
  */
 void delete_elements_from_queue() {
     
@@ -236,11 +226,11 @@ void delete_elements_from_queue() {
     #define NO_MESSAGES 1
     
     // Create new queue
-    trudpQueue *q = trudpQueueNew();
+    teoQueue *q = teoQueueNew();
     CU_ASSERT_PTR_NOT_NULL_FATAL(q);
     
     int i;
-    trudpQueueData *qd;
+    teoQueueData *qd;
     size_t data_length;
     const size_t num = 8;
     const char *data_format = "Hello-%u!";
@@ -256,7 +246,7 @@ void delete_elements_from_queue() {
         //char *data = "Hello-1!";
         snprintf(data[i], data_buf_length, data_format, i+1);
         data_length = strlen(data[i]) + 1;
-        qd = trudpQueueAdd(q, (void*)data[i], data_length);
+        qd = teoQueueAdd(q, (void*)data[i], data_length);
         #if !NO_MESSAGES
         printf("      data_length: %u, pointer: %p, data: %s\n", 
                 (unsigned long)data_length, data[i], data[i]);
@@ -264,7 +254,7 @@ void delete_elements_from_queue() {
         CU_ASSERT_PTR_NOT_NULL_FATAL(qd);
         CU_ASSERT_STRING_EQUAL_FATAL(data[i], qd->data);
         CU_ASSERT_EQUAL_FATAL(data_length, qd->data_length);
-        CU_ASSERT_EQUAL_FATAL(trudpQueueSize(q), i+1);
+        CU_ASSERT_EQUAL_FATAL(teoQueueSize(q), i+1);
     }
     
     // Delete elements from queue
@@ -274,25 +264,25 @@ void delete_elements_from_queue() {
     #endif
     i = 0;
     size_t newNum, deletedNum = 0;
-    trudpQueueIterator *it = trudpQueueIteratorNew(q);
+    teoQueueIterator *it = teoQueueIteratorNew(q);
     if(it != NULL) {
         
-        while(trudpQueueIteratorNext(it)) {
+        while(teoQueueIteratorNext(it)) {
             
             if(i%2) {
-                qd = trudpQueueIteratorElement(it);
-                //trudpQueueIteratorNext(it);
+                qd = teoQueueIteratorElement(it);
+                //teoQueueIteratorNext(it);
                 #if !NO_MESSAGES
                 printf("      delete qd->data: \"%s\"\n", qd->data);
                 #endif
                 deletedNum++;
-                trudpQueueDelete(q, qd);
+                teoQueueDelete(q, qd);
             }
             i++;
         }
-        trudpQueueIteratorFree(it);
+        teoQueueIteratorFree(it);
     }
-    newNum = trudpQueueSize(q);
+    newNum = teoQueueSize(q);
     #if !NO_MESSAGES
     printf("      %u elements deleted from queue\n", (unsigned long)deletedNum);
     printf("      new number of elements: %u\n", (unsigned long)newNum);
@@ -303,30 +293,30 @@ void delete_elements_from_queue() {
     #if !NO_MESSAGES
     printf("    Retrieve elements from Queue:\n");
     #endif
-    it = trudpQueueIteratorNew(q);
+    it = teoQueueIteratorNew(q);
     if(it != NULL) {
         
-        while(trudpQueueIteratorNext(it)) {
+        while(teoQueueIteratorNext(it)) {
             
-            qd = trudpQueueIteratorElement(it);
+            qd = teoQueueIteratorElement(it);
             #if !NO_MESSAGES
             printf("      qd->data: \"%s\"\n", qd->data);
             #endif
         }
-        trudpQueueIteratorFree(it);
+        teoQueueIteratorFree(it);
     }
 
     // Destroy queue
-    int rv = trudpQueueDestroy(q);
+    int rv = teoQueueDestroy(q);
     CU_ASSERT(!rv);    
 }
 
-int packetSuiteAdd();
-int timedQueueSuiteAdd();
-int trUdpSuiteAdd();
-int hashSuiteAdd();
-
-int main() {
+/**
+ * Queue suite add
+ * 
+ * @return 
+ */
+int queueSuiteAdd() {
     
     CU_pSuite pSuite = NULL;
 
@@ -335,7 +325,7 @@ int main() {
         return CU_get_error();
 
     /* Add a suite to the registry */
-    pSuite = CU_add_suite("TR-UDP queue", init_suite, clean_suite);
+    pSuite = CU_add_suite("Teo queue", init_suite, clean_suite);
     if (NULL == pSuite) {
         CU_cleanup_registry();
         return CU_get_error();
@@ -351,14 +341,5 @@ int main() {
         return CU_get_error();
     }
     
-    packetSuiteAdd();
-    timedQueueSuiteAdd();
-    trUdpSuiteAdd();
-    hashSuiteAdd();
-
-    /* Run all tests using the CUnit Basic interface */
-    CU_basic_set_mode(CU_BRM_VERBOSE);
-    CU_basic_run_tests();
-    CU_cleanup_registry();
-    return CU_get_error();
+    return 0;
 }
