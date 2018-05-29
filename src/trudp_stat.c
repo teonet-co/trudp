@@ -161,7 +161,7 @@ void *trudpStatGet(trudpData *td, int type, size_t *stat_len) {
      // Binary output type
     if(!type) {
 
-        uint32_t cs_num = trudpMapSize(td->map);
+        uint32_t cs_num = teoMapSize(td->map);
         size_t ts_len = sizeof(trudpStat) + cs_num * sizeof(trudpStatChannelData);
 
         trudpStat *ts = (trudpStat *)malloc(ts_len);
@@ -171,15 +171,15 @@ void *trudpStatGet(trudpData *td, int type, size_t *stat_len) {
             ts->cs_num = cs_num;
             if(cs_num) {
 
-                trudpMapIterator *it = trudpMapIteratorNew(td->map);
+                teoMapIterator *it = teoMapIteratorNew(td->map);
                 if(it != NULL) {
                     int i = 0;
-                    while(trudpMapIteratorNext(it)) {
-                        trudpMapElementData *el = trudpMapIteratorElement(it);
+                    while(teoMapIteratorNext(it)) {
+                        teoMapElementData *el = teoMapIteratorElement(it);
                         trudpChannelData *tcd = (trudpChannelData *)
-                                    trudpMapIteratorElementData(el, NULL);
+                                    teoMapIteratorElementData(el, NULL);
                         size_t key_length;
-                        void *key = trudpMapIteratorElementKey(el, &key_length);
+                        void *key = teoMapIteratorElementKey(el, &key_length);
                         // Common statistic
                         ts->packets_send += tcd->stat.packets_send;
                         ts->ack_receive += tcd->stat.ack_receive;
@@ -194,7 +194,7 @@ void *trudpStatGet(trudpData *td, int type, size_t *stat_len) {
                         ts->cs[i].rq = trudpReceiveQueueSize(tcd->receiveQueue);
                         i++;
                     }
-                    trudpMapIteratorDestroy(it);
+                    teoMapIteratorDestroy(it);
                 }
             }
 
@@ -367,16 +367,16 @@ char *ksnTRUDPstatShowStr(trudpData *td, int page) {
     int i = 0;
     char *tbl_str = strdup(""), *tbl_total = strdup("");
     trudpStatChannelData totalStat;
-    trudpMapIterator *it = trudpMapIteratorNew(td->map);
+    teoMapIterator *it = teoMapIteratorNew(td->map);
     if(it != NULL) {        
         memset(&totalStat, 0, sizeof(totalStat));
-        while(trudpMapIteratorNext(it)) {
+        while(teoMapIteratorNext(it)) {
 
             size_t key_len;
-            trudpMapElementData *el = trudpMapIteratorElement(it);
-            char *key = trudpMapIteratorElementKey(el, &key_len);
+            teoMapElementData *el = teoMapIteratorElement(it);
+            char *key = teoMapIteratorElementKey(el, &key_len);
             trudpChannelData *tcd = (trudpChannelData *)
-                                    trudpMapIteratorElementData(el, NULL);
+                                    teoMapIteratorElementData(el, NULL);
 
             packets_send += tcd->stat.packets_send;
             ack_receive += tcd->stat.ack_receive;
@@ -457,7 +457,7 @@ char *ksnTRUDPstatShowStr(trudpData *td, int page) {
             , totalStat.receiveQueueSize
             );            
         }
-        trudpMapIteratorDestroy(it);
+        teoMapIteratorDestroy(it);
     }
 
     char *ret_str = formatMessage(
@@ -492,7 +492,7 @@ char *ksnTRUDPstatShowStr(trudpData *td, int page) {
         _ANSI_GREEN"RQ:"_ANSI_NONE" receive queue       \n"
     
         , td->port
-        , showTime((trudpGetTimestampFull() - td->started) / 1000000.0)
+        , showTime((teoGetTimestampFull() - td->started) / 1000000.0)
         , show_stat_time / 1000000.0
 
 //        , packets_send
@@ -521,14 +521,14 @@ char *trudpStatShowQueueStr(trudpChannelData *tcd, int type) {
 //       trudpPacketQueueSize(tcd->receiveQueue) > MAX_QUELEN_SHOW) 
 //    exit(-1); 
     
-    trudpQueueIterator *it = !type ? 
-        trudpQueueIteratorNew(tcd->sendQueue->q) : 
-        trudpQueueIteratorNew(tcd->receiveQueue->q);
+    teoQueueIterator *it = !type ? 
+        teoQueueIteratorNew(tcd->sendQueue->q) : 
+        teoQueueIteratorNew(tcd->receiveQueue->q);
     
     if(it != NULL) {        
         
         int i = 0;
-        uint64_t current_t = trudpGetTimestampFull();
+        uint64_t current_t = teoGetTimestampFull();
         str = sformatMessage(str, 
             "--------------------------------------------------------------\n"
             "TR-UDP %s Queue, size: %d, %s %u\n"
@@ -540,10 +540,10 @@ char *trudpStatShowQueueStr(trudpChannelData *tcd, int type) {
             , !type ? "next id: " : "expected id: "
             , !type ? tcd->sendId : tcd->receiveExpectedId
         );
-        while(trudpQueueIteratorNext(it)) {
+        while(teoQueueIteratorNext(it)) {
             
             trudpPacketQueueData *tqd = (trudpPacketQueueData *)
-                    ((trudpQueueData *)trudpQueueIteratorElement(it))->data;
+                    ((teoQueueData *)teoQueueIteratorElement(it))->data;
                         
             long timeout_sq = current_t < tqd->expected_time ? 
                 (long)(tqd->expected_time - current_t) : 
@@ -568,7 +568,7 @@ char *trudpStatShowQueueStr(trudpChannelData *tcd, int type) {
         );
 
         }
-        trudpQueueIteratorFree(it);
+        teoQueueIteratorFree(it);
     }
     
     return str;

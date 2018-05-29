@@ -191,7 +191,7 @@ static void showStatistic(trudpData *td, options *o, void *user_data) {
     }
 
     else if(o->show_send_queue) {
-        trudpChannelData *tcd = (trudpChannelData*)trudpMapGetFirst(td->map, 0);
+        trudpChannelData *tcd = (trudpChannelData*)teoMapGetFirst(td->map, 0);
         if(tcd != (void*)-1) {
 
             char *stat_sq_str = trudpStatShowQueueStr(tcd, 0);
@@ -238,7 +238,7 @@ static void showStatistic(trudpData *td, options *o, void *user_data) {
             // Don't send data
             case 'x': o->dont_send_data = !o->dont_send_data;   break;
             // Statistic Pages
-            case 'n': case 'N': if(o->show_statistic && o->show_statistic_page < trudpMapSize(td->map)/NUMBER_CHANNELS_IN_CLI_PAGE -1 + (trudpMapSize(td->map)%NUMBER_CHANNELS_IN_CLI_PAGE & 1) ) o->show_statistic_page++; break;
+            case 'n': case 'N': if(o->show_statistic && o->show_statistic_page < teoMapSize(td->map)/NUMBER_CHANNELS_IN_CLI_PAGE -1 + (teoMapSize(td->map)%NUMBER_CHANNELS_IN_CLI_PAGE & 1) ) o->show_statistic_page++; break;
             case 'p': case 'P': if(o->show_statistic && o->show_statistic_page) o->show_statistic_page--; break;
         }
     }
@@ -642,7 +642,7 @@ static void network_select_loop(trudpData *td, int timeout) {
     int rv = 1;
     fd_set rfds, wfds;
     struct timeval tv;
-    uint64_t /*tt, next_et = UINT64_MAX,*/ ts = trudpGetTimestampFull();
+    uint64_t /*tt, next_et = UINT64_MAX,*/ ts = teoGetTimestampFull();
 
 //    while(rv > 0) {
     // Watch server_socket to see when it has input.

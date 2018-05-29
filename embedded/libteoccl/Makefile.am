@@ -18,7 +18,7 @@ endif
 
 if DX_COND_html
 
-trudpdatarootdocdir = $(datarootdir)/doc/@PACKAGE@
+teoccldatarootdocdir = $(datarootdir)/doc/@PACKAGE@
 doxydocdir = $(datarootdir)/doc/@PACKAGE@/html
 doxydoc_DATA = $(wildcard docs/html/*.*)
 
@@ -36,10 +36,10 @@ endif
 
 # -----------------------------------------------------------------------------
 
-SUBDIRS = embedded/libteoccl src po tests examples ci-build
+SUBDIRS = src po tests #examples ci-build
 
-trudpdocdir = ${prefix}/doc/@PACKAGE@
-trudpdoc_DATA = \
+teoccldocdir = ${prefix}/doc/@PACKAGE@
+teoccldoc_DATA = \
 	README\
 	COPYING\
 	AUTHORS\
@@ -51,7 +51,7 @@ INTLTOOL_FILES = intltool-extract.in \
 	intltool-merge.in \
 	intltool-update.in
 
-EXTRA_DIST = $(trudpdoc_DATA) \
+EXTRA_DIST = $(teoccldoc_DATA) \
 	$(INTLTOOL_FILES)
 
 DISTCLEANFILES = intltool-extract \
@@ -61,9 +61,8 @@ DISTCLEANFILES = intltool-extract \
 
 # Remove doc directory on uninstall
 uninstall-local:
-	-rm -r $(trudpdocdir)
+	-rm -r $(teoccldocdir)
 	
-test:	tests/trudp_tst	
-	embedded/libteoccl/tests/teoccl_tst
-	embedded/libteoccl/tests/teoccl_cpp_tst
-	tests/trudp_tst
+test:	tests/teoccl_tst tests/teoccl_cpp_tst
+	tests/teoccl_tst 
+	tests/teoccl_cpp_tst

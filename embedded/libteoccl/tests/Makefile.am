@@ -7,16 +7,13 @@ AM_CPPFLAGS = \
 
 AM_CFLAGS = \
 	 -g -Wall \
-	 -std=gnu11 \
-	 -fno-strict-aliasing \
-	 -DUSE_LIBEV \
-	 -I../src \
-	 -I../embedded/libteoccl/src
+	 -I../src
 
 AM_CXX = clang++
 AM_CXXFLAGS = \
          -g -Wall \
-	 -I../src
+	 -I../src \
+	 -std=c++17
 
 ## Debug info
 if DEBUG
@@ -27,17 +24,18 @@ else
   AM_CXXFLAGS += -O2
 endif
 
-AM_LDFLAGS = -L../src/.libs
+AM_LDFLAGS = -L../src/.libs 
 
-LIBS = -ltrudp -lev
+LIBS = ../src/.libs/libteoccl.a -lcunit -lCppUTest
 
-noinst_PROGRAMS = trudpcat_ev
-trudpcat_ev_SOURCES = trudpcat_ev.c 
-#snake.c
+noinst_PROGRAMS = teoccl_tst teoccl_cpp_tst
 
-examplesdir = $(datarootdir)/doc/@PACKAGE@/examples
-examples_DATA = trudpcat_ev.c snake.c
+teoccl_tst_SOURCES = main_t.c queue_t.c map_t.c 
+teoccl_cpp_tst_SOURCES = main_cpp_t.cpp queue_cpp_t.cpp
+
+testsdir = $(datarootdir)/doc/@PACKAGE@/tests
+tests_DATA = $(teoccl_tst_SOURCES)
 
 # Remove doc directory on uninstall
 uninstall-local:
-	-rm -r $(datarootdir)/doc/@PACKAGE@/examples
+	-rm -r $(datarootdir)/doc/@PACKAGE@/tests
