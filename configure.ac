@@ -245,7 +245,7 @@ AC_CONFIG_FILES([
     ci-build/Makefile
 ])
 
-# Call libteoccl's ./configure script recursively.
-AC_CONFIG_SUBDIRS([embedded/libteoccl])
+# Call teoccl's ./configure script recursively.
+AC_CONFIG_SUBDIRS([embedded/teoccl])
 
 AC_OUTPUT

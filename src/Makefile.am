@@ -14,7 +14,7 @@ AM_CFLAGS = \
 	 -fno-strict-aliasing \
 	 -fPIC \
 	 -DUSE_LIBEV \
-	 -I../embedded/libteoccl/src \
+	 -I../embedded/teoccl/src \
 	 -fvisibility=hidden
 	
 #	 -std=gnu11 
@@ -42,7 +42,7 @@ endif
 
 AM_LDFLAGS = 
 
-LIBS = ../embedded/libteoccl/src/.libs/libteoccl.a
+LIBS = ../embedded/teoccl/src/.libs/libteoccl.a
 
 lib_LTLIBRARIES = libtrudp.la
 

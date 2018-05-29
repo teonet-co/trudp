@@ -11,7 +11,7 @@ AM_CFLAGS = \
 	 -fno-strict-aliasing \
 	 -DUSE_LIBEV \
 	 -I../src \
-	 -I../embedded/libteoccl/src
+	 -I../embedded/teoccl/src
 
 AM_CXX = clang++
 AM_CXXFLAGS = \
