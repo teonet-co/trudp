@@ -36,7 +36,7 @@ endif
 
 # -----------------------------------------------------------------------------
 
-SUBDIRS = embedded/libteoccl src po tests examples ci-build
+SUBDIRS = embedded/teoccl src po tests examples ci-build
 
 trudpdocdir = ${prefix}/doc/@PACKAGE@
 trudpdoc_DATA = \
@@ -64,6 +64,6 @@ uninstall-local:
 	-rm -r $(trudpdocdir)
 	
 test:	tests/trudp_tst	
-	embedded/libteoccl/tests/teoccl_tst
-	embedded/libteoccl/tests/teoccl_cpp_tst
+	embedded/teoccl/tests/teoccl_tst
+	embedded/teoccl/tests/teoccl_cpp_tst
 	tests/trudp_tst

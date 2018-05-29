@@ -28,19 +28,15 @@
         </data>
         <spellchecker-wordlist xmlns="http://www.netbeans.org/ns/spellchecker-wordlist/1">
             <word>automake</word>
-            <word>ccl</word>
             <word>const</word>
             <word>Kirill</word>
             <word>libev</word>
             <word>outrunning</word>
             <word>Scherba</word>
-            <word>Teo</word>
-            <word>teoccl</word>
             <word>triptime</word>
             <word>trudp</word>
             <word>trudpcat</word>
             <word>unhandled</word>
-            <word>uninstall</word>
             <word>utils</word>
         </spellchecker-wordlist>
     </configuration>
