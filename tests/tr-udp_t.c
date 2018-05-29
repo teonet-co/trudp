@@ -246,9 +246,9 @@ static void send_process_received_packet_test() {
     char *data[] = { "Hello TR-UDP test 0!", "Hello TR-UDP test 1!", "Hello TR-UDP test 2!", "Hello TR-UDP test 3!" };
     size_t data_length[] = { strlen(data[0]) + 1, strlen(data[1]) + 1, strlen(data[2]) + 1, strlen(data[3]) + 1 };
     
-    #if !NO_MESSAGES
+//    #if !NO_MESSAGES
     printf("\n");
-    #endif
+//    #endif
     
     // Send data from A to B, packet data idx = 0
     idx = 0;
