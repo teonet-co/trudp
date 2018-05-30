@@ -60,10 +60,9 @@ libtrudp_la_SOURCES = \
 	utils.c \
 	write_queue.c
 	
-libtrudpincludedir=$(includedir)
+libtrudpincludedir=$(includedir)/libtrudp
 	
-nobase_libtrudpinclude_HEADERS = \
-	trudp.h
+nobase_libtrudpinclude_HEADERS = 
 
 libtrudp_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(LIBRARY_MAJOR_VERSION):0:0
 
