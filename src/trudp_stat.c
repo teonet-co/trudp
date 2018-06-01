@@ -194,7 +194,7 @@ void *trudpStatGet(trudpData *td, int type, size_t *stat_len) {
                         ts->cs[i].rq = trudpReceiveQueueSize(tcd->receiveQueue);
                         i++;
                     }
-                    teoMapIteratorDestroy(it);
+                    teoMapIteratorFree(it);
                 }
             }
 
@@ -457,7 +457,7 @@ char *ksnTRUDPstatShowStr(trudpData *td, int page) {
             , totalStat.receiveQueueSize
             );            
         }
-        teoMapIteratorDestroy(it);
+        teoMapIteratorFree(it);
     }
 
     char *ret_str = formatMessage(

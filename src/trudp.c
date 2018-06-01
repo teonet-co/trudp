@@ -166,7 +166,7 @@ void trudpChannelDestroyAll(trudpData *td) {
                     teoMapIteratorElementData(el, NULL);
             trudpChannelDestroy(tcd);
         }
-        teoMapIteratorDestroy(it);
+        teoMapIteratorFree(it);
     }
 }
 
@@ -205,7 +205,7 @@ void trudpSendResetAll(trudpData *td) {
 
             trudpChannelSendRESET(tcd, NULL, 0);
         }
-        teoMapIteratorDestroy(it);
+        teoMapIteratorFree(it);
     }
 }
 
@@ -266,7 +266,7 @@ size_t trudpSendDataToAll(trudpData *td, void *data, size_t data_length) {
                 //}
             }
         }
-        teoMapIteratorDestroy(it);
+        teoMapIteratorFree(it);
     }
 
     return rv;
@@ -301,7 +301,7 @@ size_t trudpProcessKeepConnection(trudpData *td) {
                 rv++;
             }
         }
-        teoMapIteratorDestroy(it);
+        teoMapIteratorFree(it);
     }
 
     return rv;
@@ -425,7 +425,7 @@ uint32_t trudpGetSendQueueTimeout(trudpData *td, uint64_t current_time) {
             if(timeout_sq < min_timeout_sq) min_timeout_sq = timeout_sq;
             if(!min_timeout_sq) break;
         }
-        teoMapIteratorDestroy(it);
+        teoMapIteratorFree(it);
     }
 
     return min_timeout_sq;
@@ -482,7 +482,7 @@ int trudpProcessSendQueue(trudpData *td, uint64_t *next_et) {
                 if(next_expected_time && next_expected_time < min_expected_time)
                     min_expected_time = next_expected_time;
             }
-            teoMapIteratorDestroy(it);
+            teoMapIteratorFree(it);
         }
     } while(retval == -1 || (retval > 0 && min_expected_time <= ts));
 
@@ -541,7 +541,7 @@ size_t trudpProcessWriteQueue(trudpData *td) {
             retval = trudpChannelWriteQueueProcess(tcd);
             td->writeQueueIdx++;
         }
-        teoMapIteratorDestroy(it);
+        teoMapIteratorFree(it);
         if(!retval) td->writeQueueIdx = 0;
     }
 
@@ -566,7 +566,7 @@ size_t trudpGetWriteQueueSize(trudpData *td) {
                     teoMapIteratorElementData(el, &data_lenth);
             retval += trudpWriteQueueSize(tcd->writeQueue);
         }
-        teoMapIteratorDestroy(it);
+        teoMapIteratorFree(it);
     }
 
     return retval;
