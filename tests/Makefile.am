@@ -8,6 +8,7 @@ AM_CPPFLAGS = \
 AM_CFLAGS = \
 	 -g -Wall \
 	 -I../src \
+	 -std=c99 \
 	 -I../embedded/teoccl/src
 
 AM_CXX = clang++
