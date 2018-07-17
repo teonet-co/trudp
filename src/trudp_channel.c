@@ -387,9 +387,12 @@ inline void trudpChannelSendRESET(trudpChannelData *tcd, void* data, size_t data
 static inline uint64_t _trudpChannelCalculateExpectedTime(trudpChannelData *tcd,
         uint64_t current_time, int retransmit) {
 
+    int mult = 1;
     uint32_t rtt;
     if((rtt = RTT * (retransmit + 1)) > MAX_RTT) rtt = MAX_RTT;
-    uint64_t expected_time = current_time + tcd->triptimeMiddle + rtt;
+    //uint64_t expected_time = current_time + tcd->triptimeMiddle + rtt;
+    if(trudpSendQueueSize(tcd->sendQueue) > NORMAL_S_SIZE) mult = 2;
+    uint64_t expected_time = current_time + (tcd->triptimeMiddle*mult < MAX_RTT ? tcd->triptimeMiddle*mult : MAX_RTT)  + rtt;
     
     // \todo it was removed for retransmit records (after the send queue record was stopped moved to the end)
 //    if(retransmit && tcd->sendQueue->q->last) {
@@ -435,13 +438,13 @@ static size_t _trudpChannelSendPacket(trudpChannelData *tcd, void *packetDATA,
     }
 
     // Send data (add to write queue)
-//    if(!save_to_send_queue || trudpSendQueueSize(tcd->sendQueue) < 200) {
+    if(!save_to_send_queue || trudpSendQueueSize(tcd->sendQueue) < NORMAL_S_SIZE) {
     #if !USE_WRITE_QUEUE
     trudpSendEvent(tcd, PROCESS_SEND, packetDATA, packetLength, NULL);
     #else
     trudpWriteQueueAdd(tcd->writeQueue, NULL, tpqd->packet, packetLength);
     #endif
-//    }
+    }
 //    else if(save_to_send_queue) trudp_start_send_queue_cb(TD(tcd)->psq_data, 0);
 
     // Statistic
