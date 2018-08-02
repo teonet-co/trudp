@@ -5,9 +5,32 @@
       <df name="ci-build">
         <in>make_package.c</in>
       </df>
+      <df name="embedded">
+        <df name="teoccl">
+          <df name="src">
+            <in>hash.c</in>
+            <in>list.c</in>
+            <in>map.c</in>
+            <in>queue.c</in>
+          </df>
+          <df name="tests">
+            <in>list_t.c</in>
+            <in>main_cpp_t.cpp</in>
+            <in>main_t.c</in>
+            <in>map_cpp_t.cpp</in>
+            <in>map_t.c</in>
+            <in>queue_cpp_t.cpp</in>
+            <in>queue_t.c</in>
+          </df>
+        </df>
+      </df>
       <df name="examples">
         <in>README.md</in>
+        <in>read_queue.c</in>
         <in>snake.c</in>
+        <in>trudp2p.c</in>
+        <in>trudp_pth.c</in>
+        <in>trudp_pth.h</in>
         <in>trudpcat.c</in>
         <in>trudpcat_ev.c</in>
       </df>
@@ -55,12 +78,18 @@
         <rebuildPropChanged>false</rebuildPropChanged>
       </toolsSet>
       <flagsDictionary>
-        <element flagsID="0" commonFlags="-g -O2 -g -O2"/>
-        <element flagsID="1" commonFlags="-g -g -O2"/>
-        <element flagsID="2" commonFlags="-g -std=gnu11 -O2 -g -O2"/>
-        <element flagsID="3" commonFlags="-g -std=gnu11 -fPIC -O2 -g -O2 -fPIC"/>
-        <element flagsID="4"
+        <element flagsID="0"
+                 commonFlags="-mtune=generic -march=x86-64 -O2 -O2 -std=c++11 -fstack-protector-strong"/>
+        <element flagsID="1"
+                 commonFlags="-mtune=generic -march=x86-64 -g -g -O2 -O2 -std=c99 -fstack-protector-strong"/>
+        <element flagsID="2"
+                 commonFlags="-mtune=generic -march=x86-64 -g -g -O2 -O2 -std=gnu11 -fPIC -fstack-protector-strong"/>
+        <element flagsID="3"
                  commonFlags="-mtune=generic -march=x86-64 -g -g -O2 -O2 -std=gnu11 -fstack-protector-strong"/>
+        <element flagsID="4"
+                 commonFlags="-mtune=generic -march=x86-64 -g -g -O2 -O2 -std=gnu99 -fstack-protector-strong"/>
+        <element flagsID="5"
+                 commonFlags="-mtune=generic -march=x86-64 -g -g -O2 -fstack-protector-strong"/>
       </flagsDictionary>
       <codeAssistance>
       </codeAssistance>
@@ -70,13 +99,7 @@
           <buildCommand>${MAKE} -f Makefile</buildCommand>
           <cleanCommand>${MAKE} -f Makefile clean</cleanCommand>
           <executablePath>examples/trudpcat_ev</executablePath>
-          <cTool flags="0">
-            <preprocessorList>
-              <Elem>HAVE_CONFIG_H</Elem>
-              <Elem>PACKAGE_DATA_DIR="/usr/share"</Elem>
-              <Elem>PACKAGE_LOCALE_DIR="/usr/share/locale"</Elem>
-              <Elem>PACKAGE_SRC_DIR="."</Elem>
-            </preprocessorList>
+          <cTool flags="-g -O2 -g -O2">
           </cTool>
           <ccTool flags="-std=c++17 -O2 -O2">
           </ccTool>
@@ -87,176 +110,294 @@
         </preBuild>
       </makefileType>
       <item path="ci-build/make_package.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="1">
+        <cTool flags="5">
+        </cTool>
+      </item>
+      <item path="embedded/teoccl/src/hash.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="2">
+        </cTool>
+      </item>
+      <item path="embedded/teoccl/src/list.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="2">
+        </cTool>
+      </item>
+      <item path="embedded/teoccl/src/map.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="2">
+        </cTool>
+      </item>
+      <item path="embedded/teoccl/src/queue.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="2">
+        </cTool>
+      </item>
+      <item path="embedded/teoccl/tests/list_t.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="4">
+          <incDir>
+            <pElem>embedded/teoccl/src</pElem>
+            <pElem>embedded/teoccl/tests</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="embedded/teoccl/tests/main_cpp_t.cpp"
+            ex="false"
+            tool="1"
+            flavor2="8">
+        <ccTool flags="0">
+          <incDir>
+            <pElem>/usr/include/CppUTest</pElem>
+            <pElem>embedded/teoccl/tests</pElem>
+          </incDir>
+        </ccTool>
+      </item>
+      <item path="embedded/teoccl/tests/main_t.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="4">
+          <incDir>
+            <pElem>embedded/teoccl/tests</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="embedded/teoccl/tests/map_cpp_t.cpp"
+            ex="false"
+            tool="1"
+            flavor2="8">
+        <ccTool flags="0">
+          <incDir>
+            <pElem>embedded/teoccl/src</pElem>
+            <pElem>/usr/include/CppUTest</pElem>
+            <pElem>embedded/teoccl/tests</pElem>
+          </incDir>
+        </ccTool>
+      </item>
+      <item path="embedded/teoccl/tests/map_t.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="4">
+          <incDir>
+            <pElem>embedded/teoccl/src</pElem>
+            <pElem>embedded/teoccl/tests</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="embedded/teoccl/tests/queue_cpp_t.cpp"
+            ex="false"
+            tool="1"
+            flavor2="8">
+        <ccTool flags="0">
+          <incDir>
+            <pElem>embedded/teoccl/src</pElem>
+            <pElem>/usr/include/CppUTest</pElem>
+            <pElem>embedded/teoccl/tests</pElem>
+          </incDir>
+        </ccTool>
+      </item>
+      <item path="embedded/teoccl/tests/queue_t.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="4">
+          <incDir>
+            <pElem>embedded/teoccl/src</pElem>
+            <pElem>embedded/teoccl/tests</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="examples/read_queue.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="3">
+          <incDir>
+            <pElem>embedded/teoccl/src</pElem>
+            <pElem>examples</pElem>
+          </incDir>
         </cTool>
       </item>
       <item path="examples/snake.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="4">
+        <cTool flags="3">
           <incDir>
+            <pElem>embedded/teoccl/src</pElem>
+            <pElem>embedded/teoccl</pElem>
+            <pElem>embedded/teoccl/tests</pElem>
+            <pElem>src</pElem>
+            <pElem>examples</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>HAVE_CONFIG_H</Elem>
+            <Elem>PACKAGE_DATA_DIR="/usr/share"</Elem>
+            <Elem>PACKAGE_LOCALE_DIR="/usr/share/locale"</Elem>
+            <Elem>PACKAGE_SRC_DIR="."</Elem>
+            <Elem>PIC</Elem>
+          </preprocessorList>
+        </cTool>
+      </item>
+      <item path="examples/trudp2p.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="3">
+          <incDir>
+            <pElem>examples</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="examples/trudp_pth.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="3">
+          <incDir>
+            <pElem>embedded/teoccl/src</pElem>
             <pElem>src</pElem>
             <pElem>examples</pElem>
           </incDir>
         </cTool>
       </item>
-      <item path="examples/trudpcat_ev.c" ex="false" tool="0" flavor2="10">
-        <cTool flags="2">
+      <item path="examples/trudpcat_ev.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="3">
           <incDir>
-            <pElem>examples</pElem>
-            <pElem>.</pElem>
             <pElem>src</pElem>
+            <pElem>embedded/teoccl/src</pElem>
+            <pElem>examples</pElem>
           </incDir>
-          <preprocessorList>
-            <Elem>USE_LIBEV</Elem>
-          </preprocessorList>
         </cTool>
       </item>
       <folder path="0/ci-build">
         <cTool>
           <incDir>
-            <pElem>embedded/teoccl/src</pElem>
-            <pElem>embedded/teoccl</pElem>
-            <pElem>embedded/teoccl/tests</pElem>
             <pElem>ci-build</pElem>
-            <pElem>.</pElem>
-            <pElem>/usr/include/teonet</pElem>
-            <pElem>/usr/include/libtrudp</pElem>
-            <pElem>../teonet/src</pElem>
-            <pElem>../teonet/embedded/libpbl/src</pElem>
-            <pElem>../teonet/embedded/libtrudp/src</pElem>
-            <pElem>../teocli/libteol0</pElem>
           </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/embedded">
+        <cTool>
           <preprocessorList>
-            <Elem>PIC</Elem>
+            <Elem>PACKAGE_DATA_DIR="/usr/share"</Elem>
+            <Elem>PACKAGE_LOCALE_DIR="/usr/share/locale"</Elem>
+            <Elem>PACKAGE_SRC_DIR="."</Elem>
           </preprocessorList>
         </cTool>
       </folder>
-      <folder path="0/examples">
+      <folder path="0/embedded/teoccl/src">
         <cTool>
           <incDir>
             <pElem>embedded/teoccl/src</pElem>
-            <pElem>embedded/teoccl</pElem>
-            <pElem>embedded/teoccl/tests</pElem>
           </incDir>
-          <preprocessorList>
-            <Elem>PIC</Elem>
-          </preprocessorList>
         </cTool>
       </folder>
-      <folder path="0/src">
+      <folder path="0/embedded/teoccl/tests">
         <cTool>
           <incDir>
-            <pElem>embedded/teoccl/src</pElem>
-            <pElem>embedded/teoccl</pElem>
-            <pElem>embedded/teoccl/tests</pElem>
+            <pElem>/usr/include/CUnit</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <item path="src/packet.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="2">
+          <incDir>
             <pElem>src</pElem>
-            <pElem>.</pElem>
           </incDir>
-          <preprocessorList>
-            <Elem>PIC</Elem>
-            <Elem>USE_LIBEV</Elem>
-          </preprocessorList>
-        </cTool>
-      </folder>
-      <item path="src/packet.c" ex="false" tool="0" flavor2="10">
-        <cTool flags="3">
         </cTool>
       </item>
-      <item path="src/packet_queue.c" ex="false" tool="0" flavor2="10">
-        <cTool flags="3">
+      <item path="src/packet_queue.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="2">
+          <incDir>
+            <pElem>embedded/teoccl/src</pElem>
+            <pElem>src</pElem>
+          </incDir>
         </cTool>
       </item>
-      <item path="src/trudp.c" ex="false" tool="0" flavor2="10">
-        <cTool flags="3">
+      <item path="src/trudp.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="2">
+          <incDir>
+            <pElem>embedded/teoccl/src</pElem>
+            <pElem>src</pElem>
+          </incDir>
         </cTool>
       </item>
-      <item path="src/trudp_channel.c" ex="false" tool="0" flavor2="10">
-        <cTool flags="3">
+      <item path="src/trudp_channel.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="2">
+          <incDir>
+            <pElem>embedded/teoccl/src</pElem>
+            <pElem>src</pElem>
+          </incDir>
         </cTool>
       </item>
-      <item path="src/trudp_ev.c" ex="false" tool="0" flavor2="10">
-        <cTool flags="3">
+      <item path="src/trudp_ev.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="2">
+          <incDir>
+            <pElem>embedded/teoccl/src</pElem>
+            <pElem>src</pElem>
+          </incDir>
         </cTool>
       </item>
-      <item path="src/trudp_receive_queue.c" ex="false" tool="0" flavor2="10">
-        <cTool flags="3">
+      <item path="src/trudp_receive_queue.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="2">
         </cTool>
       </item>
-      <item path="src/trudp_send_queue.c" ex="false" tool="0" flavor2="10">
-        <cTool flags="3">
+      <item path="src/trudp_send_queue.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="2">
+          <incDir>
+            <pElem>embedded/teoccl/src</pElem>
+            <pElem>src</pElem>
+          </incDir>
         </cTool>
       </item>
-      <item path="src/trudp_stat.c" ex="false" tool="0" flavor2="10">
-        <cTool flags="3">
+      <item path="src/trudp_stat.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="2">
+          <incDir>
+            <pElem>embedded/teoccl/src</pElem>
+            <pElem>src</pElem>
+          </incDir>
         </cTool>
       </item>
-      <item path="src/trudp_utils.c" ex="false" tool="0" flavor2="10">
-        <cTool flags="3">
+      <item path="src/trudp_utils.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="2">
+          <incDir>
+            <pElem>src</pElem>
+          </incDir>
         </cTool>
       </item>
-      <item path="src/udp.c" ex="false" tool="0" flavor2="10">
-        <cTool flags="3">
+      <item path="src/udp.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="2">
+          <incDir>
+            <pElem>src</pElem>
+          </incDir>
         </cTool>
       </item>
-      <item path="src/utils.c" ex="false" tool="0" flavor2="10">
-        <cTool flags="3">
+      <item path="src/utils.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="2">
+          <incDir>
+            <pElem>src</pElem>
+          </incDir>
         </cTool>
       </item>
-      <item path="src/write_queue.c" ex="false" tool="0" flavor2="10">
-        <cTool flags="3">
+      <item path="src/write_queue.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="2">
+          <incDir>
+            <pElem>embedded/teoccl/src</pElem>
+            <pElem>src</pElem>
+          </incDir>
         </cTool>
       </item>
       <item path="tests/main_t.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
+        <cTool flags="1">
           <incDir>
-            <pElem>embedded/teoccl/src</pElem>
-            <pElem>embedded/teoccl</pElem>
-            <pElem>embedded/teoccl/tests</pElem>
+            <pElem>/usr/include/CUnit</pElem>
             <pElem>tests</pElem>
-            <pElem>.</pElem>
-            <pElem>src</pElem>
           </incDir>
-          <preprocessorList>
-            <Elem>PIC</Elem>
-          </preprocessorList>
         </cTool>
       </item>
       <item path="tests/packet_queue_t.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
+        <cTool flags="1">
           <incDir>
-            <pElem>embedded/teoccl/src</pElem>
-            <pElem>embedded/teoccl</pElem>
-            <pElem>embedded/teoccl/tests</pElem>
-            <pElem>tests</pElem>
-            <pElem>.</pElem>
             <pElem>src</pElem>
+            <pElem>/usr/include/CUnit</pElem>
+            <pElem>embedded/teoccl/src</pElem>
+            <pElem>tests</pElem>
           </incDir>
-          <preprocessorList>
-            <Elem>PIC</Elem>
-          </preprocessorList>
         </cTool>
       </item>
       <item path="tests/packet_t.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
+        <cTool flags="1">
           <incDir>
-            <pElem>embedded/teoccl/src</pElem>
-            <pElem>embedded/teoccl</pElem>
-            <pElem>embedded/teoccl/tests</pElem>
-            <pElem>tests</pElem>
-            <pElem>.</pElem>
+            <pElem>/usr/include/CUnit</pElem>
             <pElem>src</pElem>
+            <pElem>tests</pElem>
           </incDir>
-          <preprocessorList>
-            <Elem>PIC</Elem>
-          </preprocessorList>
         </cTool>
       </item>
       <item path="tests/tr-udp_t.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
+        <cTool flags="1">
           <incDir>
-            <pElem>tests</pElem>
-            <pElem>.</pElem>
             <pElem>src</pElem>
+            <pElem>/usr/include/CUnit</pElem>
             <pElem>embedded/teoccl/src</pElem>
+            <pElem>tests</pElem>
           </incDir>
         </cTool>
       </item>
@@ -293,6 +434,10 @@
       </item>
       <item path="examples/README.md" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="examples/read_queue.c" ex="false" tool="0" flavor2="2">
+        <cTool flags="2">
+        </cTool>
+      </item>
       <item path="examples/snake.c" ex="false" tool="0" flavor2="2">
         <cTool flags="1">
           <incDir>
@@ -300,6 +445,12 @@
             <pElem>examples</pElem>
           </incDir>
         </cTool>
+      </item>
+      <item path="examples/trudp2p.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="examples/trudp_pth.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="examples/trudp_pth.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="examples/trudpcat.c" ex="false" tool="0" flavor2="2">
       </item>

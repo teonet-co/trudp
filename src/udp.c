@@ -199,6 +199,7 @@ int trudpUdpBindRaw(int *port, int allow_port_increment_f) {
 
         // Bind successfully
         else {
+            if(!*port) trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&addr, port);
             _trudpUdpSetNonblock(fd);
             break;
         }
@@ -217,7 +218,7 @@ int trudpUdpBindRaw(int *port, int allow_port_increment_f) {
  * @param addr_length
  * @return 
  */
-inline ssize_t trudpUdpRecvfrom(int fd, void *buffer, size_t buffer_size,
+ssize_t trudpUdpRecvfrom(int fd, void *buffer, size_t buffer_size,
         __SOCKADDR_ARG remaddr, socklen_t *addr_length) {
 
     int flags = 0;
