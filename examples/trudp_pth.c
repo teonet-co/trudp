@@ -242,15 +242,18 @@ static void event_cb(void *tcd_pointer, int event, void *data, size_t data_lengt
         case GOT_DATA: {
 
             char *key = trudpChannelMakeKey(tcd);
-            debug("got %d byte data at channel %s, id=%u: %s\n", 
+            debug("event got %d byte data at channel %s, id=%u: %s\n", 
                 trudpPacketGetPacketLength(trudpPacketGetPacket(data))/*(int)data_length*/,
                 key, trudpPacketGetId(trudpPacketGetPacket(data)), trudpPacketGetData(trudpPacketGetPacket(data)));
             
             // Add data to read QUEUE
-            void *d = malloc(data_length);
-            memcpy(d, data, data_length);
-            trudpReadQueueAdd(tru->rq, NULL, d, data_length);
-
+            size_t len = trudpPacketGetPacketLength(trudpPacketGetPacket(data)) + sizeof(tcd);
+            void *d = malloc(len);
+            memcpy(d, &tcd, sizeof(tcd));
+            memcpy(d + sizeof(tcd), trudpPacketGetPacket(data), len - sizeof(tcd));
+            trudpReadQueueAdd(tru->rq, NULL, d, len);
+            
+            //debug("len: %d, d: %s\n", len, trudpPacketGetData(d) );
 //            if(!o.show_statistic && !o.show_send_queue && !o.show_snake) {
 //                if(o.debug) {
 //                    printf("#%u at %.3f, cannel %s [%.3f(%.3f) ms] ",
@@ -381,8 +384,8 @@ void network_select_loop(trudp_data_t *tru, int timeout) {
         // Process send queue
         if(timeout_sq != UINT32_MAX) {
             pthread_mutex_lock(&tru->mutex);
-            int rv = trudpProcessSendQueue(td, 0);
-            debug("process send queue ... %d\n", rv);
+            /*int rv = */trudpProcessSendQueue(td, 0);
+            //debug("process send queue ... %d\n", rv);
             pthread_mutex_unlock(&tru->mutex);
         }
     }
@@ -431,7 +434,7 @@ static void* trudp_process_thread(void *tru_p) {
     debug("Process thread started\n");
     trudp_data_t *tru = tru_p;
     while(tru->running) {
-        network_select_loop(tru, DELAY);
+        network_select_loop(tru, 15000);
     }
     debug("Process thread stopped\n");
     
@@ -457,6 +460,9 @@ trudp_data_t *trudp_init(int port) {
         tru->running = 1;
         tru->fd = fd;
         
+        //pthread_cond_init(&tru->cv_threshold, NULL);
+        //pthread_mutex_init(&tru->cv_mutex, NULL);
+        
         // Start module thread
         pthread_mutex_init(&tru->mutex, NULL);
         int err = pthread_create(&tru->tid, NULL, trudp_process_thread, (void*)tru);
@@ -472,6 +478,8 @@ void trudp_destroy(trudp_data_t *tru) {
 
     tru->running = 0;
     pthread_join(tru->tid, NULL);
+    //pthread_cond_destroy(&tru->cv_threshold);
+    //pthread_mutex_destroy(&tru->cv_mutex);
     pthread_mutex_destroy(&tru->mutex);
     trudpReadQueueDestroy(tru->rq);
     trudpDestroy(tru->td);
@@ -487,7 +495,7 @@ void trudp_disconnect(trudp_data_t *tru, void *tcd) {
     trudpChannelDestroy((trudpChannelData *)tcd);
 }
 
-void *trudp_recv(trudp_data_t *tru, void **td, size_t *msg_length) {
+void *trudp_recv(trudp_data_t *tru, void **tcd_p, size_t *msg_length) {
     // \\ TODO get data from read queue and sleep if queue empty
     pthread_mutex_lock(&tru->mutex);
     void *msg = NULL;
@@ -495,28 +503,44 @@ void *trudp_recv(trudp_data_t *tru, void **td, size_t *msg_length) {
     // Add data to read QUEUE
     trudpReadQueueData *rqd = trudpReadQueueGetFirst(tru->rq);
     if(rqd) {
-        char *key = "...";
-        void *data = rqd->packet_ptr;
-        debug("got %d byte data at channel %s, id=%u: %s\n", 
-            trudpPacketGetPacketLength(trudpPacketGetPacket(data))/*(int)data_length*/,
+        trudpChannelData *tcd = *(trudpChannelData **) rqd->packet_ptr;
+        char *key = trudpChannelMakeKey(tcd);
+        void *data = trudpPacketGetData(rqd->packet_ptr + sizeof(tcd));
+        debug("funct got %d byte data at channel %s, id=%u: %s\n", 
+            trudpPacketGetPacketLength(trudpPacketGetPacket(data)),
             key, trudpPacketGetId(trudpPacketGetPacket(data)), trudpPacketGetData(trudpPacketGetPacket(data)));
-                
+             
+        if(tcd_p) *tcd_p = tcd;
         if(msg_length) *msg_length = trudpPacketGetPacketLength(trudpPacketGetPacket(data));
         msg = trudpPacketGetData(trudpPacketGetPacket(data));
         
         trudpReadQueueDeleteFirst(tru->rq);
     } 
-    else if(msg_length) *msg_length = 0;
-    
-    if(td) *td = NULL;
+    else { 
+        if(msg_length) *msg_length = 0;    
+        if(tcd_p) *tcd_p = NULL;
+    }
     pthread_mutex_unlock(&tru->mutex);
     return msg;
 }
 
+void trudp_free_recv_data(trudp_data_t *tru, void *data) {   
+    free(trudpPacketGetPacket(data) - sizeof(trudpChannelData *));
+}
+
 int trudp_send(trudp_data_t *tru, void *tcd, void *msg, size_t msg_length) {
     pthread_mutex_lock(&tru->mutex);
-    // \TODO check Send queue size and sleep if too match
+    
+    int s = 0;
+    // Check Send queue size and sleep if too match
+    while((s = trudpSendQueueSize(((trudpChannelData *)tcd)->sendQueue))>120) {
+        pthread_mutex_unlock(&tru->mutex);
+        usleep(1000);
+        pthread_mutex_lock(&tru->mutex);
+    }
+    
     int rv = trudpChannelSendData(tcd, msg, msg_length);
     pthread_mutex_unlock(&tru->mutex);
+    usleep(10);
     return rv;
 }

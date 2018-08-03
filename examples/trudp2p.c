@@ -156,38 +156,36 @@ int main(int argc, char** argv) {
 
     // Read parameters
     read_parameters(argc, argv);
-    
+
     trudp_data_t *tru = trudp_init(o.local_port_i);
 
     // Server mode
     if(o.listen) {
         while(1) {
-            //network_select_loop(tru->td, DELAY);
-            
             void *msg;
             void *tcd = NULL;
             size_t msg_length;
             msg = trudp_recv(tru, &tcd, &msg_length);
-            if(msg) printf("Got message: %s\n", (char*)msg);            
-            else usleep(30000);
+            if(msg) {
+                printf("Got message: %s\n", (char*)msg);
+                trudp_free_recv_data(tru, msg);
+            }
+            else usleep(15000);
         }
     }
-    
+
     // Client mode
     else {
-        
         void *tcd = trudp_connect(tru, o.remote_address, o.remote_port_i);
-        
+
         char *msg = "Hello world!";
         size_t msg_length = strlen(msg) + 1;
         while(1) {
-            //network_select_loop(tru->td, DELAY);
-            
             trudp_send(tru, tcd, msg, msg_length);
             printf("Send message: %s\n", (char*)msg);
-            usleep(5000);
+            //usleep(1);
         }
-        
+
         trudp_disconnect(tru, tcd);
     }
 

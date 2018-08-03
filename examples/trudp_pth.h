@@ -43,6 +43,8 @@ typedef struct trudp_data {
     int running; ///< Processing thread running flag
     pthread_t tid; ///< Processing thread id
     pthread_mutex_t mutex; ///< Processing thread mutex
+    //pthread_mutex_t cv_mutex; ///< Condition variables mutex
+    //pthread_cond_t cv_threshold; ///< Condition variable
     
 } trudp_data_t;    
 
@@ -67,6 +69,8 @@ void *trudp_connect(trudp_data_t *tru, const char *address, int port);
 void trudp_disconnect(trudp_data_t *tru, void *td);
 
 void *trudp_recv(trudp_data_t *tru, void **td, size_t *msg_length);
+
+void trudp_free_recv_data(trudp_data_t *tru, void *data);
 
 int trudp_send(trudp_data_t *tru, void *td, void *msg, size_t msg_length);
 
