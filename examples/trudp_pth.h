@@ -34,9 +34,37 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+  
+// Application options structure
+typedef struct trudp_options {
+
+    // Integer options
+    int debug; // = 0;
+    int show_statistic; // = 0;
+    int show_statistic_page;
+    int show_send_queue; // = 0;
+    int show_snake; // = 0;
+    int listen; // = 0;
+    int numeric; // = 0;
+    int dont_send_data; // 0
+    int buf_size; // = 4096;
+    int send_delay; // = 1000 ms -> Test application send delay
+
+    // String options
+    char *local_address; // = NULL;
+    char *local_port; // = NULL;
+    char *remote_address; // = NULL;
+    char *remote_port; // = NULL;
+
+    // Calculated options
+    int remote_port_i;
+    int local_port_i;
+} trudp_options;
+  
     
 typedef struct trudp_data {
     
+    trudp_options *o; // Options
     int fd; ///< UDP socket descriptor
     void *rq; ///< Pointer to readQueue
     void *td; ///< Pointer to trudpData
@@ -55,7 +83,7 @@ typedef struct trudp_data {
  *
  * @return Pointer to trudp_data_t
  */
-trudp_data_t *trudp_init(int port);
+trudp_data_t *trudp_init(trudp_options *o);
 
 /**
  * Destroy TR-UDP

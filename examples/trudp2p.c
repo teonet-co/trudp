@@ -37,34 +37,8 @@
 // Application version
 #define APP_VERSION "0.0.1"
 
-// Application options structure
-typedef struct options {
-
-    // Integer options
-    int debug; // = 0;
-    int show_statistic; // = 0;
-    int show_statistic_page;
-    int show_send_queue; // = 0;
-    int show_snake; // = 0;
-    int listen; // = 0;
-    int numeric; // = 0;
-    int dont_send_data; // 0
-    int buf_size; // = 4096;
-
-    // String options
-    char *local_address; // = NULL;
-    char *local_port; // = NULL;
-    char *remote_address; // = NULL;
-    char *remote_port; // = NULL;
-
-    // Calculated options
-    int remote_port_i;
-    int local_port_i;
-
-} options;
-
 // Application options
-static options o = { 0, 0, 0, 0, 0, 0, 0, 0, 4096, NULL, NULL, NULL, NULL, 0 };
+static trudp_options o = { 0, 0, 0, 0, 0, 0, 0, 0, 4096, 1000, NULL, NULL, NULL, NULL, 0 };
 
 /**
  * Show usage screen
@@ -84,6 +58,7 @@ static void usage(char *name) {
 	fprintf(stderr, "    -p <port>   Local port\n");
 	fprintf(stderr, "    -s <IP>     Source IP\n");
 	fprintf(stderr, "    -B <size>   Buffer size\n");
+	fprintf(stderr, "    -D <time>   Send delay (ms)\n");
         fprintf(stderr, "    -S          Show statistic\n");
         fprintf(stderr, "    -Q          Show queues\n");
         fprintf(stderr, "    -x          Don't send data\n");
@@ -98,7 +73,7 @@ static void read_parameters(int argc, char** argv) {
 
     // Read parameters
     while(1) {
-        int c = getopt (argc, argv, "hdlp:B:s:SQx");
+        int c = getopt (argc, argv, "hdlp:B:D:s:SQx");
         if (c == -1) break;
         switch(c) {
             case 'h': usage(argv[0]);               break;
@@ -106,6 +81,7 @@ static void read_parameters(int argc, char** argv) {
             case 'l': o.listen++;		    break;
             case 'p': o.local_port = optarg;	    break;
             case 'B': o.buf_size = atoi(optarg);    break;
+            case 'D': o.send_delay = atoi(optarg);  break;
             case 's': o.local_address = optarg;	    break;
             case 'S': o.show_statistic++;           break;
             case 'Q': o.show_send_queue++;          break;
@@ -157,20 +133,18 @@ int main(int argc, char** argv) {
     // Read parameters
     read_parameters(argc, argv);
 
-    trudp_data_t *tru = trudp_init(o.local_port_i);
+    trudp_data_t *tru = trudp_init(&o);
 
     // Server mode
     if(o.listen) {
         while(1) {
-            void *msg;
-            void *tcd = NULL;
+            void *msg, *tcd;
             size_t msg_length;
-            msg = trudp_recv(tru, &tcd, &msg_length);
-            if(msg) {
+            while((msg = trudp_recv(tru, &tcd, &msg_length))) {
                 printf("Got message: %s\n", (char*)msg);
                 trudp_free_recv_data(tru, msg);
             }
-            else usleep(15000);
+            usleep(500); // Sleep 0.5 ms if no data
         }
     }
 
@@ -178,14 +152,16 @@ int main(int argc, char** argv) {
     else {
         void *tcd = trudp_connect(tru, o.remote_address, o.remote_port_i);
 
-        char *msg = "Hello world!";
-        size_t msg_length = strlen(msg) + 1;
+        int num = 0;
+        char msg[1024];
         while(1) {
-            trudp_send(tru, tcd, msg, msg_length);
-            printf("Send message: %s\n", (char*)msg);
-            //usleep(1);
+            snprintf(msg, 1024, "Hello world %d!", num++);
+            if(trudp_send(tru, tcd, msg, strlen(msg) + 1)) 
+                printf("Send message: %s\n", (char*)msg);
+            else printf("Can't send message: %s\n", (char*)msg);
+            
+            usleep(o.send_delay * 1000);
         }
-
         trudp_disconnect(tru, tcd);
     }
 

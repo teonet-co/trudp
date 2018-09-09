@@ -57,3 +57,4 @@
 /src/*.o
 /src/*.la
 /src/.dirstamp
+/examples/trudp2p
