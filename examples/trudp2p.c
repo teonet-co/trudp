@@ -34,6 +34,8 @@
 //extern int usleep (__useconds_t __useconds);
 //#endif
 
+//inline uint32_t trudpGetTimestamp();
+
 // Application version
 #define APP_VERSION "0.0.1"
 
@@ -137,12 +139,22 @@ int main(int argc, char** argv) {
 
     // Server mode
     if(o.listen) {
+        unsigned int t_beg, length = 0, num = 0;
         while(1) {
             void *msg, *tcd;
             size_t msg_length;
             while((msg = trudp_recv(tru, &tcd, &msg_length))) {
-                printf("Got message: %s\n", (char*)msg);
+                
+                if(!num) t_beg = trudpGetTimestamp();
+                unsigned int time, t = ((trudpGetTimestamp() - t_beg) / 1000000);
+                time = t ? (num / t) : (num + 1);
+                
+                length += msg_length;
+                float l = 8.0*(length / (t ? t : 1))/(1024.0*1024.0);
+                
+                printf("Got message: %s [%u mps, %.03f Mbis]\n", (char*)msg, time, l);
                 trudp_free_recv_data(tru, msg);
+                num++;
             }
             usleep(500); // Sleep 0.5 ms if no data
         }
@@ -152,10 +164,10 @@ int main(int argc, char** argv) {
     else {
         void *tcd = trudp_connect(tru, o.remote_address, o.remote_port_i);
 
-        int num = 0;
+        unsigned int num = 0;
         char msg[1024];
         while(1) {
-            snprintf(msg, 1024, "Hello world %d!", num++);
+            snprintf(msg, 1024, "Hello world %u!", num++);
             if(trudp_send(tru, tcd, msg, strlen(msg) + 1)) 
                 printf("Send message: %s\n", (char*)msg);
             else printf("Can't send message: %s\n", (char*)msg);
