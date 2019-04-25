@@ -32,13 +32,15 @@
 
 #include <time.h>
 
+#include "trudp_api.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 char *formatMessage(const char *fmt, ...);
 char *sformatMessage(char *str_to_free, const char *fmt, ...);
-struct timeval *usecToTv(struct timeval *tv, uint32_t usec);
+TRUDP_API struct timeval *usecToTv(struct timeval *tv, uint32_t usec);
 
 
 #ifdef __cplusplus

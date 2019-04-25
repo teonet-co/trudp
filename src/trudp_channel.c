@@ -791,29 +791,30 @@ int trudpChannelSendQueueProcess(trudpChannelData *tcd, uint64_t ts,
 //        }
 //        skip_disconnect_on_max_retrieves: ;
 
-        // Disconnect channel at long last receive
-        if(trudpChannelCheckDisconnected(tcd, ts) == -1) {
+    }
+    
+    // Disconnect channel at long last receive
+    if(trudpChannelCheckDisconnected(tcd, ts) == -1) {
 
-            tqd = NULL;
-            rv = -1;
+        tqd = NULL;
+        rv = -1;
+    }
+    else {
+
+        // \todo Reset this channel at long retransmit
+        #if RESET_AT_LONG_RETRANSMIT
+        if(ts - tqd->retrieves_start > MAX_LAST_RECEIVE) {
+            trudpChannelSendRESET(tcd, NULL, 0);
         }
         else {
-
-            // \todo Reset this channel at long retransmit
-            #if RESET_AT_LONG_RETRANSMIT
-            if(ts - tqd->retrieves_start > MAX_LAST_RECEIVE) {
-                trudpChannelSendRESET(tcd, NULL, 0);
-            }
-            else {
-            #endif
-            // Get next value \todo if don't move than not need to re-get it
-            //tqd = trudpPacketQueueGetFirst(tcd->sendQueue);
-            #if RESET_AT_LONG_RETRANSMIT
-            }
-            #endif
+        #endif
+        // Get next value \todo if don't move than not need to re-get it
+        //tqd = trudpPacketQueueGetFirst(tcd->sendQueue);
+        #if RESET_AT_LONG_RETRANSMIT
         }
+        #endif
     }
-
+    
     // If record exists
     if(next_expected_time) {
         if(rv != -1) tqd = trudpSendQueueGetFirst(tcd->sendQueue);
