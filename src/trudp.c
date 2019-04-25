@@ -227,12 +227,12 @@ void trudpProcessReceived(trudpData *td, void *data, size_t data_length) {
     if(recvlen > 0) {
         size_t data_length;
         trudpChannelData *tcd = trudpGetChannelCreate(td, (__CONST_SOCKADDR_ARG) &remaddr, 0);
-        if(tcd == (void *)-1 ||
-           trudpChannelProcessReceivedPacket(tcd, data, recvlen, &data_length) == (void *)-1) {
-
-            if(tcd == (void *)-1) printf("!!! can't PROCESS_RECEIVE_NO_TRUDP\n");
-            else
-            trudpSendEvent(tcd, PROCESS_RECEIVE_NO_TRUDP, data, recvlen, NULL);
+        if(tcd == (void *)-1 || trudpChannelProcessReceivedPacket(tcd, data, recvlen, &data_length) == (void *)-1) {
+            if(tcd == (void *)-1) {
+                printf("!!! can't PROCESS_RECEIVE_NO_TRUDP\n");
+            } else {
+                trudpSendEvent(tcd, PROCESS_RECEIVE_NO_TRUDP, data, recvlen, NULL);
+            }
         }
     }
 }

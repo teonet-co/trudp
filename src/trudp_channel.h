@@ -108,6 +108,7 @@ typedef struct trudpStatChannelData {
     size_t idx_rcv; ///< Index of last_receive_packets_ar   
     uint32_t sendQueueSize;
     uint32_t receiveQueueSize;
+    uint32_t writeQueueSize;
     
 } trudpStatChannelData;   
 

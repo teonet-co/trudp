@@ -47,7 +47,7 @@ static void _trudpChannelFree(trudpChannelData *tcd);
 static uint32_t _trudpChannelGetId(trudpChannelData *tcd);
 static uint32_t _trudpChannelGetNewId(trudpChannelData *tcd);
 static void _trudpChannelIncrementStatSendQueueSize(trudpChannelData *tcd);
-static void _trudpChannelIncrementStatSendQueueSize(trudpChannelData *tcd);
+static void _trudpChannelIncrementStatWriteQueueSize(trudpChannelData *tcd);
 static void _trudpChannelReset(trudpChannelData *tcd);
 static void _trudpChannelSendACK(trudpChannelData *tcd, void *packet);
 static void _trudpChannelSendACKtoPING(trudpChannelData *tcd, void *packet);
@@ -401,8 +401,12 @@ static inline uint64_t _trudpChannelCalculateExpectedTime(trudpChannelData *tcd,
  */
 static inline
 void _trudpChannelIncrementStatSendQueueSize(trudpChannelData *tcd) {
-
     TD(tcd)->stat.sendQueue.size_current++;
+}
+
+static
+void _trudpChannelIncrementStatWriteQueueSize(trudpChannelData *tcd) {
+    TD(tcd)->stat.writeQueue.size_current++;
 }
 
 /**
@@ -418,23 +422,24 @@ void _trudpChannelIncrementStatSendQueueSize(trudpChannelData *tcd) {
 static size_t _trudpChannelSendPacket(trudpChannelData *tcd, void *packetDATA,
         size_t packetLength, int save_to_send_queue) {
 
+    size_t size_sq = trudpSendQueueSize(tcd->sendQueue);
+
     // Save packet to send queue
     if(save_to_send_queue) {
-        trudpSendQueueAdd(tcd->sendQueue,
-            packetDATA,
-            packetLength,
-            _trudpChannelCalculateExpectedTime(tcd, teoGetTimestampFull(), 0)
-        );
+      if (size_sq < NORMAL_S_SIZE) {
+        trudpSendQueueAdd(tcd->sendQueue, packetDATA, packetLength,
+                          _trudpChannelCalculateExpectedTime(tcd, teoGetTimestampFull(), 0));
         _trudpChannelIncrementStatSendQueueSize(tcd);
+      } else {
+        trudpWriteQueueAdd(tcd->writeQueue, packetDATA, NULL, packetLength);
+        _trudpChannelIncrementStatWriteQueueSize(tcd);
+      }
     }
 
+
     // Send data (add to write queue)
-    if(!save_to_send_queue || trudpSendQueueSize(tcd->sendQueue) < NORMAL_S_SIZE) {
-        #if !USE_WRITE_QUEUE
+    if(!save_to_send_queue || size_sq < NORMAL_S_SIZE) {
         trudpSendEvent(tcd, PROCESS_SEND, packetDATA, packetLength, NULL);
-        #else
-        trudpWriteQueueAdd(tcd->writeQueue, NULL, tpqd->packet, packetLength);
-        #endif
     }
 //    else if(save_to_send_queue) trudp_start_send_queue_cb(TD(tcd)->psq_data, 0);
 
@@ -542,6 +547,13 @@ void *trudpChannelProcessReceivedPacket(trudpChannelData *tcd, void *packet,
                     send_data_length = trudpPacketGetDataLength(sqd->packet);
                     trudpSendQueueDelete(tcd->sendQueue, sqd);
                     TD(tcd)->stat.sendQueue.size_current--;
+
+                    if (trudpWriteQueueSize(tcd->writeQueue) > 0) {
+                        trudpWriteQueueData *wqd_first = trudpWriteQueueGetFirst(tcd->writeQueue);
+                        _trudpChannelSendPacket(tcd, wqd_first->packet, wqd_first->packet_length, 1);
+                        trudpWriteQueueDeleteFirst(tcd->writeQueue);
+                        TD(tcd)->stat.writeQueue.size_current--;
+                    }
                 }
 
                 // Calculate triptime

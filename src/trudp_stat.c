@@ -385,10 +385,11 @@ char *ksnTRUDPstatShowStr(trudpData *td, int page) {
             
             size_t sendQueueSize = trudpSendQueueSize(tcd->sendQueue);
             size_t receiveQueueSize = trudpReceiveQueueSize(tcd->receiveQueue);
+            size_t writeQueueSize = trudpWriteQueueSize(tcd->writeQueue);
 
             if(i >= page*NUMBER_CHANNELS_IN_CLI_PAGE && i < (page+1)*NUMBER_CHANNELS_IN_CLI_PAGE) {
                 tbl_str = sformatMessage(tbl_str,
-                    "%s%3d "_ANSI_BROWN"%-24.*s"_ANSI_NONE" %8d %11.3f %10.3f  %9.3f /%9.3f %8d %11.3f %10.3f %8d %8d(%d%%) %8d(%d%%) %6d %6d\n",
+                    "%s%3d "_ANSI_BROWN"%-24.*s"_ANSI_NONE" %8d %11.3f %10.3f  %9.3f /%9.3f %8d %11.3f %10.3f %8d %8d(%d%%) %8d(%d%%) %6d %6d %6d\n",
                     tbl_str, i + 1,
                     key_len, key,
                     tcd->stat.packets_send,
@@ -405,7 +406,8 @@ char *ksnTRUDPstatShowStr(trudpData *td, int page) {
                     tcd->stat.packets_receive_dropped,
                     tcd->stat.packets_receive ? 100 * tcd->stat.packets_receive_dropped / tcd->stat.packets_receive : 0,    
                     sendQueueSize,
-                    receiveQueueSize
+                    receiveQueueSize,
+                    writeQueueSize
                 );
             }
             totalStat.packets_send += tcd->stat.packets_send;
@@ -421,6 +423,8 @@ char *ksnTRUDPstatShowStr(trudpData *td, int page) {
             totalStat.packets_receive_dropped += tcd->stat.packets_receive_dropped;
             totalStat.sendQueueSize += sendQueueSize;
             totalStat.receiveQueueSize += receiveQueueSize;
+            totalStat.writeQueueSize += writeQueueSize;
+
             i++;
         }
         if(i > 0) {
@@ -455,6 +459,7 @@ char *ksnTRUDPstatShowStr(trudpData *td, int page) {
             , totalStat.packets_receive ? 100 * totalStat.packets_receive_dropped / totalStat.packets_receive : 0
             , totalStat.sendQueueSize
             , totalStat.receiveQueueSize
+            , totalStat.writeQueueSize
             );            
         }
         teoMapIteratorFree(it);
@@ -472,9 +477,9 @@ char *ksnTRUDPstatShowStr(trudpData *td, int page) {
 //        "  Packets receive and dropped: %-12d " "  attempts: %-12d\n"
 //        "\n"
         "List of channels:\n"
-        "---------------------------------------------------------------------------------------------------------------------------------------------------------------------\n"
-        "  # Key                          Send  Speed(kb/s)  Total(mb) Trip time /  Wait(ms) |  Recv  Speed(kb/s)  Total(mb)     ACK |     Repeat         Drop |   SQ     RQ  \n"
-        "---------------------------------------------------------------------------------------------------------------------------------------------------------------------\n"
+        "--------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n"
+        "  # Key                          Send  Speed(kb/s)  Total(mb) Trip time /  Wait(ms) |  Recv  Speed(kb/s)  Total(mb)     ACK |     Repeat         Drop |   SQ     RQ     WQ\n"
+        "--------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n"
         "%s"
         "%s"
         "  "
@@ -489,7 +494,8 @@ char *ksnTRUDPstatShowStr(trudpData *td, int page) {
         _ANSI_GREEN"repeat:"_ANSI_NONE" resend packets,  "
         _ANSI_GREEN"drop:"_ANSI_NONE" duplicate received, "
         _ANSI_GREEN"SQ:"_ANSI_NONE" send queue,         "
-        _ANSI_GREEN"RQ:"_ANSI_NONE" receive queue       \n"
+        _ANSI_GREEN"RQ:"_ANSI_NONE" receive queue       "
+        _ANSI_GREEN"WQ:"_ANSI_NONE" write queue       \n"
     
         , td->port
         , showTime((teoGetTimestampFull() - td->started) / 1000000.0)

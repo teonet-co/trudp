@@ -187,7 +187,12 @@ typedef struct trudpStatData {
         size_t size_max;
         size_t size_current;
     } receiveQueue;
-    
+
+    struct writeQueue {
+      size_t size_max;
+      size_t size_current;
+    } writeQueue;
+
 } trudpStatData;
 
 /**
