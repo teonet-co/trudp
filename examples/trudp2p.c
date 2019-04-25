@@ -28,6 +28,7 @@
 #include <unistd.h>
 #include <string.h>
 
+#include "../src/packet.h"
 #include "trudp_pth.h"
 
 //#if __STDC_VERSION__ >= 201112L
