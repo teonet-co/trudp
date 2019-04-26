@@ -82,6 +82,7 @@ static inline
 void trudpStatChannelReset(trudpChannelData *tcd) {
     memset(&tcd->stat, 0, sizeof(tcd->stat));
     tcd->stat.triptime_min = UINT32_MAX;
+    tcd->stat.started = teoGetTimestampFull();
 }
 /**
  * Reset TR-UDP channel statistic

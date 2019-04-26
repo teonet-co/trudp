@@ -49,7 +49,7 @@ extern "C" {
 #define RTT 30000 // This constant used in send queue expected time calculation
 #define MAX_RTT 2500000 // This constant used in send queue expected time calculation
 #define RESET_AT_LONG_RETRANSMIT 0 // Send rest at long retransmit retrives time
-#define NORMAL_S_SIZE 100 //128 // Normal size of send queue
+#define NORMAL_S_SIZE 48 // Normal size of send queue
 
 
 #ifdef __cplusplus

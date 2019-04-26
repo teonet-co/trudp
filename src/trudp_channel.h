@@ -85,6 +85,7 @@ typedef struct trudpStatChannelData {
     
     #define LAST10_SIZE 10
     char key[MAX_KEY_LENGTH]; ///< Channel key 
+    uint64_t started; ///< Channel created time      
     uint32_t triptime_last; ///< Last trip time
     uint32_t triptime_max; ///< Max trip time
     uint32_t triptime_last_max; ///< Max trip time in last 10 packets

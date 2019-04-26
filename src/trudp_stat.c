@@ -357,7 +357,8 @@ static char* showTime(double t) {
 char *ksnTRUDPstatShowStr(trudpData *td, int page) {
 
     static uint32_t show_stat_time = 0;
-    uint32_t ts = trudpGetTimestamp();
+    uint64_t tsf = teoGetTimestampFull();
+    uint32_t ts = (uint32_t) (tsf & 0xFFFFFFFF); // trudpGetTimestamp();
     
     uint32_t packets_send = 0,
              packets_receive = 0,
@@ -377,7 +378,7 @@ char *ksnTRUDPstatShowStr(trudpData *td, int page) {
             char *key = teoMapIteratorElementKey(el, &key_len);
             trudpChannelData *tcd = (trudpChannelData *)
                                     teoMapIteratorElementData(el, NULL);
-
+            
             packets_send += tcd->stat.packets_send;
             ack_receive += tcd->stat.ack_receive;
             packets_receive += tcd->stat.packets_receive;
@@ -393,7 +394,8 @@ char *ksnTRUDPstatShowStr(trudpData *td, int page) {
                     tbl_str, i + 1,
                     key_len, key,
                     tcd->stat.packets_send,
-                    (double)(1.0 * tcd->stat.send_speed / 1024.0),
+                    //(double)(1.0 * tcd->stat.send_speed / 1024.0),
+                    (double)tcd->stat.packets_send / ((tsf - tcd->stat.started) / 1000000.0),  
                     tcd->stat.send_total,
                     tcd->stat.triptime_last / 1000.0,
                     tcd->stat.wait,
@@ -406,8 +408,8 @@ char *ksnTRUDPstatShowStr(trudpData *td, int page) {
                     tcd->stat.packets_receive_dropped,
                     tcd->stat.packets_receive ? 100 * tcd->stat.packets_receive_dropped / tcd->stat.packets_receive : 0,    
                     sendQueueSize,
-                    receiveQueueSize,
-                    writeQueueSize
+                    writeQueueSize,
+                    receiveQueueSize
                 );
             }
             totalStat.packets_send += tcd->stat.packets_send;
@@ -422,15 +424,15 @@ char *ksnTRUDPstatShowStr(trudpData *td, int page) {
             totalStat.packets_attempt += tcd->stat.packets_attempt;
             totalStat.packets_receive_dropped += tcd->stat.packets_receive_dropped;
             totalStat.sendQueueSize += sendQueueSize;
-            totalStat.receiveQueueSize += receiveQueueSize;
             totalStat.writeQueueSize += writeQueueSize;
+            totalStat.receiveQueueSize += receiveQueueSize;
 
             i++;
         }
         if(i > 0) {
             tbl_str = sformatMessage(tbl_str,
             "%s"
-            "---------------------------------------------------------------------------------------------------------------------------------------------------------------------\n"
+            "---------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n"
             , tbl_str
             );
         }
@@ -440,12 +442,13 @@ char *ksnTRUDPstatShowStr(trudpData *td, int page) {
 
             tbl_total = sformatMessage(tbl_total,
             "%3d Page: %-2d [Press: N or P] %8d %11.3f %10.3f  %9.3f /%9.3f %8d %11.3f %10.3f %8d %8d(%d%%) %8d(%d%%) %6d %6d\n"
-            "---------------------------------------------------------------------------------------------------------------------------------------------------------------------\n"
+            "---------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n"
 
             , i
             , page+1
             , totalStat.packets_send
             , (double)(1.0 * totalStat.send_speed / 1024.0)
+            , (double)(1.0 * totalStat.send_speed / 1024.0)        
             , totalStat.send_total
             , totalStat.triptime_last / 1000.0
             , totalStat.wait
@@ -458,8 +461,8 @@ char *ksnTRUDPstatShowStr(trudpData *td, int page) {
             , totalStat.packets_receive_dropped
             , totalStat.packets_receive ? 100 * totalStat.packets_receive_dropped / totalStat.packets_receive : 0
             , totalStat.sendQueueSize
-            , totalStat.receiveQueueSize
             , totalStat.writeQueueSize
+            , totalStat.receiveQueueSize
             );            
         }
         teoMapIteratorFree(it);
@@ -467,9 +470,9 @@ char *ksnTRUDPstatShowStr(trudpData *td, int page) {
 
     char *ret_str = formatMessage(
 //        _ANSI_CLS"\033[0;0H"
-        "---------------------------------------------------------------------------------------------------------------------------------------------------------------------\n"
+        "---------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n"
         "TR-UDP statistics, port %d, running time: %s, show statistic time %.3f ms\n"
-//        "---------------------------------------------------------------------------------------------------------------------------------------------------------------------\n"
+//        "--------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n"
 //        "\n"
 //        "  Packets sent: %-12d                " "Send list:                      " "Receive Heap:\n"
 //        "  ACK receive: %-12d                 " "  size_max: %-12d        "        "  size_max: %-12d\n"
@@ -477,14 +480,14 @@ char *ksnTRUDPstatShowStr(trudpData *td, int page) {
 //        "  Packets receive and dropped: %-12d " "  attempts: %-12d\n"
 //        "\n"
         "List of channels:\n"
-        "--------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n"
-        "  # Key                          Send  Speed(kb/s)  Total(mb) Trip time /  Wait(ms) |  Recv  Speed(kb/s)  Total(mb)     ACK |     Repeat         Drop |   SQ     RQ     WQ\n"
-        "--------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n"
+        "---------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n"
+        "  # Key                          Send  Speed(p/s)   Total(mb) Trip time /  Wait(ms) |  Recv  Speed(kb/s)  Total(mb)     ACK |     Repeat         Drop |   SQ     WQ     RQ\n"
+        "---------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n"
         "%s"
         "%s"
         "  "
         _ANSI_GREEN"send:"_ANSI_NONE" send packets, "
-        _ANSI_GREEN"speed:"_ANSI_NONE" send speed(kb/s), "
+        _ANSI_GREEN"speed:"_ANSI_NONE" send speed(p/s), "
         _ANSI_GREEN"total:"_ANSI_NONE" send in megabytes, "
         _ANSI_GREEN"wait:"_ANSI_NONE" time to wait ACK, "
         _ANSI_GREEN"recv:"_ANSI_NONE" receive packets   \n"
@@ -494,8 +497,8 @@ char *ksnTRUDPstatShowStr(trudpData *td, int page) {
         _ANSI_GREEN"repeat:"_ANSI_NONE" resend packets,  "
         _ANSI_GREEN"drop:"_ANSI_NONE" duplicate received, "
         _ANSI_GREEN"SQ:"_ANSI_NONE" send queue,         "
-        _ANSI_GREEN"RQ:"_ANSI_NONE" receive queue       "
-        _ANSI_GREEN"WQ:"_ANSI_NONE" write queue       \n"
+        _ANSI_GREEN"WQ:"_ANSI_NONE" write queue         "
+        _ANSI_GREEN"RQ:"_ANSI_NONE" receive queue     \n"
     
         , td->port
         , showTime((teoGetTimestampFull() - td->started) / 1000000.0)
