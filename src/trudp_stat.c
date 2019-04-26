@@ -45,44 +45,44 @@
 void trudpStatProcessLast10Send(trudpChannelData *tcd, void *packet,
         size_t send_data_length) {
 
-    // Add triptime to last 10 array
-    tcd->stat.last_send_packets_ar[tcd->stat.idx_snd].triptime = tcd->stat.triptime_last;
-
     // Add last data size to last 10 array
     uint32_t size_b = send_data_length + trudpPacketGetHeaderLength(packet);
-    tcd->stat.last_send_packets_ar[tcd->stat.idx_snd].size_b = size_b;
     tcd->stat.send_total += 1.0 * size_b / (1024.0 * 1024.0);
-    tcd->stat.last_send_packets_ar[tcd->stat.idx_snd].ts = trudpPacketGetTimestamp(packet);
 
-    // Last 10 array next index
-    tcd->stat.idx_snd++;
-    if(tcd->stat.idx_snd >= LAST10_SIZE) tcd->stat.idx_snd = 0;
-
-    // Calculate max triptime & speed in bytes in sec in last 10 packet
-    {
-        int i;
-        uint32_t min_ts = UINT32_MAX, max_ts = 0, size_b = 0;
-        uint32_t triptime_last_max = 0;
-        for(i = 0; i < LAST10_SIZE; i++) {
-
-            // Last maximum triptime
-            if(tcd->stat.last_send_packets_ar[i].triptime > triptime_last_max)
-                triptime_last_max = tcd->stat.last_send_packets_ar[i].triptime;
-
-            // Calculate size sum & define minimum and maximum timestamp
-            size_b += tcd->stat.last_send_packets_ar[i].size_b;
-            if(tcd->stat.last_send_packets_ar[i].ts > max_ts) max_ts = tcd->stat.last_send_packets_ar[i].ts;
-            else if (tcd->stat.last_send_packets_ar[i].ts > 0 && tcd->stat.last_send_packets_ar[i].ts < min_ts) min_ts = tcd->stat.last_send_packets_ar[i].ts;
-        }
-
-        // Last maximal triptime
-        tcd->stat.triptime_last_max = (tcd->stat.triptime_last_max + 2 * triptime_last_max) / 3;
-
-        // Send speed \todo use trudpGetTimestamp() or max_ts
-        uint32_t dif_ts = trudpGetTimestamp()/*max_ts*/ - min_ts;
-        if(dif_ts) tcd->stat.send_speed = 1.0 * size_b / (1.0 * (dif_ts) / 1000000.0);
-//        else tcd->stat.send_speed = 0;
-    }
+    // Add triptime to last 10 array
+    tcd->stat.last_send_packets_ar[tcd->stat.idx_snd].triptime = tcd->stat.triptime_last;
+    
+//    tcd->stat.last_send_packets_ar[tcd->stat.idx_snd].size_b = size_b;
+//    tcd->stat.last_send_packets_ar[tcd->stat.idx_snd].ts = trudpPacketGetTimestamp(packet);
+//
+//    // Last 10 array next index
+//    tcd->stat.idx_snd++;
+//    if(tcd->stat.idx_snd >= LAST10_SIZE) tcd->stat.idx_snd = 0;
+//
+//    // Calculate max triptime & speed in bytes in sec in last 10 packet
+//    {
+//        int i;
+//        uint32_t min_ts = UINT32_MAX, max_ts = 0, size_b = 0;
+//        uint32_t triptime_last_max = 0;
+//        for(i = 0; i < LAST10_SIZE; i++) {
+//
+//            // Last maximum triptime
+//            if(tcd->stat.last_send_packets_ar[i].triptime > triptime_last_max)
+//                triptime_last_max = tcd->stat.last_send_packets_ar[i].triptime;
+//
+//            // Calculate size sum & define minimum and maximum timestamp
+//            size_b += tcd->stat.last_send_packets_ar[i].size_b;
+//            if(tcd->stat.last_send_packets_ar[i].ts > max_ts) max_ts = tcd->stat.last_send_packets_ar[i].ts;
+//            else if (tcd->stat.last_send_packets_ar[i].ts > 0 && tcd->stat.last_send_packets_ar[i].ts < min_ts) min_ts = tcd->stat.last_send_packets_ar[i].ts;
+//        }
+//
+//        // Last maximal triptime
+//        tcd->stat.triptime_last_max = (tcd->stat.triptime_last_max + 2 * triptime_last_max) / 3;
+//
+//        // Send speed \todo use trudpGetTimestamp() or max_ts
+//        uint32_t dif_ts = trudpGetTimestamp()/*max_ts*/ - min_ts;
+//        if(dif_ts) tcd->stat.send_speed = 1.0 * size_b / (1.0 * (dif_ts) / 1000000.0);
+//    }
 }
 
 /**
@@ -112,12 +112,12 @@ void trudpStatProcessLast10Receive(trudpChannelData *tcd, void *packet) {
             // Calculate size sum & define minimum and maximum timestamp
             size_b += tcd->stat.last_receive_packets_ar[i].size_b;
             if(tcd->stat.last_receive_packets_ar[i].ts > max_ts) {
-                
+
                 max_ts = tcd->stat.last_receive_packets_ar[i].ts;
             }
-            else if(tcd->stat.last_receive_packets_ar[i].ts > 0 && 
+            else if(tcd->stat.last_receive_packets_ar[i].ts > 0 &&
                     tcd->stat.last_receive_packets_ar[i].ts < min_ts) {
-                
+
                 min_ts = tcd->stat.last_receive_packets_ar[i].ts;
             }
         }
@@ -289,36 +289,36 @@ void *trudpStatGet(trudpData *td, int type, size_t *stat_len) {
 
 /**
  * Remove leading string spaces and zeros
- * 
+ *
  * @param str
- * 
+ *
  * @return Pointer to part of string without leading spaces and zeros
  */
 static char* trimLeadingZerro(char *str) {
-    
+
     char *ret_str = str;
     size_t i = 0, len = strlen(str);
-    
+
     while(i<len) {
-        if(str[i] != ' ' && !(str[i] == '0' && str[i+1] != '.') ) { 
-            ret_str = str + i; 
-            break; 
+        if(str[i] != ' ' && !(str[i] == '0' && str[i+1] != '.') ) {
+            ret_str = str + i;
+            break;
         }
         i++;
     }
-    
+
     return ret_str;
 }
 
 /**
- * Return formated time string
- * 
+ * Return formatted time string
+ *
  * @param t Time
- * 
- * @return Formated time string: days minutes seconds.milliseconds
+ *
+ * @return Formatted time string: days minutes seconds.milliseconds
  */
 static char* showTime(double t) {
-    
+
     #define T_STR_LEN 64
     static char t_str[T_STR_LEN];
 
@@ -331,7 +331,7 @@ static char* showTime(double t) {
     hours = (t - days * day_sec) / hour_sec;
     minutes = (t - days * day_sec - hours * hour_sec) /  minute_sec;
     seconds = t - days * day_sec - hours * hour_sec - minutes * minute_sec;
-    
+
     snprintf((char*)t_str, T_STR_LEN, "%d%s%d%s%d%s%.3f sec"
             , days
             , (days ? " days " : " ")
@@ -341,7 +341,7 @@ static char* showTime(double t) {
             , (!minutes && !hours && !days ? " " : " min ")
             , seconds
     );
-            
+
     return trimLeadingZerro(t_str);
 }
 
@@ -359,7 +359,7 @@ char *ksnTRUDPstatShowStr(trudpData *td, int page) {
     static uint32_t show_stat_time = 0;
     uint64_t tsf = teoGetTimestampFull();
     uint32_t ts = (uint32_t) (tsf & 0xFFFFFFFF); // trudpGetTimestamp();
-    
+
     uint32_t packets_send = 0,
              packets_receive = 0,
              ack_receive = 0,
@@ -369,7 +369,7 @@ char *ksnTRUDPstatShowStr(trudpData *td, int page) {
     char *tbl_str = strdup(""), *tbl_total = strdup("");
     trudpStatChannelData totalStat;
     teoMapIterator *it = teoMapIteratorNew(td->map);
-    if(it != NULL) {        
+    if(it != NULL) {
         memset(&totalStat, 0, sizeof(totalStat));
         while(teoMapIteratorNext(it)) {
 
@@ -378,12 +378,12 @@ char *ksnTRUDPstatShowStr(trudpData *td, int page) {
             char *key = teoMapIteratorElementKey(el, &key_len);
             trudpChannelData *tcd = (trudpChannelData *)
                                     teoMapIteratorElementData(el, NULL);
-            
+
             packets_send += tcd->stat.packets_send;
             ack_receive += tcd->stat.ack_receive;
             packets_receive += tcd->stat.packets_receive;
             packets_dropped += tcd->stat.packets_receive_dropped;
-            
+
             size_t sendQueueSize = trudpSendQueueSize(tcd->sendQueue);
             size_t receiveQueueSize = trudpReceiveQueueSize(tcd->receiveQueue);
             size_t writeQueueSize = trudpWriteQueueSize(tcd->writeQueue);
@@ -395,18 +395,19 @@ char *ksnTRUDPstatShowStr(trudpData *td, int page) {
                     key_len, key,
                     tcd->stat.packets_send,
                     //(double)(1.0 * tcd->stat.send_speed / 1024.0),
-                    (double)tcd->stat.packets_send / ((tsf - tcd->stat.started) / 1000000.0),  
+                    (double)tcd->stat.packets_send / ((tsf - tcd->stat.started) / 1000000.0),
                     tcd->stat.send_total,
                     tcd->stat.triptime_last / 1000.0,
                     tcd->stat.wait,
                     tcd->stat.packets_receive,
-                    (double)(1.0 * tcd->stat.receive_speed / 1024.0),
+                    //(double)(1.0 * tcd->stat.receive_speed / 1024.0),
+                    (double)tcd->stat.packets_receive / ((tsf - tcd->stat.started) / 1000000.0),      
                     tcd->stat.receive_total,
                     tcd->stat.ack_receive,
                     tcd->stat.packets_attempt,
-                    tcd->stat.packets_send ? 100 * tcd->stat.packets_attempt / tcd->stat.packets_send : 0,     
+                    tcd->stat.packets_send ? 100 * tcd->stat.packets_attempt / tcd->stat.packets_send : 0,
                     tcd->stat.packets_receive_dropped,
-                    tcd->stat.packets_receive ? 100 * tcd->stat.packets_receive_dropped / tcd->stat.packets_receive : 0,    
+                    tcd->stat.packets_receive ? 100 * tcd->stat.packets_receive_dropped / tcd->stat.packets_receive : 0,
                     sendQueueSize,
                     writeQueueSize,
                     receiveQueueSize
@@ -448,7 +449,7 @@ char *ksnTRUDPstatShowStr(trudpData *td, int page) {
             , page+1
             , totalStat.packets_send
             , (double)(1.0 * totalStat.send_speed / 1024.0)
-            , (double)(1.0 * totalStat.send_speed / 1024.0)        
+            , (double)(1.0 * totalStat.send_speed / 1024.0)
             , totalStat.send_total
             , totalStat.triptime_last / 1000.0
             , totalStat.wait
@@ -463,7 +464,7 @@ char *ksnTRUDPstatShowStr(trudpData *td, int page) {
             , totalStat.sendQueueSize
             , totalStat.writeQueueSize
             , totalStat.receiveQueueSize
-            );            
+            );
         }
         teoMapIteratorFree(it);
     }
@@ -481,27 +482,27 @@ char *ksnTRUDPstatShowStr(trudpData *td, int page) {
 //        "\n"
         "List of channels:\n"
         "---------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n"
-        "  # Key                          Send  Speed(p/s)   Total(mb) Trip time /  Wait(ms) |  Recv  Speed(kb/s)  Total(mb)     ACK |     Repeat         Drop |   SQ     WQ     RQ\n"
+        "  # Key                          Send  Speed(p/s)   Total(mb) Trip time /  Wait(ms) |  Recv   Speed(p/s)  Total(mb)     ACK |     Repeat         Drop |   SQ     WQ     RQ\n"
         "---------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n"
         "%s"
         "%s"
         "  "
         _ANSI_GREEN"send:"_ANSI_NONE" send packets, "
-        _ANSI_GREEN"speed:"_ANSI_NONE" send speed(p/s), "
+        _ANSI_GREEN"speed:"_ANSI_NONE" send speed(packets/sec), "
         _ANSI_GREEN"total:"_ANSI_NONE" send in megabytes, "
         _ANSI_GREEN"wait:"_ANSI_NONE" time to wait ACK, "
         _ANSI_GREEN"recv:"_ANSI_NONE" receive packets   \n"
 
         "  "
         _ANSI_GREEN"ACK:"_ANSI_NONE" receive ACK,   "
-        _ANSI_GREEN"repeat:"_ANSI_NONE" resend packets,  "
+        _ANSI_GREEN"repeat:"_ANSI_NONE" resend packets,         "
         _ANSI_GREEN"drop:"_ANSI_NONE" duplicate received, "
         _ANSI_GREEN"SQ:"_ANSI_NONE" send queue,         "
         _ANSI_GREEN"WQ:"_ANSI_NONE" write queue         "
         _ANSI_GREEN"RQ:"_ANSI_NONE" receive queue     \n"
-    
+
         , td->port
-        , showTime((teoGetTimestampFull() - td->started) / 1000000.0)
+        , showTime((tsf - td->started) / 1000000.0)
         , show_stat_time / 1000000.0
 
 //        , packets_send
@@ -511,34 +512,34 @@ char *ksnTRUDPstatShowStr(trudpData *td, int page) {
 
         , tbl_str
         , tbl_total
-    
+
     );
 
     free(tbl_str);
     free(tbl_total);
-    
+
     show_stat_time = trudpGetTimestamp() - ts;
 
     return ret_str;
 }
 
 char *trudpStatShowQueueStr(trudpChannelData *tcd, int type) {
-    
+
     char *str = strdup("");
-    
-//    if(trudpPacketQueueSize(tcd->sendQueue) > MAX_QUELEN_SHOW || 
-//       trudpPacketQueueSize(tcd->receiveQueue) > MAX_QUELEN_SHOW) 
-//    exit(-1); 
-    
-    teoQueueIterator *it = !type ? 
-        teoQueueIteratorNew(tcd->sendQueue->q) : 
+
+//    if(trudpPacketQueueSize(tcd->sendQueue) > MAX_QUELEN_SHOW ||
+//       trudpPacketQueueSize(tcd->receiveQueue) > MAX_QUELEN_SHOW)
+//    exit(-1);
+
+    teoQueueIterator *it = !type ?
+        teoQueueIteratorNew(tcd->sendQueue->q) :
         teoQueueIteratorNew(tcd->receiveQueue->q);
-    
-    if(it != NULL) {        
-        
+
+    if(it != NULL) {
+
         int i = 0;
         uint64_t current_t = teoGetTimestampFull();
-        str = sformatMessage(str, 
+        str = sformatMessage(str,
             "--------------------------------------------------------------\n"
             "TR-UDP %s Queue, size: %d, %s %u\n"
             "--------------------------------------------------------------\n"
@@ -550,19 +551,19 @@ char *trudpStatShowQueueStr(trudpChannelData *tcd, int type) {
             , !type ? tcd->sendId : tcd->receiveExpectedId
         );
         while(teoQueueIteratorNext(it)) {
-            
+
             trudpPacketQueueData *tqd = (trudpPacketQueueData *)
                     ((teoQueueData *)teoQueueIteratorElement(it))->data;
-                        
-            long timeout_sq = current_t < tqd->expected_time ? 
-                (long)(tqd->expected_time - current_t) : 
+
+            long timeout_sq = current_t < tqd->expected_time ?
+                (long)(tqd->expected_time - current_t) :
                 -1 * (long)(current_t - tqd->expected_time);
-                        
-            str = sformatMessage(str,             
+
+            str = sformatMessage(str,
             "%s"
             "  %3d   %-8d %8.3f ms   %d\n"
             , str
-            , i++   
+            , i++
             , trudpPacketGetId(tqd->packet)
             , !type ? timeout_sq / 1000.0 : 0
             , !type ? tqd->retrieves : 0
@@ -579,6 +580,6 @@ char *trudpStatShowQueueStr(trudpChannelData *tcd, int type) {
         }
         teoQueueIteratorFree(it);
     }
-    
+
     return str;
 }
