@@ -441,7 +441,7 @@ char *ksnTRUDPstatShowStr(trudpData *td, int page) {
             totalStat.wait /= i;
 
             tbl_total = sformatMessage(tbl_total,
-            "%3d Page: %-2d [Press: N or P] %8d %11.3f %10.3f  %9.3f /%9.3f %8d %11.3f %10.3f %8d %8d(%d%%) %8d(%d%%) %6d %6d\n"
+            "%3d Page: %-2d [Press: N or P] %8d %11.3f %10.3f  %9.3f /%9.3f %8d %11.3f %10.3f %8d %8d(%d%%) %8d(%d%%) %6d %6d %6d\n"
             "---------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n"
 
             , i

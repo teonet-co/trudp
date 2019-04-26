@@ -117,6 +117,7 @@ static void _trudpChannelSetDefaults(trudpChannelData *tcd) {
 static void _trudpChannelFree(trudpChannelData *tcd) {
 
     TD(tcd)->stat.sendQueue.size_current -= trudpSendQueueSize(tcd->sendQueue);
+    TD(tcd)->stat.writeQueue.size_current -= trudpWriteQueueSize(tcd->writeQueue);
 
     trudpSendQueueFree(tcd->sendQueue);
     trudpWriteQueueFree(tcd->writeQueue);

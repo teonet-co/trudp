@@ -81,7 +81,7 @@ typedef struct options {
 
 } options;
 
-//#define USE_LIBEV 1
+#define USE_LIBEV 1
 
 #if USE_LIBEV
 
