@@ -439,12 +439,11 @@ static size_t _trudpChannelSendPacket(trudpChannelData *tcd, void *packetDATA,
 
     // Send data (add to write queue)
     if(!save_to_send_queue || size_sq < NORMAL_S_SIZE) {
-        trudpSendEvent(tcd, PROCESS_SEND, packetDATA, packetLength, NULL);
+        trudpSendEvent(tcd, PROCESS_SEND, packetDATA, packetLength, NULL); // Send packet in trudp event loop
+        tcd->stat.packets_send++; // Send packets statistic
     }
 //    else if(save_to_send_queue) trudp_start_send_queue_cb(TD(tcd)->psq_data, 0);
 
-    // Statistic
-    tcd->stat.packets_send++;
 
     return packetLength;
 }
