@@ -51,7 +51,7 @@ extern int usleep (__useconds_t __useconds);
 #define APP_VERSION "0.0.19"
 
 // Application constants
-#define SEND_MESSAGE_AFTER_MIN 13 // 9 /* 16667 */ // uSec (mSec * 1000)
+#define SEND_MESSAGE_AFTER_MIN 10 // 9 /* 16667 */ // uSec (mSec * 1000)
 #define SEND_MESSAGE_AFTER  SEND_MESSAGE_AFTER_MIN
 #define RECONNECT_AFTER 3000000 // uSec (mSec * 1000)
 #define SHOW_STATISTIC_AFTER 500000 // uSec (mSec * 1000)
@@ -549,7 +549,7 @@ static void send_message_cb(EV_P_ ev_timer *w, int revents) {
 
     send_message_data *smd = (send_message_data *)w->data;
 
-      if(!smd->o->dont_send_data && smd->td->stat.writeQueue.size_current == 0)
+      if(!smd->o->dont_send_data && smd->td->stat.writeQueue.size_current < 256)
         trudpSendDataToAll(smd->td, smd->message, smd->message_length);
 }
 
