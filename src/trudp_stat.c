@@ -33,7 +33,7 @@
 
 #include "trudp_stat.h"
 #include "utils_r.h"
-#include "utils.h"
+#include "trudp_utils.h"
 
 /**
  * Process packet and calculate last 10 send packets array

@@ -31,12 +31,17 @@
 #define TRUDP_UTILS_H
 
 #include <stddef.h>
+#include <time.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 char *trudpMakeKey(char *addr, int port, int channel, size_t *key_length);
+char *formatMessage(const char *fmt, ...);
+char *sformatMessage(char *str_to_free, const char *fmt, ...);
+struct timeval *usecToTv(struct timeval *tv, uint32_t usec);
+
 
 #ifdef __cplusplus
 }

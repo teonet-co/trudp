@@ -37,7 +37,7 @@
 #endif
 
 #include "udp.h"
-#include "utils.h"
+#include "trudp_utils.h"
 
 // UDP / UDT functions
 #define _trudpUdpSocket(domain, type, protocol) socket(domain, type, protocol)

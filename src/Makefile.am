@@ -57,7 +57,6 @@ libtrudp_la_SOURCES = \
 	trudp_stat.c \
 	trudp_ev.c \
 	udp.c \
-	utils.c \
 	write_queue.c
 	
 libtrudpincludedir=$(includedir)/libtrudp
