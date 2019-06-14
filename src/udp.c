@@ -39,6 +39,8 @@
 #include "udp.h"
 #include "trudp_utils.h"
 
+#define h_addr h_addr_list[0]
+
 // UDP / UDT functions
 #define _trudpUdpSocket(domain, type, protocol) socket(domain, type, protocol)
 #define _trudpUdpBind(fd, addr, addr_len) bind(fd, addr, addr_len)
@@ -148,7 +150,7 @@ int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr,
  * @param port Pointer to port to get port integer
  * @return Pointer to address string
  */
-inline char *trudpUdpGetAddr(__CONST_SOCKADDR_ARG remaddr, int *port) {
+ char *trudpUdpGetAddr(__CONST_SOCKADDR_ARG remaddr, int *port) {
 
     char *addr = inet_ntoa(((struct sockaddr_in*)remaddr)->sin_addr); // IP to string
     if(port) *port = ntohs(((struct sockaddr_in*)remaddr)->sin_port); // Port to integer
@@ -291,7 +293,7 @@ static int _trudpUdpIsWritable(int sd, uint32_t timeOut) {
  * @param addrlen
  * @return
  */
-inline ssize_t trudpUdpSendto(int fd, void *buffer, size_t buffer_size,
+ ssize_t trudpUdpSendto(int fd, void *buffer, size_t buffer_size,
         __CONST_SOCKADDR_ARG remaddr, socklen_t addrlen) {
 
     ssize_t sendlen = 0;

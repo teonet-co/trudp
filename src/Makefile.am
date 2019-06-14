@@ -3,10 +3,6 @@
 
 ACLOCAL_AMFLAGS = -I m4
 
-AM_CPPFLAGS = \
-	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
-	-DPACKAGE_SRC_DIR=\""$(srcdir)"\" \
-	-DPACKAGE_DATA_DIR=\""$(datadir)"\" $(TRUDP_CFLAGS)
 
 AM_CFLAGS = \
 	 -g -Wall \
@@ -17,19 +13,15 @@ AM_CFLAGS = \
 	 -I../embedded/teoccl/src \
 	 -fvisibility=hidden
 	
-#	 -std=gnu11 
-#	 -std=gnu89
-#	 -I$(HOME)/Projects/teonet/src/ 
 
 AM_CXX = clang++
 AM_CXXFLAGS = \
          -g -Wall \
+	 -std=c++1488 \
 	 -fPIC \
 	 -I$(HOME)/Projects/teonet/embedded/libtrudp/src \
 	 -I/usr/include/libtrudp
 
-#	 -std=c++11 
-#	 -I$(HOME)/Projects/teonet/src/
 
 ## Debug info
 if DEBUG

@@ -66,7 +66,7 @@ static void _trudpChannelSetLastReceived(trudpChannelData *tcd);
  * @param tcd
  * @return
  */
-static inline trudpChannelData *_trudpChannelAddToMap(void *td, char *key,
+static  trudpChannelData *_trudpChannelAddToMap(void *td, char *key,
         size_t key_length, trudpChannelData *tcd) {
 
     return teoMapAdd(((trudpData *)td)->map, key, key_length, tcd,
@@ -83,7 +83,7 @@ static inline trudpChannelData *_trudpChannelAddToMap(void *td, char *key,
  *
  * @return Send queue timeout (may by 0) or UINT32_MAX if send queue is empty
  */
-inline uint32_t trudpChannelSendQueueGetTimeout(trudpChannelData *tcd,
+ uint32_t trudpChannelSendQueueGetTimeout(trudpChannelData *tcd,
         uint64_t current_t) {
 
     return trudpSendQueueGetTimeout(tcd->sendQueue, current_t);
@@ -173,7 +173,7 @@ trudpChannelData *trudpChannelNew(void *parent, char *remote_address,
  *
  * @param tcd Pointer to trudpChannelData
  */
-static inline void _trudpChannelReset(trudpChannelData *tcd) {
+static  void _trudpChannelReset(trudpChannelData *tcd) {
     _trudpChannelFree(tcd);
 }
 
@@ -205,7 +205,7 @@ void trudpChannelDestroy(trudpChannelData *tcd) {
  * @param tcd Pointer to trudpChannelData
  * @return New send Id
  */
-static inline uint32_t _trudpChannelGetNewId(trudpChannelData *tcd) {
+static  uint32_t _trudpChannelGetNewId(trudpChannelData *tcd) {
 
     return tcd->sendId++;
 }
@@ -216,7 +216,7 @@ static inline uint32_t _trudpChannelGetNewId(trudpChannelData *tcd) {
  * @param tcd Pointer to trudpChannelData
  * @return Send Id
  */
-static inline uint32_t _trudpChannelGetId(trudpChannelData *tcd) {
+static  uint32_t _trudpChannelGetId(trudpChannelData *tcd) {
 
     return tcd->sendId;
 }
@@ -296,7 +296,7 @@ static void _trudpChannelCalculateTriptime(trudpChannelData *tcd, void *packet,
  *
  * @param tcd
  */
-static inline void _trudpChannelSetLastReceived(trudpChannelData *tcd) {
+static  void _trudpChannelSetLastReceived(trudpChannelData *tcd) {
     tcd->lastReceived = teoGetTimestampFull();
 }
 
@@ -306,7 +306,7 @@ static inline void _trudpChannelSetLastReceived(trudpChannelData *tcd) {
  * @param tcd Pointer to trudpChannelData
  * @param packet Pointer to received packet
  */
-static inline void _trudpChannelSendACK(trudpChannelData *tcd, void *packet) {
+static  void _trudpChannelSendACK(trudpChannelData *tcd, void *packet) {
 
     void *packetACK = trudpPacketACKcreateNew(packet);
     #if !USE_WRITE_QUEUE
@@ -324,7 +324,7 @@ static inline void _trudpChannelSendACK(trudpChannelData *tcd, void *packet) {
  * @param tcd Pointer to trudpChannelData
  * @param packet Pointer to received packet
  */
-static inline void _trudpChannelSendACKtoRESET(trudpChannelData *tcd, void *packet) {
+static  void _trudpChannelSendACKtoRESET(trudpChannelData *tcd, void *packet) {
 
     void *packetACK = trudpPacketACKtoRESETcreateNew(packet);
     #if !USE_WRITE_QUEUE
@@ -342,7 +342,7 @@ static inline void _trudpChannelSendACKtoRESET(trudpChannelData *tcd, void *pack
  * @param tcd Pointer to trudpChannelData
  * @param packet Pointer to received packet
  */
-static inline void _trudpChannelSendACKtoPING(trudpChannelData *tcd, void *packet) {
+static  void _trudpChannelSendACKtoPING(trudpChannelData *tcd, void *packet) {
 
     void *packetACK = trudpPacketACKtoPINGcreateNew(packet);
     #if !USE_WRITE_QUEUE
@@ -361,7 +361,7 @@ static inline void _trudpChannelSendACKtoPING(trudpChannelData *tcd, void *packe
  * @param data NULL
  * @param data_length 0
  */
-inline void trudpChannelSendRESET(trudpChannelData *tcd, void* data, size_t data_length) {
+ void trudpChannelSendRESET(trudpChannelData *tcd, void* data, size_t data_length) {
 
     if(tcd) {
         trudpSendEvent(tcd, SEND_RESET, data, data_length, NULL);
@@ -385,7 +385,7 @@ inline void trudpChannelSendRESET(trudpChannelData *tcd, void* data, size_t data
  *
  * @return Current time plus
  */
-static inline uint64_t _trudpChannelCalculateExpectedTime(trudpChannelData *tcd,
+static  uint64_t _trudpChannelCalculateExpectedTime(trudpChannelData *tcd,
         uint64_t current_time, int retransmit) {
 
     //int rtt = tcd->triptimeMiddle + RTT * (retransmit);
@@ -401,7 +401,7 @@ static inline uint64_t _trudpChannelCalculateExpectedTime(trudpChannelData *tcd,
  *
  * @param tcd Pointer to trudpChannelData
  */
-static inline
+static 
 void _trudpChannelIncrementStatSendQueueSize(trudpChannelData *tcd) {
     TD(tcd)->stat.sendQueue.size_current++;
 }

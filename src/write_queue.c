@@ -69,7 +69,7 @@ trudpWriteQueueData *trudpWriteQueueAdd(trudpWriteQueue *wq, void *packet,
  * 
  * @return Pointer to trudpQueueData or NULL if wqd is NULL
  */
-static inline teoQueueData *trudpWriteQueueDataToQueueData(trudpWriteQueueData *wqd) {
+static  teoQueueData *trudpWriteQueueDataToQueueData(trudpWriteQueueData *wqd) {
     return wqd ? (teoQueueData *)((void*)wqd - sizeof(teoQueueData)) : NULL;
 }
 
@@ -81,7 +81,7 @@ static inline teoQueueData *trudpWriteQueueDataToQueueData(trudpWriteQueueData *
  * 
  * @return Zero at success
  */
-static inline int trudpWriteQueueDelete(trudpWriteQueue *wq, trudpWriteQueueData *wqd) {    
+static  int trudpWriteQueueDelete(trudpWriteQueue *wq, trudpWriteQueueData *wqd) {    
     return teoQueueDelete(wq->q, trudpWriteQueueDataToQueueData(wqd));
 }
 

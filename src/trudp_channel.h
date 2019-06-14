@@ -164,7 +164,7 @@ TRUDP_API void trudpChannelSendRESET(trudpChannelData *tcd, void* data, size_t d
  * @param tcd Pointer to trudpChannelData
  */
 // TRUDP_API
-static inline 
+static
 void trudp_ChannelSendReset(trudpChannelData *tcd) {
     trudpChannelSendRESET(tcd, NULL, 0);
 }

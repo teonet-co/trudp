@@ -58,7 +58,7 @@ typedef struct trudpWriteQueueData {
  * 
  * @return Pointer to trudpWriteQueue
  */
-static inline 
+static  
 trudpWriteQueue *trudpWriteQueueNew() {    
     trudpWriteQueue *wq = (trudpWriteQueue *)malloc(sizeof(trudpWriteQueue));
     wq->q = teoQueueNew();
@@ -69,7 +69,7 @@ trudpWriteQueue *trudpWriteQueueNew() {
  * 
  * @param wq Pointer to trudpWriteQueue
  */
-static inline 
+static  
 void trudpWriteQueueDestroy(trudpWriteQueue *wq) {
     if(wq) {
         teoQueueDestroy(wq->q);
@@ -82,7 +82,7 @@ void trudpWriteQueueDestroy(trudpWriteQueue *wq) {
  * @param wq Pointer to trudpWriteQueue
  * @return Zero at success
  */
-static inline 
+static  
 int trudpWriteQueueFree(trudpWriteQueue *wq) {
     return wq && wq->q ? teoQueueFree(wq->q) : -1;
 }
@@ -93,7 +93,7 @@ int trudpWriteQueueFree(trudpWriteQueue *wq) {
  * 
  * @return Number of elements in Write queue
  */
-static inline 
+static  
 size_t trudpWriteQueueSize(trudpWriteQueue *wq) {    
     return wq ? teoQueueSize(wq->q) : -1;
 }
@@ -106,7 +106,7 @@ trudpWriteQueueData *trudpWriteQueueAdd(trudpWriteQueue *wq, void *packet,
  * 
  * @return Pointer to trudpWriteQueueData data or NULL
  */
-static inline 
+static  
 trudpWriteQueueData *trudpWriteQueueGetFirst(trudpWriteQueue *wq) {    
     return (trudpWriteQueueData *) (wq->q->first ? wq->q->first->data : NULL);
 }
@@ -117,7 +117,7 @@ trudpWriteQueueData *trudpWriteQueueGetFirst(trudpWriteQueue *wq) {
  * 
  * @return Zero at success
  */
-static inline 
+static  
 int trudpWriteQueueDeleteFirst(trudpWriteQueue *wq) {
     return teoQueueDeleteFirst(wq->q);
 }

@@ -59,7 +59,7 @@ typedef struct trudpPacketQueueData {
  *
  * @return Pointer to trudpPacketQueue
  */
-static inline
+static 
 trudpPacketQueue *trudpPacketQueueNew() {
     trudpPacketQueue *tq = (trudpPacketQueue *)malloc(sizeof(trudpPacketQueue));
     tq->q = teoQueueNew();
@@ -70,7 +70,7 @@ trudpPacketQueue *trudpPacketQueueNew() {
  *
  * @param tq Pointer to trudpPacketQueue
  */
-static inline
+static 
 void trudpPacketQueueDestroy(trudpPacketQueue *tq) {
     if(tq) {
         teoQueueDestroy(tq->q);
@@ -83,7 +83,7 @@ void trudpPacketQueueDestroy(trudpPacketQueue *tq) {
  * @param tq Pointer to trudpPacketQueue
  * @return Zero at success
  */
-static inline 
+static  
 int trudpPacketQueueFree(trudpPacketQueue *tq) {
     return tq && tq->q ? teoQueueFree(tq->q) : -1;
 }
@@ -95,7 +95,7 @@ int trudpPacketQueueFree(trudpPacketQueue *tq) {
  *
  * @return Number of elements in TR-UPD queue
  */
-static inline 
+static  
 size_t trudpPacketQueueSize(trudpPacketQueue *tq) {
     return teoQueueSize(tq->q);
 }
@@ -107,7 +107,7 @@ trudpPacketQueueData *trudpPacketQueueAdd(trudpPacketQueue *tq,
  * @param tqd Pointer to trudpPacketQueueData
  * @return Pointer to trudpQueueData or NULL if tqd is NULL
  */
-static inline 
+static  
 teoQueueData *trudpPacketQueueDataToQueueData(
     trudpPacketQueueData *tqd) {
     return tqd ? (teoQueueData *)((char*)tqd - sizeof(teoQueueData)) : NULL;
@@ -120,7 +120,7 @@ teoQueueData *trudpPacketQueueDataToQueueData(
  *
  * @return Zero at success
  */
-static inline 
+static  
 int trudpPacketQueueDelete(trudpPacketQueue *tq, 
     trudpPacketQueueData *tqd) {
     return teoQueueDelete(tq->q, trudpPacketQueueDataToQueueData(tqd));
@@ -132,7 +132,7 @@ int trudpPacketQueueDelete(trudpPacketQueue *tq,
  * @param tqd Pointer to trudpPacketQueueData
  * @return Zero at success
  */
-static inline 
+static  
 trudpPacketQueueData *trudpPacketQueueMoveToEnd(trudpPacketQueue *tq,
         trudpPacketQueueData *tqd) {
 
