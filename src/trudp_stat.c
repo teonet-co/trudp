@@ -51,7 +51,7 @@ void trudpStatProcessLast10Send(trudpChannelData *tcd, void *packet,
 
     // Add triptime to last 10 array
     tcd->stat.last_send_packets_ar[tcd->stat.idx_snd].triptime = tcd->stat.triptime_last;
-    
+
 //    tcd->stat.last_send_packets_ar[tcd->stat.idx_snd].size_b = size_b;
 //    tcd->stat.last_send_packets_ar[tcd->stat.idx_snd].ts = trudpPacketGetTimestamp(packet);
 //
@@ -401,7 +401,7 @@ char *ksnTRUDPstatShowStr(trudpData *td, int page) {
                     tcd->stat.wait,
                     tcd->stat.packets_receive,
                     //(double)(1.0 * tcd->stat.receive_speed / 1024.0),
-                    (double)tcd->stat.packets_receive / ((tsf - tcd->stat.started) / 1000000.0),      
+                    (double)tcd->stat.packets_receive / ((tsf - tcd->stat.started) / 1000000.0),
                     tcd->stat.receive_total,
                     tcd->stat.ack_receive,
                     tcd->stat.packets_attempt,

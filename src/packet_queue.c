@@ -36,7 +36,7 @@
 // Local functions
 
 #ifdef RESERVED
-static trudpPacketQueueData *_trudpPacketQueueAddTime(trudpPacketQueue *tq, 
+static trudpPacketQueueData *_trudpPacketQueueAddTime(trudpPacketQueue *tq,
         void *packet, size_t packet_length, uint64_t expected_time);
 trudpPacketQueueData *trudpPacketQueueFindByTime(trudpPacketQueue *tq, uint64_t t);
 #endif
@@ -58,7 +58,7 @@ trudpPacketQueueData *trudpPacketQueueAdd(trudpPacketQueue *tq, void *packet,
     size_t tqd_length = sizeof(trudpPacketQueueData) + packet_length;
     trudpPacketQueueData *tqd = (trudpPacketQueueData *)
             ((teoQueueData *)teoQueueAdd(tq->q, NULL, tqd_length))->data;
-    
+
     // Fill data
     memcpy(tqd->packet, packet, packet_length);
     tqd->expected_time = expected_time;
@@ -76,7 +76,7 @@ trudpPacketQueueData *trudpPacketQueueAdd(trudpPacketQueue *tq, void *packet,
  *
  * @return Pointer to trudpPacketQueueData or NULL if not found
  */
-trudpPacketQueueData *trudpPacketQueueFindById(trudpPacketQueue *tq, 
+trudpPacketQueueData *trudpPacketQueueFindById(trudpPacketQueue *tq,
         uint32_t id) {
 
     trudpPacketQueueData *rv = NULL;
@@ -133,7 +133,7 @@ trudpPacketQueueData *trudpPacketQueueGetFirst(trudpPacketQueue *tq) {
  *
  * @return  Pointer to trudpPacketQueueData or NULL if not found
  */
-trudpPacketQueueData *trudpPacketQueueFindByTime(trudpPacketQueue *tq, 
+trudpPacketQueueData *trudpPacketQueueFindByTime(trudpPacketQueue *tq,
         uint64_t t) {
 
     trudpPacketQueueData *rv = NULL;
@@ -145,7 +145,7 @@ trudpPacketQueueData *trudpPacketQueueFindByTime(trudpPacketQueue *tq,
 
             trudpPacketQueueData *tqd = (trudpPacketQueueData *)
                     ((teoQueueData *)teoQueueIteratorElement(it))->data;
-            
+
             if(tqd->expected_time <= t) {
                 rv = tqd;
                 break;
@@ -175,13 +175,13 @@ static trudpPacketQueueData *_trudpPacketQueueAddTime(trudpPacketQueue *tq,
         // Find expected less or equal then than selected
         trudpPacketQueueData *tpqd = trudpPacketQueueFindByTime(tq, expected_time);
         if(tpqd) {
-            
+
             // Add after
             size_t tqd_length = sizeof(trudpPacketQueueData) + packet_length;
             trudpPacketQueueData *tqd = (trudpPacketQueueData *)
                 ((teoQueueData *)teoQueueAddAfter(tq->q, NULL, tqd_length,
                     _trudpPacketQueueDataToQueueData(tpqd)))->data;
-            
+
             // Fill data
             memcpy(tqd->packet, packet, packet_length);
             tqd->expected_time = expected_time;

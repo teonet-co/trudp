@@ -83,7 +83,7 @@ typedef struct trudpHeader {
 // Local functions
 static void _trudpHeaderACKcreate(trudpHeader *out_th, trudpHeader *in_th);
 static void _trudpHeaderACKtoRESETcreate(trudpHeader *out_th, trudpHeader *in_th);
-static  void _trudpHeaderACKtoPINGcreate(trudpHeader *out_th, 
+static  void _trudpHeaderACKtoPINGcreate(trudpHeader *out_th,
         trudpHeader *in_th, void *data, size_t data_length);
 static uint8_t _trudpHeaderChecksumCalculate(trudpHeader *th);
 static int _trudpHeaderChecksumCheck(trudpHeader *th);
@@ -220,10 +220,10 @@ static void _trudpHeaderCreate(trudpHeader *th, uint32_t id,
  * @param out_th Output buffer to create ACK header
  * @param in_th Input buffer with received TR-UDP package (header)
  */
-static  void _trudpHeaderACKcreate(trudpHeader *out_th, 
+static  void _trudpHeaderACKcreate(trudpHeader *out_th,
         trudpHeader *in_th) {
 
-    _trudpHeaderCreate(out_th, in_th->id, TRU_ACK, in_th->channel, 0, 
+    _trudpHeaderCreate(out_th, in_th->id, TRU_ACK, in_th->channel, 0,
             in_th->timestamp);
 }
 
@@ -233,10 +233,10 @@ static  void _trudpHeaderACKcreate(trudpHeader *out_th,
  * @param out_th Output buffer to create ACK header
  * @param in_th Input buffer with received TR-UDP package (header)
  */
-static  void _trudpHeaderACKtoRESETcreate(trudpHeader *out_th, 
+static  void _trudpHeaderACKtoRESETcreate(trudpHeader *out_th,
         trudpHeader *in_th) {
 
-    _trudpHeaderCreate(out_th, in_th->id, TRU_ACK | TRU_RESET, in_th->channel, 
+    _trudpHeaderCreate(out_th, in_th->id, TRU_ACK | TRU_RESET, in_th->channel,
             0, in_th->timestamp);
 }
 
@@ -246,12 +246,12 @@ static  void _trudpHeaderACKtoRESETcreate(trudpHeader *out_th,
  * @param out_th Output buffer to create ACK header
  * @param in_th Input buffer with received TR-UDP package (header)
  */
-static  void _trudpHeaderACKtoPINGcreate(trudpHeader *out_th, 
+static  void _trudpHeaderACKtoPINGcreate(trudpHeader *out_th,
         trudpHeader *in_th, void *data, size_t data_length) {
 
-    _trudpHeaderCreate(out_th, in_th->id, TRU_ACK | TRU_PING, in_th->channel, 
+    _trudpHeaderCreate(out_th, in_th->id, TRU_ACK | TRU_PING, in_th->channel,
             in_th->payload_length, in_th->timestamp);
-    
+
     if(data && data_length)
         memcpy((void *)out_th + sizeof(trudpHeader), data, data_length);
 }
@@ -277,9 +277,9 @@ static  void _trudpHeaderRESETcreate(trudpHeader *out_th, uint32_t id,
 static  void _trudpHeaderDATAcreate(trudpHeader *out_th, uint32_t id,
         unsigned int channel, void *data, size_t data_length) {
 
-    _trudpHeaderCreate(out_th, id, TRU_DATA, channel, data_length, 
+    _trudpHeaderCreate(out_th, id, TRU_DATA, channel, data_length,
             trudpGetTimestamp());
-    
+
     if(data && data_length)
         memcpy((void *)out_th + sizeof(trudpHeader), data, data_length);
 }
@@ -293,9 +293,9 @@ static  void _trudpHeaderDATAcreate(trudpHeader *out_th, uint32_t id,
 static  void _trudpHeaderPINGcreate(trudpHeader *out_th, uint32_t id,
         unsigned int channel, void *data, size_t data_length) {
 
-    _trudpHeaderCreate(out_th, id, TRU_PING, channel, data_length, 
+    _trudpHeaderCreate(out_th, id, TRU_PING, channel, data_length,
             trudpGetTimestamp());
-    
+
     if(data && data_length)
         memcpy((void *)out_th + sizeof(trudpHeader), data, data_length);
 }
@@ -317,7 +317,7 @@ static  void _trudpHeaderPINGcreate(trudpHeader *out_th, uint32_t id,
  */
  int trudpPacketCheck(void *th, size_t packetLength) {
 
-    return (packetLength - sizeof(trudpHeader) == 
+    return (packetLength - sizeof(trudpHeader) ==
         ((trudpHeader *)th)->payload_length && _trudpHeaderChecksumCheck(th)
     );
 }
@@ -362,10 +362,10 @@ static  void _trudpHeaderPINGcreate(trudpHeader *out_th, uint32_t id,
  void *trudpPacketACKtoPINGcreateNew(void *in_th) {
 
     size_t data_length = trudpPacketGetDataLength(in_th);
-    trudpHeader *out_th = (trudpHeader *) malloc(sizeof(trudpHeader) + 
+    trudpHeader *out_th = (trudpHeader *) malloc(sizeof(trudpHeader) +
             data_length);
-    
-    _trudpHeaderACKtoPINGcreate(out_th, (trudpHeader *)in_th, 
+
+    _trudpHeaderACKtoPINGcreate(out_th, (trudpHeader *)in_th,
             trudpPacketGetData(in_th), data_length);
 
     return (void *)out_th;
@@ -396,7 +396,7 @@ static  void _trudpHeaderPINGcreate(trudpHeader *out_th, uint32_t id,
  * @param data_length Package data length
  * @param packetLength
  *
- * @return Pointer to allocated and filled DATA package, it should be free 
+ * @return Pointer to allocated and filled DATA package, it should be free
  *         after use
  */
  void *trudpPacketDATAcreateNew(uint32_t id, unsigned int channel,
@@ -418,12 +418,12 @@ static  void _trudpHeaderPINGcreate(trudpHeader *out_th, uint32_t id,
  * @param data_length Packet data length
  * @param packetLength [out]
  *
- * @return Pointer to allocated and filled DATA package, it should be free 
+ * @return Pointer to allocated and filled DATA package, it should be free
  *         after use
  */
  void *trudpPacketPINGcreateNew(uint32_t id, unsigned int channel,
         void *data, size_t data_length, size_t *packetLength) {
-    
+
     if(packetLength) *packetLength = sizeof(trudpHeader) + data_length;
     trudpHeader *out_th = (trudpHeader *) malloc(*packetLength);
     _trudpHeaderPINGcreate(out_th, id, channel, data, data_length);
@@ -453,7 +453,7 @@ static  void _trudpHeaderPINGcreate(trudpHeader *out_th, uint32_t id,
 
 
 /**
- * Free packet created with functions trudpHeaderDATAcreateNew, 
+ * Free packet created with functions trudpHeaderDATAcreateNew,
  * trudpHeaderACKcreateNew or trudpHeaderRESETcreateNew
  *
  * @param in_th
@@ -545,7 +545,7 @@ static  void _trudpPacketSetChannel(void *packet, int channel) {
  * Get packet length
  *
  * @param packet Pointer to packet
- * @return Packet length 
+ * @return Packet length
  */
  size_t trudpPacketGetPacketLength(void *packet) {
 
@@ -570,7 +570,7 @@ static  void _trudpPacketSetChannel(void *packet, int channel) {
  * @param packet Pointer to packet
  * @param message_type
  */
-static  void _trudpPacketSetType(void *packet, 
+static  void _trudpPacketSetType(void *packet,
         trudpPacketType message_type) {
 
     ((trudpHeader *)packet)->message_type = message_type;

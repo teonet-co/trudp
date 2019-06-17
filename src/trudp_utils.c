@@ -44,7 +44,7 @@
  *
  * @return Static buffer with key ip:port:channel
  */
-char *trudpMakeKey(char *addr, int port, int channel, size_t *key_length) 
+char *trudpMakeKey(char *addr, int port, int channel, size_t *key_length)
 {
 
     static char buf[MAX_KEY_LENGTH];
@@ -86,7 +86,7 @@ static char *vformatMessage(const char *fmt, va_list ap) {
             free(p);
             return NULL;
         }
-        else p = np;        
+        else p = np;
     }
 }
 
@@ -131,10 +131,10 @@ char *sformatMessage(char *str_to_free, const char *fmt, ...) {
 
 /**
  * Convert uSec time to timeval structure
- * 
+ *
  * @param tv [out] Pointer to struct timeval to save time to
  * @param usec Time in uSec
- * 
+ *
  * @return Pointer to the input struct timeval
  */
 struct timeval *usecToTv(struct timeval *tv, uint32_t usec) {

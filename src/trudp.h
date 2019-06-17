@@ -36,17 +36,17 @@
 #include "trudp_channel.h"
 #include "trudp_const.h"
 #include "trudp_api.h"
-    
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /**
  * Get pointer to trudpData from trudpChannelData
- */    
-#define TD(tcd) ((trudpData*)tcd->td)    
+ */
+#define TD(tcd) ((trudpData*)tcd->td)
 #define TD_P(td) ((trudpData*)td)
-    
+
 /**
  * Data received/send callback
  */
@@ -61,19 +61,19 @@ typedef void (*trudpEventCb)(void *tcd, int event, void *data, size_t data_lengt
  * Enumeration of TR-UDP events
  */
 typedef enum trudpEvent {
-    
+
     /**
      * Initialize TR-UDP event
      * @param td Pointer to trudpData
-     */ 
+     */
     INITIALIZE,
-    
+
     /**
      * Destroy TR-UDP event
      * @param td Pointer to trudpData
-     */ 
+     */
     DESTROY,
-    
+
     /**
      * TR-UDP channel disconnected event
      * @param data NULL
@@ -81,7 +81,7 @@ typedef enum trudpEvent {
      * @param user_data NULL
      */
     CONNECTED,
-            
+
     /**
      * TR-UDP channel disconnected event
      * @param data Last packet received
@@ -89,7 +89,7 @@ typedef enum trudpEvent {
      * @param user_data NULL
      */
     DISCONNECTED,
-            
+
     /**
      * Got TR-UDP reset packet
      * @param data NULL
@@ -97,7 +97,7 @@ typedef enum trudpEvent {
      * @param user_data NULL
      */
     GOT_RESET,
-            
+
     /**
      * Send TR-UDP reset packet
      * @param data Pointer to uint32_t send id or NULL if received id = 0
@@ -105,7 +105,7 @@ typedef enum trudpEvent {
      * @param user_data NULL
      */
     SEND_RESET,
-            
+
     /**
      * Got ACK to reset command
      * @param data NULL
@@ -113,7 +113,7 @@ typedef enum trudpEvent {
      * @param user_data NULL
      */
     GOT_ACK_RESET,
-            
+
     /**
      * Got ACK to ping command
      * @param data Pointer to ping data (usually it is a string)
@@ -121,7 +121,7 @@ typedef enum trudpEvent {
      * @param user_data NULL
      */
     GOT_ACK_PING,
-            
+
     /**
      * Got PING command
      * @param data Pointer to ping data (usually it is a string)
@@ -129,7 +129,7 @@ typedef enum trudpEvent {
      * @param user_data NULL
      */
     GOT_PING,
-            
+
     /**
      * Got ACK command
      * @param data Pointer to ACK packet
@@ -137,52 +137,52 @@ typedef enum trudpEvent {
      * @param user_data NULL
      */
     GOT_ACK,
-            
+
     /**
-     * Got DATA 
+     * Got DATA
      * @param data Pointer to data
      * @param data_length Length of data
      * @param user_data NULL
      */
     GOT_DATA,
-            
+
     /**
      * Process received data
      * @param tcd Pointer to trudpData
      * @param data Pointer to receive buffer
      * @param data_length Receive buffer length
      * @param user_data NULL
-     */ 
+     */
     PROCESS_RECEIVE,
 
     /** Process received not TR-UDP data
      * @param tcd Pointer to trudpData
      * @param data Pointer to receive buffer
      * @param data_length Receive buffer length
-     * @param user_data NULL            
-     */ 
+     * @param user_data NULL
+     */
     PROCESS_RECEIVE_NO_TRUDP,
-            
+
     /** Process send data
      * @param data Pointer to send data
      * @param data_length Length of send
-     * @param user_data NULL            
-     */ 
+     * @param user_data NULL
+     */
     PROCESS_SEND
-            
+
 } trudpEvent;
 
 /**
  * TR-UDP Statistic data
  */
 typedef struct trudpStatData {
-    
+
     struct sendQueue {
         size_t size_max;
         size_t size_current;
         size_t attempt;
     } sendQueue;
-    
+
     struct receiveQueue {
         size_t size_max;
         size_t size_current;
@@ -206,24 +206,24 @@ typedef struct trudpData {
     void* user_data; ///< User data
     int port; ///< Port
     int fd; ///< File descriptor
-                 
+
     // Callback
     trudpEventCb evendCb;
-    
+
     // Statistic
     trudpStatData stat;
     unsigned long long started;
-    
+
     size_t writeQueueIdx;
-    
+
 } trudpData;
 
-TRUDP_API trudpData *trudpInit(int fd, int port, trudpEventCb event_cb, 
+TRUDP_API trudpData *trudpInit(int fd, int port, trudpEventCb event_cb,
             void *user_data);
 TRUDP_API void trudpDestroy(trudpData* td);
 TRUDP_API void trudpSendEvent(void *t_pointer, int event, void *data,
             size_t data_length, void *user_data);
-TRUDP_API trudpChannelData *trudpGetChannelCreate(trudpData *td, 
+TRUDP_API trudpChannelData *trudpGetChannelCreate(trudpData *td,
             __CONST_SOCKADDR_ARG addr, int channel);
 TRUDP_API size_t trudpProcessKeepConnection(trudpData *td);
 TRUDP_API void trudpProcessReceived(trudpData *td, void *data, size_t data_length);
@@ -234,15 +234,15 @@ TRUDP_API size_t trudpGetWriteQueueSize(trudpData *td);
 TRUDP_API int trudpProcessSendQueue(trudpData *td, uint64_t *next_et);
 TRUDP_API size_t trudpProcessWriteQueue(trudpData *td);
 
-TRUDP_API void trudpChannelDestroyAddr(trudpData *td, char *addr, int port, 
+TRUDP_API void trudpChannelDestroyAddr(trudpData *td, char *addr, int port,
   int channel);
 TRUDP_API trudpChannelData *trudpGetChannelAddr(trudpData *td, char *addr, int port,
         int channel);
 TRUDP_API void trudpChannelDestroyAll(trudpData *td);
-TRUDP_API trudpChannelData *trudpGetChannel(trudpData *td, __CONST_SOCKADDR_ARG addr, 
+TRUDP_API trudpChannelData *trudpGetChannel(trudpData *td, __CONST_SOCKADDR_ARG addr,
         int channel);
 
-void *trudpSendEventGotData(void *t_pointer, void *packet, 
+void *trudpSendEventGotData(void *t_pointer, void *packet,
           size_t *data_length);
 
 #ifdef __cplusplus

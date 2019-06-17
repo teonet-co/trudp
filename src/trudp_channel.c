@@ -401,7 +401,7 @@ static  uint64_t _trudpChannelCalculateExpectedTime(trudpChannelData *tcd,
  *
  * @param tcd Pointer to trudpChannelData
  */
-static 
+static
 void _trudpChannelIncrementStatSendQueueSize(trudpChannelData *tcd) {
     TD(tcd)->stat.sendQueue.size_current++;
 }

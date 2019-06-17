@@ -52,7 +52,7 @@ static void _trudpUdpSetNonblock(int fd);
 #ifdef RESERVED
 static int  _trudpUdpIsReadable(int sd, uint32_t timeOut);
 static int  _trudpUdpIsWritable(int sd, uint32_t timeOut);
-static ssize_t _trudpUdpReadEventLoop(int fd, void *buffer, size_t buffer_size,        
+static ssize_t _trudpUdpReadEventLoop(int fd, void *buffer, size_t buffer_size,
         __SOCKADDR_ARG remaddr, socklen_t *addr_length, int timeout);
 #endif
 
@@ -88,7 +88,7 @@ static void _trudpUdpSetNonblock(int fd) {
 
 /**
  * Convert host name to IP
- * 
+ *
  * @param remaddr
  * @param server
  */
@@ -96,7 +96,7 @@ static void _trudpUdpHostToIp(struct sockaddr_in *remaddr, const char *server) {
 
     struct hostent *hostp;
 
-    if((remaddr->sin_addr.s_addr = inet_addr(server)) == 
+    if((remaddr->sin_addr.s_addr = inet_addr(server)) ==
             (unsigned long)INADDR_NONE) {
 
         /* When passing the host name of the server as a */
@@ -218,7 +218,7 @@ int trudpUdpBindRaw(int *port, int allow_port_increment_f) {
  * @param buffer_size
  * @param remaddr
  * @param addr_length
- * @return 
+ * @return
  */
 ssize_t trudpUdpRecvfrom(int fd, void *buffer, size_t buffer_size,
         __SOCKADDR_ARG remaddr, socklen_t *addr_length) {
@@ -285,7 +285,7 @@ static int _trudpUdpIsWritable(int sd, uint32_t timeOut) {
 
 /**
  * Simple UDP sendto wrapper
- * 
+ *
  * @param fd File descriptor
  * @param buffer
  * @param buffer_size
@@ -318,7 +318,7 @@ static int _trudpUdpIsWritable(int sd, uint32_t timeOut) {
  * @param remaddr
  * @param addr_length
  * @param timeout Timeout of wait socket read event in ms
- * 
+ *
  * @return 0 - if disconnected or 1 other way
  */
 static ssize_t _trudpUdpReadEventLoop(int fd, void *buffer, size_t buffer_size,

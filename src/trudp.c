@@ -123,7 +123,7 @@ void trudpSendEvent(void *t_pointer, int event, void *data,
         if(cb != NULL) cb(t_pointer, event, data, data_length, td->user_data);
     }
     else {
-        
+
         trudpChannelData *tcd = (trudpChannelData *) t_pointer;
 
         trudpEventCb cb = TD(tcd)->evendCb;
@@ -133,21 +133,21 @@ void trudpSendEvent(void *t_pointer, int event, void *data,
 
 /**
  * Execute evetrudpEventCbnt callback with event GOT_DATA when data packet received
- * 
+ *
  * @param t_pointer Pointer to trudpChannelData
  * @param packet Pointer to received packet
  * @param data_length [out] Packets data length (NULL if not need to return it
- * 
+ *
  * @return  Pointer to packet data
  */
-void *trudpSendEventGotData(void *t_pointer, void *packet, 
+void *trudpSendEventGotData(void *t_pointer, void *packet,
         size_t *data_length) {
-    
+
     void *data = trudpPacketGetData(packet);
     size_t data_len = trudpPacketGetDataLength(packet);
     trudpSendEvent(t_pointer, GOT_DATA, data, data_len, NULL);
     if(data_length) *data_length = data_len;
-    
+
     return data;
 }
 
@@ -211,7 +211,7 @@ void trudpSendResetAll(trudpData *td) {
 
 /**
  * Default TR-UDP process received from UDP data
- * 
+ *
  * @param td
  * @param data
  * @param data_length
@@ -293,7 +293,7 @@ size_t trudpProcessKeepConnection(trudpData *td) {
 
             if(tcd->connected_f && ts - tcd->lastReceived > SEND_PING_AFTER) {
                 if(trudpChannelCheckDisconnected(tcd, ts) == -1) {
-                    
+
                     rv = -1;
                     break;
                 }
@@ -344,7 +344,7 @@ static size_t trudpGetReceiveQueueMax(trudpData *td) {
  *
  * @return Pointer to trudpChannelData or (void*)-1 if not found
  */
-trudpChannelData *trudpGetChannelAddr(trudpData *td, char *addr, 
+trudpChannelData *trudpGetChannelAddr(trudpData *td, char *addr,
         int port, int channel) {
 
     size_t data_length, key_length;
@@ -374,7 +374,7 @@ trudpChannelData *trudpGetChannel(trudpData *td, __CONST_SOCKADDR_ARG addr,
 }
 
 /**
- * Get trudpChannelData by socket address and channel number, create channel if 
+ * Get trudpChannelData by socket address and channel number, create channel if
  * not exists
  *
  * @param td Pointer to trudpData
@@ -434,12 +434,12 @@ uint32_t trudpGetSendQueueTimeout(trudpData *td, uint64_t current_time) {
 #ifdef RESERVED
 /**
  * Get sum of all send queues size
- * 
+ *
  * @param td
- * @return 
+ * @return
  */
 static size_t trudp_SendQueueSize(trudpData *td) {
-    
+
     uint32_t sz = 0;
     teoMapIterator *it;
     teoMapElementData *el;
@@ -451,7 +451,7 @@ static size_t trudp_SendQueueSize(trudpData *td) {
         }
         teoMapIteratorDestroy(it);
     }
-    
+
     return sz;
 }
 #endif
@@ -550,9 +550,9 @@ size_t trudpProcessWriteQueue(trudpData *td) {
 
 /**
  * Get number of elements in all Write queues
- * 
+ *
  * @param td
- * @return 
+ * @return
  */
 size_t trudpGetWriteQueueSize(trudpData *td) {
 

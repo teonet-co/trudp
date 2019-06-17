@@ -36,7 +36,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-    
+
 #define MAX_HEADER_SIZE 64
 
 typedef struct trudpWriteQueue {
@@ -55,21 +55,21 @@ typedef struct trudpWriteQueueData {
 
 /**
  * Create new Write queue
- * 
+ *
  * @return Pointer to trudpWriteQueue
  */
-static  
-trudpWriteQueue *trudpWriteQueueNew() {    
+static
+trudpWriteQueue *trudpWriteQueueNew() {
     trudpWriteQueue *wq = (trudpWriteQueue *)malloc(sizeof(trudpWriteQueue));
     wq->q = teoQueueNew();
     return wq;
 }
 /**
  * Destroy Write queue
- * 
+ *
  * @param wq Pointer to trudpWriteQueue
  */
-static  
+static
 void trudpWriteQueueDestroy(trudpWriteQueue *wq) {
     if(wq) {
         teoQueueDestroy(wq->q);
@@ -78,46 +78,46 @@ void trudpWriteQueueDestroy(trudpWriteQueue *wq) {
 }
 /**
  * Remove all elements from Write queue
- * 
+ *
  * @param wq Pointer to trudpWriteQueue
  * @return Zero at success
  */
-static  
+static
 int trudpWriteQueueFree(trudpWriteQueue *wq) {
     return wq && wq->q ? teoQueueFree(wq->q) : -1;
 }
 /**
  * Get number of elements in Write queue
- * 
+ *
  * @param wq
- * 
+ *
  * @return Number of elements in Write queue
  */
-static  
-size_t trudpWriteQueueSize(trudpWriteQueue *wq) {    
+static
+size_t trudpWriteQueueSize(trudpWriteQueue *wq) {
     return wq ? teoQueueSize(wq->q) : -1;
 }
-trudpWriteQueueData *trudpWriteQueueAdd(trudpWriteQueue *wq, void *packet, 
+trudpWriteQueueData *trudpWriteQueueAdd(trudpWriteQueue *wq, void *packet,
         void *packet_ptr, size_t packet_length);
 /**
  * Get pointer to first element data
- * 
+ *
  * @param wq Pointer to trudpWriteQueue
- * 
+ *
  * @return Pointer to trudpWriteQueueData data or NULL
  */
-static  
-trudpWriteQueueData *trudpWriteQueueGetFirst(trudpWriteQueue *wq) {    
+static
+trudpWriteQueueData *trudpWriteQueueGetFirst(trudpWriteQueue *wq) {
     return (trudpWriteQueueData *) (wq->q->first ? wq->q->first->data : NULL);
 }
 /**
  * Remove first element from Write queue
- * 
+ *
  * @param wq Pointer to trudpWriteQueue
- * 
+ *
  * @return Zero at success
  */
-static  
+static
 int trudpWriteQueueDeleteFirst(trudpWriteQueue *wq) {
     return teoQueueDeleteFirst(wq->q);
 }
