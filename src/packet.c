@@ -253,7 +253,7 @@ static  void _trudpHeaderACKtoPINGcreate(trudpHeader *out_th,
             in_th->payload_length, in_th->timestamp);
 
     if(data && data_length)
-        memcpy((void *)out_th + sizeof(trudpHeader), data, data_length);
+        memcpy((char *)out_th + sizeof(trudpHeader), data, data_length);
 }
 
 /**
@@ -281,7 +281,7 @@ static  void _trudpHeaderDATAcreate(trudpHeader *out_th, uint32_t id,
             trudpGetTimestamp());
 
     if(data && data_length)
-        memcpy((void *)out_th + sizeof(trudpHeader), data, data_length);
+        memcpy((char *)out_th + sizeof(trudpHeader), data, data_length);
 }
 
 /**
@@ -297,7 +297,7 @@ static  void _trudpHeaderPINGcreate(trudpHeader *out_th, uint32_t id,
             trudpGetTimestamp());
 
     if(data && data_length)
-        memcpy((void *)out_th + sizeof(trudpHeader), data, data_length);
+        memcpy((char *)out_th + sizeof(trudpHeader), data, data_length);
 }
 
 /*****************************************************************************
@@ -505,7 +505,7 @@ static  void _trudpPacketSetChannel(void *packet, int channel) {
  */
  void *trudpPacketGetData(void *packet) {
 
-    return packet + sizeof(trudpHeader);
+    return (char *)packet + sizeof(trudpHeader);
 }
 
 /**
@@ -516,7 +516,7 @@ static  void _trudpPacketSetChannel(void *packet, int channel) {
  */
  void *trudpPacketGetPacket(void *data) {
 
-    return data - sizeof(trudpHeader);
+    return (char *)data - sizeof(trudpHeader);
 }
 
 /**
