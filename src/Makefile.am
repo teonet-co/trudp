@@ -3,25 +3,23 @@
 
 ACLOCAL_AMFLAGS = -I m4
 
-
 AM_CFLAGS = \
-	 -g -Wall \
-	 -std=gnu11 \
-	 -fno-strict-aliasing \
-	 -fPIC \
-	 -DUSE_LIBEV \
-	 -I../embedded/teoccl/src \
-	 -fvisibility=hidden
-	
+	-g -Wall \
+	-std=gnu11 \
+	-fno-strict-aliasing \
+	-fPIC \
+	-DUSE_LIBEV \
+	-I../embedded/teoccl/src \
+	-fvisibility=hidden \
+	-Wpointer-arith
 
 AM_CXX = clang++
 AM_CXXFLAGS = \
-         -g -Wall \
-	 -std=c++1488 \
-	 -fPIC \
-	 -I$(HOME)/Projects/teonet/embedded/libtrudp/src \
-	 -I/usr/include/libtrudp
-
+	-g -Wall \
+	-std=c++14 \
+	-fPIC \
+	-I$(HOME)/Projects/teonet/embedded/libtrudp/src \
+	-I/usr/include/libtrudp
 
 ## Debug info
 if DEBUG
@@ -52,7 +50,7 @@ libtrudp_la_SOURCES = \
 	write_queue.c
 	
 libtrudpincludedir=$(includedir)/libtrudp
-	
+
 nobase_libtrudpinclude_HEADERS = 
 
 libtrudp_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(LIBRARY_MAJOR_VERSION):0:0
