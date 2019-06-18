@@ -30,9 +30,15 @@
 #include <stdint.h>
 //#include <time.h>
 
-
 #include "trudp_utils.h"
 #include "trudp_const.h"
+
+#if defined(HAVE_MINGW) || defined(_WIN32)
+#define WIN32_LEAN_AND_MEAN
+// TODO: Stop using deprecated functions and remove this define.
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+#include <winsock2.h>
+#endif
 
 /**
  * Make TR-UDP map key

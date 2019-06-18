@@ -32,7 +32,10 @@
 
 #include <stddef.h>
 #include <time.h>
+
+#if defined(__linux__)
 #include <sys/time.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {

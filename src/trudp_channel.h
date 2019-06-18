@@ -35,9 +35,11 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#if defined(HAVE_MINGW) || defined(_WIN32) || defined(_WIN64)
+#if defined(HAVE_MINGW) || defined(_WIN32)
 
 #define WIN32_LEAN_AND_MEAN
+// TODO: Stop using deprecated functions and remove this define.
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
 #include <winsock2.h>
 typedef int socklen_t;
 
