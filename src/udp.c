@@ -93,22 +93,20 @@ static void _trudpUdpSetNonblock(int fd) {
  * @param server
  */
 static void _trudpUdpHostToIp(struct sockaddr_in *remaddr, const char *server) {
+    int result = inet_pton(AF_INET, server, &remaddr->sin_addr);
 
-    struct hostent *hostp;
-
-    if((remaddr->sin_addr.s_addr = inet_addr(server)) ==
-            (unsigned long)INADDR_NONE) {
-
+    if (result != -1) {
         /* When passing the host name of the server as a */
         /* parameter to this program, use the gethostbyname() */
         /* function to retrieve the address of the host server. */
         /***************************************************/
         /* get host address */
-        hostp = gethostbyname(server);
-        if(hostp == (struct hostent *)NULL) {
+        struct hostent *hostp = gethostbyname(server);
+        if (hostp == NULL) {
             // ...
+        } else {
+            memcpy(&remaddr->sin_addr, hostp->h_addr, sizeof(remaddr->sin_addr));
         }
-        else memcpy(&remaddr->sin_addr, hostp->h_addr, sizeof(remaddr->sin_addr));
     }
 }
 
