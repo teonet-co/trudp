@@ -35,6 +35,14 @@
 #include "utils_r.h"
 #include "trudp_utils.h"
 
+#if defined (__GNUC__)
+// Fix lack of ANSI function _strdup in GCC.
+static inline char *_strdup(const char *str1)
+{
+    return strdup(str1);
+}
+#endif
+
 /**
  * Process packet and calculate last 10 send packets array
  *
@@ -213,7 +221,7 @@ void *trudpStatGet(trudpData *td, int type, size_t *stat_len) {
         if(ts != NULL) {
 
             int i;
-            char *cs = strdup("");
+            char *cs = _strdup("");
             for(i = 0; i < ts->cs_num; i++) {
                 cs = sformatMessage(cs,
                     "%s%s"
@@ -366,7 +374,7 @@ char *ksnTRUDPstatShowStr(trudpData *td, int page) {
              packets_dropped = 0;
 
     int i = 0;
-    char *tbl_str = strdup(""), *tbl_total = strdup("");
+    char *tbl_str = _strdup(""), *tbl_total = _strdup("");
     trudpStatChannelData totalStat;
     teoMapIterator *it = teoMapIteratorNew(td->map);
     if(it != NULL) {
@@ -525,7 +533,7 @@ char *ksnTRUDPstatShowStr(trudpData *td, int page) {
 
 char *trudpStatShowQueueStr(trudpChannelData *tcd, int type) {
 
-    char *str = strdup("");
+    char *str = _strdup("");
 
 //    if(trudpPacketQueueSize(tcd->sendQueue) > MAX_QUELEN_SHOW ||
 //       trudpPacketQueueSize(tcd->receiveQueue) > MAX_QUELEN_SHOW)
