@@ -40,6 +40,10 @@
 #include <winsock2.h>
 #endif
 
+#ifndef min
+    #define min(a,b) ((a) < (b) ? (a) : (b))
+#endif
+
 /**
  * Make TR-UDP map key
  *
@@ -54,8 +58,9 @@ char *trudpMakeKey(char *addr, int port, int channel, size_t *key_length)
 {
 
     static char buf[MAX_KEY_LENGTH];
+    memset(buf, 0, MAX_KEY_LENGTH);
     size_t kl = snprintf(buf, MAX_KEY_LENGTH, "%s:%u:%u", addr, port, channel);
-    if(key_length) *key_length = kl;
+    if(key_length) *key_length = min(kl + (8 - kl % 8), MAX_KEY_LENGTH);
 
     return buf;
 }
@@ -155,3 +160,5 @@ struct timeval *usecToTv(struct timeval *tv, uint32_t usec) {
 
     return tv;
 }
+
+#undef min
