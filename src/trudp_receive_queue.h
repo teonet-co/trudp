@@ -53,17 +53,17 @@ extern "C" {
  *
  * @return Pointer to trudpPacketQueue
  */
-static inline
+static
 trudpReceiveQueue *trudpReceiveQueueNew() {
     return trudpPacketQueueNew();
 }
 
 /**
  * Destroy Receive queue
- * 
+ *
  * @param sq Pointer to trudpReceiveQueue
  */
-static inline 
+static
 void trudpReceiveQueueDestroy(trudpReceiveQueue *rq) {
     if(rq) {
         teoQueueDestroy(rq->q);
@@ -77,7 +77,7 @@ void trudpReceiveQueueDestroy(trudpReceiveQueue *rq) {
  * @param sq Pointer to Receive Queue (trudpReceiveQueue)
  * @return Zero at success
  */
-static inline 
+static
 int trudpReceiveQueueFree(trudpReceiveQueue *rq) {
     return trudpPacketQueueFree(rq);
 }
@@ -89,7 +89,7 @@ int trudpReceiveQueueFree(trudpReceiveQueue *rq) {
  *
  * @return Number of elements in TR-UPD send queue
  */
-static inline 
+static
 size_t trudpReceiveQueueSize(trudpReceiveQueue *sq) {
     return trudpPacketQueueSize(sq);
 }
@@ -104,9 +104,9 @@ size_t trudpReceiveQueueSize(trudpReceiveQueue *sq) {
  *
  * @return Pointer to added trudpReceiveQueueData
  */
-static inline
+static
 trudpReceiveQueueData *trudpReceiveQueueAdd(trudpReceiveQueue *sq, void *packet,
-        size_t packet_length, uint64_t expected_time) {    
+        size_t packet_length, uint64_t expected_time) {
     return trudpPacketQueueAdd(sq, packet, packet_length, expected_time);
 }
 
@@ -118,7 +118,7 @@ trudpReceiveQueueData *trudpReceiveQueueAdd(trudpReceiveQueue *sq, void *packet,
  *
  * @return Zero at success
  */
-static inline 
+static
 int trudpReceiveQueueDelete(trudpReceiveQueue *tq,
         trudpReceiveQueueData *tqd) {
     return trudpPacketQueueDelete(tq, tqd);
@@ -132,7 +132,7 @@ int trudpReceiveQueueDelete(trudpReceiveQueue *tq,
  *
  * @return Pointer to trudpReceiveQueueData or NULL if not found
  */
-static inline
+static
 trudpReceiveQueueData *trudpReceiveQueueFindById(trudpReceiveQueue *sq,
         uint32_t id) {
     return trudpPacketQueueFindById(sq, id);

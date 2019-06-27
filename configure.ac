@@ -15,11 +15,15 @@ AC_SUBST([$1], ['$2'])
 # END
 
 AC_PREREQ([2.69])
+
 AC_INIT([libtrudp], [0.2.12], [kirill@scherba.ru])
 AC_DEFINE_SUBST(LIBRARY_MAJOR_VERSION, 9, [TR-UDP dynamic library version])
 AC_DEFINE([PACKAGE_DESCRIPTION], ["TR-UDP library: Teonet Real time communications over UDP protocol"], [Application description])
-AC_DEFINE([PACKAGE_DEPENDENCIES], ["libev"], [Application dependencies])
-AC_DEFINE(COPYRIGHT, ["(c) Kirsoft Inc., 1996-2018"], [TR-UDP library copyright])
+#AC_DEFINE([PACKAGE_DEPENDENCIES], ["libev"], [Application dependencies])
+AC_DEFINE([PACKAGE_DEPENDENCIES], [""], [Application dependencies])
+AC_DEFINE([LICENSES], ["[[\"MIT\",\"LGPL-3.0\"]]"], [Application package licenses])
+AC_DEFINE([VCS_URL], ["https://github.com/teonet-co/trudp.git"], [Git URL])
+AC_DEFINE(COPYRIGHT, ["(c) Kirsoft Inc., 1996-2019"], [TR-UDP library copyright])
 
 AC_PREFIX_DEFAULT([/usr])
 AC_CONFIG_HEADERS([config.h])

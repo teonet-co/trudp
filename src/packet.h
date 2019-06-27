@@ -41,7 +41,7 @@
 extern "C" {
 #endif
 
-// TR-UDP Protocol constants    
+// TR-UDP Protocol constants
 #define TR_UDP_PROTOCOL_VERSION 2
 #define MIN_ACK_WAIT 0.000732  // 000.732 MS
 #define MAX_ACK_WAIT 0.500  // 500 MS
@@ -55,13 +55,13 @@ typedef enum trudpPacketType {
 
     TRU_DATA, ///< #0 The DATA messages are carrying payload. (has payload)
     /**
-     * #1 
+     * #1
      * The ACK messages are used to acknowledge the arrival of the DATA and
      * RESET messages. (has not payload)
      */
     TRU_ACK,
     TRU_RESET, ///< #2 The RESET messages reset messages counter. (has not payload)
-    TRU_ACK_TRU_RESET, ///< #3 = TRU_ACK | TRU_RESET: ACK for RESET. (has not payload)  
+    TRU_ACK_TRU_RESET, ///< #3 = TRU_ACK | TRU_RESET: ACK for RESET. (has not payload)
     TRU_PING, ///< #4 PING The DATA messages can carrying payload, does not sent to User level as DATA received. (payload allowed)
     TRU_ACK_PING ///< #5 = TRU_ACK | TRU_PING: ACK for PING (payload allowed)
 
@@ -72,17 +72,16 @@ TRUDP_API uint32_t trudpPacketGetId(void *packet);
 TRUDP_API void *trudpPacketGetPacket(void *data);
 TRUDP_API trudpPacketType trudpPacketGetType(void *packet);
 TRUDP_API size_t trudpPacketGetPacketLength(void *packet);
-
-TRUDP_API uint64_t /*unsigned long long*/ teoGetTimestampFull();
+TRUDP_API uint64_t teoGetTimestampFull();
 void *trudpPacketACKcreateNew(void *in_th);
 size_t trudpPacketACKlength();
 void *trudpPacketACKtoPINGcreateNew(void *in_th);
 void *trudpPacketACKtoRESETcreateNew(void *in_th);
 int trudpPacketCheck(void *th, size_t packetLength);
 void trudpPacketCreatedFree(void *in_th);
-void *trudpPacketDATAcreateNew(uint32_t id, unsigned int channel, 
+void *trudpPacketDATAcreateNew(uint32_t id, unsigned int channel,
         void *data, size_t data_length, size_t *packetLength);
-void *trudpPacketGetData(void *packet);
+TRUDP_API void *trudpPacketGetData(void *packet);
 uint16_t trudpPacketGetDataLength(void *packet);
 size_t trudpPacketGetHeaderLength(void *packet);
 uint32_t trudpPacketGetTimestamp(void *packet);

@@ -12,7 +12,7 @@ jobs:
       - image: gitlab.ksproject.org:5000/ci/ubuntu_teonet
     steps:
       - checkout
-      - run: git submodule update --init
+      - run: git submodule update --init --recursive
 
       # show current variables
       - run: echo $CIRCLE_PROJECT_REPONAME
@@ -20,7 +20,8 @@ jobs:
       - run: echo $CIRCLE_TAG
       
       # Install dependences   
-      - run: ci-build-data/build-ubuntu.sh
+      #- run: ci-build-data/build-ubuntu.sh
+      - run: sudo apt-get install -y libcunit1-dev cpputest
       # Make  
       - run: ./autogen.sh --prefix=/usr
       - run: make
@@ -42,7 +43,7 @@ jobs:
       - image: gitlab.ksproject.org:5000/ci/ubuntu_teonet
     steps:
       - checkout
-      - run: git submodule update --init
+      - run: git submodule update --init --recursive
 
       # show current variables
       - run: echo $CIRCLE_PROJECT_REPONAME
@@ -58,7 +59,7 @@ jobs:
       - run: make test
       
       # Build DEB package and upload it to repository
-      - run: ci-build/make_package deb      
+      - run: ci-build/make_package deb
 
 #      # build the application image
 #      - run: docker build --no-cache -t $CIRCLE_PROJECT_REPONAME -f docker/Dockerfile . 

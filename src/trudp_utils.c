@@ -25,9 +25,24 @@
 // Utilities functions ========================================================
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <stdarg.h>
+#include <stdint.h>
+//#include <time.h>
 
 #include "trudp_utils.h"
 #include "trudp_const.h"
+
+#if defined(HAVE_MINGW) || defined(_WIN32)
+#define WIN32_LEAN_AND_MEAN
+// TODO: Stop using deprecated functions and remove this define.
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+#include <winsock2.h>
+#endif
+
+#ifndef min
+    #define min(a,b) ((a) < (b) ? (a) : (b))
+#endif
 
 /**
  * Make TR-UDP map key
@@ -39,12 +54,111 @@
  *
  * @return Static buffer with key ip:port:channel
  */
-char *trudpMakeKey(char *addr, int port, int channel, size_t *key_length) 
+char *trudpMakeKey(char *addr, int port, int channel, size_t *key_length)
 {
 
     static char buf[MAX_KEY_LENGTH];
+    memset(buf, 0, MAX_KEY_LENGTH);
     size_t kl = snprintf(buf, MAX_KEY_LENGTH, "%s:%u:%u", addr, port, channel);
-    if(key_length) *key_length = kl;
+    if(key_length) *key_length = min(kl + (8 - kl % 8), MAX_KEY_LENGTH);
 
     return buf;
 }
+
+// \todo vformatMessage does not work under MinGW
+#define KSN_BUFFER_SM_SIZE 256; //2048;//256
+
+static char *vformatMessage(const char *fmt, va_list ap) {
+
+    int size = KSN_BUFFER_SM_SIZE; /* Guess we need no more than 100 bytes */
+    char *p, *np;
+    va_list ap_copy;
+    int n;
+
+    if((p = malloc(size)) == NULL) return NULL;
+
+    while(1) {
+
+        // Try to print in the allocated space
+        va_copy(ap_copy,ap);
+        n = vsnprintf(p, size, fmt, ap_copy);
+//        printf("n = %d\n", n);
+        va_end(ap_copy);
+
+        // Check error code
+        //if(n < 0) return NULL;
+
+        // If that worked, return the string
+        if(n > 0 && n < size) return p;
+
+        // Else try again with more space
+        size = size + KSN_BUFFER_SM_SIZE; // Precisely what is needed
+        if((np = realloc(p, size)) == NULL) {
+            free(p);
+            return NULL;
+        }
+        else p = np;
+    }
+}
+
+/**
+ * Create formated message in new null terminated string
+ *
+ * @param fmt Format string like in printf function
+ * @param ... Parameter
+ *
+ * @return Null terminated string, should be free after using or NULL on error
+ */
+char *formatMessage(const char *fmt, ...) {
+
+    va_list ap;
+    va_start(ap, fmt);
+    char *p = vformatMessage(fmt, ap);
+    va_end(ap);
+
+    return p;
+}
+
+/**
+ * Create formated message in new null terminated string, and free str_to_free
+ *
+ * @param str_to_free
+ * @param fmt Format string like in printf function
+ * @param ... Parameter
+ *
+ * @return Null terminated string, should be free after using or NULL on error
+ */
+char *sformatMessage(char *str_to_free, const char *fmt, ...) {
+
+    va_list ap;
+    va_start(ap, fmt);
+    char *p = vformatMessage(fmt, ap);
+    va_end(ap);
+
+    if(str_to_free != NULL) free(str_to_free);
+
+    return p;
+}
+
+/**
+ * Convert uSec time to timeval structure
+ *
+ * @param tv [out] Pointer to struct timeval to save time to
+ * @param usec Time in uSec
+ *
+ * @return Pointer to the input struct timeval
+ */
+struct timeval *usecToTv(struct timeval *tv, uint32_t usec) {
+
+    if(usec) {
+        tv->tv_sec  = usec / 1000000;
+        tv->tv_usec = usec % 1000000;
+    } else {
+        tv->tv_sec  = 0;
+        tv->tv_usec = 0;
+    }
+
+    return tv;
+}
+
+#undef min

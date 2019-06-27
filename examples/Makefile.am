@@ -30,9 +30,15 @@ endif
 AM_LDFLAGS = -L../src/.libs
 
 LIBS = -ltrudp -lev
+trudp2p_LDFLAGS = $(AM_LDFLAGS) -pthread
+#trudpcat_ev_LDFLAGS = $(AM_LDFLAGS) -lev
 
-noinst_PROGRAMS = trudpcat_ev
+noinst_PROGRAMS = trudpcat_ev trudp2p trudpcat_ev_wq
+
+trudp2p_SOURCES = trudp2p.c trudp_pth.c read_queue.c
 trudpcat_ev_SOURCES = trudpcat_ev.c 
+trudpcat_ev_wq_SOURCES = trudpcat_ev_wq.c 
+
 #snake.c
 
 examplesdir = $(datarootdir)/doc/@PACKAGE@/examples

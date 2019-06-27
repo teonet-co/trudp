@@ -7,7 +7,7 @@ sudo apt-get update
 sudo apt-get -y upgrade
 
 # Autoconf dependence
-sudo apt-get -y install autoconf intltool libtool libglib2.0-dev doxygen make gcc g++ checkinstall libcunit1 libcunit1-doc libcunit1-dev
+sudo apt-get -y install autoconf intltool libtool libglib2.0-dev doxygen make gcc g++ checkinstall libcunit1 libcunit1-doc libcunit1-dev cpputest
 
 ## Project dependence
 sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 8CC88F3BE7D6113C
