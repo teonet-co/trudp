@@ -72,6 +72,7 @@ TRUDP_API uint32_t trudpPacketGetId(void *packet);
 TRUDP_API void *trudpPacketGetPacket(void *data);
 TRUDP_API trudpPacketType trudpPacketGetType(void *packet);
 TRUDP_API size_t trudpPacketGetPacketLength(void *packet);
+
 TRUDP_API uint64_t teoGetTimestampFull();
 void *trudpPacketACKcreateNew(void *in_th);
 size_t trudpPacketACKlength();
