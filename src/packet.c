@@ -46,6 +46,7 @@
 /**
  * TR-UDP message header structure
  */
+
 typedef struct trudpHeader {
 
     uint8_t checksum; ///< Checksum
@@ -155,7 +156,7 @@ static  int _trudpHeaderChecksumCheck(trudpHeader *th) {
  *****************************************************************************/
 
 /**
- * Get current 32 bit timestamp in thousands of milliseconds (uSec)
+ * Get current 32 bit timestamp in microseconds
  *
  * @return
  */
@@ -168,7 +169,7 @@ static  int _trudpHeaderChecksumCheck(trudpHeader *th) {
 
     _ftime64_s(&time_value);
 
-    current_time = time_value.time * 1000 + time_value.millitm;
+    current_time = time_value.time * 1000000 + time_value.millitm*1000;
 #elif defined(__linux__)
     struct timeval time_value;
     memset(&time_value, 0, sizeof(time_value));
@@ -176,7 +177,7 @@ static  int _trudpHeaderChecksumCheck(trudpHeader *th) {
     gettimeofday(&time_value, 0);
 
     // Cast to int64_t is needed on 32-bit unix systems.
-    current_time = (int64_t)time_value.tv_sec * 1000 + time_value.tv_usec / 1000;
+    current_time = (int64_t)time_value.tv_sec * 1000000 + time_value.tv_usec;
 #endif
 
     return current_time;
@@ -184,7 +185,7 @@ static  int _trudpHeaderChecksumCheck(trudpHeader *th) {
 }
 
 /**
- * Get current 32 bit timestamp in thousands of milliseconds (uSec)
+ * Get current 32 bit timestamp in microseconds
  *
  * @return
  */
@@ -570,7 +571,7 @@ static  void _trudpPacketSetChannel(void *packet, int channel) {
  * @param packet Pointer to packet
  * @param message_type
  */
-static  void _trudpPacketSetType(void *packet,
+static void _trudpPacketSetType(void *packet,
         trudpPacketType message_type) {
 
     ((trudpHeader *)packet)->message_type = message_type;
