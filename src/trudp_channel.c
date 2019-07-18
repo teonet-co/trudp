@@ -57,6 +57,13 @@ static size_t _trudpChannelSendPacket(trudpChannelData *tcd, void *packetDATA,
 static void _trudpChannelSetDefaults(trudpChannelData *tcd);
 static void _trudpChannelSetLastReceived(trudpChannelData *tcd);
 
+
+
+
+void trudp_ChannelSendReset(trudpChannelData *tcd) {
+    trudpChannelSendRESET(tcd, NULL, 0);
+}
+
 /**
  * Add channel to the trudpData map
  *

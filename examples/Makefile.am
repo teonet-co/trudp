@@ -35,7 +35,7 @@ trudp2p_LDFLAGS = $(AM_LDFLAGS) -pthread
 
 noinst_PROGRAMS = trudpcat_ev trudp2p trudpcat_ev_wq
 
-trudp2p_SOURCES = trudp2p.c trudp_pth.c read_queue.c
+trudp2p_SOURCES = trudp2p.c trudp_pth.c read_queue.c 
 trudpcat_ev_SOURCES = trudpcat_ev.c 
 trudpcat_ev_wq_SOURCES = trudpcat_ev_wq.c 
 

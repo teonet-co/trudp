@@ -28,3 +28,95 @@
  */
 
 #include "trudp_receive_queue.h"
+
+/**
+ * Create new Receive queue
+ *
+ * @return Pointer to trudpPacketQueue
+ */
+
+trudpReceiveQueue *trudpReceiveQueueNew() {
+    return trudpPacketQueueNew();
+}
+
+/**
+ * Destroy Receive queue
+ *
+ * @param sq Pointer to trudpReceiveQueue
+ */
+
+void trudpReceiveQueueDestroy(trudpReceiveQueue *rq) {
+    if(rq) {
+        teoQueueDestroy(rq->q);
+        free(rq);
+    }
+}
+
+/**
+ * Remove all elements from Receive queue
+ *
+ * @param sq Pointer to Receive Queue (trudpReceiveQueue)
+ * @return Zero at success
+ */
+
+int trudpReceiveQueueFree(trudpReceiveQueue *rq) {
+    return trudpPacketQueueFree(rq);
+}
+
+/**
+ * Get number of elements in Receive queue
+ *
+ * @param sq Pointer to trudpReceiveQueue
+ *
+ * @return Number of elements in TR-UPD send queue
+ */
+
+size_t trudpReceiveQueueSize(trudpReceiveQueue *sq) {
+    return trudpPacketQueueSize(sq);
+}
+
+/**
+ * Add packet to Receive queue
+ *
+ * @param sq Pointer to trudpReceiveQueue
+ * @param packet Packet to add to queue
+ * @param packet_length Packet length
+ * @param expected_time Packet expected time
+ *
+ * @return Pointer to added trudpReceiveQueueData
+ */
+
+trudpReceiveQueueData *trudpReceiveQueueAdd(trudpReceiveQueue *sq, void *packet,
+        size_t packet_length, uint64_t expected_time) {
+    return trudpPacketQueueAdd(sq, packet, packet_length, expected_time);
+}
+
+/**
+ * Remove element from Receive queue
+ *
+ * @param tq Pointer to trudpReceiveQueue
+ * @param tqd Pointer to trudpReceiveQueueData to delete it
+ *
+ * @return Zero at success
+ */
+
+int trudpReceiveQueueDelete(trudpReceiveQueue *tq,
+        trudpReceiveQueueData *tqd) {
+    return trudpPacketQueueDelete(tq, tqd);
+}
+
+/**
+ * Find Receive queue data by Id
+ *
+ * @param sq Pointer to trudpReceiveQueue
+ * @param id Id to find in send queue
+ *
+ * @return Pointer to trudpReceiveQueueData or NULL if not found
+ */
+
+trudpReceiveQueueData *trudpReceiveQueueFindById(trudpReceiveQueue *sq,
+        uint32_t id) {
+    return trudpPacketQueueFindById(sq, id);
+}
+
+
