@@ -40,6 +40,84 @@ static trudpPacketQueueData *_trudpPacketQueueAddTime(trudpPacketQueue *tq,
         void *packet, size_t packet_length, uint64_t expected_time);
 trudpPacketQueueData *trudpPacketQueueFindByTime(trudpPacketQueue *tq, uint64_t t);
 #endif
+/**
+ * Create new Packet queue
+ *
+ * @return Pointer to trudpPacketQueue
+ */
+trudpPacketQueue *trudpPacketQueueNew() {
+    trudpPacketQueue *tq = (trudpPacketQueue *)malloc(sizeof(trudpPacketQueue));
+    tq->q = teoQueueNew();
+    return tq;
+}
+/**
+ * Destroy Packet queue
+ *
+ * @param tq Pointer to trudpPacketQueue
+ */
+void trudpPacketQueueDestroy(trudpPacketQueue *tq) {
+    if(tq) {
+        teoQueueDestroy(tq->q);
+        free(tq);
+    }
+}
+/**
+ * Remove all elements from Packet queue
+ *
+ * @param tq Pointer to trudpPacketQueue
+ * @return Zero at success
+ */
+int trudpPacketQueueFree(trudpPacketQueue *tq) {
+    return tq && tq->q ? teoQueueFree(tq->q) : -1;
+}
+
+/**
+ * Get number of elements in Packet queue
+ *
+ * @param tq
+ *
+ * @return Number of elements in TR-UPD queue
+ */
+size_t trudpPacketQueueSize(trudpPacketQueue *tq) {
+    return teoQueueSize(tq->q);
+}
+
+trudpPacketQueueData *trudpPacketQueueAdd(trudpPacketQueue *tq,
+        void *packet, size_t packet_length, uint64_t expected_time);
+/**
+ * Get pointer to trudpQueueData from trudpPacketQueueData pointer
+ * @param tqd Pointer to trudpPacketQueueData
+ * @return Pointer to trudpQueueData or NULL if tqd is NULL
+ */
+teoQueueData *trudpPacketQueueDataToQueueData(
+    trudpPacketQueueData *tqd) {
+    return tqd ? (teoQueueData *)((char*)tqd - sizeof(teoQueueData)) : NULL;
+}
+/**
+ * Remove element from Packet queue
+ *
+ * @param tq Pointer to trudpPacketQueue
+ * @param tqd Pointer to trudpPacketQueueData to delete it
+ *
+ * @return Zero at success
+ */
+int trudpPacketQueueDelete(trudpPacketQueue *tq,
+    trudpPacketQueueData *tqd) {
+    return teoQueueDelete(tq->q, trudpPacketQueueDataToQueueData(tqd));
+}
+/**
+ * Move element to the end of list
+ *
+ * @param tq Pointer to trudpPacketQueue
+ * @param tqd Pointer to trudpPacketQueueData
+ * @return Zero at success
+ */
+trudpPacketQueueData *trudpPacketQueueMoveToEnd(trudpPacketQueue *tq,
+        trudpPacketQueueData *tqd) {
+
+    return (trudpPacketQueueData *)teoQueueMoveToEnd(tq->q,
+                trudpPacketQueueDataToQueueData(tqd))->data;
+}
 
 /**
  * Add packet to Packet queue
@@ -195,3 +273,4 @@ static trudpPacketQueueData *_trudpPacketQueueAddTime(trudpPacketQueue *tq,
     return trudpPacketQueueAdd(tq, packet, packet_length, expected_time);
 }
 #endif
+

@@ -36,6 +36,8 @@
 #include "packet.h"
 #include "read_queue.h"
 
+#include "trudp_send_queue.h"
+
 #include "trudp_pth.h"
 
 //#if USE_SELECT
@@ -531,7 +533,7 @@ void trudp_free_recv_data(trudp_data_t *tru, void *data) {
 }
 
 int trudp_send(trudp_data_t *tru, void *tcd, void *msg, size_t msg_length) {
-    pthread_mutex_lock(&tru->mutex);
+/*    pthread_mutex_lock(&tru->mutex);
     
     int s = 0;
     // Check Send queue size and sleep if too match
@@ -545,4 +547,7 @@ int trudp_send(trudp_data_t *tru, void *tcd, void *msg, size_t msg_length) {
     pthread_mutex_unlock(&tru->mutex);
     //usleep(10);
     return rv;
+*/
+    // TODO: Need fix this test
+    return -1;
 }

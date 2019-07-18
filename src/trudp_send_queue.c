@@ -28,6 +28,104 @@
  */
 
 #include "trudp_send_queue.h"
+/**
+ * Create new Send queue
+ *
+ * @return Pointer to trudpSendQueue
+ */
+
+trudpSendQueue *trudpSendQueueNew() {
+    return trudpPacketQueueNew();
+}
+
+/**
+ * Remove all elements from Send queue
+ *
+ * @param sq Pointer to Send Queue (trudpSendQueue)
+ * @return Zero at success
+ */
+
+int trudpSendQueueFree(trudpSendQueue *sq) {
+    return trudpPacketQueueFree(sq);
+}
+
+/**
+ * Destroy Send queue
+ *
+ * @param sq Pointer to Send Queue (trudpSendQueue)
+ */
+
+void trudpSendQueueDestroy(trudpSendQueue *sq) {
+    trudpPacketQueueDestroy(sq);
+}
+
+/**
+ * Get number of elements in Send queue
+ *
+ * @param sq Pointer to trudpSendQueue
+ *
+ * @return Number of elements in TR-UPD send queue
+ */
+
+size_t trudpSendQueueSize(trudpSendQueue *sq) {
+    return trudpPacketQueueSize(sq);
+}
+
+/**
+ * Add packet to Send queue
+ *
+ * @param sq Pointer to trudpSendQueue
+ * @param packet Packet to add to queue
+ * @param packet_length Packet length
+ * @param expected_time Packet expected time
+ *
+ * @return Pointer to added trudpSendQueueData
+ */
+
+trudpSendQueueData *trudpSendQueueAdd(trudpSendQueue *sq, void *packet,
+        size_t packet_length, uint64_t expected_time) {
+
+    return trudpPacketQueueAdd(sq, packet, packet_length, expected_time);
+}
+
+/**
+ * Remove element from Send queue
+ *
+ * @param sq Pointer to trudpSendQueue
+ * @param sqd Pointer to trudpSendQueueData to delete it
+ *
+ * @return Zero at success
+ */
+
+int trudpSendQueueDelete(trudpSendQueue *sq, trudpSendQueueData *sqd) {
+    return trudpPacketQueueDelete(sq, sqd);
+}
+
+/**
+ * Find Send queue data by Id
+ *
+ * @param sq Pointer to trudpSendQueue
+ * @param id Id to find in send queue
+ *
+ * @return Pointer to trudpSendQueueData or NULL if not found
+ */
+
+trudpSendQueueData *trudpSendQueueFindById(trudpSendQueue *sq, uint32_t id) {
+    return trudpPacketQueueFindById(sq, id);
+}
+
+/**
+ * Get first element from Send Queue
+ *
+ * @param tq Pointer to trudpSendQueue
+
+ * @return Pointer to trudpSendQueueData or NULL if not found
+ */
+
+trudpSendQueueData *trudpSendQueueGetFirst(trudpSendQueue *sq) {
+    return trudpPacketQueueGetFirst(sq);
+}
+
 
 /**
  * Get send queue timeout
