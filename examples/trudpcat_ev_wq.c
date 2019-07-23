@@ -162,6 +162,7 @@ static void die(char *fmt, ...)
  */
 static void debug(char *fmt, ...)
 {
+    return;
     static unsigned long idx = 0;
     va_list ap;
     if(o.debug) {
