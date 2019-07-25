@@ -50,6 +50,7 @@ typedef struct trudpPacketQueueData {
     uint32_t packet_length;
     uint32_t retrieves;
     uint32_t retrieves_start;
+    int debug_log_id;
     char packet[];
 
 } trudpPacketQueueData;
@@ -101,7 +102,7 @@ size_t trudpPacketQueueSize(trudpPacketQueue *tq) {
 }
 
 trudpPacketQueueData *trudpPacketQueueAdd(trudpPacketQueue *tq,
-        void *packet, size_t packet_length, uint64_t expected_time);
+        void *packet, size_t packet_length, uint64_t expected_time, int debug_log_id);
 /**
  * Get pointer to trudpQueueData from trudpPacketQueueData pointer
  * @param tqd Pointer to trudpPacketQueueData

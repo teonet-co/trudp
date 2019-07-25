@@ -24,9 +24,57 @@
 
 // Channel functions ==========================================================
 
-#include <string.h>
-#include <stdlib.h>
+// Determine target operating system.
+#if defined(__ANDROID__)
+// Defined if target OS is android.
+#define TEONET_OS_ANDROID
+#elif defined(__linux__)
+// Defined if target OS is linux.
+#define TEONET_OS_LINUX
+#elif defined(_WIN32)
+// Defined if target OS is Windows.
+#define TEONET_OS_WINDOWS
+#else
+#error Unsupported target OS.
+#endif
+
+#include <inttypes.h>
 #include <stddef.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#if defined(TEONET_OS_ANDROID)
+#include <android/log.h>
+#endif
+
+#if defined(TEONET_OS_WINDOWS)
+// Set minimum supported version to Windows 7.
+#ifdef _WIN32_WINNT
+#undef _WIN32_WINNT
+#endif
+
+#define _WIN32_WINNT 0x0601
+
+#ifdef NTDDI_VERSION
+#undef NTDDI_VERSION
+#endif
+
+#define NTDDI_VERSION 0x06010000
+
+#include <SDKDDKVer.h>
+
+// Exclude rarely-used stuff from Windows headers.
+#define WIN32_LEAN_AND_MEAN
+
+#include <windows.h>
+
+#include <sys/types.h>
+#include <sys/timeb.h>
+#else
+#include <sys/time.h>
+#endif
 
 #include "trudp_channel.h"
 #include "trudp_utils.h"
@@ -53,9 +101,63 @@ static void _trudpChannelSendACK(trudpChannelData *tcd, void *packet);
 static void _trudpChannelSendACKtoPING(trudpChannelData *tcd, void *packet);
 static void _trudpChannelSendACKtoRESET(trudpChannelData *tcd, void *packet);
 static size_t _trudpChannelSendPacket(trudpChannelData *tcd, void *packetDATA,
-        size_t packetLength, int save_to_send_queue);
+        size_t packetLength, int save_to_send_queue, int debug_log_id);
 static void _trudpChannelSetDefaults(trudpChannelData *tcd);
 static void _trudpChannelSetLastReceived(trudpChannelData *tcd);
+
+// Get current time in milliseconds.
+static int64_t teotimeGetCurrentTime() {
+    int64_t current_time;
+
+#if defined(TEONET_OS_WINDOWS)
+    struct __timeb64 time_value;
+    memset(&time_value, 0, sizeof(time_value));
+
+    _ftime64_s(&time_value);
+
+    current_time = time_value.time * 1000 + time_value.millitm;
+#else
+    struct timeval time_value;
+    memset(&time_value, 0, sizeof(time_value));
+
+    gettimeofday(&time_value, 0);
+
+    // Cast to int64_t is needed on 32-bit unix systems.
+    current_time = (int64_t)time_value.tv_sec * 1000 + time_value.tv_usec / 1000;
+#endif
+
+    return current_time;
+}
+
+void log_packet_event(int debug_log_id, const char* function_name) {
+    int64_t current_time = teotimeGetCurrentTime();
+
+    const char* message_format = "Sending packet #%" PRId32 " from function '%s' at %" PRId64 ".";
+
+#if defined(TEONET_OS_ANDROID)
+    const char* Tag = "TeonetClient";
+
+    __android_log_print(ANDROID_LOG_ERROR, Tag, message_format, debug_log_id, function_name, current_time);
+#elif defined(TEONET_OS_LINUX)
+
+    printf(message_format, debug_log_id, function_name, current_time;
+
+#else
+    const int buffer_size = 1024;
+
+    char* message_buffer = malloc(buffer_size);
+
+    if (message_buffer == NULL) {
+        abort();
+    }
+
+    sprintf_s(message_buffer, buffer_size, message_format, debug_log_id, function_name, current_time);
+
+    OutputDebugStringA(message_buffer);
+
+    free(message_buffer);
+#endif
+}
 
 /**
  * Add channel to the trudpData map
@@ -431,7 +533,7 @@ void _trudpChannelIncrementStatWriteQueueSize(trudpChannelData *tcd) {
  * @return Zero on error
  */
 static size_t _trudpChannelSendPacket(trudpChannelData *tcd, void *packetDATA,
-        size_t packetLength, int save_to_send_queue) {
+        size_t packetLength, int save_to_send_queue, int debug_log_id) {
 
     size_t size_sq = trudpSendQueueSize(tcd->sendQueue);
 
@@ -439,12 +541,16 @@ static size_t _trudpChannelSendPacket(trudpChannelData *tcd, void *packetDATA,
     if(save_to_send_queue) {
       if (size_sq < NORMAL_S_SIZE) {
         trudpSendQueueAdd(tcd->sendQueue, packetDATA, packetLength,
-                          _trudpChannelCalculateExpectedTime(tcd, teoGetTimestampFull(), 0));
+                          _trudpChannelCalculateExpectedTime(tcd, teoGetTimestampFull(), 0), debug_log_id);
         _trudpChannelIncrementStatSendQueueSize(tcd);
       } else {
+        if (debug_log_id != 0) {
+          log_packet_event(debug_log_id, "Packet enqueued to WRITE QUEUE.");
+        }
+
         void *packetDATAptr = malloc(packetLength);
         memcpy(packetDATAptr, packetDATA, packetLength);
-        trudpWriteQueueAdd(tcd->writeQueue, NULL, packetDATAptr, packetLength);
+        trudpWriteQueueAdd(tcd->writeQueue, NULL, packetDATAptr, packetLength, debug_log_id);
         _trudpChannelIncrementStatWriteQueueSize(tcd);
       }
     }
@@ -452,6 +558,10 @@ static size_t _trudpChannelSendPacket(trudpChannelData *tcd, void *packetDATA,
 
     // Send data (add to write queue)
     if(!save_to_send_queue || size_sq < NORMAL_S_SIZE) {
+        if (debug_log_id != 0) {
+            log_packet_event(debug_log_id, "_trudpChannelSendPacket");
+        }
+
         trudpSendEvent(tcd, PROCESS_SEND, packetDATA, packetLength, NULL); // Send packet in trudp event loop
         tcd->stat.packets_send++; // Send packets statistic
     }
@@ -476,7 +586,7 @@ size_t trudpChannelSendPING(trudpChannelData *tcd, void *data,
             data, data_length, &packetLength);
 
     // Send data
-    size_t rv = _trudpChannelSendPacket(tcd, packetDATA, packetLength, 0);
+    size_t rv = _trudpChannelSendPacket(tcd, packetDATA, packetLength, 0, 0);
 
     // Free created packet
     trudpPacketCreatedFree(packetDATA);
@@ -493,7 +603,7 @@ size_t trudpChannelSendPING(trudpChannelData *tcd, void *data,
  *
  * @return Zero on error
  */
-size_t trudpChannelSendData(trudpChannelData *tcd, void *data, size_t data_length) {
+size_t trudpChannelSendData(trudpChannelData *tcd, void *data, size_t data_length, int debug_log_id) {
 
     size_t rv = 0;
 
@@ -506,7 +616,7 @@ size_t trudpChannelSendData(trudpChannelData *tcd, void *data, size_t data_lengt
                 tcd->channel, data, data_length, &packetLength);
 
         // Send data
-        rv = _trudpChannelSendPacket(tcd, packetDATA, packetLength, 1);
+        rv = _trudpChannelSendPacket(tcd, packetDATA, packetLength, 1, debug_log_id);
 
         // Free created packet
         trudpPacketCreatedFree(packetDATA);
@@ -562,7 +672,7 @@ void *trudpChannelProcessReceivedPacket(trudpChannelData *tcd, void *packet,
 
                     if(trudpWriteQueueSize(tcd->writeQueue) > 0) {
                         trudpWriteQueueData *wqd_first = trudpWriteQueueGetFirst(tcd->writeQueue);
-                        _trudpChannelSendPacket(tcd, wqd_first->packet_ptr, wqd_first->packet_length, 1);
+                        _trudpChannelSendPacket(tcd, wqd_first->packet_ptr, wqd_first->packet_length, 1, wqd_first->debug_log_id);
                         free(wqd_first->packet_ptr);
                         trudpWriteQueueDeleteFirst(tcd->writeQueue);
                         TD(tcd)->stat.writeQueue.size_current--;
@@ -790,8 +900,14 @@ int trudpChannelSendQueueProcess(trudpChannelData *tcd, uint64_t ts,
         tqd->retrieves++;
         rv++;
 
+        int debug_log_id = tqd->debug_log_id;
+
         // Resend data
         #if !USE_WRITE_QUEUE
+        if (debug_log_id != 0) {
+            log_packet_event(debug_log_id, "trudpChannelSendQueueProcess");
+        }
+
         trudpSendEvent(tcd, PROCESS_SEND, tqd->packet, tqd->packet_length, NULL);
         #else
         trudpWriteQueueAdd(tcd->writeQueue, NULL, tqd->packet, tqd->packet_length);
@@ -863,6 +979,12 @@ size_t trudpChannelWriteQueueProcess(trudpChannelData *tcd) {
     size_t retval = 0;
     trudpWriteQueueData *wqd = trudpWriteQueueGetFirst(tcd->writeQueue);
     if(wqd) {
+        int debug_log_id = wqd->debug_log_id;
+
+        if (debug_log_id != 0) {
+            log_packet_event(debug_log_id, "trudpChannelWriteQueueProcess");
+        }
+
         void *packet = wqd->packet_ptr ? wqd->packet_ptr : wqd->packet;
         trudpSendEvent(tcd, PROCESS_SEND, packet, wqd->packet_length, NULL);
         trudpWriteQueueDeleteFirst(tcd->writeQueue);

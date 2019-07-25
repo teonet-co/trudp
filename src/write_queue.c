@@ -42,7 +42,7 @@
  * @return Pointer to added trudpWriteQueueData
  */
 trudpWriteQueueData *trudpWriteQueueAdd(trudpWriteQueue *wq, void *packet,
-        void *packet_ptr, size_t packet_length) {
+        void *packet_ptr, size_t packet_length, int debug_log_id) {
 
     size_t wqd_length = sizeof(trudpWriteQueueData); // + packet_length;
     trudpWriteQueueData *wqd = (trudpWriteQueueData *)(
@@ -57,6 +57,7 @@ trudpWriteQueueData *trudpWriteQueueAdd(trudpWriteQueue *wq, void *packet,
         wqd->packet_ptr = packet_ptr;
     }
     wqd->packet_length = packet_length;
+    wqd->debug_log_id = debug_log_id;
 
     return wqd;
 }

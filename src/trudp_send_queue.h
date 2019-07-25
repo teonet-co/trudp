@@ -104,9 +104,9 @@ size_t trudpSendQueueSize(trudpSendQueue *sq) {
  */
 static
 trudpSendQueueData *trudpSendQueueAdd(trudpSendQueue *sq, void *packet,
-        size_t packet_length, uint64_t expected_time) {
+        size_t packet_length, uint64_t expected_time, int debug_log_id) {
 
-    return trudpPacketQueueAdd(sq, packet, packet_length, expected_time);
+    return trudpPacketQueueAdd(sq, packet, packet_length, expected_time, debug_log_id);
 }
 
 /**

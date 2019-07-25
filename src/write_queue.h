@@ -50,6 +50,7 @@ typedef struct trudpWriteQueueData {
     char packet[MAX_HEADER_SIZE];
     uint16_t packet_length;
     void *packet_ptr;
+    int debug_log_id;
 
 } trudpWriteQueueData;
 
@@ -98,7 +99,7 @@ size_t trudpWriteQueueSize(trudpWriteQueue *wq) {
     return wq ? teoQueueSize(wq->q) : -1;
 }
 trudpWriteQueueData *trudpWriteQueueAdd(trudpWriteQueue *wq, void *packet,
-        void *packet_ptr, size_t packet_length);
+        void *packet_ptr, size_t packet_length, int debug_log_id);
 /**
  * Get pointer to first element data
  *
@@ -108,7 +109,13 @@ trudpWriteQueueData *trudpWriteQueueAdd(trudpWriteQueue *wq, void *packet,
  */
 static
 trudpWriteQueueData *trudpWriteQueueGetFirst(trudpWriteQueue *wq) {
-    return (trudpWriteQueueData *) (wq->q->first ? wq->q->first->data : NULL);
+    teoQueueData* queue_data = wq->q->first;
+
+    if (queue_data != NULL) {
+        return (trudpWriteQueueData *)queue_data->data;
+    }
+
+    return NULL;
 }
 /**
  * Remove first element from Write queue

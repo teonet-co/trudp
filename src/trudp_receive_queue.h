@@ -107,7 +107,7 @@ size_t trudpReceiveQueueSize(trudpReceiveQueue *sq) {
 static
 trudpReceiveQueueData *trudpReceiveQueueAdd(trudpReceiveQueue *sq, void *packet,
         size_t packet_length, uint64_t expected_time) {
-    return trudpPacketQueueAdd(sq, packet, packet_length, expected_time);
+    return trudpPacketQueueAdd(sq, packet, packet_length, expected_time, 0);
 }
 
 /**

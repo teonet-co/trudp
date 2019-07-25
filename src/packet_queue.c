@@ -52,7 +52,7 @@ trudpPacketQueueData *trudpPacketQueueFindByTime(trudpPacketQueue *tq, uint64_t 
  * @return Pointer to added trudpPacketQueueData
  */
 trudpPacketQueueData *trudpPacketQueueAdd(trudpPacketQueue *tq, void *packet,
-        size_t packet_length, uint64_t expected_time) {
+        size_t packet_length, uint64_t expected_time, int debug_log_id) {
 
     // Add
     size_t tqd_length = sizeof(trudpPacketQueueData) + packet_length;
@@ -64,6 +64,7 @@ trudpPacketQueueData *trudpPacketQueueAdd(trudpPacketQueue *tq, void *packet,
     tqd->expected_time = expected_time;
     tqd->packet_length = packet_length;
     tqd->retrieves = 0;
+    tqd->debug_log_id = debug_log_id;
 
     return tqd;
 }
