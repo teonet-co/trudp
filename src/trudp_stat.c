@@ -420,6 +420,27 @@ char *ksnTRUDPstatShowStr(trudpData *td, int page) {
                     writeQueueSize,
                     receiveQueueSize
                 );
+                if ( tcd->stat.triptime_last / 1000.0 > 500) {
+                    char *stat_sq_str = trudpStatShowQueueStr(tcd, 0);
+                    if(stat_sq_str) {
+                                  
+                        int port;
+                        char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd->remaddr, &port);
+                        printf("--------------------------------------------------------------\n" 
+                               "TR-UDP channel %s:%d:%d queues:\n\n", 
+                               addr, port, tcd->channel);
+                        puts(stat_sq_str);
+                        free(stat_sq_str);
+                    }
+                    
+
+                    char *stat_rq_str = trudpStatShowQueueStr(tcd, 1);
+                    if(stat_rq_str) {
+                        puts(stat_rq_str);
+                        free(stat_rq_str);
+                    }
+                }
+
             }
             totalStat.packets_send += tcd->stat.packets_send;
             totalStat.send_speed += tcd->stat.send_speed;

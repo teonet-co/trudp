@@ -286,7 +286,7 @@ static void _trudpChannelCalculateTriptime(trudpChannelData *tcd, void *packet,
         size_t send_data_length) {
 
     tcd->triptime = trudpGetTimestamp() - trudpPacketGetTimestamp(packet);
-
+    
     // Calculate and set Middle Triptime value
     tcd->triptimeMiddle =
         tcd->triptimeMiddle == START_MIDDLE_TIME ? tcd->triptime * tcd->triptimeFactor : // Set first middle time
@@ -790,7 +790,7 @@ int trudpChannelSendQueueProcess(trudpChannelData *tcd, uint64_t ts,
 
         // Move record to the end of Queue \todo or don't move record to the end of
         // queue because it should be send first
-        trudpPacketQueueMoveToEnd(tcd->sendQueue, tqd);
+        //trudpPacketQueueMoveToEnd(tcd->sendQueue, tqd);
         tcd->stat.packets_attempt++; // Attempt statistic parameter increment
         if(!tqd->retrieves) tqd->retrieves_start = ts;
 
