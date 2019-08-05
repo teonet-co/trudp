@@ -405,7 +405,8 @@ static  uint64_t _trudpChannelCalculateExpectedTime(trudpChannelData *tcd,
         uint64_t current_time, int retransmit) {
 
     //int rtt = tcd->triptimeMiddle + RTT * (retransmit);
-    int rtt = tcd->triptimeMiddle + (RTT/10);// * (retransmit?0.5:0);
+    //int rtt = tcd->triptimeMiddle + (RTT/10);// * (retransmit?0.5:0);
+    int rtt = tcd->triptimeMiddle + RTT;
     if(rtt > MAX_RTT) rtt = MAX_RTT;
     uint64_t expected_time = current_time + rtt;
 
