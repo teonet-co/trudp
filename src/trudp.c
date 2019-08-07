@@ -162,7 +162,7 @@ void trudpChannelDestroyAll(trudpData *td) {
     int counter = teoMapSize(td->map);
     while (counter) {
         size_t data_len = 0;
-        trudpChannelData *tcd = (trudpChannelData *)teoMapGetFirst(td->map, data_len);
+        trudpChannelData *tcd = (trudpChannelData *)teoMapGetFirst(td->map, &data_len);
         trudpChannelDestroy(tcd);
         --counter;
     }
