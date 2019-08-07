@@ -42,7 +42,7 @@ extern "C" {
 #define START_MIDDLE_TIME (MAX_ACK_WAIT/5) * 1000000 // Midle time at start
 #define RESET_AFTER_ID (UINT32_MAX - 1024) // Reset if send id more than this constant
 #define MAX_TRIPTIME_MIDDLE 5757575/2 // Maximum number of Middle triptime
-#define MAX_LAST_RECEIVE MAX_TRIPTIME_MIDDLE*2 // Disconnect after last receved packet time older than this constant (14.39 sec)
+#define MAX_LAST_RECEIVE MAX_TRIPTIME_MIDDLE*5 // Disconnect after last receved packet time older than this constant (14.39 sec)
 #define SEND_PING_AFTER 2500000*4 // Send trudp ping after 10 sec
 #define MAP_SIZE_DEFAULT 107 // Default map size; map stored connected channels and can auto resize
 #define USE_WRITE_QUEUE 0 // Use write queue instead of direct write to socket
