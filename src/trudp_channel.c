@@ -28,6 +28,8 @@
 #include <stdlib.h>
 #include <stddef.h>
 
+#include "debug_log.h"
+
 #include "trudp_channel.h"
 #include "trudp_utils.h"
 #include "trudp_stat.h"
@@ -199,6 +201,7 @@ static  void _trudpChannelReset(trudpChannelData *tcd) {
  * @param tcd Pointer to trudpChannelData
  */
 void trudpChannelDestroy(trudpChannelData *tcd) {
+    debug_log_message("trudpSendEvent DISCONNECTED in trudpChannelDestroy");
 
     trudpSendEvent(tcd, DISCONNECTED, NULL, 0, NULL);
     _trudpChannelFree(tcd);
@@ -264,6 +267,8 @@ int trudpChannelCheckDisconnected(trudpChannelData *tcd, uint64_t ts) {
 
     // Disconnect channel at long last receive
     if(tcd->lastReceived && ts - tcd->lastReceived > MAX_LAST_RECEIVE) {
+
+        debug_log_message("trudpSendEvent DISCONNECTED in trudpChannelCheckDisconnected");
 
         // Send disconnect event
         uint32_t lastReceived = ts - tcd->lastReceived;
@@ -733,6 +738,8 @@ void *trudpChannelProcessReceivedPacket(trudpChannelData *tcd, void *packet,
 
             // RESET packet received
             case TRU_RESET: {
+
+                debug_log_message("trudpSendEvent GOT_RESET in trudpChannelProcessReceivedPacket");
 
                 // Send Got Reset event
                 trudpSendEvent(tcd, GOT_RESET, NULL, 0, NULL);
