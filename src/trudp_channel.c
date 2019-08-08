@@ -168,6 +168,7 @@ trudpChannelData *trudpChannelNew(void *parent, char *remote_address,
 
     // Set other defaults
     _trudpChannelSetDefaults(tcd);
+    tcd->fd = 0;
 
     // Add cannel to map
     size_t key_length;
@@ -201,6 +202,7 @@ void trudpChannelDestroy(trudpChannelData *tcd) {
 
     trudpSendEvent(tcd, DISCONNECTED, NULL, 0, NULL);
     _trudpChannelFree(tcd);
+    tcd->fd = 0;
     trudpSendQueueDestroy(tcd->sendQueue);
     trudpWriteQueueDestroy(tcd->writeQueue);
     trudpReceiveQueueDestroy(tcd->receiveQueue);
