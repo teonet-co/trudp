@@ -47,7 +47,7 @@ extern "C" {
 #define MAP_SIZE_DEFAULT 107 // Default map size; map stored connected channels and can auto resize
 #define USE_WRITE_QUEUE 0 // Use write queue instead of direct write to socket
 #define RTT 30000 // This constant used in send queue expected time calculation
-#define MAX_RTT 2500000 // This constant used in send queue expected time calculation
+#define MAX_RTT 500000 // This constant used in send queue expected time calculation
 #define RESET_AT_LONG_RETRANSMIT 0 // Send rest at long retransmit retrives time
 #define NORMAL_S_SIZE 40 //48 // Normal size of send queue
 
