@@ -146,6 +146,7 @@ typedef struct trudpChannelData {
     trudpStatChannelData stat;  ///< Channel statistic
 
     int fd;                     ///< L0 client fd (emulation)
+    int reset_f;                ///< 1 - we initiated reset and waiting for reset ack, 0 - normal mode
 
 
     // Buffer for large packet from client
@@ -153,6 +154,8 @@ typedef struct trudpChannelData {
     size_t read_buffer_ptr;
     size_t read_buffer_size;
     size_t last_packet_ptr;
+
+    int packet_counter;
 
 } trudpChannelData;
 
@@ -183,7 +186,7 @@ int trudpChannelSendQueueProcess(trudpChannelData *tcd, uint64_t ts,
         uint64_t *next_expected_time);
 int trudpChannelCheckDisconnected(trudpChannelData *tcd, uint64_t ts);
 size_t trudpChannelWriteQueueProcess(trudpChannelData *tcd);
-
+int trudpChannelNeedReset(trudpChannelData *tcd);
 #ifdef __cplusplus
 }
 #endif
