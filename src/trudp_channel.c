@@ -533,8 +533,7 @@ size_t trudpChannelSendData(trudpChannelData *tcd, void *data, size_t data_lengt
  * @param data_length Pointer to variable to return packets data length
  *
  * @return Pointer to received data, NULL available, length of data saved to
- *         *data_length, if packet is not TR-UDP packet the (void *)-1 pointer
- *         returned
+ *         *data_length, if packet is not TR-UDP packet it's sent to client as is
  */
 void *trudpChannelProcessReceivedPacket(trudpChannelData *tcd, void *packet,
         size_t packet_length, size_t *data_length) {
@@ -747,7 +746,6 @@ void *trudpChannelProcessReceivedPacket(trudpChannelData *tcd, void *packet,
 
             // An undefined type of packet (skip it)
             default: {
-
                 // Return error code
                 data = (void *)-1;
 
@@ -755,7 +753,10 @@ void *trudpChannelProcessReceivedPacket(trudpChannelData *tcd, void *packet,
         }
     }
     // Packet is not TR-UDP packet
-    else data = (void *)-1;
+    else {
+        trudpSendEvent(tcd, GOT_DATA, packet, packet_length, NULL);
+        data = packet;
+    }
 
     return data;
 }
