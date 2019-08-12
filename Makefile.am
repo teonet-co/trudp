@@ -36,7 +36,7 @@ endif
 
 # -----------------------------------------------------------------------------
 
-SUBDIRS = embedded/teoccl src po tests examples ci-build
+SUBDIRS = embedded/teoccl src po tests examples
 
 trudpdocdir = ${prefix}/doc/@PACKAGE@
 trudpdoc_DATA = \

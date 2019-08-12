@@ -1,6 +1,3 @@
-[submodule "ci-build"]
-	path = ci-build
-	url = git@github.com:teonet-co/ci-build.git
 [submodule "embedded/teoccl"]
 	path = embedded/teoccl
 	url = https://github.com/teonet-co/teoccl.git
