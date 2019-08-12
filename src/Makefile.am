@@ -10,6 +10,7 @@ AM_CFLAGS = \
 	-fPIC \
 	-DUSE_LIBEV \
 	-I../embedded/teoccl/src \
+	-I../embedded/teoccl/include \
 	-fvisibility=hidden \
 	-Wpointer-arith
 

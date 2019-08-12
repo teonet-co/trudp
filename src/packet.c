@@ -30,9 +30,11 @@
 #include <stdint.h>
 #include <string.h>
 
-#if defined(__linux__)
+#include "teobase/platform.h"
+
+#if defined(TEONET_OS_LINUX)
     #include <sys/time.h>
-#elif defined(_WIN32)
+#elif defined(TEONET_OS_WINDOWS)
     #include <sys/types.h>
     #include <sys/timeb.h>
 #endif
