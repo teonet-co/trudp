@@ -8,14 +8,14 @@ AM_CPPFLAGS = \
 AM_CFLAGS = \
 	-g -Wall \
 	-std=gnu11 \
-	-I../embedded/teoccl/include \
+	-I../libteoccl/include \
 	-I../src
 
 AM_CXX = clang++
 AM_CXXFLAGS = \
 	-g -Wall \
 	-std=c++14 \
-	-I../embedded/teoccl/include \
+	-I../libteoccl/include \
 	-I../src
 
 ## Debug info
@@ -29,7 +29,7 @@ endif
 
 AM_LDFLAGS = -L../src/.libs 
 
-LIBS = ../src/.libs/libtrudp.a ../embedded/teoccl/src/.libs/libteoccl.a -lcunit -lev
+LIBS = ../src/.libs/libtrudp.a ../libteoccl/src/.libs/libteoccl.a -lcunit -lev
 
 noinst_PROGRAMS = trudp_tst
 

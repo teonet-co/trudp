@@ -11,13 +11,13 @@ AM_CFLAGS = \
 	-fno-strict-aliasing \
 	-DUSE_LIBEV \
 	-I../src \
-	-I../embedded/teoccl/include
+	-I../libteoccl/include
 
 AM_CXX = clang++
 AM_CXXFLAGS = \
 	-g -Wall \
 	-std=c++14 \
-	-I../embedded/teoccl/include \
+	-I../libteoccl/include \
 	-I../src
 
 ## Debug info

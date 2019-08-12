@@ -248,6 +248,6 @@ AC_CONFIG_FILES([
 ])
 
 # Call teoccl's ./configure script recursively.
-AC_CONFIG_SUBDIRS([embedded/teoccl])
+AC_CONFIG_SUBDIRS([libteoccl])
 
 AC_OUTPUT

@@ -9,7 +9,7 @@ AM_CFLAGS = \
 	-fno-strict-aliasing \
 	-fPIC \
 	-DUSE_LIBEV \
-	-I../embedded/teoccl/include \
+	-I../libteoccl/include \
 	-fvisibility=hidden \
 	-Wpointer-arith
 
@@ -18,7 +18,7 @@ AM_CXXFLAGS = \
 	-g -Wall \
 	-std=c++14 \
 	-fPIC \
-	-I../embedded/teoccl/include \
+	-I../libteoccl/include \
 	-I$(HOME)/Projects/teonet/embedded/libtrudp/src \
 	-I/usr/include/libtrudp
 
@@ -33,7 +33,7 @@ endif
 
 AM_LDFLAGS = 
 
-LIBS = ../embedded/teoccl/src/.libs/libteoccl.a
+LIBS = ../libteoccl/src/.libs/libteoccl.a
 
 lib_LTLIBRARIES = libtrudp.la
 
