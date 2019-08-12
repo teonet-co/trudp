@@ -31,7 +31,8 @@
 #define WRITE_QUEUE_H
 
 #include <stdint.h>
-#include "queue.h"
+
+#include "teoccl/queue.h"
 
 #ifdef __cplusplus
 extern "C" {

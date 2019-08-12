@@ -6,15 +6,17 @@ AM_CPPFLAGS = \
 	-DPACKAGE_DATA_DIR=\""$(datadir)"\" $(TRUDP_CFLAGS)
 
 AM_CFLAGS = \
-	 -g -Wall \
-	 -I../src \
-	 -std=c99 \
-	 -I../embedded/teoccl/src
+	-g -Wall \
+	-std=gnu11 \
+	-I../embedded/teoccl/include \
+	-I../src
 
 AM_CXX = clang++
 AM_CXXFLAGS = \
-         -g -Wall \
-	 -I../src
+	-g -Wall \
+	-std=c++14 \
+	-I../embedded/teoccl/include \
+	-I../src
 
 ## Debug info
 if DEBUG
