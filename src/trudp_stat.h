@@ -58,7 +58,7 @@ TRUDP_API char *trudpStatShowQueueStr(trudpChannelData *tcd, int type);
  * @param td
  * @return
  */
-static inline 
+static inline
 trudpStatData *trudpStatReset(trudpData *td) {
     memset(&td->stat, 0, sizeof(td->stat));
     return &td->stat;
@@ -69,7 +69,7 @@ trudpStatData *trudpStatReset(trudpData *td) {
  * @param td
  * @return
  */
-static inline 
+static inline
 trudpStatData *trudpStatInit(trudpData *td) {
     return trudpStatReset(td);
 }
@@ -78,17 +78,18 @@ trudpStatData *trudpStatInit(trudpData *td) {
  *
  * @param tcd
  */
-static inline 
+static inline
 void trudpStatChannelReset(trudpChannelData *tcd) {
     memset(&tcd->stat, 0, sizeof(tcd->stat));
     tcd->stat.triptime_min = UINT32_MAX;
+    tcd->stat.started = teoGetTimestampFull();
 }
 /**
  * Reset TR-UDP channel statistic
  *
  * @param tcd
  */
-static inline 
+static inline
 void trudpStatChannelInit(trudpChannelData *tcd) {
     trudpStatChannelReset(tcd);
 }

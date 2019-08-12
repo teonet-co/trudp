@@ -20,7 +20,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- * 
+ *
  * \file   trudp_api.h
  * \author Kirill Scherba <kirill@scherba.ru>
  *
@@ -30,8 +30,12 @@
 #ifndef TRUDP_API_H
 #define TRUDP_API_H
 
-#ifdef _WINDLL
+#if defined(_WIN32)
+#if defined(TRUDP_EXPORTS)
 #define TRUDP_API __declspec(dllexport)
+#else
+#define TRUDP_API __declspec(dllimport)
+#endif
 #else
 #define TRUDP_API __attribute__ ((visibility ("default")))
 #endif
@@ -40,12 +44,8 @@
 extern "C" {
 #endif
 
-
-
-
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* TRUDP_API_H */
-

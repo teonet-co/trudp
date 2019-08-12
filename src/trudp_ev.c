@@ -22,10 +22,10 @@
  * THE SOFTWARE.
  */
 
-/* 
+/*
  * File:   trudp_ev.c
  * Author: Kirill Scherba <kirill@scherba.ru>
- * 
+ *
  * Libev module. To use this module set flag -DUSE_LIBEV
  *
  * Created on July 27, 2016, 11:11 AM
@@ -61,7 +61,7 @@ static void _trudpSendQueueCbProcess(EV_P_ ev_timer *w, int revents) {
     uint64_t next_expected_time;
     trudpProcessSendQueue(psd->td, &next_expected_time);
     psd->started = 0;
-    
+
     // Start new process_send_queue timer
     if(next_expected_time)
         trudpSendQueueCbStart(psd, next_expected_time);
@@ -79,7 +79,7 @@ void trudpSendQueueCbStart(trudpProcessSendQueueData *psd,
     uint64_t tt, next_et = UINT64_MAX, ts = teoGetTimestampFull();
 
     // If next_expected_time selected (non nil)
-    if(next_expected_time) {        
+    if(next_expected_time) {
         next_et = next_expected_time > ts ? next_expected_time - ts : 0;
     }
 
@@ -88,7 +88,7 @@ void trudpSendQueueCbStart(trudpProcessSendQueueData *psd,
 
         double tt_d = tt / 1000000.0;
         if(tt_d == 0.0) tt_d = 0.0001;
-        
+
         if(!psd->inited) {
             ev_timer_init(&psd->process_send_queue_w, _trudpSendQueueCbProcess, tt_d, 0.0);
             psd->process_send_queue_w.data = (void*)psd;
@@ -104,7 +104,7 @@ void trudpSendQueueCbStart(trudpProcessSendQueueData *psd,
         if(!psd->started) {
             psd->started = 1;
             ev_timer_start(psd->loop, &psd->process_send_queue_w);
-        }        
+        }
     }
 }
 

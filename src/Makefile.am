@@ -3,33 +3,23 @@
 
 ACLOCAL_AMFLAGS = -I m4
 
-AM_CPPFLAGS = \
-	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
-	-DPACKAGE_SRC_DIR=\""$(srcdir)"\" \
-	-DPACKAGE_DATA_DIR=\""$(datadir)"\" $(TRUDP_CFLAGS)
-
 AM_CFLAGS = \
-	 -g -Wall \
-	 -std=gnu11 \
-	 -fno-strict-aliasing \
-	 -fPIC \
-	 -DUSE_LIBEV \
-	 -I../embedded/teoccl/src \
-	 -fvisibility=hidden
-	
-#	 -std=gnu11 
-#	 -std=gnu89
-#	 -I$(HOME)/Projects/teonet/src/ 
+	-g -Wall \
+	-std=gnu11 \
+	-fno-strict-aliasing \
+	-fPIC \
+	-DUSE_LIBEV \
+	-I../embedded/teoccl/src \
+	-fvisibility=hidden \
+	-Wpointer-arith
 
 AM_CXX = clang++
 AM_CXXFLAGS = \
-         -g -Wall \
-	 -fPIC \
-	 -I$(HOME)/Projects/teonet/embedded/libtrudp/src \
-	 -I/usr/include/libtrudp
-
-#	 -std=c++11 
-#	 -I$(HOME)/Projects/teonet/src/
+	-g -Wall \
+	-std=c++14 \
+	-fPIC \
+	-I$(HOME)/Projects/teonet/embedded/libtrudp/src \
+	-I/usr/include/libtrudp
 
 ## Debug info
 if DEBUG
@@ -57,11 +47,10 @@ libtrudp_la_SOURCES = \
 	trudp_stat.c \
 	trudp_ev.c \
 	udp.c \
-	utils.c \
 	write_queue.c
 	
 libtrudpincludedir=$(includedir)/libtrudp
-	
+
 nobase_libtrudpinclude_HEADERS = 
 
 libtrudp_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(LIBRARY_MAJOR_VERSION):0:0

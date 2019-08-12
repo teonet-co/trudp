@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-/* 
+/*
  * File:   trudp_ev.h
  * Author: Kirill Scherba <kirill@scherba.ru>
  *
@@ -55,7 +55,7 @@ typedef struct trudpProcessSendQueueData {
 extern "C" {
 #endif
 
-TRUDP_API void trudpSendQueueCbStart(trudpProcessSendQueueData *psd, 
+TRUDP_API void trudpSendQueueCbStart(trudpProcessSendQueueData *psd,
   uint64_t next_expected_time);
 
 #ifdef __cplusplus

@@ -59,34 +59,22 @@ typedef struct trudpPacketQueueData {
  *
  * @return Pointer to trudpPacketQueue
  */
-static inline
-trudpPacketQueue *trudpPacketQueueNew() {
-    trudpPacketQueue *tq = (trudpPacketQueue *)malloc(sizeof(trudpPacketQueue));
-    tq->q = teoQueueNew();
-    return tq;
-}
+trudpPacketQueue *trudpPacketQueueNew();
+  
 /**
  * Destroy Packet queue
  *
  * @param tq Pointer to trudpPacketQueue
  */
-static inline
-void trudpPacketQueueDestroy(trudpPacketQueue *tq) {
-    if(tq) {
-        teoQueueDestroy(tq->q);
-        free(tq);
-    }
-}
+void trudpPacketQueueDestroy(trudpPacketQueue *tq);
+  
 /**
  * Remove all elements from Packet queue
  *
  * @param tq Pointer to trudpPacketQueue
  * @return Zero at success
  */
-static inline 
-int trudpPacketQueueFree(trudpPacketQueue *tq) {
-    return tq && tq->q ? teoQueueFree(tq->q) : -1;
-}
+int trudpPacketQueueFree(trudpPacketQueue *tq);
 
 /**
  * Get number of elements in Packet queue
@@ -95,23 +83,18 @@ int trudpPacketQueueFree(trudpPacketQueue *tq) {
  *
  * @return Number of elements in TR-UPD queue
  */
-static inline 
-size_t trudpPacketQueueSize(trudpPacketQueue *tq) {
-    return teoQueueSize(tq->q);
-}
+size_t trudpPacketQueueSize(trudpPacketQueue *tq); 
 
-trudpPacketQueueData *trudpPacketQueueAdd(trudpPacketQueue *tq, 
+trudpPacketQueueData *trudpPacketQueueAdd(trudpPacketQueue *tq,
         void *packet, size_t packet_length, uint64_t expected_time);
 /**
  * Get pointer to trudpQueueData from trudpPacketQueueData pointer
  * @param tqd Pointer to trudpPacketQueueData
  * @return Pointer to trudpQueueData or NULL if tqd is NULL
  */
-static inline 
 teoQueueData *trudpPacketQueueDataToQueueData(
-    trudpPacketQueueData *tqd) {
-    return tqd ? (teoQueueData *)((char*)tqd - sizeof(teoQueueData)) : NULL;
-}
+    trudpPacketQueueData *tqd);
+  
 /**
  * Remove element from Packet queue
  *
@@ -120,11 +103,9 @@ teoQueueData *trudpPacketQueueDataToQueueData(
  *
  * @return Zero at success
  */
-static inline 
-int trudpPacketQueueDelete(trudpPacketQueue *tq, 
-    trudpPacketQueueData *tqd) {
-    return teoQueueDelete(tq->q, trudpPacketQueueDataToQueueData(tqd));
-}
+int trudpPacketQueueDelete(trudpPacketQueue *tq,
+    trudpPacketQueueData *tqd); 
+
 /**
  * Move element to the end of list
  *
@@ -132,14 +113,8 @@ int trudpPacketQueueDelete(trudpPacketQueue *tq,
  * @param tqd Pointer to trudpPacketQueueData
  * @return Zero at success
  */
-static inline 
 trudpPacketQueueData *trudpPacketQueueMoveToEnd(trudpPacketQueue *tq,
-        trudpPacketQueueData *tqd) {
-
-    return (trudpPacketQueueData *)teoQueueMoveToEnd(tq->q,
-                trudpPacketQueueDataToQueueData(tqd))->data;
-}
-
+        trudpPacketQueueData *tqd);
 
 trudpPacketQueueData *trudpPacketQueueFindById(trudpPacketQueue *tq, uint32_t id);
 trudpPacketQueueData *trudpPacketQueueGetFirst(trudpPacketQueue *tq);
