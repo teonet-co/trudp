@@ -28,6 +28,8 @@
 #include <stdlib.h>
 #include <stddef.h>
 
+#include "debug_log.h"
+
 #include "trudp_channel.h"
 #include "trudp_utils.h"
 #include "trudp_stat.h"
@@ -103,7 +105,6 @@ static  trudpChannelData *_trudpChannelAddToMap(void *td, char *key,
  */
 static void _trudpChannelSetDefaults(trudpChannelData *tcd) {
 
-    tcd->fd = 0;
     tcd->sendId = 0;
     tcd->triptime = 0;
     tcd->triptimeFactor = 1.5;
@@ -169,6 +170,7 @@ trudpChannelData *trudpChannelNew(void *parent, char *remote_address,
 
     // Set other defaults
     _trudpChannelSetDefaults(tcd);
+    tcd->fd = 0;
 
     // Add cannel to map
     size_t key_length;
@@ -199,9 +201,11 @@ static  void _trudpChannelReset(trudpChannelData *tcd) {
  * @param tcd Pointer to trudpChannelData
  */
 void trudpChannelDestroy(trudpChannelData *tcd) {
+    debug_log_message("trudpSendEvent DISCONNECTED in trudpChannelDestroy");
 
     trudpSendEvent(tcd, DISCONNECTED, NULL, 0, NULL);
     _trudpChannelFree(tcd);
+    tcd->fd = 0;
     trudpSendQueueDestroy(tcd->sendQueue);
     trudpWriteQueueDestroy(tcd->writeQueue);
     trudpReceiveQueueDestroy(tcd->receiveQueue);
@@ -263,6 +267,8 @@ int trudpChannelCheckDisconnected(trudpChannelData *tcd, uint64_t ts) {
 
     // Disconnect channel at long last receive
     if(tcd->lastReceived && ts - tcd->lastReceived > MAX_LAST_RECEIVE) {
+
+        debug_log_message("trudpSendEvent DISCONNECTED in trudpChannelCheckDisconnected");
 
         // Send disconnect event
         uint32_t lastReceived = ts - tcd->lastReceived;
@@ -533,8 +539,7 @@ size_t trudpChannelSendData(trudpChannelData *tcd, void *data, size_t data_lengt
  * @param data_length Pointer to variable to return packets data length
  *
  * @return Pointer to received data, NULL available, length of data saved to
- *         *data_length, if packet is not TR-UDP packet the (void *)-1 pointer
- *         returned
+ *         *data_length, if packet is not TR-UDP packet it's sent to client as is
  */
 void *trudpChannelProcessReceivedPacket(trudpChannelData *tcd, void *packet,
         size_t packet_length, size_t *data_length) {
@@ -734,6 +739,8 @@ void *trudpChannelProcessReceivedPacket(trudpChannelData *tcd, void *packet,
             // RESET packet received
             case TRU_RESET: {
 
+                debug_log_message("trudpSendEvent GOT_RESET in trudpChannelProcessReceivedPacket");
+
                 // Send Got Reset event
                 trudpSendEvent(tcd, GOT_RESET, NULL, 0, NULL);
 
@@ -747,7 +754,6 @@ void *trudpChannelProcessReceivedPacket(trudpChannelData *tcd, void *packet,
 
             // An undefined type of packet (skip it)
             default: {
-
                 // Return error code
                 data = (void *)-1;
 
@@ -755,7 +761,10 @@ void *trudpChannelProcessReceivedPacket(trudpChannelData *tcd, void *packet,
         }
     }
     // Packet is not TR-UDP packet
-    else data = (void *)-1;
+    else {
+        trudpSendEvent(tcd, GOT_DATA, packet, packet_length, NULL);
+        data = packet;
+    }
 
     return data;
 }

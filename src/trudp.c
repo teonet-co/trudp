@@ -157,16 +157,14 @@ void *trudpSendEventGotData(void *t_pointer, void *packet,
  * @param tcd Pointer to trudpData
  */
 void trudpChannelDestroyAll(trudpData *td) {
-
     teoMapElementData *el;
     teoMapIterator *it;
-    if((it = teoMapIteratorNew(td->map))) {
-        while((el = teoMapIteratorNext(it))) {
-            trudpChannelData *tcd = (trudpChannelData *)
-                    teoMapIteratorElementData(el, NULL);
-            trudpChannelDestroy(tcd);
-        }
-        teoMapIteratorFree(it);
+    int counter = teoMapSize(td->map);
+    while (counter) {
+        size_t data_len = 0;
+        trudpChannelData *tcd = (trudpChannelData *)teoMapGetFirst(td->map, &data_len);
+        trudpChannelDestroy(tcd);
+        --counter;
     }
 }
 
