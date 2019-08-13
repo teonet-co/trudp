@@ -1,4 +1,4 @@
-#                                               -*- Autoconf -*-
+#                                        \       -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 #
 # TR-UDP: Teonet Real time communications over UDP protocol
@@ -248,6 +248,6 @@ AC_CONFIG_FILES([
 ])
 
 # Call teoccl's ./configure script recursively.
-AC_CONFIG_SUBDIRS([libteoccl])
+AC_CONFIG_SUBDIRS([libs/teobase])
 
 AC_OUTPUT

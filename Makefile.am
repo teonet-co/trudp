@@ -36,7 +36,7 @@ endif
 
 # -----------------------------------------------------------------------------
 
-SUBDIRS = libteoccl src po tests examples
+SUBDIRS = libs/teobase libs/teobase/libs/teoccl src po tests examples
 
 trudpdocdir = ${prefix}/doc/@PACKAGE@
 trudpdoc_DATA = \
@@ -64,6 +64,6 @@ uninstall-local:
 	-rm -r $(trudpdocdir)
 	
 test:	tests/trudp_tst
-	libteoccl/tests/teoccl_tst
-	libteoccl/tests/teoccl_cpp_tst
+	libs/teobase/libs/teoccl/tests/teoccl_tst
+	libs/teobase/libs/teoccl/tests/teoccl_cpp_tst
 	tests/trudp_tst

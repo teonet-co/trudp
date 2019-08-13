@@ -1,3 +1,6 @@
 [submodule "libteoccl"]
 	path = libteoccl
 	url = https://github.com/teonet-co/teoccl.git
+[submodule "libs/teobase"]
+	path = libs/teobase
+	url = git@github.com:teonet-co/teobase.git
