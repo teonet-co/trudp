@@ -11,7 +11,8 @@ AM_CFLAGS = \
 	-fno-strict-aliasing \
 	-DUSE_LIBEV \
 	-I../src \
-	-I../libteoccl/include
+	-I../libs/teobase/include \
+	-I../libs/teobase/libs/teoccl/include
 
 AM_CXX = clang++
 AM_CXXFLAGS = \
