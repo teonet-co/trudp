@@ -6,15 +6,19 @@ AM_CPPFLAGS = \
 	-DPACKAGE_DATA_DIR=\""$(datadir)"\" $(TRUDP_CFLAGS)
 
 AM_CFLAGS = \
-	 -g -Wall \
-	 -I../src \
-	 -std=c99 \
-	 -I../embedded/teoccl/src
+	-g -Wall \
+	-std=gnu11 \
+	-I../libs/teobase/insclude \
+	-I../libs/teobase/libs/teoccl/include \
+	-I../src
 
 AM_CXX = clang++
 AM_CXXFLAGS = \
-         -g -Wall \
-	 -I../src
+	-g -Wall \
+	-std=c++14 \
+	-I../libs/teobase/insclude \
+	-I../libs/teobase/libs/teoccl/include \
+	-I../src
 
 ## Debug info
 if DEBUG
@@ -27,7 +31,11 @@ endif
 
 AM_LDFLAGS = -L../src/.libs 
 
-LIBS = ../src/.libs/libtrudp.a ../embedded/teoccl/src/.libs/libteoccl.a -lcunit -lev
+LIBS =	\
+     ../src/.libs/libtrudp.a\
+     ../libs/teobase/src/.libs/libteobase.a \
+     ../libs/teobase/libs/teoccl/src/.libs/libteoccl.a \
+     -lcunit -lev
 
 noinst_PROGRAMS = trudp_tst
 

@@ -6,17 +6,20 @@ AM_CPPFLAGS = \
 	-DPACKAGE_DATA_DIR=\""$(datadir)"\" $(TRUDP_CFLAGS)
 
 AM_CFLAGS = \
-	 -g -Wall \
-	 -std=gnu11 \
-	 -fno-strict-aliasing \
-	 -DUSE_LIBEV \
-	 -I../src \
-	 -I../embedded/teoccl/src
+	-g -Wall \
+	-std=gnu11 \
+	-fno-strict-aliasing \
+	-DUSE_LIBEV \
+	-I../src \
+	-I../libs/teobase/include \
+	-I../libs/teobase/libs/teoccl/include
 
 AM_CXX = clang++
 AM_CXXFLAGS = \
-         -g -Wall \
-	 -I../src
+	-g -Wall \
+	-std=c++14 \
+	-I../libteoccl/include \
+	-I../src
 
 ## Debug info
 if DEBUG

@@ -30,11 +30,13 @@
 #include <stdint.h>
 #include <string.h>
 
-#if defined(__linux__)
-    #include <sys/time.h>
-#elif defined(_WIN32)
+#include "teobase/platform.h"
+
+#if defined(TEONET_OS_WINDOWS)
     #include <sys/types.h>
     #include <sys/timeb.h>
+#else
+    #include <sys/time.h>
 #endif
 
 #include "packet.h"
@@ -163,14 +165,14 @@ static  int _trudpHeaderChecksumCheck(trudpHeader *th) {
  uint64_t teoGetTimestampFull() {
     int64_t current_time;
 
-#if defined(_WIN32)
+#if defined(TEONET_OS_WINDOWS)
     struct __timeb64 time_value;
     memset(&time_value, 0, sizeof(time_value));
 
     _ftime64_s(&time_value);
 
     current_time = time_value.time * 1000000 + time_value.millitm*1000;
-#elif defined(__linux__)
+#else
     struct timeval time_value;
     memset(&time_value, 0, sizeof(time_value));
 

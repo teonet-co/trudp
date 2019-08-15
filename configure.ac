@@ -1,4 +1,4 @@
-#                                               -*- Autoconf -*-
+#                                        \       -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 #
 # TR-UDP: Teonet Real time communications over UDP protocol
@@ -15,8 +15,8 @@ AC_SUBST([$1], ['$2'])
 # END
 
 AC_PREREQ([2.69])
-AC_INIT([libtrudp], [0.2.12], [kirill@scherba.ru])
-AC_DEFINE_SUBST(LIBRARY_MAJOR_VERSION, 9, [TR-UDP dynamic library version])
+AC_INIT([libtrudp], [0.3.0], [kirill@scherba.ru])
+AC_DEFINE_SUBST(LIBRARY_MAJOR_VERSION, 13, [TR-UDP dynamic library version])
 AC_DEFINE([PACKAGE_DESCRIPTION], ["TR-UDP library: Teonet Real time communications over UDP protocol"], [Application description])
 #AC_DEFINE([PACKAGE_DEPENDENCIES], ["libev"], [Application dependencies])
 AC_DEFINE([PACKAGE_DEPENDENCIES], [""], [Application dependencies])
@@ -245,10 +245,9 @@ AC_CONFIG_FILES([
     src/Makefile
     tests/Makefile
     examples/Makefile
-    ci-build/Makefile
 ])
 
 # Call teoccl's ./configure script recursively.
-AC_CONFIG_SUBDIRS([embedded/teoccl])
+AC_CONFIG_SUBDIRS([libs/teobase])
 
 AC_OUTPUT
