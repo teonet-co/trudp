@@ -268,7 +268,7 @@ int trudpChannelCheckDisconnected(trudpChannelData *tcd, uint64_t ts) {
     // Disconnect channel at long last receive
     if(tcd->lastReceived && ts - tcd->lastReceived > MAX_LAST_RECEIVE) {
 
-        log_info("TrUdp", "trudpSendEvent DISCONNECTED in trudpChannelCheckDisconnected");
+//        log_info("TrUdp", "trudpSendEvent DISCONNECTED in trudpChannelCheckDisconnected");
 
         // Send disconnect event
         uint32_t lastReceived = ts - tcd->lastReceived;
