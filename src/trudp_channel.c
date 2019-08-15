@@ -201,7 +201,7 @@ static  void _trudpChannelReset(trudpChannelData *tcd) {
  * @param tcd Pointer to trudpChannelData
  */
 void trudpChannelDestroy(trudpChannelData *tcd) {
-    log_info("TrUdp", "trudpSendEvent DISCONNECTED in trudpChannelDestroy");
+//    log_info("TrUdp", "trudpSendEvent DISCONNECTED in trudpChannelDestroy");
 
     trudpSendEvent(tcd, DISCONNECTED, NULL, 0, NULL);
     _trudpChannelFree(tcd);
@@ -739,7 +739,7 @@ void *trudpChannelProcessReceivedPacket(trudpChannelData *tcd, void *packet,
             // RESET packet received
             case TRU_RESET: {
 
-                log_info("TrUdp", "trudpSendEvent GOT_RESET in trudpChannelProcessReceivedPacket");
+//                log_info("TrUdp", "trudpSendEvent GOT_RESET in trudpChannelProcessReceivedPacket");
 
                 // Send Got Reset event
                 trudpSendEvent(tcd, GOT_RESET, NULL, 0, NULL);
