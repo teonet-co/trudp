@@ -35,8 +35,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#include "teoccl/queue.h"
 #include "utils_r.h"
-#include "queue.h"
 #include "packet.h"
 
 // Box characters

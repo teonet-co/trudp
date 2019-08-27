@@ -9,7 +9,8 @@ AM_CFLAGS = \
 	-fno-strict-aliasing \
 	-fPIC \
 	-DUSE_LIBEV \
-	-I../embedded/teoccl/src \
+	-I../libs/teobase/include \
+	-I../libs/teobase/libs/teoccl/include \
 	-fvisibility=hidden \
 	-Wpointer-arith
 
@@ -18,6 +19,8 @@ AM_CXXFLAGS = \
 	-g -Wall \
 	-std=c++14 \
 	-fPIC \
+	-I../libs/teobase/include \
+	-I../libs/teobase/libs/teoccl/include \
 	-I$(HOME)/Projects/teonet/embedded/libtrudp/src \
 	-I/usr/include/libtrudp
 
@@ -32,7 +35,9 @@ endif
 
 AM_LDFLAGS = 
 
-LIBS = ../embedded/teoccl/src/.libs/libteoccl.a
+LIBS = \
+    ../libs/teobase/src/.libs/libteobase.a \
+    ../libs/teobase/libs/teoccl/src/.libs/libteoccl.a
 
 lib_LTLIBRARIES = libtrudp.la
 
@@ -48,7 +53,7 @@ libtrudp_la_SOURCES = \
 	trudp_ev.c \
 	udp.c \
 	write_queue.c
-	
+
 libtrudpincludedir=$(includedir)/libtrudp
 
 nobase_libtrudpinclude_HEADERS = 

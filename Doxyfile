@@ -791,7 +791,7 @@ EXCLUDE                = tests
 # from the input.
 # The default value is: NO.
 
-EXCLUDE_SYMLINKS       = embedded
+EXCLUDE_SYMLINKS       = libteoccl
 
 # If the value of the INPUT tag contains directories, you can use the
 # EXCLUDE_PATTERNS tag to specify one or more wildcard patterns to exclude

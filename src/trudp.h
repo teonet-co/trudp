@@ -27,10 +27,10 @@
 #ifndef TR_UDP_H
 #define TR_UDP_H
 
+#include "teoccl/map.h"
 #include "packet_queue.h"
 #include "write_queue.h"
 #include "packet.h"
-#include "map.h"
 #include "udp.h"
 
 #include "trudp_channel.h"
