@@ -58,6 +58,6 @@ libtrudpincludedir=$(includedir)/libtrudp
 
 nobase_libtrudpinclude_HEADERS = 
 
-libtrudp_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(LIBRARY_MAJOR_VERSION):0:0
+libtrudp_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(LIBRARY_CURRENT):$(LIBRARY_REVISION):$(LIBRARY_AGE)
 
 libtrudp_la_LIBADD = $(TRUDP_LIBS)

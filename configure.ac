@@ -28,7 +28,7 @@ AC_DEFINE([LICENSES], ["[[\"MIT\",\"LGPL-3.0\"]]"], [Application package license
 AC_DEFINE([VCS_URL], ["https://github.com/teonet-co/trudp.git"], [Git URL])
 AC_DEFINE(COPYRIGHT, ["(c) Kirsoft Inc., 1996-2019"], [TR-UDP library copyright])
 
-AC_PREFIX_DEFAULT([/usr])
+AC_PREFIX_DEFAULT([/usr/local])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_SRCDIR([src/trudp.c])
 AC_CONFIG_MACRO_DIR([m4])
