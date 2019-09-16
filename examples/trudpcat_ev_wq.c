@@ -773,6 +773,19 @@ static void usage(char *name) {
 	exit(1);
 }
 
+#include "teoccl/queue.h"
+
+#include  <signal.h>
+
+volatile sig_atomic_t _quit_flag = 0;
+
+void INThandler(int sig)
+{
+    printf("Catch CTRL-C SIGNAL !!!\n");
+    printf("%d %d\n", counter, size_all);
+    _quit_flag = 1;
+}
+
 /**
  * Main application function
  *
@@ -781,7 +794,7 @@ static void usage(char *name) {
  * @return
  */
 int main(int argc, char** argv) {
-
+    signal(SIGINT, INThandler);
     // Show logo
     fprintf(stderr,
             "TR-UDP two node connect sample application ver " APP_VERSION "\n"
@@ -917,7 +930,7 @@ int main(int argc, char** argv) {
     const int DELAY = 500000; // uSec
     uint32_t tt, tt_s = 0, tt_c = 0, tt_ss = 0;
 
-    while (!quit_flag) {
+    while (!quit_flag || !_quit_flag) {
 
         #if !USE_SELECT
         network_loop(td);

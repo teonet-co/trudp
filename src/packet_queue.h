@@ -33,7 +33,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "teoccl/queue.h"
+#include "teoccl/deque.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,7 +41,7 @@ extern "C" {
 
 typedef struct trudpPacketQueue {
 
-    teoQueue *q;
+    ccl_deque_t *q;
 
 } trudpPacketQueue;
 
@@ -93,8 +93,7 @@ trudpPacketQueueData *trudpPacketQueueAdd(trudpPacketQueue *tq,
  * @param tqd Pointer to trudpPacketQueueData
  * @return Pointer to trudpQueueData or NULL if tqd is NULL
  */
-teoQueueData *trudpPacketQueueDataToQueueData(
-    trudpPacketQueueData *tqd);
+teoQueueData *trudpPacketQueueDataToQueueData(trudpPacketQueueData *tqd);
   
 /**
  * Remove element from Packet queue

@@ -47,7 +47,7 @@ trudpPacketQueueData *trudpPacketQueueFindByTime(trudpPacketQueue *tq, uint64_t 
  */
 trudpPacketQueue *trudpPacketQueueNew() {
     trudpPacketQueue *tq = (trudpPacketQueue *)malloc(sizeof(trudpPacketQueue));
-    tq->q = teoQueueNew();
+    tq->q = cclDequeInit(sizeof(trudpPacketQueueData*));
     return tq;
 }
 /**
@@ -57,7 +57,7 @@ trudpPacketQueue *trudpPacketQueueNew() {
  */
 void trudpPacketQueueDestroy(trudpPacketQueue *tq) {
     if(tq) {
-        teoQueueDestroy(tq->q);
+        cclDequeDestroy(tq->q);
         free(tq);
     }
 }
@@ -68,7 +68,7 @@ void trudpPacketQueueDestroy(trudpPacketQueue *tq) {
  * @return Zero at success
  */
 int trudpPacketQueueFree(trudpPacketQueue *tq) {
-    return tq && tq->q ? teoQueueFree(tq->q) : -1;
+    return tq && tq->q ? cclDequeClear(tq->q) : -1;
 }
 
 /**
@@ -79,7 +79,7 @@ int trudpPacketQueueFree(trudpPacketQueue *tq) {
  * @return Number of elements in TR-UPD queue
  */
 size_t trudpPacketQueueSize(trudpPacketQueue *tq) {
-    return teoQueueSize(tq->q);
+    return cclDequeSize(tq->q);
 }
 
 trudpPacketQueueData *trudpPacketQueueAdd(trudpPacketQueue *tq,
@@ -89,8 +89,7 @@ trudpPacketQueueData *trudpPacketQueueAdd(trudpPacketQueue *tq,
  * @param tqd Pointer to trudpPacketQueueData
  * @return Pointer to trudpQueueData or NULL if tqd is NULL
  */
-teoQueueData *trudpPacketQueueDataToQueueData(
-    trudpPacketQueueData *tqd) {
+teoQueueData *trudpPacketQueueDataToQueueData(trudpPacketQueueData *tqd) {
     return tqd ? (teoQueueData *)((char*)tqd - sizeof(teoQueueData)) : NULL;
 }
 /**
