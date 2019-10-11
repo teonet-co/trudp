@@ -75,7 +75,7 @@ typedef enum trudpEvent {
     DESTROY,
 
     /**
-     * TR-UDP channel disconnected event
+     * TR-UDP channel connected event
      * @param data NULL
      * @param data_length 0
      * @param user_data NULL
