@@ -212,7 +212,6 @@ int trudpIsPacketPing(void *data, size_t packet_length) {
     if(trudpPacketCheck(data, packet_length)) {
         int type = trudpPacketGetType(data);
         if(type == TRU_PING) {
-            printf("trudpIsPacketPing, TYPE = %d, %d\n", type, __LINE__);
             return 1;
         }
     }
