@@ -47,6 +47,7 @@ static size_t trudp_SendQueueSize(trudpData *td);
 static size_t trudp_SendQueueGetSizeMax(trudpData *td);
 #endif
 
+
 // Basic module functions ====================================================
 
 /**
@@ -207,6 +208,18 @@ void trudpSendResetAll(trudpData *td) {
     }
 }
 
+int trudpIsPacketPing(void *data, size_t packet_length) {
+    if(trudpPacketCheck(data, packet_length)) {
+        int type = trudpPacketGetType(data);
+        if(type == TRU_PING) {
+            printf("trudpIsPacketPing, TYPE = %d, %d\n", type, __LINE__);
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
 /**
  * Default TR-UDP process received from UDP data
  *
@@ -217,13 +230,19 @@ void trudpSendResetAll(trudpData *td) {
 void trudpProcessReceived(trudpData *td, void *data, size_t data_length) {
 
     struct sockaddr_in remaddr; // remote address
+
     socklen_t addr_len = sizeof(remaddr);
     ssize_t recvlen = trudpUdpRecvfrom(td->fd, data, data_length,
             (__SOCKADDR_ARG)&remaddr, &addr_len);
 
+    if (trudpIsPacketPing(data, recvlen) && trudpGetChannel(td, (__CONST_SOCKADDR_ARG) &remaddr, 0) == (void *)-1) {
+        return;
+    }
+
     // Process received packet
     if(recvlen > 0) {
         size_t data_length;
+
         trudpChannelData *tcd = trudpGetChannelCreate(td, (__CONST_SOCKADDR_ARG) &remaddr, 0);
         if(tcd == (void *)-1 || trudpChannelProcessReceivedPacket(tcd, data, recvlen, &data_length) == (void *)-1) {
             if(tcd == (void *)-1) {
@@ -370,7 +389,8 @@ trudpChannelData *trudpGetChannel(trudpData *td, __CONST_SOCKADDR_ARG addr,
 
     return trudpGetChannelAddr(td, addr_str, port, channel);
 }
-
+// \TODO: need channel alive function
+ 
 /**
  * Get trudpChannelData by socket address and channel number, create channel if
  * not exists
@@ -382,8 +402,7 @@ trudpChannelData *trudpGetChannel(trudpData *td, __CONST_SOCKADDR_ARG addr,
  *
  * @return Pointer to trudpChannelData or (void*)-1 at error
  */
-trudpChannelData *trudpGetChannelCreate(trudpData *td,
-        __CONST_SOCKADDR_ARG addr, int channel) {
+trudpChannelData *trudpGetChannelCreate(trudpData *td, __CONST_SOCKADDR_ARG addr, int channel) {
 
     int port;
     char *addr_str = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)addr, &port);
