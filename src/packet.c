@@ -90,7 +90,7 @@ static void _trudpHeaderACKtoPINGcreate(trudpHeader *out_th, trudpHeader *in_th,
                                         void *data, size_t data_length);
 static uint8_t _trudpHeaderChecksumCalculate(trudpHeader *th);
 static int _trudpHeaderChecksumCheck(trudpHeader *th);
-static void _trudpHeaderChecksumSet(trudpHeader *th, uint8_t chk);
+static inline void _trudpHeaderChecksumSet(trudpHeader *th, uint8_t chk);
 static void _trudpHeaderCreate(trudpHeader *th, uint32_t id,
                                unsigned int message_type, unsigned int channel,
                                uint16_t payload_length, uint32_t timestamp);
@@ -102,9 +102,9 @@ static void _trudpHeaderPINGcreate(trudpHeader *out_th, uint32_t id,
                                    size_t data_length);
 static void _trudpHeaderRESETcreate(trudpHeader *out_th, uint32_t id,
                                     unsigned int channel);
-static int _trudpPacketGetChannel(void *packet);
-static void _trudpPacketSetChannel(void *packet, int channel);
-static void _trudpPacketSetType(void *packet, trudpPacketType message_type);
+static inline int _trudpPacketGetChannel(void *packet);
+static inline void _trudpPacketSetChannel(void *packet, int channel);
+static inline void _trudpPacketSetType(void *packet, trudpPacketType message_type);
 
 /*****************************************************************************
  *
@@ -136,7 +136,7 @@ static uint8_t _trudpHeaderChecksumCalculate(trudpHeader *th) {
  * @param chk
  * @return
  */
-static void _trudpHeaderChecksumSet(trudpHeader *th, uint8_t chk) {
+static inline void _trudpHeaderChecksumSet(trudpHeader *th, uint8_t chk) {
 
   th->checksum = chk;
 }
@@ -486,7 +486,7 @@ uint32_t trudpPacketGetId(void *packet) { return ((trudpHeader *)packet)->id; }
  * @param packet Pointer to packet
  * @return Packet Id
  */
-static int _trudpPacketGetChannel(void *packet) {
+static inline int _trudpPacketGetChannel(void *packet) {
 
   return ((trudpHeader *)packet)->channel;
 }
@@ -498,7 +498,7 @@ static int _trudpPacketGetChannel(void *packet) {
  * @param channel Channel number
  * @return Packet Id
  */
-static void _trudpPacketSetChannel(void *packet, int channel) {
+static inline void _trudpPacketSetChannel(void *packet, int channel) {
 
   ((trudpHeader *)packet)->channel = channel;
 }
@@ -573,9 +573,9 @@ trudpPacketType trudpPacketGetType(void *packet) {
  * @param packet Pointer to packet
  * @param message_type
  */
-static void _trudpPacketSetType(void *packet, trudpPacketType message_type) {
+static inline void _trudpPacketSetType(void *packet, trudpPacketType message_type) {
 
-  ((trudpHeader *)packet)->message_type = message_type;
+    ((trudpHeader *)packet)->message_type = message_type;
 }
 
 /**
