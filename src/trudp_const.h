@@ -40,7 +40,6 @@ extern "C" {
 #define MAX_KEY_LENGTH 64 // Maximum key length
 #define MAX_OUTRUNNING 500 // Maximum outrunning in receive queue to send reset
 #define START_MIDDLE_TIME (MAX_ACK_WAIT/5) * 1000000 // Midle time at start
-#define RESET_AFTER_ID (UINT32_MAX - 1024) // Reset if send id more than this constant
 #define MAX_TRIPTIME_MIDDLE 5757575/2 // Maximum number of Middle triptime
 #define MAX_LAST_RECEIVE MAX_TRIPTIME_MIDDLE*5 // Disconnect after last receved packet time older than this constant (14.39 sec)
 #define SEND_PING_AFTER 2500000*4 // Send trudp ping after 10 sec
@@ -50,6 +49,10 @@ extern "C" {
 #define MAX_RTT 500000 // This constant used in send queue expected time calculation
 #define RESET_AT_LONG_RETRANSMIT 0 // Send rest at long retransmit retrives time
 #define NORMAL_S_SIZE 40 //48 // Normal size of send queue
+
+/// Sequential packetId limit wraps like 1,2,3,...,PACKET_ID_LIMIT-1,1,2,...
+/// we avoiding zero value as it used at connection init
+#define PACKET_ID_LIMIT (0x100000000LL)
 
 
 #ifdef __cplusplus

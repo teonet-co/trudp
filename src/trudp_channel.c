@@ -217,14 +217,50 @@ void trudpChannelDestroy(trudpChannelData *tcd) {
 // ============================================================================
 
 /**
+ * Return next packet id in range 1..(PACKET_ID_LIMIT-1)
+ * intentionally avoiding value 0
+ *
+ * @param packetId value to increment
+ */
+static  uint32_t _trudpGetNextSeqId(uint32_t packetId) {
+    // due to packetId == 0 threaten in special way as initialization one
+    // we avoid packetId == 0 in sequential increments
+    // i.e. after PACKET_ID_LIMIT-1 will go 1
+    packetId = modAddU(packetId, 1, PACKET_ID_LIMIT);
+    if (packetId != 0) {
+        return packetId;
+    }
+    return modAddU(packetId, 1, PACKET_ID_LIMIT);
+}
+
+/**
+ * Return sequential distance between fromId and toId
+ * Returns zero if fromId == toId otherwise it returns signed distance (toId - fromId)
+ * with respect wrapping around at (PACKET_ID_LIMIT-1) and considering all
+ * distances between 0..PACKET_ID_LIMIT/2 as positive and all distances beyond as negative
+ * It behaves similar to how signed integer overflow works, but for arbitrary PACKET_ID_LIMIT
+ *
+ * @param fromId first sequential packet id
+ * @param toId second sequential packet id
+ */
+static int32_t _trudpGetSeqIdDistance(uint32_t fromId, uint32_t toId) {
+    uint32_t diff = modSubU(toId, fromId, PACKET_ID_LIMIT);
+    if (diff < (PACKET_ID_LIMIT/2)) {
+        return diff;
+    }
+    return diff - PACKET_ID_LIMIT;
+}
+
+/**
  * Get new channel send Id
  *
  * @param tcd Pointer to trudpChannelData
  * @return New send Id
  */
-static uint32_t _trudpChannelGetNewId(trudpChannelData *tcd) {
-
-  return tcd->sendId++;
+static  uint32_t _trudpChannelGetNewId(trudpChannelData *tcd) {
+    uint32_t retval = tcd->sendId;
+    tcd->sendId = _trudpGetNextSeqId(tcd->sendId);
+    return retval;
 }
 
 /**
@@ -603,18 +639,6 @@ void *trudpChannelProcessReceivedPacket(trudpChannelData *tcd, void *packet,
       // Calculate triptime
       _trudpChannelCalculateTriptime(tcd, packet, send_data_length);
       _trudpChannelSetLastReceived(tcd);
-
-      // Reset if id is too big and send queue is empty
-      // goto skip_reset_after_id;
-      if (tcd->sendId >= RESET_AFTER_ID &&
-          !trudpSendQueueSize(tcd->sendQueue) &&
-          !trudpReceiveQueueSize(tcd->receiveQueue)) {
-
-        // Send reset
-        trudpChannelSendRESET(tcd, &tcd->sendId, sizeof(tcd->sendId));
-      }
-      // skip_reset_after_id: ;
-
     } break;
 
     // ACK to RESET packet received
@@ -680,74 +704,65 @@ void *trudpChannelProcessReceivedPacket(trudpChannelData *tcd, void *packet,
         uint32_t id = trudpPacketGetId(packet);
         trudpSendEvent(tcd, SEND_RESET, NULL, 0, NULL);
         trudpChannelSendRESET(tcd, &id, sizeof(id));
+        break;
       }
 
-      else {
-        // Check expected Id and return data
-        if (trudpPacketGetId(packet) == tcd->receiveExpectedId) {
+      // Check expected Id and return data
+      if (trudpPacketGetId(packet) == tcd->receiveExpectedId) {
+
+        // Send Got Data event
+        data = trudpSendEventGotData(tcd, packet, data_length);
+
+        // Proceed to next expected id
+        tcd->receiveExpectedId = _trudpGetNextSeqId(tcd->receiveExpectedId);
+        // Check received queue for saved packet with expected id
+        trudpReceiveQueueData *rqd;
+        while ((rqd = trudpReceiveQueueFindById(tcd->receiveQueue,
+                                                tcd->receiveExpectedId))) {
 
           // Send Got Data event
-          data = trudpSendEventGotData(tcd, packet, data_length);
+          data = trudpSendEventGotData(tcd, rqd->packet, data_length);
 
-          // Check received queue for saved packet with expected id
-          trudpReceiveQueueData *rqd;
-          while ((rqd = trudpReceiveQueueFindById(tcd->receiveQueue,
-                                                  ++tcd->receiveExpectedId))) {
-
-            // Send Got Data event
-            data = trudpSendEventGotData(tcd, rqd->packet, data_length);
-
-            // Delete element from received queue
-            trudpReceiveQueueDelete(tcd->receiveQueue, rqd);
-          }
-
-          // Statistic
-          tcd->stat.packets_receive++;
-          trudpStatProcessLast10Receive(tcd, packet);
-
-          tcd->outrunning_cnt = 0; // Reset outrunning flag
+          // Delete element from received queue
+          trudpReceiveQueueDelete(tcd->receiveQueue, rqd);
+          // Proceed to next expected id
+          tcd->receiveExpectedId = _trudpGetNextSeqId(tcd->receiveExpectedId);
         }
 
-        // Save outrunning packet to receiveQueue
-        else if (trudpPacketGetId(packet) > tcd->receiveExpectedId &&
-                 !trudpReceiveQueueFindById(tcd->receiveQueue,
-                                            trudpPacketGetId(packet))) {
+        // Statistic
+        tcd->stat.packets_receive++;
+        trudpStatProcessLast10Receive(tcd, packet);
 
-          trudpReceiveQueueAdd(tcd->receiveQueue, packet, packet_length, 0);
-          tcd->outrunning_cnt++; // Increment outrunning count
-
-          // Statistic
-          tcd->stat.packets_receive++;
-          trudpStatProcessLast10Receive(tcd, packet);
-
-          //                        goto skip_reset_2;
-          //                        // Send reset at maximum outrunning
-          //                        if(tcd->outrunning_cnt > MAX_OUTRUNNING) {
-          //                            // \todo Send event
-          //                            fprintf(stderr,
-          //                                "To match TR-UDP channel outrunning!
-          //                                " "Reset channel ...\n");
-          //                            trudpSendRESET(tcd);
-          //                        }
-          //                        skip_reset_2: ;
-        }
-
-        // Reset channel if packet id = 0
-        else if (!trudpPacketGetId(packet)) {
-
-          // Send Send Reset event
-          trudpChannelSendRESET(tcd, NULL, 0);
-        }
-
-        // Skip already processed packet
-        else {
-
-          // Statistic
-          tcd->stat.packets_receive_dropped++;
-          trudpStatProcessLast10Receive(tcd, packet);
-        }
+        tcd->outrunning_cnt = 0; // Reset outrunning flag
+        break;
       }
 
+      // Save outrunning packet to receiveQueue
+      if (_trudpGetSeqIdDistance(tcd->receiveExpectedId, trudpPacketGetId(packet)) > 0 &&
+                !trudpReceiveQueueFindById(tcd->receiveQueue,
+                                          trudpPacketGetId(packet))) {
+
+        trudpReceiveQueueAdd(tcd->receiveQueue, packet, packet_length, 0);
+        tcd->outrunning_cnt++; // Increment outrunning count
+
+        // Statistic
+        tcd->stat.packets_receive++;
+        trudpStatProcessLast10Receive(tcd, packet);
+        break;
+      }
+
+      // Reset channel if packet id = 0
+      if (!trudpPacketGetId(packet)) {
+
+        // Send Send Reset event
+        trudpChannelSendRESET(tcd, NULL, 0);
+        break;
+      }
+
+      // Skip already processed packet
+      // Statistic
+      tcd->stat.packets_receive_dropped++;
+      trudpStatProcessLast10Receive(tcd, packet);
     } break;
 
     // RESET packet received

@@ -162,4 +162,17 @@ struct timeval *usecToTv(struct timeval *tv, uint32_t usec) {
     return tv;
 }
 
+/// modular addition for unsigneds by mod M ( returns (arg_a+arg_b) mod mod_ in range 0...mod_-1 )
+uint64_t modAddU(uint64_t arg_a, uint64_t arg_b, uint64_t mod_) {
+  int64_t sum = (arg_a % mod_) + (arg_b % mod_);
+  return (uint64_t)(sum % mod_);
+}
+
+/// modular subtraction for unsigneds by mod M ( returns (arg_a-arg_b) mod mod_ in range 0...mod_-1 )
+uint64_t modSubU(uint64_t arg_a, uint64_t arg_b, uint64_t mod_) {
+  int64_t sub = (arg_a % mod_) + mod_ - (arg_b % mod_);
+  return (uint64_t)(sub % mod_);
+}
+
+
 #undef min
