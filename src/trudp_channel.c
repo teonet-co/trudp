@@ -110,6 +110,7 @@ static void _trudpChannelSetDefaults(trudpChannelData *tcd) {
   tcd->outrunning_cnt = 0;
   tcd->receiveExpectedId = 0;
   tcd->lastReceived = teoGetTimestampFull();
+  tcd->lastSentPing = 0;  //  Never sent ping before
   tcd->triptimeMiddle = START_MIDDLE_TIME;
 
   tcd->read_buffer = NULL;
@@ -544,6 +545,7 @@ size_t trudpChannelSendPING(trudpChannelData *tcd, void *data,
   // Free created packet
   trudpPacketCreatedFree(packetDATA);
 
+  tcd->lastSentPing = teoGetTimestampFull();
   return rv;
 }
 
