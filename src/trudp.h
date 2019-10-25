@@ -246,6 +246,8 @@ void *trudpSendEventGotData(void *t_pointer, void *packet,
           size_t *data_length);
 TRUDP_API int trudpIsPacketPing(void *data, size_t packet_length);
 
+const char * STRING_trudpEvent(trudpEvent val);
+
 #ifdef __cplusplus
 }
 #endif
