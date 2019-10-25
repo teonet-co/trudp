@@ -109,11 +109,10 @@ void trudpDestroy(trudpData* td) {
  * @param event
  * @param data
  * @param data_length
- * @param user_data
- * @param cb
+ * @param reserved - reserved, not used
  */
 void trudpSendEvent(void *t_pointer, int event, void *data,
-        size_t data_length, void *user_data) {
+        size_t data_length, void *reserved) {
 
     trudpData *td = (trudpData *)t_pointer;
 

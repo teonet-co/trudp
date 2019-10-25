@@ -165,12 +165,11 @@ int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr,
  *         -1 - cannot create socket; -2 - can't bind on port
  */
 int trudpUdpBindRaw(int *port, int allow_port_increment_f) {
-
-    int i, fd;
     struct sockaddr_in addr;	// Our address
 
     // Create an UDP socket
-    if((fd = _trudpUdpSocket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) <= 0) {
+    int fd = _trudpUdpSocket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    if(fd < 0) {
         perror("cannot create socket\n");
         return -1;
     }
@@ -181,7 +180,7 @@ int trudpUdpBindRaw(int *port, int allow_port_increment_f) {
 
     // Bind the socket to any valid IP address and a specific port, increment
     // port if busy
-    for(i=0;;) {
+    for(int i=0;;) {
 
         addr.sin_port = htons(*port);
 
