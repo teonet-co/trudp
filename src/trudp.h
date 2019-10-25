@@ -222,7 +222,7 @@ TRUDP_API trudpData *trudpInit(int fd, int port, trudpEventCb event_cb,
             void *user_data);
 TRUDP_API void trudpDestroy(trudpData* td);
 TRUDP_API void trudpSendEvent(void *t_pointer, int event, void *data,
-            size_t data_length, void *user_data);
+            size_t data_length, void *reserved);
 TRUDP_API trudpChannelData *trudpGetChannelCreate(trudpData *td,
             __CONST_SOCKADDR_ARG addr, int channel);
 TRUDP_API size_t trudpProcessKeepConnection(trudpData *td);
