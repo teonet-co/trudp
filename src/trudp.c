@@ -584,3 +584,43 @@ size_t trudpGetWriteQueueSize(trudpData *td) {
 
     return retval;
 }
+
+/**
+ * Get printable for trudpEvent enum
+ *
+ * @param val
+ * @return 
+ */
+const char *STRING_trudpEvent(trudpEvent val) {
+  switch (val) {
+    case INITIALIZE:
+      return "INITIALIZE";
+    case DESTROY:
+      return "DESTROY";
+    case CONNECTED:
+      return "CONNECTED";
+    case DISCONNECTED:
+      return "DISCONNECTED";
+    case GOT_RESET:
+      return "GOT_RESET";
+    case SEND_RESET:
+      return "SEND_RESET";
+    case GOT_ACK_RESET:
+      return "GOT_ACK_RESET";
+    case GOT_ACK_PING:
+      return "GOT_ACK_PING";
+    case GOT_PING:
+      return "GOT_PING";
+    case GOT_ACK:
+      return "GOT_ACK";
+    case GOT_DATA:
+      return "GOT_DATA";
+    case PROCESS_RECEIVE:
+      return "PROCESS_RECEIVE";
+    case PROCESS_RECEIVE_NO_TRUDP:
+      return "PROCESS_RECEIVE_NO_TRUDP";
+    case PROCESS_SEND:
+      return "PROCESS_SEND";
+  }
+  return "INVALID trudpEvent";
+};
