@@ -304,14 +304,19 @@ size_t trudpProcessKeepConnection(trudpData *td) {
             trudpChannelData *tcd = (trudpChannelData *)
                 teoMapIteratorElementData(el, NULL);
 
-            if(tcd->connected_f && ts - tcd->lastReceived > SEND_PING_AFTER) {
-                if(trudpChannelCheckDisconnected(tcd, ts) == -1) {
-
-                    rv = -1;
-                    break;
+            if (tcd->connected_f) {
+                uint32_t sinceReceived = ts - tcd->lastReceived;
+                uint32_t sincePing = ts - tcd->lastSentPing;
+                if (sinceReceived > KEEPALIVE_PING_DELAY) {
+                    if(trudpChannelCheckDisconnected(tcd, ts) == -1) {
+                        rv = -1;
+                        break;
+                    }
+                    if (sincePing > KEEPALIVE_PING_DELAY) {
+                        trudpChannelSendPING(tcd, "PING", 5);
+                    }
+                    rv++;
                 }
-                trudpChannelSendPING(tcd, "PING", 5);
-                rv++;
             }
         }
         teoMapIteratorFree(it);
@@ -406,11 +411,12 @@ trudpChannelData *trudpGetChannelCreate(trudpData *td, __CONST_SOCKADDR_ARG addr
 
     if(tcd == (void*)-1) {
         tcd = trudpChannelNew(td, addr_str, port, channel);
-        if(tcd != (void*)-1)
-            trudpSendEvent(tcd, CONNECTED, NULL, 0, NULL);
     }
 
-    if(tcd != (void*)-1) tcd->connected_f = 1;
+    if (tcd != (void*)-1 && !tcd->connected_f) {
+        trudpSendEvent(tcd, CONNECTED, NULL, 0, NULL);
+        tcd->connected_f = 1; // MUST BE AFTER EVENT!
+    }
 
     return tcd;
 }
