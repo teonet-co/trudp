@@ -15,11 +15,11 @@ AC_SUBST([$1], ['$2'])
 # END
 
 AC_PREREQ([2.69])
-AC_INIT([libtrudp], [0.3.1], [kirill@scherba.ru])
+AC_INIT([libtrudp], [0.4.0], [kirill@scherba.ru])
 
 AC_DEFINE_SUBST(LIBRARY_CURRENT,  1, [tr-udp dynamic library version])
-AC_DEFINE_SUBST(LIBRARY_REVISION, 3, [tr-udp dynamic library version])
-AC_DEFINE_SUBST(LIBRARY_AGE,      1, [tr-udp dynamic library version])
+AC_DEFINE_SUBST(LIBRARY_REVISION, 4, [tr-udp dynamic library version])
+AC_DEFINE_SUBST(LIBRARY_AGE,      0, [tr-udp dynamic library version])
 
 AC_DEFINE([PACKAGE_DESCRIPTION], ["TR-UDP library: Teonet Real time communications over UDP protocol"], [Application description])
 #AC_DEFINE([PACKAGE_DEPENDENCIES], ["libev"], [Application dependencies])
