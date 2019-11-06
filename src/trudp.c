@@ -47,6 +47,7 @@ static size_t trudp_SendQueueSize(trudpData *td);
 static size_t trudp_SendQueueGetSizeMax(trudpData *td);
 #endif
 
+
 // Basic module functions ====================================================
 
 /**
@@ -108,11 +109,10 @@ void trudpDestroy(trudpData* td) {
  * @param event
  * @param data
  * @param data_length
- * @param user_data
- * @param cb
+ * @param reserved - reserved, not used
  */
 void trudpSendEvent(void *t_pointer, int event, void *data,
-        size_t data_length, void *user_data) {
+        size_t data_length, void *reserved) {
 
     trudpData *td = (trudpData *)t_pointer;
 
@@ -157,8 +157,6 @@ void *trudpSendEventGotData(void *t_pointer, void *packet,
  * @param tcd Pointer to trudpData
  */
 void trudpChannelDestroyAll(trudpData *td) {
-    teoMapElementData *el;
-    teoMapIterator *it;
     int counter = teoMapSize(td->map);
     while (counter) {
         size_t data_len = 0;
@@ -207,6 +205,17 @@ void trudpSendResetAll(trudpData *td) {
     }
 }
 
+int trudpIsPacketPing(void *data, size_t packet_length) {
+    if(trudpPacketCheck(data, packet_length)) {
+        int type = trudpPacketGetType(data);
+        if(type == TRU_PING) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
 /**
  * Default TR-UDP process received from UDP data
  *
@@ -217,13 +226,19 @@ void trudpSendResetAll(trudpData *td) {
 void trudpProcessReceived(trudpData *td, void *data, size_t data_length) {
 
     struct sockaddr_in remaddr; // remote address
+
     socklen_t addr_len = sizeof(remaddr);
     ssize_t recvlen = trudpUdpRecvfrom(td->fd, data, data_length,
             (__SOCKADDR_ARG)&remaddr, &addr_len);
 
+    if (trudpIsPacketPing(data, recvlen) && trudpGetChannel(td, (__CONST_SOCKADDR_ARG) &remaddr, 0) == (void *)-1) {
+        return;
+    }
+
     // Process received packet
     if(recvlen > 0) {
         size_t data_length;
+
         trudpChannelData *tcd = trudpGetChannelCreate(td, (__CONST_SOCKADDR_ARG) &remaddr, 0);
         if(tcd == (void *)-1 || trudpChannelProcessReceivedPacket(tcd, data, recvlen, &data_length) == (void *)-1) {
             if(tcd == (void *)-1) {
@@ -289,14 +304,19 @@ size_t trudpProcessKeepConnection(trudpData *td) {
             trudpChannelData *tcd = (trudpChannelData *)
                 teoMapIteratorElementData(el, NULL);
 
-            if(tcd->connected_f && ts - tcd->lastReceived > SEND_PING_AFTER) {
-                if(trudpChannelCheckDisconnected(tcd, ts) == -1) {
-
-                    rv = -1;
-                    break;
+            if (tcd->connected_f) {
+                uint32_t sinceReceived = ts - tcd->lastReceived;
+                uint32_t sincePing = ts - tcd->lastSentPing;
+                if (sinceReceived > KEEPALIVE_PING_DELAY) {
+                    if(trudpChannelCheckDisconnected(tcd, ts) == -1) {
+                        rv = -1;
+                        break;
+                    }
+                    if (sincePing > KEEPALIVE_PING_DELAY) {
+                        trudpChannelSendPING(tcd, "PING", 5);
+                    }
+                    rv++;
                 }
-                trudpChannelSendPING(tcd, "PING", 5);
-                rv++;
             }
         }
         teoMapIteratorFree(it);
@@ -370,7 +390,8 @@ trudpChannelData *trudpGetChannel(trudpData *td, __CONST_SOCKADDR_ARG addr,
 
     return trudpGetChannelAddr(td, addr_str, port, channel);
 }
-
+// \TODO: need channel alive function
+ 
 /**
  * Get trudpChannelData by socket address and channel number, create channel if
  * not exists
@@ -382,8 +403,7 @@ trudpChannelData *trudpGetChannel(trudpData *td, __CONST_SOCKADDR_ARG addr,
  *
  * @return Pointer to trudpChannelData or (void*)-1 at error
  */
-trudpChannelData *trudpGetChannelCreate(trudpData *td,
-        __CONST_SOCKADDR_ARG addr, int channel) {
+trudpChannelData *trudpGetChannelCreate(trudpData *td, __CONST_SOCKADDR_ARG addr, int channel) {
 
     int port;
     char *addr_str = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)addr, &port);
@@ -391,11 +411,12 @@ trudpChannelData *trudpGetChannelCreate(trudpData *td,
 
     if(tcd == (void*)-1) {
         tcd = trudpChannelNew(td, addr_str, port, channel);
-        if(tcd != (void*)-1)
-            trudpSendEvent(tcd, CONNECTED, NULL, 0, NULL);
     }
 
-    if(tcd != (void*)-1) tcd->connected_f = 1;
+    if (tcd != (void*)-1 && !tcd->connected_f) {
+        trudpSendEvent(tcd, CONNECTED, NULL, 0, NULL);
+        tcd->connected_f = 1; // MUST BE AFTER EVENT!
+    }
 
     return tcd;
 }
@@ -569,3 +590,43 @@ size_t trudpGetWriteQueueSize(trudpData *td) {
 
     return retval;
 }
+
+/**
+ * Get printable for trudpEvent enum
+ *
+ * @param val
+ * @return 
+ */
+const char *STRING_trudpEvent(trudpEvent val) {
+  switch (val) {
+    case INITIALIZE:
+      return "INITIALIZE";
+    case DESTROY:
+      return "DESTROY";
+    case CONNECTED:
+      return "CONNECTED";
+    case DISCONNECTED:
+      return "DISCONNECTED";
+    case GOT_RESET:
+      return "GOT_RESET";
+    case SEND_RESET:
+      return "SEND_RESET";
+    case GOT_ACK_RESET:
+      return "GOT_ACK_RESET";
+    case GOT_ACK_PING:
+      return "GOT_ACK_PING";
+    case GOT_PING:
+      return "GOT_PING";
+    case GOT_ACK:
+      return "GOT_ACK";
+    case GOT_DATA:
+      return "GOT_DATA";
+    case PROCESS_RECEIVE:
+      return "PROCESS_RECEIVE";
+    case PROCESS_RECEIVE_NO_TRUDP:
+      return "PROCESS_RECEIVE_NO_TRUDP";
+    case PROCESS_SEND:
+      return "PROCESS_SEND";
+  }
+  return "INVALID trudpEvent";
+};

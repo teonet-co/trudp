@@ -48,7 +48,7 @@
     typedef intptr_t ssize_t;
     #define _SSIZE_T_DEFINED
     #endif
-#elif defined(__ANDROID__)
+#elif defined(__ANDROID__) || defined(__APPLE__)
     #define __SOCKADDR_ARG		struct sockaddr *__restrict
     #define __CONST_SOCKADDR_ARG	const struct sockaddr *
     #include <netdb.h>

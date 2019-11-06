@@ -125,7 +125,7 @@ typedef struct trudpChannelData {
     uint32_t triptime; ///< Trip time
     double triptimeFactor; ///< Triptime factor
     uint32_t triptimeMiddle; ///< Trip time middle
-//    uint32_t lastSend; ///< Last send time
+    uint32_t lastSentPing; ///< Last ping send time
 
     trudpWriteQueue *writeQueue; ///< Pointer to write queue trudpWriteQueue
 
