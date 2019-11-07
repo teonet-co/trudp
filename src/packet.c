@@ -334,7 +334,8 @@ static void _trudpHeaderPINGcreate(trudpHeader *out_th, uint32_t id,
  */
 int trudpPacketCheck(void *th, size_t packetLength) {
 
-  return (packetLength - sizeof(trudpHeader) ==
+  return (packetLength >= sizeof(trudpHeader) &&
+             packetLength - sizeof(trudpHeader) ==
               ((trudpHeader *)th)->payload_length &&
           _trudpHeaderChecksumCheck(th));
 }
