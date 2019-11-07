@@ -794,7 +794,7 @@ void *trudpChannelProcessReceivedPacket(trudpChannelData *tcd, void *packet,
   }
   // Packet is not TR-UDP packet
   else {
-    trudpSendEvent(tcd, GOT_DATA, packet, packet_length, NULL);
+    trudpSendEvent(tcd, GOT_DATA_NO_TRUDP, packet, packet_length, NULL);
     data = packet;
   }
 
