@@ -168,7 +168,15 @@ typedef enum trudpEvent {
      * @param data_length Length of send
      * @param user_data NULL
      */
-    PROCESS_SEND
+    PROCESS_SEND,
+
+    /**
+     * Got not TR-UDP DATA
+     * @param data Pointer to data
+     * @param data_length Length of data
+     * @param user_data NULL
+     */
+    GOT_DATA_NO_TRUDP
 
 } trudpEvent;
 

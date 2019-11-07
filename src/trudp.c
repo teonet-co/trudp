@@ -627,6 +627,8 @@ const char *STRING_trudpEvent(trudpEvent val) {
       return "PROCESS_RECEIVE_NO_TRUDP";
     case PROCESS_SEND:
       return "PROCESS_SEND";
+    case GOT_DATA_NO_TRUDP:
+      return "GOT_DATA_NO_TRUDP";
   }
   return "INVALID trudpEvent";
 };
