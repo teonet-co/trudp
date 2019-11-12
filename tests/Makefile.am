@@ -15,11 +15,7 @@ AM_CXXFLAGS = \
 
 AM_LDFLAGS = -L../src/.libs 
 
-LIBS =../src/.libs/libtrudp.a -lcunit -lev ../libs/teoccl/src/.libs/libteoccl.a 
-
-#     ../libs/teobase/src/.libs/libteobase.a \
-#     ../libs/teoccl/src/.libs/libteoccl.a \
-
+LIBS =../src/.libs/libtrudp.a -lcunit -lev 
 noinst_PROGRAMS = trudp_tst
 
 trudp_tst_SOURCES = main_t.c packet_queue_t.c packet_t.c tr-udp_t.c
