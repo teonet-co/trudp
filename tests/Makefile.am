@@ -1,41 +1,24 @@
-ACLOCAL_AMFLAGS = -I m4
-
-AM_CPPFLAGS = \
-	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
-	-DPACKAGE_SRC_DIR=\""$(srcdir)"\" \
-	-DPACKAGE_DATA_DIR=\""$(datadir)"\" $(TRUDP_CFLAGS)
-
 AM_CFLAGS = \
 	-g -Wall \
 	-std=gnu11 \
-	-I../libs/teobase/insclude \
-	-I../libs/teobase/libs/teoccl/include \
+	-I../libs/teobase/include \
+	-I../libs/teoccl/include \
 	-I../src
 
 AM_CXX = clang++
 AM_CXXFLAGS = \
 	-g -Wall \
 	-std=c++14 \
-	-I../libs/teobase/insclude \
-	-I../libs/teobase/libs/teoccl/include \
+	-I../libs/teobase/include \
+	-I../libs/teoccl/include \
 	-I../src
-
-## Debug info
-if DEBUG
-  AM_CFLAGS += -g3 -O0
-  AM_CXXFLAGS += -g3 -O0
-else
-  AM_CFLAGS += -O2
-  AM_CXXFLAGS += -O2
-endif
 
 AM_LDFLAGS = -L../src/.libs 
 
-LIBS =	\
-     ../src/.libs/libtrudp.a\
-     ../libs/teobase/src/.libs/libteobase.a \
-     ../libs/teobase/libs/teoccl/src/.libs/libteoccl.a \
-     -lcunit -lev
+LIBS =../src/.libs/libtrudp.a -lcunit -lev ../libs/teoccl/src/.libs/libteoccl.a 
+
+#     ../libs/teobase/src/.libs/libteobase.a \
+#     ../libs/teoccl/src/.libs/libteoccl.a \
 
 noinst_PROGRAMS = trudp_tst
 

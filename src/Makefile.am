@@ -1,45 +1,15 @@
-## Process this file with automake to produce Makefile.in
-#
+lib_LTLIBRARIES = libtrudp.la
 
-ACLOCAL_AMFLAGS = -I m4
-
-AM_CFLAGS = \
-	-g -Wall \
-	-std=gnu11 \
-	-fno-strict-aliasing \
+AM_CFLAGS = -fno-strict-aliasing \
 	-fPIC \
 	-DUSE_LIBEV \
-	-I../libs/teobase/include \
-	-I../libs/teobase/libs/teoccl/include \
 	-fvisibility=hidden \
+	-I../libs/teoccl/include \
+	-I../libs/teobase/include \
 	-Wpointer-arith
 
-AM_CXX = clang++
-AM_CXXFLAGS = \
-	-g -Wall \
-	-std=c++14 \
-	-fPIC \
-	-I../libs/teobase/include \
-	-I../libs/teobase/libs/teoccl/include \
-	-I$(HOME)/Projects/teonet/embedded/libtrudp/src \
-	-I/usr/include/libtrudp
 
-## Debug info
-if DEBUG
-  AM_CFLAGS += -g3 -O0
-  AM_CXXFLAGS += -g3 -O0
-else
-  AM_CFLAGS += -O2
-  AM_CXXFLAGS += -O2
-endif
-
-AM_LDFLAGS = 
-
-LIBS = \
-    ../libs/teobase/src/.libs/libteobase.a \
-    ../libs/teobase/libs/teoccl/src/.libs/libteoccl.a
-
-lib_LTLIBRARIES = libtrudp.la
+LIBS = ../libs/teoccl/src/.libs/libteoccl.a
 
 libtrudp_la_SOURCES = \
 	packet.c \
@@ -56,8 +26,10 @@ libtrudp_la_SOURCES = \
 
 libtrudpincludedir=$(includedir)/libtrudp
 
-nobase_libtrudpinclude_HEADERS = 
+libtrudpinclude_HEADERS = 
 
-libtrudp_la_LDFLAGS = $(AM_LDFLAGS) -version-info $(LIBRARY_CURRENT):$(LIBRARY_REVISION):$(LIBRARY_AGE)
+libteoccl_la_CFLAGS = -I$(top_srcdir)/src -I$(top_srcdir)/libs/teoccl/include
+libtrudp_la_LDFLAGS = -version-info $(LIBRARY_CURRENT):$(LIBRARY_REVISION):$(LIBRARY_AGE)
 
-libtrudp_la_LIBADD = $(TRUDP_LIBS)
+uninstall-hook:
+	-rmdir $(libtrudpincludedir)
