@@ -1,34 +1,17 @@
 lib_LTLIBRARIES = libtrudp.la
 
-AM_CXXFLAGS = \
-    -std=c++17 \
-    -fPIC \
-    -Wall \
-    -Wpointer-arith \
-    -I../libs/teobase/src \
-    -I../libs/teobase/include \
-    -I../libs/teoccl/src \
-    -I../libs/teoccl/include
-
 
 AM_CFLAGS = -fno-strict-aliasing \
 	-fPIC \
 	-DUSE_LIBEV \
 	-fvisibility=hidden \
-	-I../libs/teobase/src \
     	-I../libs/teobase/include \
-    	-I../libs/teoccl/src \
     	-I../libs/teoccl/include \
 	-Wpointer-arith
 
 
-libtrudpincludedir = \
-    $(includedir)/libtrudp \
-    $(includedir)/libs/teobase/src \
-    $(includedir)/libs/teobase/include \
-    $(includedir)/libs/teoccl/src \
-    $(includedir)/libs/teoccl/include
-
+libtrudpincludedir = $(includedir)/libtrudp
+#teobaseinclude = $(libtrudpincludedir)/teobase
 
 libtrudp_la_SOURCES = \
 	packet.c \
@@ -51,12 +34,29 @@ libtrudp_la_SOURCES = \
     ../libs/teoccl/src/teoccl/queue.c
 
 
+teobasedir = $(pkgincludedir)/teobase
+  
+#pkginclude_HEADERS =
 
+nobase_libtrudpinclude_HEADERS = \
+	packet.h \
+	packet_queue.h \
+	trudp.h \
+	trudp_receive_queue.h \
+	trudp_send_queue.h \
+	trudp_channel.h \
+	trudp_utils.h \
+	trudp_stat.h \
+	trudp_ev.h \
+	udp.h \
+	write_queue.h
 
-libtrudpinclude_HEADERS = 
+teobase_HEADERS = $(top_srcdir)/libs/teobase/include/teobase/logging.h
+ 
 
 libteoccl_la_CFLAGS = -I$(top_srcdir)/src -I$(top_srcdir)/libs/teoccl/include
 libtrudp_la_LDFLAGS = -version-info $(LIBRARY_CURRENT):$(LIBRARY_REVISION):$(LIBRARY_AGE)
 
 uninstall-hook:
+	-rmdir $(teobasedir)
 	-rmdir $(libtrudpincludedir)
