@@ -91,9 +91,9 @@ AC_CONFIG_FILES([
 ])
 
 
-AC_CONFIG_SUBDIRS([
-    libs/teobase
-    libs/teoccl
-])
+#AC_CONFIG_SUBDIRS([
+#    libs/teobase
+#    libs/teoccl
+#])
 
 AC_OUTPUT
