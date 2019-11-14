@@ -88,6 +88,7 @@ AC_CONFIG_FILES([
     src/libtrudp.pc
     src/Makefile
     tests/Makefile
+    examples/Makefile
 ])
 
 

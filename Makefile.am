@@ -14,7 +14,7 @@ endif
 
 
 ACLOCAL_AMFLAGS = -I m4
-SUBDIRS = src tests #examples libs/teobase libs/teoccl
+SUBDIRS = src tests examples #libs/teobase libs/teoccl
 pkgconfig_DATA = src/libtrudp.pc
 
 
