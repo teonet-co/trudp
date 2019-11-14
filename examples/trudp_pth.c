@@ -51,7 +51,7 @@ const int DELAY = 500000; // uSec
 static char *buffer;
 
 enum debug_mode {
-    DEBUG = 1,
+    DEBUG_MSG = 1,
     DEBUG_VV = 2,
     DEBUG_VVV = 3
 };
@@ -99,7 +99,7 @@ static void event_cb(void *tcd_pointer, int event, void *data, size_t data_lengt
         case CONNECTED: {
 
             char *key = trudpChannelMakeKey(tcd);
-            debug(tru, DEBUG,  "Connect channel %s\n", key);
+            debug(tru, DEBUG_MSG,  "Connect channel %s\n", key);
 
         } break;
 
@@ -112,12 +112,12 @@ static void event_cb(void *tcd_pointer, int event, void *data, size_t data_lengt
             char *key = trudpChannelMakeKey(tcd);
             if(data_length == sizeof(uint32_t)) {
                 uint32_t last_received = *(uint32_t*)data;
-                debug(tru, DEBUG,  
+                debug(tru, DEBUG_MSG,  
                       "Disconnect channel %s, last received: %.6f sec\n",
                       key, last_received / 1000000.0);
                 trudpChannelDestroy(tcd);
             }
-            else debug(tru, DEBUG,  "Disconnected channel %s\n", key);
+            else debug(tru, DEBUG_MSG,  "Disconnected channel %s\n", key);
 
             connected_flag = 0;
 
@@ -129,7 +129,7 @@ static void event_cb(void *tcd_pointer, int event, void *data, size_t data_lengt
         case GOT_RESET: {
 
             char *key = trudpChannelMakeKey(tcd);
-            debug(tru, DEBUG,  "Got TRU_RESET packet from channel %s\n", key);
+            debug(tru, DEBUG_MSG,  "Got TRU_RESET packet from channel %s\n", key);
 
         } break;
 
@@ -141,18 +141,18 @@ static void event_cb(void *tcd_pointer, int event, void *data, size_t data_lengt
 
             char *key = trudpChannelMakeKey(tcd);
             
-            if(!data) debug(tru, DEBUG,  "Send reset: to channel %s\n", key);
+            if(!data) debug(tru, DEBUG_MSG,  "Send reset: to channel %s\n", key);
             else {
             
                 uint32_t id = (data_length == sizeof(uint32_t)) ? *(uint32_t*)data:0;
 
                 if(!id)
-                  debug(tru, DEBUG,  
+                  debug(tru, DEBUG_MSG,  
                     "Send reset: "
                     "Not expected packet with id = 0 received from channel %s\n",
                     key);
                 else
-                  debug(tru, DEBUG,  
+                  debug(tru, DEBUG_MSG,  
                     "Send reset: "
                     "High send packet number (%d) at channel %s\n",
                     id, key);
@@ -166,7 +166,7 @@ static void event_cb(void *tcd_pointer, int event, void *data, size_t data_lengt
         case GOT_ACK_RESET: {
 
             char *key = trudpChannelMakeKey(tcd);
-            debug(tru, DEBUG,  "Got ACK to RESET packet at channel %s\n", key);
+            debug(tru, DEBUG_MSG,  "Got ACK to RESET packet at channel %s\n", key);
 
         } break;
 
@@ -176,7 +176,7 @@ static void event_cb(void *tcd_pointer, int event, void *data, size_t data_lengt
         case GOT_ACK_PING: {
 
             char *key = trudpChannelMakeKey(tcd);
-            debug(tru, DEBUG,  
+            debug(tru, DEBUG_MSG,  
               "Got ACK to PING packet at channel %s, data: %s, %.3f(%.3f) ms\n",
               key, (char*)data,
               (tcd->triptime)/1000.0, (tcd->triptimeMiddle)/1000.0);
@@ -189,7 +189,7 @@ static void event_cb(void *tcd_pointer, int event, void *data, size_t data_lengt
         case GOT_PING: {
 
             char *key = trudpChannelMakeKey(tcd);
-            debug(tru, DEBUG,  
+            debug(tru, DEBUG_MSG,  
               "Got PING packet at channel %s, data: %s\n",
               key, (char*)data);
 
@@ -202,7 +202,7 @@ static void event_cb(void *tcd_pointer, int event, void *data, size_t data_lengt
         case GOT_ACK: {
 
             char *key = trudpChannelMakeKey(tcd);
-            debug(tru, DEBUG,  "got ACK id=%u at channel %s, %.3f(%.3f) ms\n",
+            debug(tru, DEBUG_MSG,  "got ACK id=%u at channel %s, %.3f(%.3f) ms\n",
                   trudpPacketGetId(data/*trudpPacketGetPacket(data)*/),
                   key, (tcd->triptime)/1000.0, (tcd->triptimeMiddle)/1000.0);
 
@@ -219,7 +219,7 @@ static void event_cb(void *tcd_pointer, int event, void *data, size_t data_lengt
         case GOT_DATA: {
 
             char *key = trudpChannelMakeKey(tcd);
-            debug(tru, DEBUG,  
+            debug(tru, DEBUG_MSG,  
                 "event got %d byte data at channel %s [%.3f(%.3f) ms], id=%u: %s\n", 
                 trudpPacketGetPacketLength(trudpPacketGetPacket(data)),
                 key,
@@ -235,7 +235,7 @@ static void event_cb(void *tcd_pointer, int event, void *data, size_t data_lengt
             memcpy(d + sizeof(tcd), trudpPacketGetPacket(data), len - sizeof(tcd));
             trudpReadQueueAdd(tru->rq, NULL, d, len);
             
-            //debug(tru, DEBUG,  "len: %d, d: %s\n", len, trudpPacketGetData(d) );
+            //debug(tru, DEBUG_MSG,  "len: %d, d: %s\n", len, trudpPacketGetData(d) );
 //            if(!tru->o->show_statistic && !tru->o->show_send_queue && !tru->o->show_snake) {
 //                if(tru->o->debug) {
 //                    printf("#%u at %.3f, cannel %s [%.3f(%.3f) ms] ",
@@ -252,7 +252,7 @@ static void event_cb(void *tcd_pointer, int event, void *data, size_t data_lengt
 //                // Show statistic window
 //                //showStatistic(TD(tcd));
 //            }
-//            debug(tru, DEBUG,  "\n");
+//            debug(tru, DEBUG_MSG,  "\n");
 
         } break;
         
@@ -287,12 +287,12 @@ static void event_cb(void *tcd_pointer, int event, void *data, size_t data_lengt
                 uint32_t id = trudpPacketGetId(data);
                 char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd->remaddr, &port);
                 if(!(type = trudpPacketGetType(data))) {
-                    debug(tru, DEBUG,  "send %d bytes, id=%u, to %s:%d, %.3f(%.3f) ms\n",
+                    debug(tru, DEBUG_MSG,  "send %d bytes, id=%u, to %s:%d, %.3f(%.3f) ms\n",
                         (int)data_length, id, addr, port,
                         tcd->triptime / 1000.0, tcd->triptimeMiddle / 1000.0);
                 }
                 else {
-                    debug(tru, DEBUG,  "send %d bytes %s id=%u, to %s:%d\n",
+                    debug(tru, DEBUG_MSG,  "send %d bytes %s id=%u, to %s:%d\n",
                         (int)data_length, 
                         type == 1 ? "ACK" :
                         type == 2 ? "RESET" :
@@ -339,7 +339,7 @@ void network_select_loop(trudp_data_t *tru, int timeout) {
     }
 
     uint32_t timeout_sq = trudpGetSendQueueTimeout(td, ts);
-//    debug(tru, DEBUG,  "set timeout: %.3f ms; default: %.3f ms, send_queue: %.3f ms%s\n",
+//    debug(tru, DEBUG_MSG,  "set timeout: %.3f ms; default: %.3f ms, send_queue: %.3f ms%s\n",
 //            (timeout_sq < timeout ? timeout_sq : timeout) / 1000.0,
 //            timeout / 1000.0,
 //            timeout_sq / 1000.0,
@@ -356,7 +356,7 @@ void network_select_loop(trudp_data_t *tru, int timeout) {
 
     // Error
     if (rv == -1) {
-        debug(tru, DEBUG,   "select() handle error\n");
+        debug(tru, DEBUG_MSG,   "select() handle error\n");
         return;
     }
 
@@ -367,7 +367,7 @@ void network_select_loop(trudp_data_t *tru, int timeout) {
         if(timeout_sq != UINT32_MAX) {
             pthread_mutex_lock(&tru->mutex);
             /*int rv = */trudpProcessSendQueue(td, 0);
-            //debug(tru, DEBUG,  "process send queue ... %d\n", rv);
+            //debug(tru, DEBUG_MSG,  "process send queue ... %d\n", rv);
             pthread_mutex_unlock(&tru->mutex);
         }
     }
@@ -414,9 +414,9 @@ void network_select_loop(trudp_data_t *tru, int timeout) {
 static void* trudp_process_thread(void *tru_p) {
     
     trudp_data_t *tru = tru_p;
-    debug(tru, DEBUG,  "Process thread started\n");
+    debug(tru, DEBUG_MSG,  "Process thread started\n");
     while(tru->running) network_select_loop(tru, 15000);
-    debug(tru, DEBUG,  "Process thread stopped\n");
+    debug(tru, DEBUG_MSG,  "Process thread stopped\n");
     
     return NULL;
 }
@@ -440,8 +440,8 @@ trudp_data_t *trudp_init(trudp_options *o) {
         tru->fd = fd;
         tru->o = o;
 
-        debug(tru, DEBUG,  "Start listening at port %d\n", o->local_port_i);
-        debug(tru, DEBUG,  "Debug print mode: %d\n", o->debug);
+        debug(tru, DEBUG_MSG,  "Start listening at port %d\n", o->local_port_i);
+        debug(tru, DEBUG_MSG,  "Debug print mode: %d\n", o->debug);
         
         //pthread_cond_init(&tru->cv_threshold, NULL);
         //pthread_mutex_init(&tru->cv_mutex, NULL);
@@ -450,7 +450,7 @@ trudp_data_t *trudp_init(trudp_options *o) {
         pthread_mutex_init(&tru->mutex, NULL);
         int err = pthread_create(&tru->tid, NULL, trudp_process_thread, (void*)tru);
         if (err != 0) fprintf(stderr, "Can't create trudp thread :[%s]\n", strerror(err));
-        else debug(tru, DEBUG,  "Trudp thread created successfully\n");
+        else debug(tru, DEBUG_MSG,  "Trudp thread created successfully\n");
     
         return tru;
     }
@@ -489,7 +489,7 @@ void *trudp_recv(trudp_data_t *tru, void **tcd_p, size_t *msg_length) {
         trudpChannelData *tcd = *(trudpChannelData **) rqd->packet_ptr;
         char *key = trudpChannelMakeKey(tcd);
         void *data = trudpPacketGetData(rqd->packet_ptr + sizeof(tcd));
-        debug(tru, DEBUG,  "funct got %d byte data at channel %s, id=%u: %s\n", 
+        debug(tru, DEBUG_MSG,  "funct got %d byte data at channel %s, id=%u: %s\n", 
             trudpPacketGetPacketLength(trudpPacketGetPacket(data)),
             key, trudpPacketGetId(trudpPacketGetPacket(data)), trudpPacketGetData(trudpPacketGetPacket(data)));
              

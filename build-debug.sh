@@ -1,5 +1,6 @@
 #!/bin/sh
-rm -rf debug
-mkdir debug
+
+make clean
 make distclean
-cd debug && ../configure --prefix=/dbg CPPFLAGS=-DDEBUG CXXFLAGS="-g -O0" CFLAGS="-g -O0" && make
+
+./configure --prefix=/dbg CPPFLAGS=-DDEBUG CXXFLAGS="-g -O0" CFLAGS="-g -O0" && make
