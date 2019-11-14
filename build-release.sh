@@ -1,4 +1,6 @@
 #!/bin/sh
-rm -rf release
-mkdir release
-cd release && ../configure CPPFLAGS=-DNDEBUG && make 
+
+make clean
+make distclean
+
+./configure CPPFLAGS=-DNDEBUG && make 
