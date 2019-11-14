@@ -37,7 +37,7 @@
 #include "read_queue.h"
 
 #include "trudp_send_queue.h"
-
+#include "trudp_utils.h"
 #include "trudp_pth.h"
 
 //#if USE_SELECT
@@ -74,27 +74,6 @@ static void debug(const trudp_data_t *tru, int mode, char *fmt, ...)
         va_end(ap);
         fflush(stderr);
     }
-}
-
-/**
- * Convert uSec time to timeval structure
- * 
- * @param tv [out] Pointer to struct timeval to save time to
- * @param usec Time in uSec
- * 
- * @return Pointer to the input struct timeval
- */
-struct timeval *usecToTv(struct timeval *tv, uint32_t usec) {
-
-    if(usec) {
-        tv->tv_sec  = usec / 1000000;
-        tv->tv_usec = usec % 1000000;
-    } else {
-        tv->tv_sec  = 0;
-        tv->tv_usec = 0;
-    }
-
-    return tv;
 }
 
 /**

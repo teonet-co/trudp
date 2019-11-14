@@ -51,7 +51,16 @@ nobase_libtrudpinclude_HEADERS = \
 	udp.h \
 	write_queue.h
 
-teobase_HEADERS = $(top_srcdir)/libs/teobase/include/teobase/logging.h
+teobase_HEADERS = \
+	$(top_srcdir)/libs/teobase/include/teobase/logging.h \
+    	$(top_srcdir)/libs/teobase/include/teobase/socket.h \
+    	$(top_srcdir)/libs/teobase/include/teobase/time.h \
+    	$(top_srcdir)/libs/teoccl/include/teoccl/array_list.h \
+    	$(top_srcdir)/libs/teoccl/include/teoccl/hash.h \
+    	$(top_srcdir)/libs/teoccl/include/teoccl/map.h \
+    	$(top_srcdir)/libs/teoccl/include/teoccl/queue.h
+
+
  
 
 libteoccl_la_CFLAGS = -I$(top_srcdir)/src -I$(top_srcdir)/libs/teoccl/include
