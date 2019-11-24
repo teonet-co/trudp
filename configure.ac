@@ -64,13 +64,7 @@ m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
 LT_PREREQ([2.4])
 LT_INIT
 
-# Checks for doxygen
-AC_CHECK_PROG(HAVE_DOXYGEN, doxygen, true, false)
-AM_CONDITIONAL(HAVE_DOXYGEN,$HAVE_DOXYGEN)
-if test $HAVE_DOXYGEN = "false"; then
-    AC_MSG_WARN([*** doxygen not found, docs will not be built])
-else
-
+DX_DOXYGEN_FEATURE(ON)
 DX_HTML_FEATURE(ON)
 DX_CHM_FEATURE(OFF)
 DX_CHI_FEATURE(OFF)
@@ -80,8 +74,6 @@ DX_XML_FEATURE(OFF)
 DX_PDF_FEATURE(OFF)
 DX_PS_FEATURE(OFF)
 DX_INIT_DOXYGEN(Trudp, Doxyfile, docs)
-
-fi
 
 AC_CONFIG_FILES([
     Makefile

@@ -15,6 +15,8 @@ endif
 
 ACLOCAL_AMFLAGS = -I m4
 SUBDIRS = src tests examples #libs/teobase libs/teoccl
+
+pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = src/libtrudp.pc
 
 
@@ -27,6 +29,6 @@ EXTRA_DIST = $(trudpdoc_DATA) \
 # Remove doc directory on uninstall
 uninstall-local:
 	-rm -r $(trudpdocdir)
-	
+
 test:	tests/trudp_tst
 	tests/trudp_tst
