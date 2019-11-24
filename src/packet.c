@@ -30,16 +30,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "teobase/platform.h"
-
-#if defined(TEONET_OS_WINDOWS)
-#include <sys/timeb.h>
-#include <sys/types.h>
-#else
-#include <sys/time.h>
-#endif
-
 #include "packet.h"
+
+#include "teobase/time.h"
 
 #pragma pack(push)
 #pragma pack(1)
@@ -164,26 +157,7 @@ static int _trudpHeaderChecksumCheck(trudpHeader *th) {
  * @return
  */
 uint64_t teoGetTimestampFull() {
-  int64_t current_time;
-
-#if defined(TEONET_OS_WINDOWS)
-  struct __timeb64 time_value;
-  memset(&time_value, 0, sizeof(time_value));
-
-  _ftime64_s(&time_value);
-
-  current_time = time_value.time * 1000000 + time_value.millitm * 1000;
-#else
-  struct timeval time_value;
-  memset(&time_value, 0, sizeof(time_value));
-
-  gettimeofday(&time_value, 0);
-
-  // Cast to int64_t is needed on 32-bit unix systems.
-  current_time = (int64_t)time_value.tv_sec * 1000000 + time_value.tv_usec;
-#endif
-
-  return current_time;
+  return teotimeGetCurrentTimeUs();
 }
 
 /**
@@ -192,7 +166,7 @@ uint64_t teoGetTimestampFull() {
  * @return
  */
 uint32_t trudpGetTimestamp() {
-  return (uint32_t)(teoGetTimestampFull() & 0xFFFFFFFF);
+  return (uint32_t)(teotimeGetCurrentTimeUs() & 0xFFFFFFFF);
 }
 
 /**
