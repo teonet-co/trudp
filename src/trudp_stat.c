@@ -423,16 +423,16 @@ char *ksnTRUDPstatShowStr(trudpData *td, int page) {
                 if ( tcd->stat.triptime_last / 1000.0 > 500) {
                     char *stat_sq_str = trudpStatShowQueueStr(tcd, 0);
                     if(stat_sq_str) {
-                                  
+
                         int port;
                         char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd->remaddr, &port);
-                        printf("--------------------------------------------------------------\n" 
-                               "TR-UDP channel %s:%d:%d queues:\n\n", 
+                        printf("--------------------------------------------------------------\n"
+                               "TR-UDP channel %s:%d:%d queues:\n\n",
                                addr, port, tcd->channel);
                         puts(stat_sq_str);
                         free(stat_sq_str);
                     }
-                    
+
 
                     char *stat_rq_str = trudpStatShowQueueStr(tcd, 1);
                     if(stat_rq_str) {
@@ -588,12 +588,14 @@ char *trudpStatShowQueueStr(trudpChannelData *tcd, int type) {
                 (long)(tqd->expected_time - current_t) :
                 -1 * (long)(current_t - tqd->expected_time);
 
+            trudpPacket* tq_packet = trudpPacketQueueDataGetPacket(tqd);
+
             str = sformatMessage(str,
             "%s"
             "  %3d   %-8d %8.3f ms   %d\n"
             , str
             , i++
-            , trudpPacketGetId(tqd->packet)
+            , trudpPacketGetId(tq_packet)
             , !type ? timeout_sq / 1000.0 : 0
             , !type ? tqd->retrieves : 0
             );
