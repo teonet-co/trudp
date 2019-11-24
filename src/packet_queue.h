@@ -35,6 +35,8 @@
 
 #include "teoccl/queue.h"
 
+#include "packet.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -61,14 +63,14 @@ typedef struct trudpPacketQueueData {
  * @return Pointer to trudpPacketQueue
  */
 trudpPacketQueue *trudpPacketQueueNew();
-  
+
 /**
  * Destroy Packet queue
  *
  * @param tq Pointer to trudpPacketQueue
  */
 void trudpPacketQueueDestroy(trudpPacketQueue *tq);
-  
+
 /**
  * Remove all elements from Packet queue
  *
@@ -84,7 +86,7 @@ int trudpPacketQueueFree(trudpPacketQueue *tq);
  *
  * @return Number of elements in TR-UPD queue
  */
-size_t trudpPacketQueueSize(trudpPacketQueue *tq); 
+size_t trudpPacketQueueSize(trudpPacketQueue *tq);
 
 trudpPacketQueueData *trudpPacketQueueAdd(trudpPacketQueue *tq,
         void *packet, size_t packet_length, uint64_t expected_time);
@@ -95,7 +97,7 @@ trudpPacketQueueData *trudpPacketQueueAdd(trudpPacketQueue *tq,
  */
 teoQueueData *trudpPacketQueueDataToQueueData(
     trudpPacketQueueData *tqd);
-  
+
 /**
  * Remove element from Packet queue
  *
@@ -105,7 +107,7 @@ teoQueueData *trudpPacketQueueDataToQueueData(
  * @return Zero at success
  */
 int trudpPacketQueueDelete(trudpPacketQueue *tq,
-    trudpPacketQueueData *tqd); 
+    trudpPacketQueueData *tqd);
 
 /**
  * Move element to the end of list
@@ -119,6 +121,10 @@ trudpPacketQueueData *trudpPacketQueueMoveToEnd(trudpPacketQueue *tq,
 
 trudpPacketQueueData *trudpPacketQueueFindById(trudpPacketQueue *tq, uint32_t id);
 trudpPacketQueueData *trudpPacketQueueGetFirst(trudpPacketQueue *tq);
+
+inline trudpPacket* trudpPacketQueueDataGetPacket(trudpPacketQueueData* tqd) {
+    return (trudpPacket*)(tqd->packet);
+}
 
 #ifdef __cplusplus
 }

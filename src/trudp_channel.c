@@ -53,9 +53,9 @@ static uint32_t _trudpChannelGetNewId(trudpChannelData *tcd);
 static void _trudpChannelIncrementStatSendQueueSize(trudpChannelData *tcd);
 static void _trudpChannelIncrementStatWriteQueueSize(trudpChannelData *tcd);
 static void _trudpChannelReset(trudpChannelData *tcd);
-static void _trudpChannelSendACK(trudpChannelData *tcd, void *packet);
-static void _trudpChannelSendACKtoPING(trudpChannelData *tcd, void *packet);
-static void _trudpChannelSendACKtoRESET(trudpChannelData *tcd, void *packet);
+static void _trudpChannelSendACK(trudpChannelData *tcd, trudpPacket *packet);
+static void _trudpChannelSendACKtoPING(trudpChannelData *tcd, trudpPacket* packet);
+static void _trudpChannelSendACKtoRESET(trudpChannelData *tcd, trudpPacket* packet);
 static size_t _trudpChannelSendPacket(trudpChannelData *tcd, void *packetDATA,
                                       size_t packetLength,
                                       int save_to_send_queue);
@@ -370,15 +370,15 @@ static void _trudpChannelSetLastReceived(trudpChannelData *tcd) {
  * @param tcd Pointer to trudpChannelData
  * @param packet Pointer to received packet
  */
-static void _trudpChannelSendACK(trudpChannelData *tcd, void *packet) {
+static void _trudpChannelSendACK(trudpChannelData *tcd, trudpPacket* packet) {
 
-  void *packetACK = trudpPacketACKcreateNew(packet);
+  trudpPacket* ack_packet = trudpPacketACKcreateNew(packet);
 #if !USE_WRITE_QUEUE
-  trudpSendEvent(tcd, PROCESS_SEND, packetACK, trudpPacketACKlength(), NULL);
+  trudpSendEvent(tcd, PROCESS_SEND, ack_packet, trudpPacketACKlength(), NULL);
 #else
-  trudpWriteQueueAdd(tcd->writeQueue, packetACK, NULL, trudpPacketACKlength());
+  trudpWriteQueueAdd(tcd->writeQueue, ack_packet, NULL, trudpPacketACKlength());
 #endif
-  trudpPacketCreatedFree(packetACK);
+  trudpPacketCreatedFree(ack_packet);
   _trudpChannelSetLastReceived(tcd);
 }
 
@@ -388,15 +388,15 @@ static void _trudpChannelSendACK(trudpChannelData *tcd, void *packet) {
  * @param tcd Pointer to trudpChannelData
  * @param packet Pointer to received packet
  */
-static void _trudpChannelSendACKtoRESET(trudpChannelData *tcd, void *packet) {
+static void _trudpChannelSendACKtoRESET(trudpChannelData *tcd, trudpPacket* packet) {
 
-  void *packetACK = trudpPacketACKtoRESETcreateNew(packet);
+  trudpPacket* ack_packet = trudpPacketACKtoRESETcreateNew(packet);
 #if !USE_WRITE_QUEUE
-  trudpSendEvent(tcd, PROCESS_SEND, packetACK, trudpPacketACKlength(), NULL);
+  trudpSendEvent(tcd, PROCESS_SEND, ack_packet, trudpPacketACKlength(), NULL);
 #else
-  trudpWriteQueueAdd(tcd->writeQueue, packetACK, NULL, trudpPacketACKlength());
+  trudpWriteQueueAdd(tcd->writeQueue, ack_packet, NULL, trudpPacketACKlength());
 #endif
-  trudpPacketCreatedFree(packetACK);
+  trudpPacketCreatedFree(ack_packet);
   _trudpChannelSetLastReceived(tcd);
 }
 
@@ -406,17 +406,17 @@ static void _trudpChannelSendACKtoRESET(trudpChannelData *tcd, void *packet) {
  * @param tcd Pointer to trudpChannelData
  * @param packet Pointer to received packet
  */
-static void _trudpChannelSendACKtoPING(trudpChannelData *tcd, void *packet) {
+static void _trudpChannelSendACKtoPING(trudpChannelData *tcd, trudpPacket* packet) {
 
-  void *packetACK = trudpPacketACKtoPINGcreateNew(packet);
+  trudpPacket* ack_packet = trudpPacketACKtoPINGcreateNew(packet);
 #if !USE_WRITE_QUEUE
-  trudpSendEvent(tcd, PROCESS_SEND, packetACK,
+  trudpSendEvent(tcd, PROCESS_SEND, ack_packet,
                  trudpPacketGetPacketLength(packet), NULL);
 #else
-  trudpWriteQueueAdd(tcd->writeQueue, NULL, packetACK,
+  trudpWriteQueueAdd(tcd->writeQueue, NULL, ack_packet,
                      trudpPacketGetPacketLength);
 #endif
-  trudpPacketCreatedFree(packetACK);
+  trudpPacketCreatedFree(ack_packet);
   _trudpChannelSetLastReceived(tcd);
 }
 
@@ -596,16 +596,17 @@ size_t trudpChannelSendData(trudpChannelData *tcd, void *data,
  *         *data_length, if packet is not TR-UDP packet it's sent to client as
  * is
  */
-void *trudpChannelProcessReceivedPacket(trudpChannelData *tcd, void *packet,
+void *trudpChannelProcessReceivedPacket(trudpChannelData *tcd, void *data,
                                         size_t packet_length,
                                         size_t *data_length) {
 
-  void *data = NULL;
+  void *received_data = NULL;
   *data_length = 0;
 
-  // Check and process TR-UDP packet
-  if (trudpPacketCheck(packet, packet_length)) {
+  trudpPacket* packet = trudpPacketCheck(data, packet_length);
 
+  // Check and process TR-UDP packet
+  if (packet != NULL) {
     // Check packet type
     int type = trudpPacketGetType(packet);
     switch (type) {
@@ -618,12 +619,13 @@ void *trudpChannelProcessReceivedPacket(trudpChannelData *tcd, void *packet,
       trudpSendQueueData *sqd =
           trudpSendQueueFindById(tcd->sendQueue, trudpPacketGetId(packet));
       if (sqd) {
+        trudpPacket* sq_packet = trudpPacketQueueDataGetPacket(sqd);
 
         // Process ACK data callback
-        trudpSendEvent(tcd, GOT_ACK, sqd->packet, sqd->packet_length, NULL);
+        trudpSendEvent(tcd, GOT_ACK, sq_packet, sqd->packet_length, NULL);
 
         // Remove packet from send queue
-        send_data_length = trudpPacketGetDataLength(sqd->packet);
+        send_data_length = trudpPacketGetDataLength(sq_packet);
         trudpSendQueueDelete(tcd->sendQueue, sqd);
         TD(tcd)->stat.sendQueue.size_current--;
 
@@ -713,7 +715,7 @@ void *trudpChannelProcessReceivedPacket(trudpChannelData *tcd, void *packet,
       if (trudpPacketGetId(packet) == tcd->receiveExpectedId) {
 
         // Send Got Data event
-        data = trudpSendEventGotData(tcd, packet, data_length);
+        received_data = trudpSendEventGotData(tcd, packet, data_length);
 
         // Proceed to next expected id
         tcd->receiveExpectedId = _trudpGetNextSeqId(tcd->receiveExpectedId);
@@ -721,9 +723,10 @@ void *trudpChannelProcessReceivedPacket(trudpChannelData *tcd, void *packet,
         trudpReceiveQueueData *rqd;
         while ((rqd = trudpReceiveQueueFindById(tcd->receiveQueue,
                                                 tcd->receiveExpectedId))) {
+          trudpPacket* rq_packet = trudpPacketQueueDataGetPacket(rqd);
 
           // Send Got Data event
-          data = trudpSendEventGotData(tcd, rqd->packet, data_length);
+          received_data = trudpSendEventGotData(tcd, rq_packet, data_length);
 
           // Delete element from received queue
           trudpReceiveQueueDelete(tcd->receiveQueue, rqd);
@@ -787,18 +790,19 @@ void *trudpChannelProcessReceivedPacket(trudpChannelData *tcd, void *packet,
     // An undefined type of packet (skip it)
     default: {
       // Return error code
-      data = (void *)-1;
+      received_data = (void *)-1;
 
     } break;
     }
   }
   // Packet is not TR-UDP packet
   else {
-    trudpSendEvent(tcd, GOT_DATA_NO_TRUDP, packet, packet_length, NULL);
-    data = packet;
+    trudpSendEvent(tcd, GOT_DATA_NO_TRUDP, data, packet_length, NULL);
+    received_data = data;
+    *data_length = packet_length;
   }
 
-  return data;
+  return received_data;
 }
 
 // Send queue functions ======================================================
@@ -839,12 +843,14 @@ int trudpChannelSendQueueProcess(trudpChannelData *tcd, uint64_t ts,
     tqd->retrieves++;
     rv++;
 
+    trudpPacket* tq_packet = trudpPacketQueueDataGetPacket(tqd);
+
 // Resend data
 #if !USE_WRITE_QUEUE
-    trudpPacketUpdateTimestamp(tqd->packet);
-    trudpSendEvent(tcd, PROCESS_SEND, tqd->packet, tqd->packet_length, NULL);
+    trudpPacketUpdateTimestamp(tq_packet);
+    trudpSendEvent(tcd, PROCESS_SEND, tq_packet, tqd->packet_length, NULL);
 #else
-    trudpWriteQueueAdd(tcd->writeQueue, NULL, tqd->packet, tqd->packet_length);
+    trudpWriteQueueAdd(tcd->writeQueue, NULL, tq_packet, tqd->packet_length);
 #endif
 
     // Disconnect at max retrieves

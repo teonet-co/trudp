@@ -145,16 +145,16 @@ int main(int argc, char** argv) {
             void *msg, *tcd;
             size_t msg_length;
             while((msg = trudp_recv(tru, &tcd, &msg_length))) {
-                
+
                 if(!num) t_beg = trudpGetTimestamp();
                 unsigned int time, t = ((trudpGetTimestamp() - t_beg) / 1000000);
                 time = t ? (num / t) : (num + 1);
-                
+
                 length += msg_length;
                 float l = 8.0*(length / (t ? t : 1))/(1024.0*1024.0);
-                
+
                 printf("Got message: %s [%u mps, %.03f Mbis]\n", (char*)msg, time, l);
-                trudp_free_recv_data(tru, msg);
+                trudp_free_recv_data(tcd);
                 num++;
             }
             usleep(500); // Sleep 0.5 ms if no data
@@ -169,10 +169,10 @@ int main(int argc, char** argv) {
         char msg[1024];
         while(1) {
             snprintf(msg, 1024, "Hello world %u!", num++);
-            if(trudp_send(tru, tcd, msg, strlen(msg) + 1)) 
+            if(trudp_send(tru, tcd, msg, strlen(msg) + 1))
                 printf("Send message: %s\n", (char*)msg);
             else printf("Can't send message: %s\n", (char*)msg);
-            
+
             usleep(o.send_delay * 1000);
         }
         trudp_disconnect(tru, tcd);

@@ -140,13 +140,16 @@ void trudpSendEvent(void *t_pointer, int event, void *data,
  *
  * @return  Pointer to packet data
  */
-void *trudpSendEventGotData(void *t_pointer, void *packet,
+void *trudpSendEventGotData(void *t_pointer, trudpPacket *packet,
         size_t *data_length) {
 
     void *data = trudpPacketGetData(packet);
     size_t data_len = trudpPacketGetDataLength(packet);
-    trudpSendEvent(t_pointer, GOT_DATA, data, data_len, NULL);
-    if(data_length) *data_length = data_len;
+    trudpSendEvent(t_pointer, GOT_DATA, packet, data_len, NULL);
+
+    if (data_length != NULL) {
+        *data_length = data_len;
+    }
 
     return data;
 }
@@ -391,7 +394,7 @@ trudpChannelData *trudpGetChannel(trudpData *td, __CONST_SOCKADDR_ARG addr,
     return trudpGetChannelAddr(td, addr_str, port, channel);
 }
 // \TODO: need channel alive function
- 
+
 /**
  * Get trudpChannelData by socket address and channel number, create channel if
  * not exists
@@ -595,7 +598,7 @@ size_t trudpGetWriteQueueSize(trudpData *td) {
  * Get printable for trudpEvent enum
  *
  * @param val
- * @return 
+ * @return
  */
 const char *STRING_trudpEvent(trudpEvent val) {
   switch (val) {

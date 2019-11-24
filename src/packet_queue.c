@@ -167,7 +167,8 @@ trudpPacketQueueData *trudpPacketQueueFindById(trudpPacketQueue *tq,
             trudpPacketQueueData *tqd = (trudpPacketQueueData *)
                     ((teoQueueData *)teoQueueIteratorElement(it))->data;
 
-            if(trudpPacketGetId(tqd->packet) == id) {
+            trudpPacket* trudp_paket = trudpPacketQueueDataGetPacket(tqd);
+            if(trudpPacketGetId(trudp_paket) == id) {
                 rv = tqd;
                 break;
             }
@@ -273,4 +274,3 @@ static trudpPacketQueueData *_trudpPacketQueueAddTime(trudpPacketQueue *tq,
     return trudpPacketQueueAdd(tq, packet, packet_length, expected_time);
 }
 #endif
-

@@ -34,7 +34,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-  
+
 // Application options structure
 typedef struct trudp_options {
 
@@ -60,10 +60,10 @@ typedef struct trudp_options {
     int remote_port_i;
     int local_port_i;
 } trudp_options;
-  
-    
+
+
 typedef struct trudp_data {
-    
+
     trudp_options *o; // Options
     int fd; ///< UDP socket descriptor
     void *rq; ///< Pointer to readQueue
@@ -73,11 +73,11 @@ typedef struct trudp_data {
     pthread_mutex_t mutex; ///< Processing thread mutex
     //pthread_mutex_t cv_mutex; ///< Condition variables mutex
     //pthread_cond_t cv_threshold; ///< Condition variable
-    
-} trudp_data_t;    
+
+} trudp_data_t;
 
 /**
- * Initialize TR-UDP 
+ * Initialize TR-UDP
  *
  * @param port Port (optional)
  *
@@ -98,7 +98,7 @@ void trudp_disconnect(trudp_data_t *tru, void *td);
 
 void *trudp_recv(trudp_data_t *tru, void **td, size_t *msg_length);
 
-void trudp_free_recv_data(trudp_data_t *tru, void *data);
+void trudp_free_recv_data(void *data);
 
 int trudp_send(trudp_data_t *tru, void *td, void *msg, size_t msg_length);
 
@@ -108,4 +108,3 @@ int trudp_send(trudp_data_t *tru, void *td, void *msg, size_t msg_length);
 #endif
 
 #endif /* TRUDP_PTH_H */
-

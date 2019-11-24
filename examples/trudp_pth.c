@@ -108,11 +108,11 @@ static void event_cb(void *tcd_pointer, int event, void *data, size_t data_lengt
         // @param data Last packet received
         // @param user_data NULL
         case DISCONNECTED: {
-                        
+
             char *key = trudpChannelMakeKey(tcd);
             if(data_length == sizeof(uint32_t)) {
                 uint32_t last_received = *(uint32_t*)data;
-                debug(tru, DEBUG_MSG,  
+                debug(tru, DEBUG_MSG,
                       "Disconnect channel %s, last received: %.6f sec\n",
                       key, last_received / 1000000.0);
                 trudpChannelDestroy(tcd);
@@ -140,19 +140,19 @@ static void event_cb(void *tcd_pointer, int event, void *data, size_t data_lengt
 
 
             char *key = trudpChannelMakeKey(tcd);
-            
+
             if(!data) debug(tru, DEBUG_MSG,  "Send reset: to channel %s\n", key);
             else {
-            
+
                 uint32_t id = (data_length == sizeof(uint32_t)) ? *(uint32_t*)data:0;
 
                 if(!id)
-                  debug(tru, DEBUG_MSG,  
+                  debug(tru, DEBUG_MSG,
                     "Send reset: "
                     "Not expected packet with id = 0 received from channel %s\n",
                     key);
                 else
-                  debug(tru, DEBUG_MSG,  
+                  debug(tru, DEBUG_MSG,
                     "Send reset: "
                     "High send packet number (%d) at channel %s\n",
                     id, key);
@@ -176,7 +176,7 @@ static void event_cb(void *tcd_pointer, int event, void *data, size_t data_lengt
         case GOT_ACK_PING: {
 
             char *key = trudpChannelMakeKey(tcd);
-            debug(tru, DEBUG_MSG,  
+            debug(tru, DEBUG_MSG,
               "Got ACK to PING packet at channel %s, data: %s, %.3f(%.3f) ms\n",
               key, (char*)data,
               (tcd->triptime)/1000.0, (tcd->triptimeMiddle)/1000.0);
@@ -189,7 +189,7 @@ static void event_cb(void *tcd_pointer, int event, void *data, size_t data_lengt
         case GOT_PING: {
 
             char *key = trudpChannelMakeKey(tcd);
-            debug(tru, DEBUG_MSG,  
+            debug(tru, DEBUG_MSG,
               "Got PING packet at channel %s, data: %s\n",
               key, (char*)data);
 
@@ -217,63 +217,44 @@ static void event_cb(void *tcd_pointer, int event, void *data, size_t data_lengt
         // @param data_length Length of data
         // @param user_data NULL
         case GOT_DATA: {
+            trudpPacket* packet = (trudpPacket*)data;
 
             char *key = trudpChannelMakeKey(tcd);
-            debug(tru, DEBUG_MSG,  
-                "event got %d byte data at channel %s [%.3f(%.3f) ms], id=%u: %s\n", 
-                trudpPacketGetPacketLength(trudpPacketGetPacket(data)),
+            debug(tru, DEBUG_MSG,
+                "event got %d byte data at channel %s [%.3f(%.3f) ms], id=%u: %s\n",
+                trudpPacketGetPacketLength(packet),
                 key,
                 (double)tcd->triptime / 1000.0,
                 (double)tcd->triptimeMiddle / 1000.0,
-                trudpPacketGetId(trudpPacketGetPacket(data)), 
-                trudpPacketGetData(trudpPacketGetPacket(data)));
-            
+                trudpPacketGetId(packet),
+                trudpPacketGetData(packet));
+
             // Add data to read QUEUE
-            size_t len = trudpPacketGetPacketLength(trudpPacketGetPacket(data)) + sizeof(tcd);
+            size_t len = trudpPacketGetPacketLength(packet) + sizeof(tcd);
             void *d = malloc(len);
             memcpy(d, &tcd, sizeof(tcd));
-            memcpy(d + sizeof(tcd), trudpPacketGetPacket(data), len - sizeof(tcd));
+            memcpy(d + sizeof(tcd), packet, len - sizeof(tcd));
             trudpReadQueueAdd(tru->rq, NULL, d, len);
-            
-            //debug(tru, DEBUG_MSG,  "len: %d, d: %s\n", len, trudpPacketGetData(d) );
-//            if(!tru->o->show_statistic && !tru->o->show_send_queue && !tru->o->show_snake) {
-//                if(tru->o->debug) {
-//                    printf("#%u at %.3f, cannel %s [%.3f(%.3f) ms] ",
-//                           tcd->receiveExpectedId,
-//                           (double)trudpGetTimestamp() / 1000.0,
-//                           key, 
-//                           (double)tcd->triptime / 1000.0,
-//                           (double)tcd->triptimeMiddle / 1000.0);
-//
-//                    printf("%s\n",(char*)data);
-//                }
-//            }
-//            else {
-//                // Show statistic window
-//                //showStatistic(TD(tcd));
-//            }
-//            debug(tru, DEBUG_MSG,  "\n");
-
         } break;
-        
+
         // Process received data
         // @param tcd Pointer to trudpData
         // @param data Pointer to receive buffer
         // @param data_length Receive buffer length
         // @param user_data NULL
         case PROCESS_RECEIVE: {
-            
+
             trudpData *td = (trudpData *)tcd;
             trudpProcessReceived(td, data, data_length);
-                        
+
         } break;
-        
+
         // Process send data
         // @param data Pointer to send data
         // @param data_length Length of send
         // @param user_data NULL
         case PROCESS_SEND: {
-        
+
             //if(isWritable(TD(tcd)->fd, timeout) > 0) {
             // Send to UDP
             trudpUdpSendto(TD(tcd)->fd, data, data_length,
@@ -293,7 +274,7 @@ static void event_cb(void *tcd_pointer, int event, void *data, size_t data_lengt
                 }
                 else {
                     debug(tru, DEBUG_MSG,  "send %d bytes %s id=%u, to %s:%d\n",
-                        (int)data_length, 
+                        (int)data_length,
                         type == 1 ? "ACK" :
                         type == 2 ? "RESET" :
                         type == 3 ? "ACK to RESET" :
@@ -305,7 +286,7 @@ static void event_cb(void *tcd_pointer, int event, void *data, size_t data_lengt
             #if USE_LIBEV
 //            trudpSendQueueCbStart(&psd, 0);
             #endif
-            
+
         } break;
 
         default: break;
@@ -332,7 +313,7 @@ void network_select_loop(trudp_data_t *tru, int timeout) {
     FD_SET(td->fd, &rfds);
 
     pthread_mutex_lock(&tru->mutex);
-    
+
     // Add write queue to processing
     if(trudpGetWriteQueueSize(td)) {
         FD_SET(td->fd, &wfds);
@@ -351,7 +332,7 @@ void network_select_loop(trudp_data_t *tru, int timeout) {
     usecToTv(&tv, t);
 
     pthread_mutex_unlock(&tru->mutex);
-    
+
     rv = select((int)td->fd + 1, &rfds, &wfds, NULL, &tv);
 
     // Error
@@ -406,24 +387,24 @@ void network_select_loop(trudp_data_t *tru, int timeout) {
 
 /**
  * Process thread function
- * 
+ *
  * @param tru Pointer to trudp_data_t
- * 
- * @return 
+ *
+ * @return
  */
 static void* trudp_process_thread(void *tru_p) {
-    
+
     trudp_data_t *tru = tru_p;
     debug(tru, DEBUG_MSG,  "Process thread started\n");
     while(tru->running) network_select_loop(tru, 15000);
     debug(tru, DEBUG_MSG,  "Process thread stopped\n");
-    
+
     return NULL;
 }
 
 // Initialize TR-UDP
 trudp_data_t *trudp_init(trudp_options *o) {
-    
+
     // Create read buffer
     buffer = malloc(o->buf_size);
 
@@ -442,16 +423,16 @@ trudp_data_t *trudp_init(trudp_options *o) {
 
         debug(tru, DEBUG_MSG,  "Start listening at port %d\n", o->local_port_i);
         debug(tru, DEBUG_MSG,  "Debug print mode: %d\n", o->debug);
-        
+
         //pthread_cond_init(&tru->cv_threshold, NULL);
         //pthread_mutex_init(&tru->cv_mutex, NULL);
-        
+
         // Start module thread
         pthread_mutex_init(&tru->mutex, NULL);
         int err = pthread_create(&tru->tid, NULL, trudp_process_thread, (void*)tru);
         if (err != 0) fprintf(stderr, "Can't create trudp thread :[%s]\n", strerror(err));
         else debug(tru, DEBUG_MSG,  "Trudp thread created successfully\n");
-    
+
         return tru;
     }
 }
@@ -482,38 +463,41 @@ void *trudp_recv(trudp_data_t *tru, void **tcd_p, size_t *msg_length) {
     // \\ TODO get data from read queue and sleep if queue empty
     pthread_mutex_lock(&tru->mutex);
     void *msg = NULL;
-    
+
     // Add data to read QUEUE
     trudpReadQueueData *rqd = trudpReadQueueGetFirst(tru->rq);
     if(rqd) {
         trudpChannelData *tcd = *(trudpChannelData **) rqd->packet_ptr;
         char *key = trudpChannelMakeKey(tcd);
-        void *data = trudpPacketGetData(rqd->packet_ptr + sizeof(tcd));
-        debug(tru, DEBUG_MSG,  "funct got %d byte data at channel %s, id=%u: %s\n", 
-            trudpPacketGetPacketLength(trudpPacketGetPacket(data)),
-            key, trudpPacketGetId(trudpPacketGetPacket(data)), trudpPacketGetData(trudpPacketGetPacket(data)));
-             
+
+        trudpPacket* packet = (trudpPacket*)(rqd->packet_ptr + sizeof(tcd));
+
+        void *data = trudpPacketGetData(packet);
+        debug(tru, DEBUG_MSG,  "funct got %d byte data at channel %s, id=%u: %s\n",
+            trudpPacketGetPacketLength(packet),
+            key, trudpPacketGetId(packet), data);
+
         if(tcd_p) *tcd_p = tcd;
-        if(msg_length) *msg_length = trudpPacketGetPacketLength(trudpPacketGetPacket(data));
-        msg = trudpPacketGetData(trudpPacketGetPacket(data));
-        
+        if(msg_length) *msg_length = trudpPacketGetPacketLength(packet);
+        msg = data;
+
         trudpReadQueueDeleteFirst(tru->rq);
-    } 
-    else { 
-        if(msg_length) *msg_length = 0;    
+    }
+    else {
+        if(msg_length) *msg_length = 0;
         if(tcd_p) *tcd_p = NULL;
     }
     pthread_mutex_unlock(&tru->mutex);
     return msg;
 }
 
-void trudp_free_recv_data(trudp_data_t *tru, void *data) {   
-    free(trudpPacketGetPacket(data) - sizeof(trudpChannelData *));
+void trudp_free_recv_data(void *data) {
+    free(data);
 }
 
 int trudp_send(trudp_data_t *tru, void *tcd, void *msg, size_t msg_length) {
 /*    pthread_mutex_lock(&tru->mutex);
-    
+
     int s = 0;
     // Check Send queue size and sleep if too match
     while((s = trudpSendQueueSize(((trudpChannelData *)tcd)->sendQueue))>120) {
@@ -521,7 +505,7 @@ int trudp_send(trudp_data_t *tru, void *tcd, void *msg, size_t msg_length) {
         usleep(1000);
         pthread_mutex_lock(&tru->mutex);
     }
-    
+
     int rv = trudpChannelSendData(tcd, msg, msg_length);
     pthread_mutex_unlock(&tru->mutex);
     //usleep(10);

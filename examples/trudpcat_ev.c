@@ -180,7 +180,7 @@ static void debug(char *fmt, ...)
  * @param td Pointer to trudpData
  */
 static void showStatistic(trudpData *td, options *o, void *user_data) {
-    
+
     if(o->show_statistic) {
         cls();
         char *stat_str = ksnTRUDPstatShowStr(td, o->show_statistic_page);
@@ -275,7 +275,7 @@ static void eventCb(void *tcd_pointer, int event, void *data, size_t data_length
         // @param data Last packet received
         // @param user_data NULL
         case DISCONNECTED: {
-                        
+
             char *key = trudpChannelMakeKey(tcd);
             if(data_length == sizeof(uint32_t)) {
                 uint32_t last_received = *(uint32_t*)data;
@@ -312,7 +312,7 @@ static void eventCb(void *tcd_pointer, int event, void *data, size_t data_length
 
 
             char *key = trudpChannelMakeKey(tcd);
-            
+
             if(!data)
                 fprintf(stderr,
                   "Send reset: "
@@ -320,7 +320,7 @@ static void eventCb(void *tcd_pointer, int event, void *data, size_t data_length
                   key);
 
             else {
-            
+
                 uint32_t id = (data_length == sizeof(uint32_t)) ? *(uint32_t*)data:0;
 
                 if(!id)
@@ -394,22 +394,24 @@ static void eventCb(void *tcd_pointer, int event, void *data, size_t data_length
         // @param data_length Length of data
         // @param user_data NULL
         case GOT_DATA: {
+            trudpPacket* packet = (trudpPacket*)data;
 
             char *key = trudpChannelMakeKey(tcd);
-            debug("got %d byte data at channel %s, id=%u: ", 
-                trudpPacketGetPacketLength(trudpPacketGetPacket(data))/*(int)data_length*/,
-                key, trudpPacketGetId(trudpPacketGetPacket(data)));
+            debug("got %d byte data at channel %s, id=%u: ",
+                trudpPacketGetPacketLength(packet)/*(int)data_length*/,
+                key, trudpPacketGetId(packet));
 
             if(!o.show_statistic && !o.show_send_queue && !o.show_snake) {
                 if(o.debug) {
                     printf("#%u at %.3f, cannel %s [%.3f(%.3f) ms] ",
                            tcd->receiveExpectedId,
                            (double)trudpGetTimestamp() / 1000.0,
-                           key, 
+                           key,
                            (double)tcd->triptime / 1000.0,
                            (double)tcd->triptimeMiddle / 1000.0);
 
-                    printf("%s\n",(char*)data);
+                    void* packet_data = trudpPacketGetData(packet);
+                    printf("%s\n", (char*)packet_data);
                 }
             }
             else {
@@ -419,25 +421,25 @@ static void eventCb(void *tcd_pointer, int event, void *data, size_t data_length
             debug("\n");
 
         } break;
-        
+
         // Process received data
         // @param tcd Pointer to trudpData
         // @param data Pointer to receive buffer
         // @param data_length Receive buffer length
         // @param user_data NULL
         case PROCESS_RECEIVE: {
-            
+
             trudpData *td = (trudpData *)tcd;
             trudpProcessReceived(td, data, data_length);
-                        
+
         } break;
-        
+
         // Process send data
         // @param data Pointer to send data
         // @param data_length Length of send
         // @param user_data NULL
         case PROCESS_SEND: {
-        
+
             //if(isWritable(TD(tcd)->fd, timeout) > 0) {
             // Send to UDP
             trudpUdpSendto(TD(tcd)->fd, data, data_length,
@@ -457,7 +459,7 @@ static void eventCb(void *tcd_pointer, int event, void *data, size_t data_length
                 }
                 else {
                     debug("send %d bytes %s id=%u, to %s:%d\n",
-                        (int)data_length, 
+                        (int)data_length,
                         type == 1 ? "ACK" :
                         type == 2 ? "RESET" :
                         type == 3 ? "ACK to RESET" :
@@ -469,7 +471,7 @@ static void eventCb(void *tcd_pointer, int event, void *data, size_t data_length
             #if USE_LIBEV
             trudpSendQueueCbStart(&psd, 0);
             #endif
-            
+
         } break;
 
         default: break;

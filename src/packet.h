@@ -48,6 +48,18 @@ extern "C" {
 #define MAX_ATTEMPT 5 // maximum attempt with MAX_MAX_ACK_WAIT wait value
 
 /**
+ * Forward declaration of TR_UDP packet type.
+ *
+ * This type is never defined and only used as a pointer
+ * to memory with correct TR_UDP packet.
+ *
+ * Please DO NOT cast memory to trudpPacket.
+ * Use trudpPacketCheck() to convert received memory to trudpPacket.
+ */
+
+typedef struct trudpPacket trudpPacket;
+
+/**
  * TR-UDP message type
  */
 typedef enum trudpPacketType {
@@ -70,29 +82,30 @@ typedef enum trudpPacketType {
 } trudpPacketType;
 
 TRUDP_API uint32_t trudpGetTimestamp();
-TRUDP_API uint32_t trudpPacketGetId(void *packet);
-TRUDP_API void *trudpPacketGetPacket(void *data);
-TRUDP_API trudpPacketType trudpPacketGetType(void *packet);
-TRUDP_API size_t trudpPacketGetPacketLength(void *packet);
+TRUDP_API uint32_t trudpPacketGetId(trudpPacket *packet);
+// This is dangerous and should not be used.
+//TRUDP_API void *trudpPacketGetPacket(void *data);
+TRUDP_API trudpPacketType trudpPacketGetType(trudpPacket *packet);
+TRUDP_API size_t trudpPacketGetPacketLength(trudpPacket *packet);
 
 TRUDP_API uint64_t teoGetTimestampFull();
-void *trudpPacketACKcreateNew(void *in_th);
+trudpPacket* trudpPacketACKcreateNew(trudpPacket* packet);
 size_t trudpPacketACKlength();
-void *trudpPacketACKtoPINGcreateNew(void *in_th);
-void *trudpPacketACKtoRESETcreateNew(void *in_th);
-int trudpPacketCheck(void *th, size_t packetLength);
-void trudpPacketCreatedFree(void *in_th);
-void *trudpPacketDATAcreateNew(uint32_t id, unsigned int channel, void *data,
+trudpPacket* trudpPacketACKtoPINGcreateNew(trudpPacket* packet);
+trudpPacket* trudpPacketACKtoRESETcreateNew(trudpPacket* packet);
+trudpPacket* trudpPacketCheck(void *data, size_t packet_length);
+void trudpPacketCreatedFree(trudpPacket* packet);
+trudpPacket* trudpPacketDATAcreateNew(uint32_t id, unsigned int channel, void *data,
                                size_t data_length, size_t *packetLength);
-TRUDP_API void *trudpPacketGetData(void *packet);
-uint16_t trudpPacketGetDataLength(void *packet);
-size_t trudpPacketGetHeaderLength(void *packet);
-uint32_t trudpPacketGetTimestamp(void *packet);
-void trudpPacketUpdateTimestamp(void *packet);
+TRUDP_API void* trudpPacketGetData(trudpPacket *packet);
+uint16_t trudpPacketGetDataLength(trudpPacket *packet);
+size_t trudpPacketGetHeaderLength(trudpPacket *packet);
+uint32_t trudpPacketGetTimestamp(trudpPacket *packet);
+void trudpPacketUpdateTimestamp(trudpPacket *packet);
 
-void *trudpPacketPINGcreateNew(uint32_t id, unsigned int channel, void *data,
+trudpPacket* trudpPacketPINGcreateNew(uint32_t id, unsigned int channel, void *data,
                                size_t data_length, size_t *packetLength);
-void *trudpPacketRESETcreateNew(uint32_t id, unsigned int channel);
+trudpPacket* trudpPacketRESETcreateNew(uint32_t id, unsigned int channel);
 size_t trudpPacketRESETlength();
 
 #ifdef __cplusplus
