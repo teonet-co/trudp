@@ -179,30 +179,29 @@ void *trudpStatGet(trudpData *td, int type, size_t *stat_len) {
             ts->cs_num = cs_num;
             if(cs_num) {
 
-                teoMapIterator *it = teoMapIteratorNew(td->map);
-                if(it != NULL) {
-                    int i = 0;
-                    while(teoMapIteratorNext(it)) {
-                        teoMapElementData *el = teoMapIteratorElement(it);
-                        trudpChannelData *tcd = (trudpChannelData *)
-                                    teoMapIteratorElementData(el, NULL);
-                        size_t key_length;
-                        void *key = teoMapIteratorElementKey(el, &key_length);
-                        // Common statistic
-                        ts->packets_send += tcd->stat.packets_send;
-                        ts->ack_receive += tcd->stat.ack_receive;
-                        ts->packets_receive += tcd->stat.packets_receive;
-                        ts->packets_dropped += tcd->stat.packets_receive_dropped;
+                struct teoMapIterator it;
+                teoMapIteratorReset(&it, td->map);
 
-                        // Cannel statistic
-                        memcpy(&ts->cs[i], &tcd->stat, sizeof(tcd->stat));
-                        memcpy(ts->cs[i].key, key, key_length < MAX_KEY_LENGTH ?
-                            key_length : MAX_KEY_LENGTH - 1);
-                        ts->cs[i].sq = trudpSendQueueSize(tcd->sendQueue);
-                        ts->cs[i].rq = trudpReceiveQueueSize(tcd->receiveQueue);
-                        i++;
-                    }
-                    teoMapIteratorFree(it);
+                int i = 0;
+                while(teoMapIteratorNext(&it)) {
+                    teoMapElementData *el = teoMapIteratorElement(&it);
+                    trudpChannelData *tcd = (trudpChannelData *)
+                                teoMapIteratorElementData(el, NULL);
+                    size_t key_length;
+                    void *key = teoMapIteratorElementKey(el, &key_length);
+                    // Common statistic
+                    ts->packets_send += tcd->stat.packets_send;
+                    ts->ack_receive += tcd->stat.ack_receive;
+                    ts->packets_receive += tcd->stat.packets_receive;
+                    ts->packets_dropped += tcd->stat.packets_receive_dropped;
+
+                    // Cannel statistic
+                    memcpy(&ts->cs[i], &tcd->stat, sizeof(tcd->stat));
+                    memcpy(ts->cs[i].key, key, key_length < MAX_KEY_LENGTH ?
+                        key_length : MAX_KEY_LENGTH - 1);
+                    ts->cs[i].sq = trudpSendQueueSize(tcd->sendQueue);
+                    ts->cs[i].rq = trudpReceiveQueueSize(tcd->receiveQueue);
+                    i++;
                 }
             }
 
@@ -376,126 +375,125 @@ char *ksnTRUDPstatShowStr(trudpData *td, int page) {
     int i = 0;
     char *tbl_str = _strdup(""), *tbl_total = _strdup("");
     trudpStatChannelData totalStat;
-    teoMapIterator *it = teoMapIteratorNew(td->map);
-    if(it != NULL) {
-        memset(&totalStat, 0, sizeof(totalStat));
-        while(teoMapIteratorNext(it)) {
+    struct teoMapIterator it;
+    teoMapIteratorReset(&it, td->map);
 
-            size_t key_len;
-            teoMapElementData *el = teoMapIteratorElement(it);
-            char *key = teoMapIteratorElementKey(el, &key_len);
-            trudpChannelData *tcd = (trudpChannelData *)
-                                    teoMapIteratorElementData(el, NULL);
+    memset(&totalStat, 0, sizeof(totalStat));
+    while(teoMapIteratorNext(&it)) {
 
-            packets_send += tcd->stat.packets_send;
-            ack_receive += tcd->stat.ack_receive;
-            packets_receive += tcd->stat.packets_receive;
-            packets_dropped += tcd->stat.packets_receive_dropped;
+        size_t key_len;
+        teoMapElementData *el = teoMapIteratorElement(&it);
+        char *key = teoMapIteratorElementKey(el, &key_len);
+        trudpChannelData *tcd = (trudpChannelData *)
+                                teoMapIteratorElementData(el, NULL);
 
-            size_t sendQueueSize = trudpSendQueueSize(tcd->sendQueue);
-            size_t receiveQueueSize = trudpReceiveQueueSize(tcd->receiveQueue);
-            size_t writeQueueSize = trudpWriteQueueSize(tcd->writeQueue);
+        packets_send += tcd->stat.packets_send;
+        ack_receive += tcd->stat.ack_receive;
+        packets_receive += tcd->stat.packets_receive;
+        packets_dropped += tcd->stat.packets_receive_dropped;
 
-            if(i >= page*NUMBER_CHANNELS_IN_CLI_PAGE && i < (page+1)*NUMBER_CHANNELS_IN_CLI_PAGE) {
-                tbl_str = sformatMessage(tbl_str,
-                    "%s%3d "_ANSI_BROWN"%-24.*s"_ANSI_NONE" %8d %11.3f %10.3f  %9.3f /%9.3f %8d %11.3f %10.3f %8d %8d(%d%%) %8d(%d%%) %6d %6d %6d\n",
-                    tbl_str, i + 1,
-                    key_len, key,
-                    tcd->stat.packets_send,
-                    //(double)(1.0 * tcd->stat.send_speed / 1024.0),
-                    (double)tcd->stat.packets_send / ((tsf - tcd->stat.started) / 1000000.0),
-                    tcd->stat.send_total,
-                    tcd->stat.triptime_last / 1000.0,
-                    tcd->stat.wait,
-                    tcd->stat.packets_receive,
-                    //(double)(1.0 * tcd->stat.receive_speed / 1024.0),
-                    (double)tcd->stat.packets_receive / ((tsf - tcd->stat.started) / 1000000.0),
-                    tcd->stat.receive_total,
-                    tcd->stat.ack_receive,
-                    tcd->stat.packets_attempt,
-                    tcd->stat.packets_send ? 100 * tcd->stat.packets_attempt / tcd->stat.packets_send : 0,
-                    tcd->stat.packets_receive_dropped,
-                    tcd->stat.packets_receive ? 100 * tcd->stat.packets_receive_dropped / tcd->stat.packets_receive : 0,
-                    sendQueueSize,
-                    writeQueueSize,
-                    receiveQueueSize
-                );
-                if ( tcd->stat.triptime_last / 1000.0 > 500) {
-                    char *stat_sq_str = trudpStatShowQueueStr(tcd, 0);
-                    if(stat_sq_str) {
+        size_t sendQueueSize = trudpSendQueueSize(tcd->sendQueue);
+        size_t receiveQueueSize = trudpReceiveQueueSize(tcd->receiveQueue);
+        size_t writeQueueSize = trudpWriteQueueSize(tcd->writeQueue);
 
-                        int port;
-                        char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd->remaddr, &port);
-                        printf("--------------------------------------------------------------\n"
-                               "TR-UDP channel %s:%d:%d queues:\n\n",
-                               addr, port, tcd->channel);
-                        puts(stat_sq_str);
-                        free(stat_sq_str);
-                    }
+        if(i >= page*NUMBER_CHANNELS_IN_CLI_PAGE && i < (page+1)*NUMBER_CHANNELS_IN_CLI_PAGE) {
+            tbl_str = sformatMessage(tbl_str,
+                "%s%3d "_ANSI_BROWN"%-24.*s"_ANSI_NONE" %8d %11.3f %10.3f  %9.3f /%9.3f %8d %11.3f %10.3f %8d %8d(%d%%) %8d(%d%%) %6d %6d %6d\n",
+                tbl_str, i + 1,
+                key_len, key,
+                tcd->stat.packets_send,
+                //(double)(1.0 * tcd->stat.send_speed / 1024.0),
+                (double)tcd->stat.packets_send / ((tsf - tcd->stat.started) / 1000000.0),
+                tcd->stat.send_total,
+                tcd->stat.triptime_last / 1000.0,
+                tcd->stat.wait,
+                tcd->stat.packets_receive,
+                //(double)(1.0 * tcd->stat.receive_speed / 1024.0),
+                (double)tcd->stat.packets_receive / ((tsf - tcd->stat.started) / 1000000.0),
+                tcd->stat.receive_total,
+                tcd->stat.ack_receive,
+                tcd->stat.packets_attempt,
+                tcd->stat.packets_send ? 100 * tcd->stat.packets_attempt / tcd->stat.packets_send : 0,
+                tcd->stat.packets_receive_dropped,
+                tcd->stat.packets_receive ? 100 * tcd->stat.packets_receive_dropped / tcd->stat.packets_receive : 0,
+                sendQueueSize,
+                writeQueueSize,
+                receiveQueueSize
+            );
+            if ( tcd->stat.triptime_last / 1000.0 > 500) {
+                char *stat_sq_str = trudpStatShowQueueStr(tcd, 0);
+                if(stat_sq_str) {
 
-
-                    char *stat_rq_str = trudpStatShowQueueStr(tcd, 1);
-                    if(stat_rq_str) {
-                        puts(stat_rq_str);
-                        free(stat_rq_str);
-                    }
+                    int port;
+                    char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd->remaddr, &port);
+                    printf("--------------------------------------------------------------\n"
+                            "TR-UDP channel %s:%d:%d queues:\n\n",
+                            addr, port, tcd->channel);
+                    puts(stat_sq_str);
+                    free(stat_sq_str);
                 }
 
+
+                char *stat_rq_str = trudpStatShowQueueStr(tcd, 1);
+                if(stat_rq_str) {
+                    puts(stat_rq_str);
+                    free(stat_rq_str);
+                }
             }
-            totalStat.packets_send += tcd->stat.packets_send;
-            totalStat.send_speed += tcd->stat.send_speed;
-            totalStat.send_total += tcd->stat.send_total;
-            totalStat.triptime_last += tcd->stat.triptime_last;
-            totalStat.wait += tcd->stat.wait;
-            totalStat.packets_receive += tcd->stat.packets_receive;
-            totalStat.receive_speed += tcd->stat.receive_speed;
-            totalStat.receive_total += tcd->stat.receive_total;
-            totalStat.ack_receive += tcd->stat.ack_receive;
-            totalStat.packets_attempt += tcd->stat.packets_attempt;
-            totalStat.packets_receive_dropped += tcd->stat.packets_receive_dropped;
-            totalStat.sendQueueSize += sendQueueSize;
-            totalStat.writeQueueSize += writeQueueSize;
-            totalStat.receiveQueueSize += receiveQueueSize;
 
-            i++;
         }
-        if(i > 0) {
-            tbl_str = sformatMessage(tbl_str,
-            "%s"
-            "---------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n"
-            , tbl_str
-            );
-        }
-        if(i > 1) {
-            totalStat.triptime_last /= i;
-            totalStat.wait /= i;
+        totalStat.packets_send += tcd->stat.packets_send;
+        totalStat.send_speed += tcd->stat.send_speed;
+        totalStat.send_total += tcd->stat.send_total;
+        totalStat.triptime_last += tcd->stat.triptime_last;
+        totalStat.wait += tcd->stat.wait;
+        totalStat.packets_receive += tcd->stat.packets_receive;
+        totalStat.receive_speed += tcd->stat.receive_speed;
+        totalStat.receive_total += tcd->stat.receive_total;
+        totalStat.ack_receive += tcd->stat.ack_receive;
+        totalStat.packets_attempt += tcd->stat.packets_attempt;
+        totalStat.packets_receive_dropped += tcd->stat.packets_receive_dropped;
+        totalStat.sendQueueSize += sendQueueSize;
+        totalStat.writeQueueSize += writeQueueSize;
+        totalStat.receiveQueueSize += receiveQueueSize;
 
-            tbl_total = sformatMessage(tbl_total,
-            "%3d Page: %-2d [Press: N or P] %8d %11.3f %10.3f  %9.3f /%9.3f %8d %11.3f %10.3f %8d %8d(%d%%) %8d(%d%%) %6d %6d %6d\n"
-            "---------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n"
+        i++;
+    }
+    if(i > 0) {
+        tbl_str = sformatMessage(tbl_str,
+        "%s"
+        "---------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n"
+        , tbl_str
+        );
+    }
+    if(i > 1) {
+        totalStat.triptime_last /= i;
+        totalStat.wait /= i;
 
-            , i
-            , page+1
-            , totalStat.packets_send
-            , (double)(1.0 * totalStat.send_speed / 1024.0)
-            , (double)(1.0 * totalStat.send_speed / 1024.0)
-            , totalStat.send_total
-            , totalStat.triptime_last / 1000.0
-            , totalStat.wait
-            , totalStat.packets_receive
-            , (double)(1.0 * totalStat.receive_speed / 1024.0)
-            , totalStat.receive_total
-            , totalStat.ack_receive
-            , totalStat.packets_attempt
-            , totalStat.packets_send ? 100 * totalStat.packets_attempt / totalStat.packets_send : 0
-            , totalStat.packets_receive_dropped
-            , totalStat.packets_receive ? 100 * totalStat.packets_receive_dropped / totalStat.packets_receive : 0
-            , totalStat.sendQueueSize
-            , totalStat.writeQueueSize
-            , totalStat.receiveQueueSize
-            );
-        }
-        teoMapIteratorFree(it);
+        tbl_total = sformatMessage(tbl_total,
+        "%3d Page: %-2d [Press: N or P] %8d %11.3f %10.3f  %9.3f /%9.3f %8d %11.3f %10.3f %8d %8d(%d%%) %8d(%d%%) %6d %6d %6d\n"
+        "---------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n"
+
+        , i
+        , page+1
+        , totalStat.packets_send
+        , (double)(1.0 * totalStat.send_speed / 1024.0)
+        , (double)(1.0 * totalStat.send_speed / 1024.0)
+        , totalStat.send_total
+        , totalStat.triptime_last / 1000.0
+        , totalStat.wait
+        , totalStat.packets_receive
+        , (double)(1.0 * totalStat.receive_speed / 1024.0)
+        , totalStat.receive_total
+        , totalStat.ack_receive
+        , totalStat.packets_attempt
+        , totalStat.packets_send ? 100 * totalStat.packets_attempt / totalStat.packets_send : 0
+        , totalStat.packets_receive_dropped
+        , totalStat.packets_receive ? 100 * totalStat.packets_receive_dropped / totalStat.packets_receive : 0
+        , totalStat.sendQueueSize
+        , totalStat.writeQueueSize
+        , totalStat.receiveQueueSize
+        );
     }
 
     char *ret_str = formatMessage(
@@ -560,56 +558,54 @@ char *trudpStatShowQueueStr(trudpChannelData *tcd, int type) {
 //       trudpPacketQueueSize(tcd->receiveQueue) > MAX_QUELEN_SHOW)
 //    exit(-1);
 
-    teoQueueIterator *it = !type ?
-        teoQueueIteratorNew(tcd->sendQueue->q) :
-        teoQueueIteratorNew(tcd->receiveQueue->q);
+    struct teoQueueIterator it;
+    if (!type) {
+        teoQueueIteratorReset(&it, tcd->sendQueue->q);
+    } else {
+        teoQueueIteratorReset(&it, tcd->receiveQueue->q);
+    }
 
-    if(it != NULL) {
+    int i = 0;
+    uint64_t current_t = teoGetTimestampFull();
+    str = sformatMessage(str,
+        "--------------------------------------------------------------\n"
+        "TR-UDP %s Queue, size: %d, %s %u\n"
+        "--------------------------------------------------------------\n"
+        "    #   Id          Expected   Retrieves\n"
+        "--------------------------------------------------------------\n"
+        , !type ? "Send" : "Receive"
+        , !type ? trudpSendQueueSize(tcd->sendQueue) : trudpReceiveQueueSize(tcd->receiveQueue)
+        , !type ? "next id: " : "expected id: "
+        , !type ? tcd->sendId : tcd->receiveExpectedId
+    );
+    while(teoQueueIteratorNext(&it)) {
 
-        int i = 0;
-        uint64_t current_t = teoGetTimestampFull();
+        trudpPacketQueueData *tqd = (trudpPacketQueueData *)
+                ((teoQueueData *)teoQueueIteratorElement(&it))->data;
+
+        long timeout_sq = current_t < tqd->expected_time ?
+            (long)(tqd->expected_time - current_t) :
+            -1 * (long)(current_t - tqd->expected_time);
+
+        trudpPacket* tq_packet = trudpPacketQueueDataGetPacket(tqd);
+
         str = sformatMessage(str,
-            "--------------------------------------------------------------\n"
-            "TR-UDP %s Queue, size: %d, %s %u\n"
-            "--------------------------------------------------------------\n"
-            "    #   Id          Expected   Retrieves\n"
-            "--------------------------------------------------------------\n"
-            , !type ? "Send" : "Receive"
-            , !type ? trudpSendQueueSize(tcd->sendQueue) : trudpReceiveQueueSize(tcd->receiveQueue)
-            , !type ? "next id: " : "expected id: "
-            , !type ? tcd->sendId : tcd->receiveExpectedId
+        "%s"
+        "  %3d   %-8d %8.3f ms   %d\n"
+        , str
+        , i++
+        , trudpPacketGetId(tq_packet)
+        , !type ? timeout_sq / 1000.0 : 0
+        , !type ? tqd->retrieves : 0
         );
-        while(teoQueueIteratorNext(it)) {
-
-            trudpPacketQueueData *tqd = (trudpPacketQueueData *)
-                    ((teoQueueData *)teoQueueIteratorElement(it))->data;
-
-            long timeout_sq = current_t < tqd->expected_time ?
-                (long)(tqd->expected_time - current_t) :
-                -1 * (long)(current_t - tqd->expected_time);
-
-            trudpPacket* tq_packet = trudpPacketQueueDataGetPacket(tqd);
-
-            str = sformatMessage(str,
-            "%s"
-            "  %3d   %-8d %8.3f ms   %d\n"
-            , str
-            , i++
-            , trudpPacketGetId(tq_packet)
-            , !type ? timeout_sq / 1000.0 : 0
-            , !type ? tqd->retrieves : 0
-            );
-            if(i > MAX_QUELEN_SHOW) { str = sformatMessage(str, "%s...\n", str); break; }
-        }
-        if(i) {
-            str = sformatMessage(str,
-            "%s"
-            "--------------------------------------------------------------\n"
-            , str
-        );
-
-        }
-        teoQueueIteratorFree(it);
+        if(i > MAX_QUELEN_SHOW) { str = sformatMessage(str, "%s...\n", str); break; }
+    }
+    if(i) {
+        str = sformatMessage(str,
+        "%s"
+        "--------------------------------------------------------------\n"
+        , str
+    );
     }
 
     return str;

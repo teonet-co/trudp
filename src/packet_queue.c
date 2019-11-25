@@ -159,21 +159,18 @@ trudpPacketQueueData *trudpPacketQueueFindById(trudpPacketQueue *tq,
 
     trudpPacketQueueData *rv = NULL;
 
-    teoQueueIterator *it = teoQueueIteratorNew(tq->q);
-    if(it != NULL) {
+    struct teoQueueIterator it;
+    teoQueueIteratorReset(&it, tq->q);
 
-        while(teoQueueIteratorNext(it)) {
+    while(teoQueueIteratorNext(&it)) {
+        trudpPacketQueueData *tqd = (trudpPacketQueueData *)
+                ((teoQueueData *)teoQueueIteratorElement(&it))->data;
 
-            trudpPacketQueueData *tqd = (trudpPacketQueueData *)
-                    ((teoQueueData *)teoQueueIteratorElement(it))->data;
-
-            trudpPacket* trudp_paket = trudpPacketQueueDataGetPacket(tqd);
-            if(trudpPacketGetId(trudp_paket) == id) {
-                rv = tqd;
-                break;
-            }
+        trudpPacket* trudp_paket = trudpPacketQueueDataGetPacket(tqd);
+        if(trudpPacketGetId(trudp_paket) == id) {
+            rv = tqd;
+            break;
         }
-        teoQueueIteratorFree(it);
     }
 
     return rv;
@@ -190,13 +187,12 @@ trudpPacketQueueData *trudpPacketQueueGetFirst(trudpPacketQueue *tq) {
 
     trudpPacketQueueData *tqd = NULL;
 
-    teoQueueIterator *it = teoQueueIteratorNew(tq->q);
-    if(it != NULL) {
-        if(teoQueueIteratorNext(it)) {
-            tqd = (trudpPacketQueueData *)
-                    ((teoQueueData *)teoQueueIteratorElement(it))->data;
-        }
-        teoQueueIteratorFree(it);
+    struct teoQueueIterator it;
+    teoQueueIteratorReset(&it, tq->q);
+
+    if(teoQueueIteratorNext(&it)) {
+        tqd = (trudpPacketQueueData *)
+                ((teoQueueData *)teoQueueIteratorElement(&it))->data;
     }
 
     return tqd;
@@ -217,20 +213,17 @@ trudpPacketQueueData *trudpPacketQueueFindByTime(trudpPacketQueue *tq,
 
     trudpPacketQueueData *rv = NULL;
 
-    teoQueueIterator *it = teoQueueIteratorNew(tq->q);
-    if(it != NULL) {
+    struct teoQueueIterator it;
+    teoQueueIteratorReset(&it, tq->q);
 
-        while(teoQueueIteratorNext(it)) {
+    while(teoQueueIteratorNext(&it)) {
+        trudpPacketQueueData *tqd = (trudpPacketQueueData *)
+                ((teoQueueData *)teoQueueIteratorElement(&it))->data;
 
-            trudpPacketQueueData *tqd = (trudpPacketQueueData *)
-                    ((teoQueueData *)teoQueueIteratorElement(it))->data;
-
-            if(tqd->expected_time <= t) {
-                rv = tqd;
-                break;
-            }
+        if(tqd->expected_time <= t) {
+            rv = tqd;
+            break;
         }
-        teoQueueIteratorFree(it);
     }
 
     return rv;

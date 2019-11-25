@@ -196,15 +196,15 @@ void trudpChannelDestroyAddr(trudpData *td, char *addr, int port, int channel) {
 void trudpSendResetAll(trudpData *td) {
 
     teoMapElementData *el;
-    teoMapIterator *it;
-    if((it = teoMapIteratorNew(td->map))) {
-        while((el = teoMapIteratorNext(it))) {
-            trudpChannelData *tcd = (trudpChannelData *)
-                    teoMapIteratorElementData(el, NULL);
+    struct teoMapIterator it;
 
-            trudpChannelSendRESET(tcd, NULL, 0);
-        }
-        teoMapIteratorFree(it);
+    teoMapIteratorReset(&it, td->map);
+
+    while((el = teoMapIteratorNext(&it))) {
+        trudpChannelData *tcd = (trudpChannelData *)
+                teoMapIteratorElementData(el, NULL);
+
+        trudpChannelSendRESET(tcd, NULL, 0);
     }
 }
 
@@ -266,23 +266,22 @@ size_t trudpSendDataToAll(trudpData *td, void *data, size_t data_length) {
 
     int rv = 0;
 
-    teoMapIterator *it;
-    teoMapElementData *el;
-    if((it = teoMapIteratorNew(td->map))) {
-        while((el = teoMapIteratorNext(it))) {
-            trudpChannelData *tcd = (trudpChannelData *)
-                    teoMapIteratorElementData(el, NULL);
+    struct teoMapIterator it;
+    teoMapIteratorReset(&it, td->map);
 
-            if(tcd->connected_f) {
-                // drop packets if send queue > 100 \todo move it to Send Data
-                // function or something else
-                //if(trudpSendQueueSize(tcd->sendQueue) < 100) {
-                    if(trudpChannelSendData(tcd, data, data_length) < 0) break;
-                    rv++;
-                //}
-            }
+    teoMapElementData *el;
+    while((el = teoMapIteratorNext(&it))) {
+        trudpChannelData *tcd = (trudpChannelData *)
+                teoMapIteratorElementData(el, NULL);
+
+        if(tcd->connected_f) {
+            // drop packets if send queue > 100 \todo move it to Send Data
+            // function or something else
+            //if(trudpSendQueueSize(tcd->sendQueue) < 100) {
+                if(trudpChannelSendData(tcd, data, data_length) < 0) break;
+                rv++;
+            //}
         }
-        teoMapIteratorFree(it);
     }
 
     return rv;
@@ -298,12 +297,13 @@ size_t trudpProcessKeepConnection(trudpData *td) {
 
     int rv = -1;
 
-    teoMapIterator *it;
+    struct teoMapIterator it;
     teoMapElementData *el;
     uint64_t ts = teoGetTimestampFull();
-    while(rv == -1 && (it = teoMapIteratorNew(td->map))) {
+    while(rv == -1) {
+        teoMapIteratorReset(&it, td->map);
         rv = 0;
-        while((el = teoMapIteratorNext(it))) {
+        while((el = teoMapIteratorNext(&it))) {
             trudpChannelData *tcd = (trudpChannelData *)
                 teoMapIteratorElementData(el, NULL);
 
@@ -322,7 +322,6 @@ size_t trudpProcessKeepConnection(trudpData *td) {
                 }
             }
         }
-        teoMapIteratorFree(it);
     }
 
     return rv;
@@ -339,16 +338,15 @@ static size_t trudpGetReceiveQueueMax(trudpData *td) {
 
     int rv = 0;
 
-    teoMapIterator *it;
+    struct teoMapIterator it;
+    teoMapIteratorReset(&it, td->map);
+
     teoMapElementData *el;
-    if((it = teoMapIteratorNew(td->map))) {
-        while((el = teoMapIteratorNext(it))) {
-            trudpChannelData *tcd = (trudpChannelData *)
-                    teoMapIteratorElementData(el, NULL);
-            int size = trudpReceiveQueueSize(tcd->receiveQueue);
-            if(size > rv) rv = size;
-        }
-        teoMapIteratorDestroy(it);
+    while((el = teoMapIteratorNext(&it))) {
+        trudpChannelData *tcd = (trudpChannelData *)
+                teoMapIteratorElementData(el, NULL);
+        int size = trudpReceiveQueueSize(tcd->receiveQueue);
+        if(size > rv) rv = size;
     }
 
     return rv;
@@ -436,18 +434,16 @@ trudpChannelData *trudpGetChannelCreate(trudpData *td, __CONST_SOCKADDR_ARG addr
  */
 uint32_t trudpGetSendQueueTimeout(trudpData *td, uint64_t current_time) {
 
-    teoMapIterator *it;
+    struct teoMapIterator it;
     teoMapElementData *el;
     uint32_t min_timeout_sq = UINT32_MAX;
 
-    if((it = teoMapIteratorNew(td->map))) {
-        while((el = teoMapIteratorNext(it))) {
-            trudpChannelData *tcd = (trudpChannelData *)teoMapIteratorElementData(el, NULL);
-            uint32_t timeout_sq = trudpChannelSendQueueGetTimeout(tcd, current_time);
-            if(timeout_sq < min_timeout_sq) min_timeout_sq = timeout_sq;
-            if(!min_timeout_sq) break;
-        }
-        teoMapIteratorFree(it);
+    teoMapIteratorReset(&it, td->map);
+    while((el = teoMapIteratorNext(&it))) {
+        trudpChannelData *tcd = (trudpChannelData *)teoMapIteratorElementData(el, NULL);
+        uint32_t timeout_sq = trudpChannelSendQueueGetTimeout(tcd, current_time);
+        if(timeout_sq < min_timeout_sq) min_timeout_sq = timeout_sq;
+        if(!min_timeout_sq) break;
     }
 
     return min_timeout_sq;
@@ -463,15 +459,13 @@ uint32_t trudpGetSendQueueTimeout(trudpData *td, uint64_t current_time) {
 static size_t trudp_SendQueueSize(trudpData *td) {
 
     uint32_t sz = 0;
-    teoMapIterator *it;
+    struct teoMapIterator it;
     teoMapElementData *el;
 
-    if((it = teoMapIteratorNew(td->map))) {
-        while((el = teoMapIteratorNext(it))) {
-            trudpChannelData *tcd = (trudpChannelData *)teoMapIteratorElementData(el, NULL);
-            sz += trudpSendQueueSize(tcd->sendQueue);
-        }
-        teoMapIteratorDestroy(it);
+    teoMapIteratorReset(&it td->map);
+    while((el = teoMapIteratorNext(&it))) {
+        trudpChannelData *tcd = (trudpChannelData *)teoMapIteratorElementData(el, NULL);
+        sz += trudpSendQueueSize(tcd->sendQueue);
     }
 
     return sz;
@@ -490,21 +484,21 @@ int trudpProcessSendQueue(trudpData *td, uint64_t *next_et) {
 
     int retval, rv = 0;
     uint64_t ts = teoGetTimestampFull(), min_expected_time, next_expected_time;
+    struct teoMapIterator it;
     do {
         retval = 0;
-        teoMapIterator *it;
         teoMapElementData *el;
         min_expected_time = UINT64_MAX;
-        if((it = teoMapIteratorNew(td->map))) {
-            while((el = teoMapIteratorNext(it))) {
-                trudpChannelData *tcd = (trudpChannelData *)teoMapIteratorElementData(el, NULL);
-                retval = trudpChannelSendQueueProcess(tcd, ts, &next_expected_time);
-                if(retval < 0) break;
-                if(retval > 0) rv += retval;
-                if(next_expected_time && next_expected_time < min_expected_time)
-                    min_expected_time = next_expected_time;
-            }
-            teoMapIteratorFree(it);
+
+        teoMapIteratorReset(&it, td->map);
+
+        while((el = teoMapIteratorNext(&it))) {
+            trudpChannelData *tcd = (trudpChannelData *)teoMapIteratorElementData(el, NULL);
+            retval = trudpChannelSendQueueProcess(tcd, ts, &next_expected_time);
+            if(retval < 0) break;
+            if(retval > 0) rv += retval;
+            if(next_expected_time && next_expected_time < min_expected_time)
+                min_expected_time = next_expected_time;
         }
     } while(retval == -1 || (retval > 0 && min_expected_time <= ts));
 
@@ -524,16 +518,15 @@ static size_t trudp_SendQueueGetSizeMax(trudpData *td) {
 
     int rv = 0;
 
-    teoMapIterator *it;
+    struct teoMapIterator it;
     teoMapElementData *el;
-    if((it = teoMapIteratorNew(td->map))) {
-        while((el = teoMapIteratorNext(it))) {
-            trudpChannelData *tcd = (trudpChannelData *)
-                    teoMapIteratorElementData(el, NULL);
-            int size = trudpPacketQueueSize(tcd->sendQueue);
-            if(size > rv) rv = size;
-        }
-        teoMapIteratorDestroy(it);
+    teoMapIteratorReset(&it, td->map);
+
+    while((el = teoMapIteratorNext(&it))) {
+        trudpChannelData *tcd = (trudpChannelData *)
+                teoMapIteratorElementData(el, NULL);
+        int size = trudpPacketQueueSize(tcd->sendQueue);
+        if(size > rv) rv = size;
     }
 
     return rv;
@@ -554,18 +547,19 @@ size_t trudpProcessWriteQueue(trudpData *td) {
     int i = 0;
     size_t retval = 0;
     teoMapElementData *el;
-    teoMapIterator *it;
-    if((it = teoMapIteratorNew(td->map))) {
-        while(!retval && (el = teoMapIteratorNext(it))) {
-            if(i++ < td->writeQueueIdx) continue;
-            trudpChannelData *tcd = (trudpChannelData *)
-                    teoMapIteratorElementData(el, NULL);
-            retval = trudpChannelWriteQueueProcess(tcd);
-            td->writeQueueIdx++;
-        }
-        teoMapIteratorFree(it);
-        if(!retval) td->writeQueueIdx = 0;
+    struct teoMapIterator it;
+
+    teoMapIteratorReset(&it, td->map);
+
+    while(!retval && (el = teoMapIteratorNext(&it))) {
+        if(i++ < td->writeQueueIdx) continue;
+        trudpChannelData *tcd = (trudpChannelData *)
+                teoMapIteratorElementData(el, NULL);
+        retval = trudpChannelWriteQueueProcess(tcd);
+        td->writeQueueIdx++;
     }
+
+    if(!retval) td->writeQueueIdx = 0;
 
     return retval;
 }
@@ -580,15 +574,14 @@ size_t trudpGetWriteQueueSize(trudpData *td) {
 
     size_t retval = 0;
     teoMapElementData *el;
-    teoMapIterator *it;
-    if((it = teoMapIteratorNew(td->map))) {
-        while((el = teoMapIteratorNext(it))) {
-            size_t data_lenth;
-            trudpChannelData *tcd = (trudpChannelData *)
-                    teoMapIteratorElementData(el, &data_lenth);
-            retval += trudpWriteQueueSize(tcd->writeQueue);
-        }
-        teoMapIteratorFree(it);
+    struct teoMapIterator it;
+    teoMapIteratorReset(&it, td->map);
+
+    while((el = teoMapIteratorNext(&it))) {
+        size_t data_lenth;
+        trudpChannelData *tcd = (trudpChannelData *)
+                teoMapIteratorElementData(el, &data_lenth);
+        retval += trudpWriteQueueSize(tcd->writeQueue);
     }
 
     return retval;
