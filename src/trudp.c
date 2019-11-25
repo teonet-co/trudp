@@ -627,4 +627,4 @@ const char *STRING_trudpEvent(trudpEvent val) {
       return "GOT_DATA_NO_TRUDP";
   }
   return "INVALID trudpEvent";
-};
+}

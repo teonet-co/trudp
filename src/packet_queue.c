@@ -40,6 +40,7 @@ static trudpPacketQueueData *_trudpPacketQueueAddTime(trudpPacketQueue *tq,
         void *packet, size_t packet_length, uint64_t expected_time);
 trudpPacketQueueData *trudpPacketQueueFindByTime(trudpPacketQueue *tq, uint64_t t);
 #endif
+
 /**
  * Create new Packet queue
  *
