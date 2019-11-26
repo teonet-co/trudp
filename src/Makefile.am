@@ -31,6 +31,7 @@ libtrudp_la_SOURCES = \
     ../libs/teoccl/src/teoccl/array_list.c \
     ../libs/teoccl/src/teoccl/hash.c \
     ../libs/teoccl/src/teoccl/map.c \
+    ../libs/teoccl/src/teoccl/memory.c \
     ../libs/teoccl/src/teoccl/queue.c
 
 
@@ -53,15 +54,14 @@ nobase_libtrudpinclude_HEADERS = \
 
 teobase_HEADERS = \
 	$(top_srcdir)/libs/teobase/include/teobase/logging.h \
-    	$(top_srcdir)/libs/teobase/include/teobase/socket.h \
-    	$(top_srcdir)/libs/teobase/include/teobase/time.h \
-    	$(top_srcdir)/libs/teoccl/include/teoccl/array_list.h \
-    	$(top_srcdir)/libs/teoccl/include/teoccl/hash.h \
-    	$(top_srcdir)/libs/teoccl/include/teoccl/map.h \
-    	$(top_srcdir)/libs/teoccl/include/teoccl/queue.h
+	$(top_srcdir)/libs/teobase/include/teobase/socket.h \
+	$(top_srcdir)/libs/teobase/include/teobase/time.h \
+	$(top_srcdir)/libs/teoccl/include/teoccl/array_list.h \
+	$(top_srcdir)/libs/teoccl/include/teoccl/hash.h \
+	$(top_srcdir)/libs/teoccl/include/teoccl/map.h \
+	$(top_srcdir)/libs/teoccl/include/teoccl/memory.h \
+	$(top_srcdir)/libs/teoccl/include/teoccl/queue.h
 
-
- 
 
 libteoccl_la_CFLAGS = -I$(top_srcdir)/src -I$(top_srcdir)/libs/teoccl/include
 libtrudp_la_LDFLAGS = -version-info $(LIBRARY_CURRENT):$(LIBRARY_REVISION):$(LIBRARY_AGE)
