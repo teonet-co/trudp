@@ -31,6 +31,8 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "teoccl/memory.h"
+
 #include "trudp.h"
 #include "trudp_channel.h"
 #include "trudp_utils.h"
@@ -62,8 +64,7 @@ static size_t trudp_SendQueueGetSizeMax(trudpData *td);
  */
 trudpData *trudpInit(int fd, int port, trudpEventCb event_cb, void *user_data) {
 
-    trudpData* trudp = (trudpData*) malloc(sizeof(trudpData));
-    memset(trudp, 0, sizeof(trudpData));
+    trudpData* trudp = (trudpData*)ccl_calloc(sizeof(trudpData));
 
     trudp->map = teoMapNew(MAP_SIZE_DEFAULT, 1);
     trudp->psq_data = NULL;
