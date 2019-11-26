@@ -30,6 +30,8 @@
 
 #include "teobase/logging.h"
 
+#include "teoccl/memory.h"
+
 #include "trudp_channel.h"
 #include "trudp_stat.h"
 #include "trudp_utils.h"
@@ -157,8 +159,7 @@ static void _trudpChannelFree(trudpChannelData *tcd) {
 trudpChannelData *trudpChannelNew(void *parent, char *remote_address,
                                   int remote_port_i, int channel) {
 
-  trudpChannelData *tcd = (trudpChannelData *)malloc(sizeof(trudpChannelData));
-  memset(tcd, 0, sizeof(trudpChannelData));
+  trudpChannelData *tcd = (trudpChannelData *)ccl_calloc(sizeof(trudpChannelData));
 
   tcd->td = parent;
   tcd->sendQueue = trudpSendQueueNew();
@@ -496,7 +497,6 @@ static void _trudpChannelIncrementStatWriteQueueSize(trudpChannelData *tcd) {
 static size_t _trudpChannelSendPacket(trudpChannelData *tcd,
                                       trudpPacket *packet, size_t packetLength,
                                       int save_to_send_queue) {
-
     size_t size_sq = trudpSendQueueSize(tcd->sendQueue);
 
     // Save packet to send queue
@@ -507,7 +507,7 @@ static size_t _trudpChannelSendPacket(trudpChannelData *tcd,
                 _trudpChannelCalculateExpectedTime(tcd, teoGetTimestampFull(), 0));
             _trudpChannelIncrementStatSendQueueSize(tcd);
         } else {
-            void *packetCopy = malloc(packetLength);
+            void *packetCopy = ccl_malloc(packetLength);
             memcpy(packetCopy, packet, packetLength);
             trudpWriteQueueAdd(tcd->writeQueue, NULL, packetCopy, packetLength);
             _trudpChannelIncrementStatWriteQueueSize(tcd);
