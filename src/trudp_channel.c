@@ -41,8 +41,7 @@
 #include "trudp_send_queue.h"
 
 // Local function
-static trudpChannelData *_trudpChannelAddToMap(void *td, char *key,
-                                               size_t key_length,
+static trudpChannelData *_trudpChannelAddToMap(trudpData *td,
                                                trudpChannelData *tcd);
 static uint64_t _trudpChannelCalculateExpectedTime(trudpChannelData *tcd,
                                                    uint64_t current_time,
@@ -78,12 +77,11 @@ void trudp_ChannelSendReset(trudpChannelData *tcd) {
  * @param tcd
  * @return
  */
-static trudpChannelData *_trudpChannelAddToMap(void *td, char *key,
-                                               size_t key_length,
+static trudpChannelData *_trudpChannelAddToMap(trudpData *td,
                                                trudpChannelData *tcd) {
 
-  return teoMapAdd(((trudpData *)td)->map, key, key_length, tcd,
-                   sizeof(trudpChannelData));
+  return teoMapAdd(td->map, tcd->channel_key, tcd->channel_key_length,
+                   tcd, sizeof(trudpChannelData));
 }
 
 /**
@@ -115,7 +113,6 @@ static void _trudpChannelSetDefaults(trudpChannelData *tcd) {
   tcd->lastReceived = teoGetTimestampFull();
   tcd->lastSentPing = 0;  //  Never sent ping before
   tcd->triptimeMiddle = START_MIDDLE_TIME;
-
   tcd->read_buffer = NULL;
   tcd->read_buffer_ptr = 0;
   tcd->read_buffer_size = 0;
@@ -135,8 +132,9 @@ static void _trudpChannelFree(trudpChannelData *tcd) {
   TD(tcd)->stat.sendQueue.size_current -= trudpSendQueueSize(tcd->sendQueue);
   TD(tcd)->stat.writeQueue.size_current -= trudpWriteQueueSize(tcd->writeQueue);
 
-  if (tcd->read_buffer) {
+  if (tcd->read_buffer != NULL) {
     free(tcd->read_buffer);
+    tcd->read_buffer = NULL;
   }
 
   trudpSendQueueFree(tcd->sendQueue);
@@ -159,29 +157,32 @@ static void _trudpChannelFree(trudpChannelData *tcd) {
 trudpChannelData *trudpChannelNew(void *parent, char *remote_address,
                                   int remote_port_i, int channel) {
 
-  trudpChannelData *tcd = (trudpChannelData *)ccl_calloc(sizeof(trudpChannelData));
+  trudpChannelData tcd;
 
-  tcd->td = parent;
-  tcd->sendQueue = trudpSendQueueNew();
-  tcd->writeQueue = trudpWriteQueueNew();
-  tcd->receiveQueue = trudpReceiveQueueNew();
-  tcd->addrlen = sizeof(tcd->remaddr);
-  trudpUdpMakeAddr(remote_address, remote_port_i, (__SOCKADDR_ARG)&tcd->remaddr,
-                   &tcd->addrlen);
-  tcd->channel = channel;
+  tcd.td = parent;
+  tcd.sendQueue = trudpSendQueueNew();
+  tcd.writeQueue = trudpWriteQueueNew();
+  tcd.receiveQueue = trudpReceiveQueueNew();
+  tcd.addrlen = sizeof(tcd.remaddr);
+  trudpUdpMakeAddr(remote_address, remote_port_i, (__SOCKADDR_ARG)&tcd.remaddr,
+                   &tcd.addrlen);
+  tcd.channel = channel;
 
   // Set other defaults
-  _trudpChannelSetDefaults(tcd);
-  tcd->fd = 0;
+  _trudpChannelSetDefaults(&tcd);
+  tcd.fd = 0;
 
   // Add cannel to map
-  size_t key_length;
-  char *key =
-      trudpMakeKey(trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd->remaddr, NULL),
-                   remote_port_i, channel, &key_length);
-  trudpChannelData *tcd_return =
-      _trudpChannelAddToMap(parent, key, key_length, tcd);
-  free(tcd);
+  size_t channel_key_length;
+  char *channel_key =
+      trudpMakeKey(trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd.remaddr, NULL),
+                   remote_port_i, channel, &channel_key_length);
+
+  tcd.channel_key = ccl_malloc(channel_key_length);
+  memcpy(tcd.channel_key, channel_key, channel_key_length);
+  tcd.channel_key_length = channel_key_length;
+
+  trudpChannelData *tcd_return = _trudpChannelAddToMap(parent, &tcd);
 
   return tcd_return;
 }
@@ -210,11 +211,11 @@ void trudpChannelDestroy(trudpChannelData *tcd) {
   trudpWriteQueueDestroy(tcd->writeQueue);
   trudpReceiveQueueDestroy(tcd->receiveQueue);
 
-  int port;
-  size_t key_length;
-  char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd->remaddr, &port);
-  char *key = trudpMakeKey(addr, port, tcd->channel, &key_length);
-  teoMapDelete(TD(tcd)->map, key, key_length);
+  char *channel_key = tcd->channel_key;
+
+  teoMapDelete(TD(tcd)->map, channel_key, tcd->channel_key_length);
+
+  free(channel_key);
 }
 
 // ============================================================================
