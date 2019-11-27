@@ -27,8 +27,8 @@
  * Created on May 30, 2016, 8:56 PM
  */
 
-#ifndef SEND_QUEUE_H
-#define SEND_QUEUE_H
+#ifndef PACKET_QUEUE_H
+#define PACKET_QUEUE_H
 
 #include <stdlib.h>
 #include <stdint.h>
@@ -122,7 +122,7 @@ trudpPacketQueueData *trudpPacketQueueMoveToEnd(trudpPacketQueue *tq,
 trudpPacketQueueData *trudpPacketQueueFindById(trudpPacketQueue *tq, uint32_t id);
 trudpPacketQueueData *trudpPacketQueueGetFirst(trudpPacketQueue *tq);
 
-inline trudpPacket* trudpPacketQueueDataGetPacket(trudpPacketQueueData* tqd) {
+static inline trudpPacket* trudpPacketQueueDataGetPacket(trudpPacketQueueData* tqd) {
     return (trudpPacket*)(tqd->packet);
 }
 
@@ -130,4 +130,4 @@ inline trudpPacket* trudpPacketQueueDataGetPacket(trudpPacketQueueData* tqd) {
 }
 #endif
 
-#endif /* SEND_QUEUE_H */
+#endif /* PACKET_QUEUE_H */
