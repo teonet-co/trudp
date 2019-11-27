@@ -179,7 +179,7 @@ void *trudpStatGet(trudpData *td, int type, size_t *stat_len) {
             ts->cs_num = cs_num;
             if(cs_num) {
 
-                struct teoMapIterator it;
+                teoMapIterator it;
                 teoMapIteratorReset(&it, td->map);
 
                 int i = 0;
@@ -375,7 +375,7 @@ char *ksnTRUDPstatShowStr(trudpData *td, int page) {
     int i = 0;
     char *tbl_str = _strdup(""), *tbl_total = _strdup("");
     trudpStatChannelData totalStat;
-    struct teoMapIterator it;
+    teoMapIterator it;
     teoMapIteratorReset(&it, td->map);
 
     memset(&totalStat, 0, sizeof(totalStat));
@@ -558,7 +558,7 @@ char *trudpStatShowQueueStr(trudpChannelData *tcd, int type) {
 //       trudpPacketQueueSize(tcd->receiveQueue) > MAX_QUELEN_SHOW)
 //    exit(-1);
 
-    struct teoQueueIterator it;
+    teoQueueIterator it;
     if (!type) {
         teoQueueIteratorReset(&it, tcd->sendQueue->q);
     } else {

@@ -197,7 +197,7 @@ void trudpChannelDestroyAddr(trudpData *td, char *addr, int port, int channel) {
 void trudpSendResetAll(trudpData *td) {
 
     teoMapElementData *el;
-    struct teoMapIterator it;
+    teoMapIterator it;
 
     teoMapIteratorReset(&it, td->map);
 
@@ -267,7 +267,7 @@ size_t trudpSendDataToAll(trudpData *td, void *data, size_t data_length) {
 
     int rv = 0;
 
-    struct teoMapIterator it;
+    teoMapIterator it;
     teoMapIteratorReset(&it, td->map);
 
     teoMapElementData *el;
@@ -298,7 +298,7 @@ size_t trudpProcessKeepConnection(trudpData *td) {
 
     int rv = -1;
 
-    struct teoMapIterator it;
+    teoMapIterator it;
     teoMapElementData *el;
     uint64_t ts = teoGetTimestampFull();
     while(rv == -1) {
@@ -339,7 +339,7 @@ static size_t trudpGetReceiveQueueMax(trudpData *td) {
 
     int rv = 0;
 
-    struct teoMapIterator it;
+    teoMapIterator it;
     teoMapIteratorReset(&it, td->map);
 
     teoMapElementData *el;
@@ -435,7 +435,7 @@ trudpChannelData *trudpGetChannelCreate(trudpData *td, __CONST_SOCKADDR_ARG addr
  */
 uint32_t trudpGetSendQueueTimeout(trudpData *td, uint64_t current_time) {
 
-    struct teoMapIterator it;
+    teoMapIterator it;
     teoMapElementData *el;
     uint32_t min_timeout_sq = UINT32_MAX;
 
@@ -460,7 +460,7 @@ uint32_t trudpGetSendQueueTimeout(trudpData *td, uint64_t current_time) {
 static size_t trudp_SendQueueSize(trudpData *td) {
 
     uint32_t sz = 0;
-    struct teoMapIterator it;
+    teoMapIterator it;
     teoMapElementData *el;
 
     teoMapIteratorReset(&it td->map);
@@ -485,7 +485,7 @@ int trudpProcessSendQueue(trudpData *td, uint64_t *next_et) {
 
     int retval, rv = 0;
     uint64_t ts = teoGetTimestampFull(), min_expected_time, next_expected_time;
-    struct teoMapIterator it;
+    teoMapIterator it;
     do {
         retval = 0;
         teoMapElementData *el;
@@ -519,7 +519,7 @@ static size_t trudp_SendQueueGetSizeMax(trudpData *td) {
 
     int rv = 0;
 
-    struct teoMapIterator it;
+    teoMapIterator it;
     teoMapElementData *el;
     teoMapIteratorReset(&it, td->map);
 
@@ -548,7 +548,7 @@ size_t trudpProcessWriteQueue(trudpData *td) {
     int i = 0;
     size_t retval = 0;
     teoMapElementData *el;
-    struct teoMapIterator it;
+    teoMapIterator it;
 
     teoMapIteratorReset(&it, td->map);
 
@@ -575,7 +575,7 @@ size_t trudpGetWriteQueueSize(trudpData *td) {
 
     size_t retval = 0;
     teoMapElementData *el;
-    struct teoMapIterator it;
+    teoMapIterator it;
     teoMapIteratorReset(&it, td->map);
 
     while((el = teoMapIteratorNext(&it))) {
