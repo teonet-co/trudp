@@ -160,7 +160,7 @@ trudpPacketQueueData *trudpPacketQueueFindById(trudpPacketQueue *tq,
 
     trudpPacketQueueData *rv = NULL;
 
-    struct teoQueueIterator it;
+    teoQueueIterator it;
     teoQueueIteratorReset(&it, tq->q);
 
     while(teoQueueIteratorNext(&it)) {
@@ -188,7 +188,7 @@ trudpPacketQueueData *trudpPacketQueueGetFirst(trudpPacketQueue *tq) {
 
     trudpPacketQueueData *tqd = NULL;
 
-    struct teoQueueIterator it;
+    teoQueueIterator it;
     teoQueueIteratorReset(&it, tq->q);
 
     if(teoQueueIteratorNext(&it)) {
@@ -214,7 +214,7 @@ trudpPacketQueueData *trudpPacketQueueFindByTime(trudpPacketQueue *tq,
 
     trudpPacketQueueData *rv = NULL;
 
-    struct teoQueueIterator it;
+    teoQueueIterator it;
     teoQueueIteratorReset(&it, tq->q);
 
     while(teoQueueIteratorNext(&it)) {
