@@ -109,6 +109,8 @@ trudpPacket* trudpPacketPINGcreateNew(uint32_t id, unsigned int channel, void *d
 trudpPacket* trudpPacketRESETcreateNew(uint32_t id, unsigned int channel);
 size_t trudpPacketRESETlength();
 
+const char *STRING_trudpPacketType(trudpPacketType value);
+
 #ifdef __cplusplus
 }
 #endif

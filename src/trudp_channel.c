@@ -56,7 +56,8 @@ static void _trudpChannelReset(trudpChannelData *tcd);
 static void _trudpChannelSendACK(trudpChannelData *tcd, trudpPacket *packet);
 static void _trudpChannelSendACKtoPING(trudpChannelData *tcd, trudpPacket* packet);
 static void _trudpChannelSendACKtoRESET(trudpChannelData *tcd, trudpPacket* packet);
-static size_t _trudpChannelSendPacket(trudpChannelData *tcd, void *packetDATA,
+static size_t _trudpChannelSendPacket(trudpChannelData *tcd,
+                                      trudpPacket *packetDATA,
                                       size_t packetLength,
                                       int save_to_send_queue);
 static void _trudpChannelSetDefaults(trudpChannelData *tcd);
@@ -492,37 +493,37 @@ static void _trudpChannelIncrementStatWriteQueueSize(trudpChannelData *tcd) {
  *
  * @return Zero on error
  */
-static size_t _trudpChannelSendPacket(trudpChannelData *tcd, void *packetDATA,
-                                      size_t packetLength,
+static size_t _trudpChannelSendPacket(trudpChannelData *tcd,
+                                      trudpPacket *packet, size_t packetLength,
                                       int save_to_send_queue) {
 
-  size_t size_sq = trudpSendQueueSize(tcd->sendQueue);
+    size_t size_sq = trudpSendQueueSize(tcd->sendQueue);
 
-  // Save packet to send queue
-  if (save_to_send_queue) {
-    if (size_sq < NORMAL_S_SIZE) {
-      trudpSendQueueAdd(
-          tcd->sendQueue, packetDATA, packetLength,
-          _trudpChannelCalculateExpectedTime(tcd, teoGetTimestampFull(), 0));
-      _trudpChannelIncrementStatSendQueueSize(tcd);
-    } else {
-      void *packetDATAptr = malloc(packetLength);
-      memcpy(packetDATAptr, packetDATA, packetLength);
-      trudpWriteQueueAdd(tcd->writeQueue, NULL, packetDATAptr, packetLength);
-      _trudpChannelIncrementStatWriteQueueSize(tcd);
+    // Save packet to send queue
+    if (save_to_send_queue) {
+        if (size_sq < NORMAL_S_SIZE) {
+            trudpSendQueueAdd(
+                tcd->sendQueue, packet, packetLength,
+                _trudpChannelCalculateExpectedTime(tcd, teoGetTimestampFull(), 0));
+            _trudpChannelIncrementStatSendQueueSize(tcd);
+        } else {
+            void *packetCopy = malloc(packetLength);
+            memcpy(packetCopy, packet, packetLength);
+            trudpWriteQueueAdd(tcd->writeQueue, NULL, packetCopy, packetLength);
+            _trudpChannelIncrementStatWriteQueueSize(tcd);
+        }
     }
-  }
 
-  // Send data (add to write queue)
-  if (!save_to_send_queue || size_sq < NORMAL_S_SIZE) {
-    trudpSendEvent(tcd, PROCESS_SEND, packetDATA, packetLength,
-                   NULL);     // Send packet in trudp event loop
-    tcd->stat.packets_send++; // Send packets statistic
-  }
-  //    else if(save_to_send_queue) trudp_start_send_queue_cb(TD(tcd)->psq_data,
-  //    0);
+    // Send data (add to write queue)
+    if (!save_to_send_queue || size_sq < NORMAL_S_SIZE) {
+        // Send packet to trudp event loop
+        trudpSendEvent(tcd, PROCESS_SEND, packet, packetLength, NULL);
+        tcd->stat.packets_send++; // Send packets statistic
+    }
+    //    else if(save_to_send_queue)
+    //    trudp_start_send_queue_cb(TD(tcd)->psq_data, 0);
 
-  return packetLength;
+    return packetLength;
 }
 
 /**
@@ -536,14 +537,14 @@ size_t trudpChannelSendPING(trudpChannelData *tcd, void *data,
 
   // Create DATA package
   size_t packetLength;
-  void *packetDATA = trudpPacketPINGcreateNew(
+  trudpPacket *packet = trudpPacketPINGcreateNew(
       _trudpChannelGetId(tcd), tcd->channel, data, data_length, &packetLength);
 
   // Send data
-  size_t rv = _trudpChannelSendPacket(tcd, packetDATA, packetLength, 0);
+  size_t rv = _trudpChannelSendPacket(tcd, packet, packetLength, 0);
 
   // Free created packet
-  trudpPacketCreatedFree(packetDATA);
+  trudpPacketCreatedFree(packet);
 
   tcd->lastSentPing = teoGetTimestampFull();
   return rv;
@@ -569,15 +570,15 @@ size_t trudpChannelSendData(trudpChannelData *tcd, void *data,
 
   // Create DATA package
   size_t packetLength;
-  void *packetDATA =
+  trudpPacket *packet =
       trudpPacketDATAcreateNew(_trudpChannelGetNewId(tcd), tcd->channel, data,
                                data_length, &packetLength);
 
   // Send data
-  rv = _trudpChannelSendPacket(tcd, packetDATA, packetLength, 1);
+  rv = _trudpChannelSendPacket(tcd, packet, packetLength, 1);
 
   // Free created packet
-  trudpPacketCreatedFree(packetDATA);
+  trudpPacketCreatedFree(packet);
 
   //    }
 
