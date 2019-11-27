@@ -1,3 +1,12 @@
+**/.libs/
+**/.deps/
+**/*.o
+**/*.Po
+**/*.Plo
+**/*.lo
+**/*.la
+**/.dirstamp
+
 /nbproject/private/
 /autoscan.log
 /configure.scan
@@ -20,8 +29,6 @@
 /po/POTFILES
 /missing
 /docs/
-/src/.libs/
-/src/.deps/
 /src/libtrudp.pc
 /po/Makefile.in
 /po/Makefile
@@ -37,27 +44,16 @@
 /m4/
 /tests/Makefile.in
 /tests/Makefile
-/tests/.libs/
 /tests/trudp_tst
 /examples/Makefile
 /examples/Makefile.in
 /examples/trudpcat_ev
-/examples/.libs/
 
 /config.log
 /repo/
 /Doxyfile.bak
 /trudp_0.*
 /libtrudp_0.*
-*.Po
-*.Plo
-.deps
-/examples/*.o
-/tests/*.o
-/src/*.lo
-/src/*.o
-/src/*.la
-/src/.dirstamp
 /examples/trudp2p
 
 # Visual Studio user-specific files
@@ -68,6 +64,7 @@
 [Dd]ebug/
 [Rr]elease/
 x64/
+build-aux/
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
