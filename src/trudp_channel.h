@@ -154,6 +154,10 @@ typedef struct trudpChannelData {
     size_t read_buffer_size;
     size_t last_packet_ptr;
 
+    // Cached channel unique string key
+    char *channel_key;
+    size_t channel_key_length;
+
 } trudpChannelData;
 
 #ifdef __cplusplus
