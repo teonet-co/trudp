@@ -29,10 +29,11 @@
  * Created on May 30, 2016, 5:47 PM
  */
 
-#ifndef HEADER_H
-#define HEADER_H
+#ifndef PACKET_H
+#define PACKET_H
 
 #include <stdint.h>
+#include <stddef.h>
 
 #include "trudp_api.h"
 
@@ -112,4 +113,4 @@ size_t trudpPacketRESETlength();
 }
 #endif
 
-#endif /* HEADER_H */
+#endif /* PACKET_H */
