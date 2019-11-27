@@ -606,3 +606,16 @@ uint32_t trudpPacketGetTimestamp(trudpPacket *packet) {
   trudpHeader* packet_header = _trudpPacketGetHeader(packet);
   return packet_header->timestamp;
 }
+
+const char *STRING_trudpPacketType(trudpPacketType value) {
+    switch (value) {
+    case TRU_DATA: return "TRU_DATA";
+    case TRU_ACK: return "TRU_ACK";
+    case TRU_RESET: return "TRU_RESET";
+    case TRU_ACK_TRU_RESET: return "TRU_ACK_TRU_RESET";
+    case TRU_PING: return "TRU_PING";
+    case TRU_ACK_PING: return "TRU_ACK_PING";
+    default: break;
+    }
+    return "INVALID trudpPacketType";
+}
