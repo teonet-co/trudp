@@ -574,7 +574,7 @@ char *trudpStatShowQueueStr(trudpChannelData *tcd, int type) {
         "    #   Id          Expected   Retrieves\n"
         "--------------------------------------------------------------\n"
         , !type ? "Send" : "Receive"
-        , !type ? trudpSendQueueSize(tcd->sendQueue) : trudpReceiveQueueSize(tcd->receiveQueue)
+        , (int)(!type ? trudpSendQueueSize(tcd->sendQueue) : trudpReceiveQueueSize(tcd->receiveQueue))
         , !type ? "next id: " : "expected id: "
         , !type ? tcd->sendId : tcd->receiveExpectedId
     );
@@ -591,12 +591,12 @@ char *trudpStatShowQueueStr(trudpChannelData *tcd, int type) {
 
         str = sformatMessage(str,
         "%s"
-        "  %3d   %-8d %8.3f ms   %d\n"
+        "  %3d   %-8u %8.3f ms   %u\n"
         , str
         , i++
         , trudpPacketGetId(tq_packet)
         , !type ? timeout_sq / 1000.0 : 0
-        , !type ? tqd->retrieves : 0
+        , (uint32_t)(!type ? tqd->retrieves : 0)
         );
         if(i > MAX_QUELEN_SHOW) { str = sformatMessage(str, "%s...\n", str); break; }
     }
