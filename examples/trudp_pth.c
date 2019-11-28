@@ -210,13 +210,13 @@ static void event_cb(void *tcd_pointer, int event, void *data, size_t data_lengt
             trudpPacket* packet = (trudpPacket*)data;
 
             debug(tru, DEBUG_MSG,
-                "event got %d byte data at channel %s [%.3f(%.3f) ms], id=%u: %s\n",
-                trudpPacketGetPacketLength(packet),
+                "event got %u byte data at channel %s [%.3f(%.3f) ms], id=%u: %s\n",
+                (uint32_t)trudpPacketGetPacketLength(packet),
                 tcd->channel_key,
                 (double)tcd->triptime / 1000.0,
                 (double)tcd->triptimeMiddle / 1000.0,
                 trudpPacketGetId(packet),
-                trudpPacketGetData(packet));
+                (char*)trudpPacketGetData(packet));
 
             // Add data to read QUEUE
             size_t len = trudpPacketGetPacketLength(packet) + sizeof(tcd);
@@ -461,9 +461,9 @@ void *trudp_recv(trudp_data_t *tru, void **tcd_p, size_t *msg_length) {
         trudpPacket* packet = (trudpPacket*)(rqd->packet_ptr + sizeof(tcd));
 
         void *data = trudpPacketGetData(packet);
-        debug(tru, DEBUG_MSG,  "funct got %d byte data at channel %s, id=%u: %s\n",
-            trudpPacketGetPacketLength(packet),
-            tcd->channel_key, trudpPacketGetId(packet), data);
+        debug(tru, DEBUG_MSG,  "funct got %u byte data at channel %s, id=%u: %s\n",
+            (uint32_t)trudpPacketGetPacketLength(packet),
+            tcd->channel_key, trudpPacketGetId(packet), (char*)data);
 
         if(tcd_p) *tcd_p = tcd;
         if(msg_length) *msg_length = trudpPacketGetPacketLength(packet);
