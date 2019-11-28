@@ -386,8 +386,8 @@ static void eventCb(void *tcd_pointer, int event, void *data, size_t data_length
         case GOT_DATA: {
             trudpPacket* packet = (trudpPacket*)data;
 
-            debug("got %d byte data at channel %s, id=%u: ",
-                trudpPacketGetPacketLength(packet)/*(int)data_length*/,
+            debug("got %u byte data at channel %s, id=%u: ",
+                (uint32_t)trudpPacketGetPacketLength(packet)/*(int)data_length*/,
                 tcd->channel_key, trudpPacketGetId(packet));
 
             if(!o.show_statistic && !o.show_send_queue && !o.show_snake) {
