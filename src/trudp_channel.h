@@ -147,6 +147,13 @@ typedef struct trudpChannelData {
 
     int fd;                     ///< L0 client fd (emulation)
 
+
+    // Buffer for large packet from client
+    void *read_buffer;
+    size_t read_buffer_ptr;
+    size_t read_buffer_size;
+    size_t last_packet_ptr;
+
     // Cached channel unique string key
     char *channel_key;
     size_t channel_key_length;
