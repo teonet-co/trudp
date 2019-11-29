@@ -113,6 +113,10 @@ static void _trudpChannelSetDefaults(trudpChannelData *tcd) {
   tcd->lastReceived = teoGetTimestampFull();
   tcd->lastSentPing = 0;  //  Never sent ping before
   tcd->triptimeMiddle = START_MIDDLE_TIME;
+  tcd->read_buffer = NULL;
+  tcd->read_buffer_ptr = 0;
+  tcd->read_buffer_size = 0;
+  tcd->last_packet_ptr = 0;
 
   // Initialize statistic
   trudpStatChannelInit(tcd);
@@ -127,6 +131,11 @@ static void _trudpChannelFree(trudpChannelData *tcd) {
 
   TD(tcd)->stat.sendQueue.size_current -= trudpSendQueueSize(tcd->sendQueue);
   TD(tcd)->stat.writeQueue.size_current -= trudpWriteQueueSize(tcd->writeQueue);
+
+  if (tcd->read_buffer != NULL) {
+    free(tcd->read_buffer);
+    tcd->read_buffer = NULL;
+  }
 
   trudpSendQueueFree(tcd->sendQueue);
   trudpWriteQueueFree(tcd->writeQueue);
