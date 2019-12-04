@@ -761,8 +761,10 @@ void *trudpChannelProcessReceivedPacket(trudpChannelData *tcd, void *data,
         break;
       }
 
-      // Reset channel if packet id = 0
-      if (!trudpPacketGetId(packet)) {
+      // Reset channel if packet id = 0 and we are waiting for non-zero one
+      // Don't reset in case we waiting for id=1, just skip it to mitigate case
+      // the remote side did not receive our ACK for packet id=0 and sent it again
+      if ((trudpPacketGetId(packet) == 0) && (tcd->receiveExpectedId != 1)) {
 
         // Send Send Reset event
         trudpChannelSendRESET(tcd, NULL, 0);
