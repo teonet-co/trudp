@@ -7,33 +7,37 @@ AM_CFLAGS = -fno-strict-aliasing \
 	-fvisibility=hidden \
 	-I../libs/teobase/include \
 	-I../libs/teoccl/include \
-	-Wpointer-arith
+	-Wpointer-arith \
+	# end of AM_CFLAGS
 
 
 libtrudpincludedir = $(includedir)/libtrudp
 #teobaseinclude = $(libtrudpincludedir)/teobase
 
 libtrudp_la_SOURCES = \
-	packet.c \
-	packet_queue.c \
-	trudp.c \
-	trudp_options.c \
-	trudp_receive_queue.c \
-	trudp_send_queue.c \
-	trudp_channel.c \
-	trudp_utils.c \
-	trudp_stat.c \
-	trudp_ev.c \
-	udp.c \
-	write_queue.c \
-	../libs/teobase/src/teobase/logging.c \
-	../libs/teobase/src/teobase/socket.c \
-	../libs/teobase/src/teobase/time.c \
-	../libs/teoccl/src/teoccl/array_list.c \
-	../libs/teoccl/src/teoccl/hash.c \
-	../libs/teoccl/src/teoccl/map.c \
-	../libs/teoccl/src/teoccl/memory.c \
-	../libs/teoccl/src/teoccl/queue.c
+    packet.c \
+    packet_queue.c \
+    trudp.c \
+    trudp_options.c \
+    trudp_receive_queue.c \
+    trudp_send_queue.c \
+    trudp_channel.c \
+    trudp_utils.c \
+    trudp_stat.c \
+    trudp_ev.c \
+    udp.c \
+    write_queue.c \
+    \
+    ../libs/teobase/src/teobase/logging.c \
+    ../libs/teobase/src/teobase/socket.c \
+    ../libs/teobase/src/teobase/time.c \
+    \
+    ../libs/teoccl/src/teoccl/array_list.c \
+    ../libs/teoccl/src/teoccl/hash.c \
+    ../libs/teoccl/src/teoccl/map.c \
+    ../libs/teoccl/src/teoccl/memory.c \
+    ../libs/teoccl/src/teoccl/queue.c \
+    # end of libtrudp_la_SOURCES
 
 
 teobasedir = $(pkgincludedir)/teobase
@@ -52,7 +56,8 @@ nobase_libtrudpinclude_HEADERS = \
 	trudp_stat.h \
 	trudp_ev.h \
 	udp.h \
-	write_queue.h
+	write_queue.h \
+	# end of nobase_libtrudpinclude_HEADERS
 
 teobase_HEADERS = \
 	$(top_srcdir)/libs/teobase/include/teobase/logging.h \
@@ -62,7 +67,8 @@ teobase_HEADERS = \
 	$(top_srcdir)/libs/teoccl/include/teoccl/hash.h \
 	$(top_srcdir)/libs/teoccl/include/teoccl/map.h \
 	$(top_srcdir)/libs/teoccl/include/teoccl/memory.h \
-	$(top_srcdir)/libs/teoccl/include/teoccl/queue.h
+	$(top_srcdir)/libs/teoccl/include/teoccl/queue.h \
+	# end of teobase_HEADERS
 
 
 libteoccl_la_CFLAGS = -I$(top_srcdir)/src -I$(top_srcdir)/libs/teoccl/include
