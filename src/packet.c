@@ -29,6 +29,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "packet.h"
 
@@ -605,6 +606,19 @@ static inline void _trudpPacketSetType(trudpPacket *packet, trudpPacketType mess
 uint32_t trudpPacketGetTimestamp(trudpPacket *packet) {
   trudpHeader* packet_header = _trudpPacketGetHeader(packet);
   return packet_header->timestamp;
+}
+
+void trudpPacketHeaderDump(char *buffer, size_t buffer_len, trudpPacket *packet) {
+    trudpHeader *header = _trudpPacketGetHeader(packet);
+    snprintf(buffer, buffer_len,
+             "checksum=%u, version=%u, message_type=%s (%u), channel=%u, "
+             "payload_length=%u, id=%u, timestamp=%u\n",
+             (uint32_t)header->checksum, (uint32_t)header->version,
+             STRING_trudpPacketType((trudpPacketType)header->message_type),
+             (uint32_t)header->message_type, (uint32_t)header->channel,
+             (uint32_t)header->payload_length, (uint32_t)header->id,
+             (uint32_t)header->timestamp
+    );
 }
 
 const char *STRING_trudpPacketType(trudpPacketType value) {
