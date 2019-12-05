@@ -37,8 +37,13 @@ libtrudp_la_SOURCES = \
     ../libs/teoccl/src/teoccl/map.c \
     ../libs/teoccl/src/teoccl/memory.c \
     ../libs/teoccl/src/teoccl/queue.c \
+    # ../libs/teoccl/src/teoccl/deque.c \
+    # ../libs/teoccl/src/teoccl/linked_list.c \
+    # ../libs/teoccl/src/teoccl/list.c \
+    # ../libs/teoccl/src/teoccl/que.c \
+    # ../libs/teoccl/src/teoccl/stack.c \
     # end of libtrudp_la_SOURCES
-
+#  ^^^^ Some containers are not production ready yet ^^^
 
 teobasedir = $(pkgincludedir)/teobase
 
