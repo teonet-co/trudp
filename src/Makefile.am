@@ -5,8 +5,8 @@ AM_CFLAGS = -fno-strict-aliasing \
 	-fPIC \
 	-DUSE_LIBEV \
 	-fvisibility=hidden \
-    	-I../libs/teobase/include \
-    	-I../libs/teoccl/include \
+	-I../libs/teobase/include \
+	-I../libs/teoccl/include \
 	-Wpointer-arith
 
 
@@ -17,6 +17,7 @@ libtrudp_la_SOURCES = \
 	packet.c \
 	packet_queue.c \
 	trudp.c \
+	trudp_options.c \
 	trudp_receive_queue.c \
 	trudp_send_queue.c \
 	trudp_channel.c \
@@ -25,24 +26,25 @@ libtrudp_la_SOURCES = \
 	trudp_ev.c \
 	udp.c \
 	write_queue.c \
-    ../libs/teobase/src/teobase/logging.c \
-    ../libs/teobase/src/teobase/socket.c \
-    ../libs/teobase/src/teobase/time.c \
-    ../libs/teoccl/src/teoccl/array_list.c \
-    ../libs/teoccl/src/teoccl/hash.c \
-    ../libs/teoccl/src/teoccl/map.c \
-    ../libs/teoccl/src/teoccl/memory.c \
-    ../libs/teoccl/src/teoccl/queue.c
+	../libs/teobase/src/teobase/logging.c \
+	../libs/teobase/src/teobase/socket.c \
+	../libs/teobase/src/teobase/time.c \
+	../libs/teoccl/src/teoccl/array_list.c \
+	../libs/teoccl/src/teoccl/hash.c \
+	../libs/teoccl/src/teoccl/map.c \
+	../libs/teoccl/src/teoccl/memory.c \
+	../libs/teoccl/src/teoccl/queue.c
 
 
 teobasedir = $(pkgincludedir)/teobase
-  
+
 #pkginclude_HEADERS =
 
 nobase_libtrudpinclude_HEADERS = \
 	packet.h \
 	packet_queue.h \
 	trudp.h \
+	trudp_options.h \
 	trudp_receive_queue.h \
 	trudp_send_queue.h \
 	trudp_channel.h \

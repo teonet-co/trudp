@@ -26,6 +26,7 @@
  * UDP client server helper module
  */
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
@@ -38,8 +39,12 @@
 
 #include "udp.h"
 #include "trudp_utils.h"
+#include "trudp_options.h"
 
-#define h_addr h_addr_list[0]
+#include "teobase/logging.h"
+
+// Global teocli options
+extern bool trudpOpt_DBG_sendto;
 
 // UDP / UDT functions
 #define _trudpUdpSocket(domain, type, protocol) socket(domain, type, protocol)
@@ -105,7 +110,7 @@ static void _trudpUdpHostToIp(struct sockaddr_in *remaddr, const char *server) {
         if (hostp == NULL) {
             // ...
         } else {
-            memcpy(&remaddr->sin_addr, hostp->h_addr, sizeof(remaddr->sin_addr));
+            memcpy(&remaddr->sin_addr, hostp->h_addr_list[0], sizeof(remaddr->sin_addr));
         }
     }
 }
@@ -293,6 +298,9 @@ static int _trudpUdpIsWritable(int sd, uint32_t timeOut) {
  ssize_t trudpUdpSendto(int fd, void *buffer, size_t buffer_size,
         __CONST_SOCKADDR_ARG remaddr, socklen_t addrlen) {
 
+    CLTRACK(trudpOpt_DBG_sendto, "TrUdp", "Sending %u bytes using sendto().",
+             (uint32_t)buffer_size);
+
     ssize_t sendlen = 0;
 
     //if(waitSocketWriteAvailable(fd, 1000000) > 0) {
@@ -301,6 +309,17 @@ static int _trudpUdpIsWritable(int sd, uint32_t timeOut) {
     int flags = 0;
     sendlen = sendto(fd, buffer, buffer_size, flags, remaddr, addrlen);
     //}
+
+    if (sendlen == -1) {
+        int err = errno;
+        LTRACK_E("TrUdp",
+                 "Sending %u bytes using sendto() failed with error %d.",
+                 (uint32_t)buffer_size, err);
+    } else if ((size_t)sendlen != buffer_size) {
+        LTRACK_E("TrUdp",
+                 "Sending using sendto() sent only %u bytes of %u.",
+                 (uint32_t)sendlen, (uint32_t)buffer_size);
+    }
 
     return sendlen;
 }
