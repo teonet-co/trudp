@@ -26,6 +26,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 
 #include "teobase/logging.h"
@@ -63,6 +64,9 @@ static size_t _trudpChannelSendPacket(trudpChannelData *tcd,
                                       int save_to_send_queue);
 static void _trudpChannelSetDefaults(trudpChannelData *tcd);
 static void _trudpChannelSetLastReceived(trudpChannelData *tcd);
+
+// importing debug option flag
+extern bool trudpOpt_DBG_dumpDataPacketHeaders;
 
 void trudp_ChannelSendReset(trudpChannelData *tcd) {
   trudpChannelSendRESET(tcd, NULL, 0);
@@ -704,6 +708,12 @@ void *trudpChannelProcessReceivedPacket(trudpChannelData *tcd, void *data,
 
       // Create ACK packet and send it back to sender
       _trudpChannelSendACK(tcd, packet);
+
+      if (trudpOpt_DBG_dumpDataPacketHeaders) {
+        char buffer[8192];
+        trudpPacketHeaderDump(buffer, sizeof(buffer), packet);
+        LTRACK_I("TrudpChannel", "%s", buffer);
+      }
 
       // Reset when wait packet with id 0 and receive packet with
       // another id

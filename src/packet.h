@@ -108,6 +108,7 @@ trudpPacket* trudpPacketPINGcreateNew(uint32_t id, unsigned int channel, void *d
                                size_t data_length, size_t *packetLength);
 trudpPacket* trudpPacketRESETcreateNew(uint32_t id, unsigned int channel);
 size_t trudpPacketRESETlength();
+TRUDP_API void trudpPacketHeaderDump(char *buffer, size_t buffer_len, trudpPacket *packet);
 
 const char *STRING_trudpPacketType(trudpPacketType value);
 

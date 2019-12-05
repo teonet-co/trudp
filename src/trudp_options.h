@@ -21,6 +21,13 @@ extern "C" {
  */
 TRUDP_API void trudpSetOption_DBG_sendto(bool enable);
 
+/**
+ * Enable dumping incoming packet headers
+ *
+ * @param enable - boolean, should we dump headers of received packets
+ */
+TRUDP_API void trudpSetOption_DBG_dumpDataPacketHeaders(bool enable);
+
 #ifdef __cplusplus
 }
 #endif
