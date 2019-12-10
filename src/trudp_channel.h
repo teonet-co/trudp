@@ -133,6 +133,7 @@ typedef struct trudpChannelData {
     trudpReceiveQueue *receiveQueue; ///< Pointer to recive queue trudpReceiveQueue
     int outrunning_cnt; ///< Receive queue outrunning count
     uint64_t lastReceived; ///< Last received time
+    bool zero_tolerance_f;           ///< behave tolerant to init packets
 
     // Link to parent trudpData
     void *td; ///< Pointer to trudpData
