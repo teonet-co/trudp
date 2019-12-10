@@ -33,6 +33,7 @@
 #define TRUDP_CHANNEL_H
 
 #include <stdint.h>
+#include <stdbool.h>
 #include <stddef.h>
 
 #if defined(HAVE_MINGW) || defined(_WIN32)
