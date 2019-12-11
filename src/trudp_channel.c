@@ -510,7 +510,7 @@ static size_t _trudpChannelSendPacket(trudpChannelData *tcd,
     int sendNowFlag = size_sq < NORMAL_S_SIZE;
     if(size_sq == 1) {
       trudpSendQueueData *data = trudpSendQueueGetFirst(tcd->sendQueue);
-      if(trudpPacketGetId(data->packet) == 0) sendNowFlag = 0;
+      if(trudpPacketGetId((trudpPacket *)data->packet) == 0) sendNowFlag = 0;
     }
 
     // Save packet to send queue
