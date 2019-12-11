@@ -507,9 +507,15 @@ static size_t _trudpChannelSendPacket(trudpChannelData *tcd,
                                       int save_to_send_queue) {
     size_t size_sq = trudpSendQueueSize(tcd->sendQueue);
 
+    int sendNowFlag = size_sq < NORMAL_S_SIZE;
+    if(size_sq == 1) {
+      trudpSendQueueData *data = trudpSendQueueGetFirst(tcd->sendQueue);
+      if(trudpPacketGetId(data->packet) == 0) sendNowFlag = 0;
+    }
+
     // Save packet to send queue
     if (save_to_send_queue) {
-        if (size_sq < NORMAL_S_SIZE) {
+        if (sendNowFlag) {
             trudpSendQueueAdd(
                 tcd->sendQueue, packet, packetLength,
                 _trudpChannelCalculateExpectedTime(tcd, teoGetTimestampFull(), 0));
@@ -523,7 +529,7 @@ static size_t _trudpChannelSendPacket(trudpChannelData *tcd,
     }
 
     // Send data (add to write queue)
-    if (!save_to_send_queue || size_sq < NORMAL_S_SIZE) {
+    if (!save_to_send_queue || sendNowFlag) {
         // Send packet to trudp event loop
         trudpSendEvent(tcd, PROCESS_SEND, packet, packetLength, NULL);
         tcd->stat.packets_send++; // Send packets statistic
