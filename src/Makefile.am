@@ -29,6 +29,7 @@ libtrudp_la_SOURCES = \
     write_queue.c \
     \
     ../libs/teobase/src/teobase/logging.c \
+    ../libs/teobase/src/teobase/mutex.c \
     ../libs/teobase/src/teobase/socket.c \
     ../libs/teobase/src/teobase/time.c \
     \
@@ -65,9 +66,14 @@ nobase_libtrudpinclude_HEADERS = \
 	# end of nobase_libtrudpinclude_HEADERS
 
 teobase_HEADERS = \
+	$(top_srcdir)/libs/teobase/include/teobase/api.h \
 	$(top_srcdir)/libs/teobase/include/teobase/logging.h \
+	$(top_srcdir)/libs/teobase/include/teobase/mutex.h \
+	$(top_srcdir)/libs/teobase/include/teobase/platform.h \
 	$(top_srcdir)/libs/teobase/include/teobase/socket.h \
 	$(top_srcdir)/libs/teobase/include/teobase/time.h \
+	$(top_srcdir)/libs/teobase/include/teobase/windows.h \
+	\
 	$(top_srcdir)/libs/teoccl/include/teoccl/array_list.h \
 	$(top_srcdir)/libs/teoccl/include/teoccl/hash.h \
 	$(top_srcdir)/libs/teoccl/include/teoccl/map.h \
