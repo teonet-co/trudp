@@ -66,7 +66,7 @@ extern bool trudpOpt_DBG_echoKeepalivePing;
  * @param event_cb Event callback
  * @param user_data User data which will send to most library function
  *
- * @return
+ * @return New istance of trudpData
  */
 trudpData *trudpInit(int fd, int port, trudpEventCb event_cb, void *user_data) {
 
@@ -98,7 +98,7 @@ trudpData *trudpInit(int fd, int port, trudpEventCb event_cb, void *user_data) {
 /**
  * Destroy TR-UDP
  *
- * @param trudp
+ * @param td Pointer to trudpData
  */
 void trudpDestroy(trudpData* td) {
 
@@ -164,10 +164,10 @@ void *trudpSendEventGotData(void *t_pointer, trudpPacket *packet,
 /**
  * Destroy all trudp channels
  *
- * @param tcd Pointer to trudpData
+ * @param td Pointer to trudpData
  */
 void trudpChannelDestroyAll(trudpData *td) {
-    int counter = teoMapSize(td->map);
+    size_t counter = teoMapSize(td->map);
     while (counter) {
         size_t data_len = 0;
         trudpChannelData *tcd = (trudpChannelData *)teoMapGetFirst(td->map, &data_len);
@@ -198,7 +198,7 @@ void trudpChannelDestroyAddr(trudpData *td, char *addr, int port, int channel) {
 /**
  * Create RESET packet and send it to all channels
  *
- * @param td
+ * @param td Pointer to trudpData
  */
 void trudpSendResetAll(trudpData *td) {
 
@@ -229,9 +229,9 @@ int trudpIsPacketPing(void *data, size_t packet_length) {
 /**
  * Default TR-UDP process received from UDP data
  *
- * @param td
- * @param data
- * @param data_length
+ * @param td Pointer to trudpData
+ * @param data Received data
+ * @param data_length The length in bytes of received data
  */
 void trudpProcessReceived(trudpData *td, void *data, size_t data_length) {
 
@@ -297,7 +297,7 @@ size_t trudpSendDataToAll(trudpData *td, void *data, size_t data_length) {
 /**
  * Keep connection at idle line
  *
- * @param td
+ * @param td Pointer to trudpData
  * @return
  */
 size_t trudpProcessKeepConnection(trudpData *td) {
@@ -408,8 +408,7 @@ trudpChannelData *trudpGetChannel(trudpData *td, __CONST_SOCKADDR_ARG addr,
  * not exists
  *
  * @param td Pointer to trudpData
- * @param remaddr Pointer to sockaddr_in remote address
- * @param addr_length Remote address length
+ * @param addr Pointer to sockaddr_in remote address
  * @param channel TR-UDP channel
  *
  * @return Pointer to trudpChannelData or (void*)-1 at error
@@ -437,7 +436,7 @@ trudpChannelData *trudpGetChannelCreate(trudpData *td, __CONST_SOCKADDR_ARG addr
 /**
  * Get minimum timeout from all trudp cannel send queue
  *
- * @param td
+ * @param td Pointer to trudpData
  * @param current_time Timestamp, usually current time
  *
  * @return Minimum timeout or UINT32_MAX if send queue is empty
@@ -577,8 +576,8 @@ size_t trudpProcessWriteQueue(trudpData *td) {
 /**
  * Get number of elements in all Write queues
  *
- * @param td
- * @return
+ * @param td Pointer to trudpData
+ * @return Amount of elements in all write queues
  */
 size_t trudpGetWriteQueueSize(trudpData *td) {
 
@@ -600,8 +599,8 @@ size_t trudpGetWriteQueueSize(trudpData *td) {
 /**
  * Get printable for trudpEvent enum
  *
- * @param val
- * @return
+ * @param val Value of trudpEvent enumeration
+ * @return String representation of @a val
  */
 const char *STRING_trudpEvent(trudpEvent val) {
   switch (val) {

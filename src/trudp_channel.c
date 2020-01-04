@@ -93,7 +93,7 @@ static trudpChannelData *_trudpChannelAddToMap(trudpData *td,
  * Get channel send queue timeout
  *
  * @param tcd Pointer to trudpChannelData
- * @param ts Current time
+ * @param current_t Current time
  *
  * @return Send queue timeout (may by 0) or UINT32_MAX if send queue is empty
  */
@@ -106,7 +106,7 @@ uint32_t trudpChannelSendQueueGetTimeout(trudpChannelData *tcd,
 /**
  * Set default trudpChannelData values
  *
- * @param tcd
+ * @param tcd Pointer to trudpChannelData
  */
 static void _trudpChannelSetDefaults(trudpChannelData *tcd) {
 
@@ -306,7 +306,7 @@ char *trudpChannelMakeKey(trudpChannelData *tcd) {
  *
  * @param tcd Pointer to trudpChannelData
  * @param ts Current timestamp
- * @return
+ * @return -1 if disconnected event was sent, 0 otherwise
  */
 int trudpChannelCheckDisconnected(trudpChannelData *tcd, uint64_t ts) {
 
@@ -331,7 +331,7 @@ int trudpChannelCheckDisconnected(trudpChannelData *tcd, uint64_t ts) {
 /**
  * Calculate Triptime
  *
- * @param tcd
+ * @param tcd Pointer to trudpChannelData
  * @param packet
  * @param send_data_length
  */
@@ -370,7 +370,7 @@ static void _trudpChannelCalculateTriptime(trudpChannelData *tcd, void *packet,
 /**
  * Set last received field to current timestamp
  *
- * @param tcd
+ * @param tcd Pointer to trudpChannelData
  */
 static void _trudpChannelSetLastReceived(trudpChannelData *tcd) {
   tcd->lastReceived = teoGetTimestampFull();
@@ -461,7 +461,7 @@ void trudpChannelSendRESET(trudpChannelData *tcd, void *data,
 /**
  * Calculate ACK Expected Time
  *
- * @param td Pointer to trudpChannelData
+ * @param tcd Pointer to trudpChannelData
  * @param current_time Current time (nSec)
  * @param retransmit This is retransmitted
  *
@@ -497,9 +497,9 @@ static void _trudpChannelIncrementStatWriteQueueSize(trudpChannelData *tcd) {
 /**
  * Send packet
  *
- * @param td Pointer to trudpChannelData
- * @param data Pointer to send data
- * @param data_length Data length
+ * @param tcd Pointer to trudpChannelData
+ * @param packet Pointer to send data
+ * @param packetLength Data length
  * @param save_to_send_queue Save to send queue if true
  *
  * @return Zero on error

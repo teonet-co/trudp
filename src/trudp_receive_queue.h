@@ -58,14 +58,14 @@ trudpReceiveQueue *trudpReceiveQueueNew();
 /**
  * Destroy Receive queue
  *
- * @param sq Pointer to trudpReceiveQueue
+ * @param rq Pointer to trudpReceiveQueue
  */
 
 void trudpReceiveQueueDestroy(trudpReceiveQueue *rq); 
 /**
  * Remove all elements from Receive queue
  *
- * @param sq Pointer to Receive Queue (trudpReceiveQueue)
+ * @param rq Pointer to Receive Queue (trudpReceiveQueue)
  * @return Zero at success
  */
 
