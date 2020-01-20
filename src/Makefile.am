@@ -12,7 +12,6 @@ AM_CFLAGS = -fno-strict-aliasing \
 
 
 libtrudpincludedir = $(includedir)/libtrudp
-#teobaseinclude = $(libtrudpincludedir)/teobase
 
 libtrudp_la_SOURCES = \
     packet.c \
@@ -47,6 +46,7 @@ libtrudp_la_SOURCES = \
 #  ^^^^ Some containers are not production ready yet ^^^
 
 teobasedir = $(pkgincludedir)/teobase
+teoccldir = $(pkgincludedir)/teoccl
 
 #pkginclude_HEADERS =
 
@@ -73,13 +73,14 @@ teobase_HEADERS = \
 	$(top_srcdir)/libs/teobase/include/teobase/socket.h \
 	$(top_srcdir)/libs/teobase/include/teobase/time.h \
 	$(top_srcdir)/libs/teobase/include/teobase/windows.h \
-	\
+	# end of teobase_HEADERS
+teoccl_HEADERS = \
 	$(top_srcdir)/libs/teoccl/include/teoccl/array_list.h \
 	$(top_srcdir)/libs/teoccl/include/teoccl/hash.h \
 	$(top_srcdir)/libs/teoccl/include/teoccl/map.h \
 	$(top_srcdir)/libs/teoccl/include/teoccl/memory.h \
 	$(top_srcdir)/libs/teoccl/include/teoccl/queue.h \
-	# end of teobase_HEADERS
+	# end of teoccl_HEADERS
 
 
 libteoccl_la_CFLAGS = -I$(top_srcdir)/src -I$(top_srcdir)/libs/teoccl/include
@@ -87,4 +88,5 @@ libtrudp_la_LDFLAGS = -version-info $(LIBRARY_CURRENT):$(LIBRARY_REVISION):$(LIB
 
 uninstall-hook:
 	-rmdir $(teobasedir)
+	-rmdir $(teoccldir)
 	-rmdir $(libtrudpincludedir)
