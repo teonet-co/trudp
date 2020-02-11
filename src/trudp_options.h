@@ -63,6 +63,13 @@ TRUDP_API void trudpSetOption_CORE_keepaliveNextPingDelayMs(int64_t delay);
  */
 TRUDP_API void trudpSetOption_CORE_disconnectTimeoutDelayMs(int64_t timeout_ms);
 
+/**
+ * Enable dumping of received and sent packets.
+ *
+ * @param enable - if true, enable dump.
+ */
+TRUDP_API void trudpSetOption_DBG_dumpUdpData(bool enable);
+
 #ifdef __cplusplus
 }
 #endif

@@ -93,3 +93,11 @@ void trudpSetOption_CORE_disconnectTimeoutDelayMs(int64_t timeout_ms) {
     LTRACK_I("Trudp", "Changed disconnect timeout to %fsec",
              trudpOpt_CORE_disconnectTimeoutDelay_us / 1000000.0f);
 }
+
+extern bool trudpOpt_DBG_dumpUdpData;
+bool trudpOpt_DBG_dumpUdpData = false;
+
+// Enable dumping of received and sent packets.
+void trudpSetOption_DBG_dumpUdpData(bool enable) {
+    trudpOpt_DBG_dumpUdpData = enable;
+}
