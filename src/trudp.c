@@ -40,6 +40,7 @@
 #include "packet.h"
 #include "trudp_stat.h"
 #include "packet_queue.h"
+#include <teobase/logging.h>
 
 // Local functions
 
@@ -49,6 +50,9 @@ static size_t trudp_SendQueueSize(trudpData *td);
 static size_t trudp_SendQueueGetSizeMax(trudpData *td);
 #endif
 
+extern int64_t trudpOpt_CORE_keepaliveFirstPingDelay_us;
+extern int64_t trudpOpt_CORE_keepaliveNextPingDelay_us;
+extern bool trudpOpt_DBG_echoKeepalivePing;
 
 // Basic module functions ====================================================
 
@@ -311,13 +315,16 @@ size_t trudpProcessKeepConnection(trudpData *td) {
             if (tcd->connected_f) {
                 uint32_t sinceReceived = ts - tcd->lastReceived;
                 uint32_t sincePing = ts - tcd->lastSentPing;
-                if (sinceReceived > KEEPALIVE_PING_DELAY) {
+                if (sinceReceived > trudpOpt_CORE_keepaliveFirstPingDelay_us) {
                     if(trudpChannelCheckDisconnected(tcd, ts) == -1) {
                         rv = -1;
                         break;
                     }
-                    if (sincePing > KEEPALIVE_PING_DELAY) {
+                    if (sincePing > trudpOpt_CORE_keepaliveNextPingDelay_us) {
                         trudpChannelSendPING(tcd, "PING", 5);
+                        CLTRACK_I(trudpOpt_DBG_echoKeepalivePing, "Trudp",
+                                  "Sent keepalive ping to %s",
+                                  tcd->channel_key);
                     }
                     rv++;
                 }
