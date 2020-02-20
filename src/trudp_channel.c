@@ -67,6 +67,7 @@ static void _trudpChannelSetLastReceived(trudpChannelData *tcd);
 
 // importing debug option flag
 extern bool trudpOpt_DBG_dumpDataPacketHeaders;
+extern int64_t trudpOpt_CORE_disconnectTimeoutDelay_us;
 
 void trudp_ChannelSendReset(trudpChannelData *tcd) {
   trudpChannelSendRESET(tcd, NULL, 0);
@@ -310,7 +311,8 @@ char *trudpChannelMakeKey(trudpChannelData *tcd) {
 int trudpChannelCheckDisconnected(trudpChannelData *tcd, uint64_t ts) {
 
   // Disconnect channel at long last receive
-  if (tcd->lastReceived && ts - tcd->lastReceived > MAX_LAST_RECEIVE) {
+  if (tcd->lastReceived &&
+      ts - tcd->lastReceived > trudpOpt_CORE_disconnectTimeoutDelay_us) {
 
     //        log_info("TrUdp", "trudpSendEvent DISCONNECTED in
     //        trudpChannelCheckDisconnected");
@@ -907,7 +909,7 @@ int trudpChannelSendQueueProcess(trudpChannelData *tcd, uint64_t ts,
 
 // \todo Reset this channel at long retransmit
 #if RESET_AT_LONG_RETRANSMIT
-    if (ts - tqd->retrieves_start > MAX_LAST_RECEIVE) {
+    if (ts - tqd->retrieves_start > trudpOpt_CORE_disconnectTimeoutDelay_us) {
       trudpChannelSendRESET(tcd, NULL, 0);
     } else {
 #endif
