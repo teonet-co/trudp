@@ -9,7 +9,7 @@ jobs:
   un-tagged-build:
     #machine: true
     docker: # run the steps with Docker
-      - image: gitlab.ksproject.org:5000/ci/ubuntu_teonet
+      - image: buildpack-deps:bionic
     steps:
       - checkout
       - run: git submodule update --init --recursive
@@ -20,11 +20,10 @@ jobs:
       - run: echo $CIRCLE_TAG
       
       # Install dependences   
-      #- run: ci-build-data/build-ubuntu.sh
-      - run: sudo apt-get install -y libcunit1-dev cpputest
+      - run: apt update && apt install -y libev-dev libcunit1-dev cpputest
       # Make  
-      - run: ./autogen.sh --prefix=/usr
-      - run: make
+      - run: ./autogen.sh
+      - run: ./configure CPPFLAGS=-DNDEBUG && make
       # Test
       - run: make test
       
@@ -40,7 +39,7 @@ jobs:
   tagged-build:
     #machine: true
     docker: # run the steps with Docker
-      - image: gitlab.ksproject.org:5000/ci/ubuntu_teonet
+      - image: buildpack-deps:bionic
     steps:
       - checkout
       - run: git submodule update --init --recursive
@@ -51,10 +50,10 @@ jobs:
       - run: echo $CIRCLE_TAG
 
       # Install dependences   
-      - run: ci-build-data/build-ubuntu.sh
+      - run: apt update && apt install -y libev-dev libcunit1-dev cpputest
       # Make  
-      - run: ./autogen.sh --prefix=/usr
-      - run: make
+      - run: ./autogen.sh
+      - run: ./configure CPPFLAGS=-DNDEBUG && make
       # Test
       - run: make test
       
