@@ -42,8 +42,8 @@
 
 #include "teobase/types.h"
 
-#include "teobase/platform.h"
 #include "teobase/logging.h"
+#include "teobase/platform.h"
 
 #include "trudp_utils.h"
 #include "trudp_options.h"
@@ -51,6 +51,8 @@
 // Global teocli options
 extern bool trudpOpt_DBG_sendto;
 extern bool trudpOpt_DBG_dumpUdpData;
+extern trudpUdpDataSentCallback_t trudpOpt_STAT_udpDataSentCallback;
+extern trudpUdpDataReceivedCallback_t trudpOpt_STAT_udpDataReceivedCallback;
 
 // UDP / UDT functions
 #define _trudpUdpSocket(domain, type, protocol) socket(domain, type, protocol)
@@ -60,6 +62,8 @@ extern bool trudpOpt_DBG_dumpUdpData;
 // Local functions
 static void _trudpUdpHostToIp(struct sockaddr_in *remaddr, const char *server);
 static void _trudpUdpSetNonblock(int fd);
+static void _trudpCallUdpDataSentCallback(int bytes_sent);
+static void _trudpCallUdpDataReceivedCallback(int bytes_received);
 #ifdef RESERVED
 static int  _trudpUdpIsReadable(int sd, uint32_t timeOut);
 static int  _trudpUdpIsWritable(int sd, uint32_t timeOut);
@@ -118,6 +122,24 @@ static void _trudpUdpHostToIp(struct sockaddr_in *remaddr, const char *server) {
         } else {
             memcpy(&remaddr->sin_addr, hostp->h_addr_list[0], sizeof(remaddr->sin_addr));
         }
+    }
+}
+
+void _trudpCallUdpDataSentCallback(int bytes_sent) {
+    trudpUdpDataSentCallback_t callback_copy =
+        trudpOpt_STAT_udpDataSentCallback;
+
+    if (callback_copy != NULL) {
+        callback_copy(bytes_sent);
+    }
+}
+
+void _trudpCallUdpDataReceivedCallback(int bytes_received) {
+    trudpUdpDataReceivedCallback_t callback_copy =
+        trudpOpt_STAT_udpDataReceivedCallback;
+
+    if (callback_copy != NULL) {
+        callback_copy(bytes_received);
     }
 }
 
@@ -275,6 +297,8 @@ ssize_t trudpUdpRecvfrom(int fd, uint8_t* buffer, size_t buffer_size,
                    "Received %u bytes using recvfrom() starting with %s",
                    (uint32_t)recvlen, hexdump);
         }
+
+        _trudpCallUdpDataReceivedCallback(recvlen);
     }
 
     return recvlen;
@@ -382,6 +406,8 @@ static int _trudpUdpIsWritable(int sd, uint32_t timeOut) {
         LTRACK_E("TrUdp",
                  "Sending using sendto() sent only %u bytes of %u.",
                  (uint32_t)sendlen, (uint32_t)buffer_size);
+    } else {
+        _trudpCallUdpDataSentCallback(sendlen);
     }
 
     return sendlen;

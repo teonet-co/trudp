@@ -101,3 +101,21 @@ bool trudpOpt_DBG_dumpUdpData = false;
 void trudpSetOption_DBG_dumpUdpData(bool enable) {
     trudpOpt_DBG_dumpUdpData = enable;
 }
+
+extern trudpUdpDataSentCallback_t trudpOpt_STAT_udpDataSentCallback;
+trudpUdpDataSentCallback_t trudpOpt_STAT_udpDataSentCallback = NULL;
+
+// Set callback function that get called when data sent to udp socket.
+void trudpSetOption_STAT_udpBytesSentCallback(
+        trudpUdpDataSentCallback_t callback) {
+    trudpOpt_STAT_udpDataSentCallback = callback;
+}
+
+extern trudpUdpDataReceivedCallback_t trudpOpt_STAT_udpDataReceivedCallback;
+trudpUdpDataReceivedCallback_t trudpOpt_STAT_udpDataReceivedCallback = NULL;
+
+// Set callback function that get called when data received from udp socket.
+void trudpSetOption_STAT_udpBytesReceivedCallback(
+        trudpUdpDataReceivedCallback_t callback) {
+    trudpOpt_STAT_udpDataReceivedCallback = callback;
+}

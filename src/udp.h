@@ -76,7 +76,6 @@ TRUDP_API ssize_t trudpUdpRecvfrom(int fd, uint8_t* buffer, size_t buffer_size,
 TRUDP_API int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr,
         socklen_t *addr_len);
 
-
 #ifdef __cplusplus
 }
 #endif
