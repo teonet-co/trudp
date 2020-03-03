@@ -24,6 +24,7 @@
 
 // Channel functions ==========================================================
 
+#include <inttypes.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -611,10 +612,12 @@ size_t trudpChannelSendData(trudpChannelData *tcd, void *data,
  *         *data_length, if packet is not TR-UDP packet it's sent to client as
  * is
  */
+
 void *trudpChannelProcessReceivedPacket(trudpChannelData *tcd, void *data,
                                         size_t packet_length,
                                         size_t *data_length) {
 
+  int64_t saved_time = teotimeGetCurrentTimeMs();
   void *received_data = NULL;
   *data_length = 0;
 
@@ -658,6 +661,10 @@ void *trudpChannelProcessReceivedPacket(trudpChannelData *tcd, void *data,
       // Calculate triptime
       _trudpChannelCalculateTriptime(tcd, packet, send_data_length);
       _trudpChannelSetLastReceived(tcd);
+  int64_t time = teotimeGetTimePassedMs(saved_time);
+  if (time > 3) {
+    printf(" TRU_ACK %" PRId64 " %d\n", teotimeGetTimePassedMs(saved_time), __LINE__);
+  }
     } break;
 
     // ACK to RESET packet received
@@ -673,6 +680,10 @@ void *trudpChannelProcessReceivedPacket(trudpChannelData *tcd, void *data,
       tcd->stat.ack_receive++;
       _trudpChannelSetLastReceived(tcd);
 
+  int64_t time = teotimeGetTimePassedMs(saved_time);
+  if (time > 3) {
+    printf(" TRU_ACK|RESET %" PRId64 " %d\n", teotimeGetTimePassedMs(saved_time), __LINE__);
+  }
     } break;
 
     // ACK to PING packet received
@@ -686,6 +697,10 @@ void *trudpChannelProcessReceivedPacket(trudpChannelData *tcd, void *data,
       trudpSendEvent(tcd, GOT_ACK_PING, trudpPacketGetData(packet),
                      trudpPacketGetDataLength(packet), NULL);
 
+  int64_t time = teotimeGetTimePassedMs(saved_time);
+  if (time > 3) {
+    printf(" TRU_ACK|PING %" PRId64 " %d\n", teotimeGetTimePassedMs(saved_time), __LINE__);
+  }
     } break;
 
     // PING packet received
@@ -707,6 +722,10 @@ void *trudpChannelProcessReceivedPacket(trudpChannelData *tcd, void *data,
 
       tcd->outrunning_cnt = 0; // Reset outrunning flag
 
+  int64_t time = teotimeGetTimePassedMs(saved_time);
+  if (time > 3) {
+    printf(" PING %" PRId64 " %d\n", teotimeGetTimePassedMs(saved_time), __LINE__);
+  }
     } break;
 
     // DATA packet received
@@ -729,6 +748,10 @@ void *trudpChannelProcessReceivedPacket(trudpChannelData *tcd, void *data,
         uint32_t id = trudpPacketGetId(packet);
         trudpSendEvent(tcd, SEND_RESET, NULL, 0, NULL);
         trudpChannelSendRESET(tcd, &id, sizeof(id));
+  int64_t time = teotimeGetTimePassedMs(saved_time);
+  if (time > 3) {
+    printf(" DATA %" PRId64 " %d\n", teotimeGetTimePassedMs(saved_time), __LINE__);
+  }
         break;
       }
 
@@ -742,6 +765,7 @@ void *trudpChannelProcessReceivedPacket(trudpChannelData *tcd, void *data,
         tcd->receiveExpectedId = _trudpGetNextSeqId(tcd->receiveExpectedId);
         // Check received queue for saved packet with expected id
         trudpReceiveQueueData *rqd;
+size_t q_size = trudpReceiveQueueSize(tcd->receiveQueue);
         while ((rqd = trudpReceiveQueueFindById(tcd->receiveQueue,
                                                 tcd->receiveExpectedId))) {
           trudpPacket* rq_packet = trudpPacketQueueDataGetPacket(rqd);
@@ -760,6 +784,10 @@ void *trudpChannelProcessReceivedPacket(trudpChannelData *tcd, void *data,
         trudpStatProcessLast10Receive(tcd, packet);
 
         tcd->outrunning_cnt = 0; // Reset outrunning flag
+  int64_t time = teotimeGetTimePassedMs(saved_time);
+  if (time > 3) {
+    printf(" DATA %" PRId64 " %d, SIZE Q %d\n", teotimeGetTimePassedMs(saved_time), __LINE__, q_size);
+  }
         break;
       }
 
@@ -774,6 +802,10 @@ void *trudpChannelProcessReceivedPacket(trudpChannelData *tcd, void *data,
         // Statistic
         tcd->stat.packets_receive++;
         trudpStatProcessLast10Receive(tcd, packet);
+  int64_t time = teotimeGetTimePassedMs(saved_time);
+  if (time > 3) {
+    printf(" DATA %" PRId64 " %d\n", teotimeGetTimePassedMs(saved_time), __LINE__);
+  }
         break;
       }
 
@@ -785,6 +817,10 @@ void *trudpChannelProcessReceivedPacket(trudpChannelData *tcd, void *data,
 
         // Send Send Reset event
         trudpChannelSendRESET(tcd, NULL, 0);
+  int64_t time = teotimeGetTimePassedMs(saved_time);
+  if (time > 3) {
+    printf(" DATA %" PRId64 " %d\n", teotimeGetTimePassedMs(saved_time), __LINE__);
+  }
         break;
       }
 
@@ -792,6 +828,10 @@ void *trudpChannelProcessReceivedPacket(trudpChannelData *tcd, void *data,
       // Statistic
       tcd->stat.packets_receive_dropped++;
       trudpStatProcessLast10Receive(tcd, packet);
+  int64_t time = teotimeGetTimePassedMs(saved_time);
+  if (time > 3) {
+    printf(" DATA %" PRId64 " %d\n", teotimeGetTimePassedMs(saved_time), __LINE__);
+  }
     } break;
 
     // RESET packet received
@@ -809,7 +849,11 @@ void *trudpChannelProcessReceivedPacket(trudpChannelData *tcd, void *data,
       // Reset TR-UDP
       _trudpChannelReset(tcd);
 
-    } break;
+   int64_t time = teotimeGetTimePassedMs(saved_time);
+  if (time > 3) {
+    printf(" RESET %" PRId64 " %d\n", teotimeGetTimePassedMs(saved_time), __LINE__);
+  }
+   } break;
 
     // An undefined type of packet (skip it)
     default: {
@@ -824,6 +868,15 @@ void *trudpChannelProcessReceivedPacket(trudpChannelData *tcd, void *data,
     trudpSendEvent(tcd, GOT_DATA_NO_TRUDP, data, packet_length, NULL);
     received_data = data;
     *data_length = packet_length;
+   int64_t time = teotimeGetTimePassedMs(saved_time);
+  if (time > 3) {
+    printf(" NO TRUDP %" PRId64 " %d\n", teotimeGetTimePassedMs(saved_time), __LINE__);
+  }
+  }
+
+  int64_t time = teotimeGetTimePassedMs(saved_time);
+  if (time > 3) {
+    printf("trudpChannelProcessReceivedPacket %" PRId64 " %d\n", teotimeGetTimePassedMs(saved_time), __LINE__);
   }
 
   return received_data;

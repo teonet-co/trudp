@@ -51,6 +51,12 @@ trudpPacketQueue *trudpPacketQueueNew() {
     tq->q = teoQueueNew();
     return tq;
 }
+trudpPacketMap *trudpPacketMapNew() {
+    trudpPacketMap *tq = (trudpPacketMap *)malloc(sizeof(trudpPacketMap));
+    tq->q = teoMapNew(100, 1);
+    return tq;
+}
+
 /**
  * Destroy Packet queue
  *
@@ -59,6 +65,12 @@ trudpPacketQueue *trudpPacketQueueNew() {
 void trudpPacketQueueDestroy(trudpPacketQueue *tq) {
     if(tq) {
         teoQueueDestroy(tq->q);
+        free(tq);
+    }
+}
+void trudpPacketMapDestroy(trudpPacketMap *tq) {
+    if(tq) {
+        teoMapDestroy(tq->q);
         free(tq);
     }
 }
@@ -90,8 +102,7 @@ trudpPacketQueueData *trudpPacketQueueAdd(trudpPacketQueue *tq,
  * @param tqd Pointer to trudpPacketQueueData
  * @return Pointer to trudpQueueData or NULL if tqd is NULL
  */
-teoQueueData *trudpPacketQueueDataToQueueData(
-    trudpPacketQueueData *tqd) {
+teoQueueData *trudpPacketQueueDataToQueueData(trudpPacketQueueData *tqd) {
     return tqd ? (teoQueueData *)((char*)tqd - sizeof(teoQueueData)) : NULL;
 }
 /**
@@ -102,10 +113,10 @@ teoQueueData *trudpPacketQueueDataToQueueData(
  *
  * @return Zero at success
  */
-int trudpPacketQueueDelete(trudpPacketQueue *tq,
-    trudpPacketQueueData *tqd) {
+int trudpPacketQueueDelete(trudpPacketQueue *tq, trudpPacketQueueData *tqd) {
     return teoQueueDelete(tq->q, trudpPacketQueueDataToQueueData(tqd));
 }
+int trudpPacketMapDelete(trudpPacketMap *tq, trudpPacketQueueData *tqd);
 /**
  * Move element to the end of list
  *
@@ -155,9 +166,11 @@ trudpPacketQueueData *trudpPacketQueueAdd(trudpPacketQueue *tq, void *packet,
  *
  * @return Pointer to trudpPacketQueueData or NULL if not found
  */
+#include <inttypes.h>
 trudpPacketQueueData *trudpPacketQueueFindById(trudpPacketQueue *tq,
         uint32_t id) {
 
+  int64_t saved_time = teotimeGetCurrentTimeMs();
     trudpPacketQueueData *rv = NULL;
 
     teoQueueIterator it;
@@ -173,6 +186,10 @@ trudpPacketQueueData *trudpPacketQueueFindById(trudpPacketQueue *tq,
             break;
         }
     }
+  int64_t time = teotimeGetTimePassedMs(saved_time);
+  if (time >= 2) {
+    printf("trudpPacketQueueFindById %" PRId64 " %d\n", teotimeGetTimePassedMs(saved_time), __LINE__);
+  }
 
     return rv;
 }
@@ -212,6 +229,7 @@ trudpPacketQueueData *trudpPacketQueueGetFirst(trudpPacketQueue *tq) {
 trudpPacketQueueData *trudpPacketQueueFindByTime(trudpPacketQueue *tq,
         uint64_t t) {
 
+    int64_t saved_time = teotimeGetCurrentTimeMs();
     trudpPacketQueueData *rv = NULL;
 
     teoQueueIterator it;
@@ -226,6 +244,10 @@ trudpPacketQueueData *trudpPacketQueueFindByTime(trudpPacketQueue *tq,
             break;
         }
     }
+  int64_t time = teotimeGetTimePassedMs(saved_time);
+  if (time > 3) {
+    printf("trudpPacketQueueFindByTime %" PRId64 " %d\n", teotimeGetTimePassedMs(saved_time), __LINE__);
+  }
 
     return rv;
 }

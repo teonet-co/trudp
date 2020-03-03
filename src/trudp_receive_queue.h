@@ -37,7 +37,7 @@
 /**
  * Receive queue type
  */
-typedef trudpPacketQueue trudpReceiveQueue;
+typedef trudpPacketMap trudpReceiveQueue;
 
 /**
  * Receive queue data type

@@ -27,6 +27,7 @@
  * Created on May 31, 2016, 1:44 AM
  */
 
+#include <inttypes.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -265,6 +266,7 @@ void trudpProcessReceived(trudpData *td, void *data, size_t data_length) {
  */
 size_t trudpSendDataToAll(trudpData *td, void *data, size_t data_length) {
 
+    int64_t saved_time = teotimeGetCurrentTimeMs();
     int rv = 0;
 
     teoMapIterator it;
@@ -284,6 +286,10 @@ size_t trudpSendDataToAll(trudpData *td, void *data, size_t data_length) {
             //}
         }
     }
+  int64_t time = teotimeGetTimePassedMs(saved_time);
+  if (time > 3) {
+    printf("trudpSendDataToAll %" PRId64 " %d\n", teotimeGetTimePassedMs(saved_time), __LINE__);
+  }
 
     return rv;
 }
@@ -295,6 +301,7 @@ size_t trudpSendDataToAll(trudpData *td, void *data, size_t data_length) {
  * @return
  */
 size_t trudpProcessKeepConnection(trudpData *td) {
+    int64_t saved_time = teotimeGetCurrentTimeMs();
 
     int rv = -1;
 
@@ -325,6 +332,10 @@ size_t trudpProcessKeepConnection(trudpData *td) {
         }
     }
 
+  int64_t time = teotimeGetTimePassedMs(saved_time);
+  if (time > 3) {
+    printf("trudpProcessKeepConnection %" PRId64 " %d\n", teotimeGetTimePassedMs(saved_time), __LINE__);
+  }
     return rv;
 }
 
@@ -336,6 +347,7 @@ size_t trudpProcessKeepConnection(trudpData *td) {
  * @return Maximum send queue size of all channels or zero if all queues is empty
  */
 static size_t trudpGetReceiveQueueMax(trudpData *td) {
+    int64_t saved_time = teotimeGetCurrentTimeMs();
 
     int rv = 0;
 
@@ -350,6 +362,10 @@ static size_t trudpGetReceiveQueueMax(trudpData *td) {
         if(size > rv) rv = size;
     }
 
+  int64_t time = teotimeGetTimePassedMs(saved_time);
+  if (time > 3) {
+    printf("trudpGetReceiveQueueMax %" PRId64 " %d\n", teotimeGetTimePassedMs(saved_time), __LINE__);
+  }
     return rv;
 }
 #endif
@@ -434,6 +450,7 @@ trudpChannelData *trudpGetChannelCreate(trudpData *td, __CONST_SOCKADDR_ARG addr
  * @return Minimum timeout or UINT32_MAX if send queue is empty
  */
 uint32_t trudpGetSendQueueTimeout(trudpData *td, uint64_t current_time) {
+    int64_t saved_time = teotimeGetCurrentTimeMs();
 
     teoMapIterator it;
     teoMapElementData *el;
@@ -446,6 +463,10 @@ uint32_t trudpGetSendQueueTimeout(trudpData *td, uint64_t current_time) {
         if(timeout_sq < min_timeout_sq) min_timeout_sq = timeout_sq;
         if(!min_timeout_sq) break;
     }
+  int64_t time = teotimeGetTimePassedMs(saved_time);
+  if (time > 3) {
+    printf("trudpGetSendQueueTimeout %" PRId64 " %d\n", teotimeGetTimePassedMs(saved_time), __LINE__);
+  }
 
     return min_timeout_sq;
 }
@@ -458,6 +479,7 @@ uint32_t trudpGetSendQueueTimeout(trudpData *td, uint64_t current_time) {
  * @return
  */
 static size_t trudp_SendQueueSize(trudpData *td) {
+    int64_t saved_time = teotimeGetCurrentTimeMs();
 
     uint32_t sz = 0;
     teoMapIterator it;
@@ -468,6 +490,10 @@ static size_t trudp_SendQueueSize(trudpData *td) {
         trudpChannelData *tcd = (trudpChannelData *)teoMapIteratorElementData(el, NULL);
         sz += trudpSendQueueSize(tcd->sendQueue);
     }
+  int64_t time = teotimeGetTimePassedMs(saved_time);
+  if (time > 3) {
+    printf("trudp_SendQueueSize %" PRId64 " %d\n", teotimeGetTimePassedMs(saved_time), __LINE__);
+  }
 
     return sz;
 }
@@ -482,6 +508,7 @@ static size_t trudp_SendQueueSize(trudpData *td) {
  * @return Number of resend packets
  */
 int trudpProcessSendQueue(trudpData *td, uint64_t *next_et) {
+    int64_t saved_time = teotimeGetCurrentTimeMs();
 
     int retval, rv = 0;
     uint64_t ts = teoGetTimestampFull(), min_expected_time, next_expected_time;
@@ -504,6 +531,10 @@ int trudpProcessSendQueue(trudpData *td, uint64_t *next_et) {
     } while(retval == -1 || (retval > 0 && min_expected_time <= ts));
 
     if(next_et) *next_et = (min_expected_time != UINT64_MAX) ? min_expected_time : 0;
+  int64_t time = teotimeGetTimePassedMs(saved_time);
+  if (time > 3) {
+    printf("trudpProcessSendQueue %" PRId64 " %d\n", teotimeGetTimePassedMs(saved_time), __LINE__);
+  }
 
     return rv;
 }
@@ -544,6 +575,7 @@ static size_t trudp_SendQueueGetSizeMax(trudpData *td) {
  * @return Size of send packets
  */
 size_t trudpProcessWriteQueue(trudpData *td) {
+    int64_t saved_time = teotimeGetCurrentTimeMs();
 
     int i = 0;
     size_t retval = 0;
@@ -561,6 +593,10 @@ size_t trudpProcessWriteQueue(trudpData *td) {
     }
 
     if(!retval) td->writeQueueIdx = 0;
+  int64_t time = teotimeGetTimePassedMs(saved_time);
+  if (time > 3) {
+    printf("trudpProcessSendQueue %" PRId64 " %d\n", teotimeGetTimePassedMs(saved_time), __LINE__);
+  }
 
     return retval;
 }

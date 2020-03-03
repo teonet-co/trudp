@@ -34,6 +34,7 @@
 #include <stdint.h>
 
 #include "teoccl/queue.h"
+#include "teoccl/map.h"
 
 #include "packet.h"
 
@@ -46,6 +47,11 @@ typedef struct trudpPacketQueue {
     teoQueue *q;
 
 } trudpPacketQueue;
+typedef struct trudpPacketMap {
+
+    teoMap *q;
+
+} trudpPacketMap;
 
 typedef struct trudpPacketQueueData {
 
@@ -63,6 +69,7 @@ typedef struct trudpPacketQueueData {
  * @return Pointer to trudpPacketQueue
  */
 trudpPacketQueue *trudpPacketQueueNew();
+trudpPacketMap *trudpPacketMapNew();
 
 /**
  * Destroy Packet queue
@@ -70,6 +77,7 @@ trudpPacketQueue *trudpPacketQueueNew();
  * @param tq Pointer to trudpPacketQueue
  */
 void trudpPacketQueueDestroy(trudpPacketQueue *tq);
+void trudpPacketMapDestroy(trudpPacketMap *tq);
 
 /**
  * Remove all elements from Packet queue
@@ -78,6 +86,7 @@ void trudpPacketQueueDestroy(trudpPacketQueue *tq);
  * @return Zero at success
  */
 int trudpPacketQueueFree(trudpPacketQueue *tq);
+
 
 /**
  * Get number of elements in Packet queue
@@ -106,8 +115,8 @@ teoQueueData *trudpPacketQueueDataToQueueData(
  *
  * @return Zero at success
  */
-int trudpPacketQueueDelete(trudpPacketQueue *tq,
-    trudpPacketQueueData *tqd);
+int trudpPacketQueueDelete(trudpPacketQueue *tq, trudpPacketQueueData *tqd);
+int trudpPacketMapDelete(trudpPacketMap *tq, trudpPacketQueueData *tqd);
 
 /**
  * Move element to the end of list
