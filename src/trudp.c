@@ -27,11 +27,14 @@
  * Created on May 31, 2016, 1:44 AM
  */
 
+#include <stdbool.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 
 #include "teoccl/memory.h"
+#include "teobase/logging.h"
 
 #include "trudp.h"
 #include "trudp_channel.h"
@@ -40,7 +43,6 @@
 #include "packet.h"
 #include "trudp_stat.h"
 #include "packet_queue.h"
-#include <teobase/logging.h>
 
 // Local functions
 
