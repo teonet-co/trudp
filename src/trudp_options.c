@@ -10,14 +10,14 @@
 extern bool trudpOpt_DBG_sendto;
 bool trudpOpt_DBG_sendto = false;
 
-TRUDP_API void trudpSetOption_DBG_sendto(bool enable) {
+void trudpSetOption_DBG_sendto(bool enable) {
     trudpOpt_DBG_sendto = enable;
 }
 
 extern bool trudpOpt_DBG_echoKeepalivePing;
 bool trudpOpt_DBG_echoKeepalivePing = false;
 
-TRUDP_API void trudpSetOption_DBG_echoKeepalivePing(bool enable) {
+void trudpSetOption_DBG_echoKeepalivePing(bool enable) {
     trudpOpt_DBG_echoKeepalivePing = enable;
     LTRACK_I("Trudp", "Set keepalive ping echo to %s",
              trudpOpt_DBG_echoKeepalivePing ? "true" : "false");
@@ -26,7 +26,7 @@ TRUDP_API void trudpSetOption_DBG_echoKeepalivePing(bool enable) {
 extern bool trudpOpt_DBG_dumpDataPacketHeaders;
 bool trudpOpt_DBG_dumpDataPacketHeaders = false;
 
-TRUDP_API void trudpSetOption_DBG_dumpDataPacketHeaders(bool enable) {
+void trudpSetOption_DBG_dumpDataPacketHeaders(bool enable) {
     trudpOpt_DBG_dumpDataPacketHeaders = enable;
 }
 
@@ -36,7 +36,7 @@ static const int64_t keepaliveFirstPingDefault_us = 10 * 1000000;
 extern int64_t trudpOpt_CORE_keepaliveFirstPingDelay_us;
 int64_t trudpOpt_CORE_keepaliveFirstPingDelay_us = keepaliveFirstPingDefault_us;
 
-TRUDP_API void trudpSetOption_CORE_keepaliveFirstPingDelayMs(int64_t delay) {
+void trudpSetOption_CORE_keepaliveFirstPingDelayMs(int64_t delay) {
     if (delay < 0) {
         LTRACK_E("Trudp", "Delay argument must be non-negative");
         abort();
@@ -55,7 +55,7 @@ static const int64_t keepaliveNextPingDefault_us = 1000000;
 extern int64_t trudpOpt_CORE_keepaliveNextPingDelay_us;
 int64_t trudpOpt_CORE_keepaliveNextPingDelay_us = keepaliveNextPingDefault_us;
 
-TRUDP_API void trudpSetOption_CORE_keepaliveNextPingDelayMs(int64_t delay) {
+void trudpSetOption_CORE_keepaliveNextPingDelayMs(int64_t delay) {
     if (delay < 0) {
         LTRACK_E("Trudp", "Delay argument must be non-negative");
         abort();
@@ -74,8 +74,7 @@ static const int64_t disconnectTimeoutDefault_us = MAX_TRIPTIME_MIDDLE * 5;
 extern int64_t trudpOpt_CORE_disconnectTimeoutDelay_us;
 int64_t trudpOpt_CORE_disconnectTimeoutDelay_us = disconnectTimeoutDefault_us;
 
-TRUDP_API void
-trudpSetOption_CORE_disconnectTimeoutDelayMs(int64_t timeout_ms) {
+void trudpSetOption_CORE_disconnectTimeoutDelayMs(int64_t timeout_ms) {
     if (timeout_ms < 0) {
         LTRACK_E("Trudp", "Disconnect timeout argument must be non-negative");
         abort();
