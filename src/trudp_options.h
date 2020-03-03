@@ -56,7 +56,7 @@ TRUDP_API void trudpSetOption_CORE_keepaliveFirstPingDelayMs(int64_t delay_ms);
 TRUDP_API void trudpSetOption_CORE_keepaliveNextPingDelayMs(int64_t delay);
 
 /**
- * Set core trudp disconnect timeout since last receved packet
+ * Set core trudp disconnect timeout since last received packet
  * by default 14.39 seconds
  *
  * @param timeout_ms - milliseconds, must be non-negative, zero value sets to

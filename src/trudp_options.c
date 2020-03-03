@@ -68,7 +68,7 @@ void trudpSetOption_CORE_keepaliveNextPingDelayMs(int64_t delay) {
              trudpOpt_CORE_keepaliveNextPingDelay_us / 1000000.0f);
 }
 
-// Disconnect after timeout since last receved packet (14.39 sec)
+// Disconnect after timeout since last received packet (14.39 sec)
 static const int64_t disconnectTimeoutDefault_us = MAX_TRIPTIME_MIDDLE * 5;
 
 extern int64_t trudpOpt_CORE_disconnectTimeoutDelay_us;
