@@ -89,9 +89,6 @@ size_t trudpReceiveQueueSize(trudpReceiveQueue *sq) {
 
 uint32_t *trudpReceiveQueueAdd(trudpReceiveQueue *sq, void *packet,
         size_t packet_length, uint64_t expected_time) {
-    uint32_t *id = malloc(sizeof(uint32_t));
-    *id = 1;
-    return id;
     return trudpPacketMapAdd(sq, packet, packet_length, expected_time);
 }
 

@@ -30,6 +30,8 @@
 #include <stdint.h>
 #include <string.h>
 
+#include <stdio.h>
+
 #include "packet_queue.h"
 #include "packet.h"
 
@@ -51,6 +53,12 @@ trudpPacketQueue *trudpPacketQueueNew() {
     tq->q = teoQueueNew();
     return tq;
 }
+
+/**
+ * Create new Packet map
+ *
+ * @return Pointer to trudpPacketMap
+ */
 trudpPacketMap *trudpPacketMapNew() {
     trudpPacketMap *tq = (trudpPacketMap *)malloc(sizeof(trudpPacketMap));
     tq->q = teoMapNew(100, 1);
@@ -68,12 +76,19 @@ void trudpPacketQueueDestroy(trudpPacketQueue *tq) {
         free(tq);
     }
 }
+
+/**
+ * Destroy Packet map
+ *
+ * @param tq Pointer to trudpPacketMap
+ */
 void trudpPacketMapDestroy(trudpPacketMap *tq) {
     if(tq) {
         teoMapDestroy(tq->q);
         free(tq);
     }
 }
+
 /**
  * Remove all elements from Packet queue
  *
@@ -94,12 +109,21 @@ int trudpPacketQueueFree(trudpPacketQueue *tq) {
 size_t trudpPacketQueueSize(trudpPacketQueue *tq) {
     return teoQueueSize(tq->q);
 }
+
+/**
+ * Get number of elements in Packet map
+ *
+ * @param tq
+ *
+ * @return Number of elements in TR-UPD map
+ */
 size_t trudpPacketMapSize(trudpPacketMap *tq) {
     return teoMapSize(tq->q);
 }
 
 trudpPacketQueueData *trudpPacketQueueAdd(trudpPacketQueue *tq,
         void *packet, size_t packet_length, uint64_t expected_time);
+
 /**
  * Get pointer to trudpQueueData from trudpPacketQueueData pointer
  * @param tqd Pointer to trudpPacketQueueData
@@ -108,6 +132,7 @@ trudpPacketQueueData *trudpPacketQueueAdd(trudpPacketQueue *tq,
 teoQueueData *trudpPacketQueueDataToQueueData(trudpPacketQueueData *tqd) {
     return tqd ? (teoQueueData *)((char*)tqd - sizeof(teoQueueData)) : NULL;
 }
+
 /**
  * Remove element from Packet queue
  *
@@ -119,9 +144,19 @@ teoQueueData *trudpPacketQueueDataToQueueData(trudpPacketQueueData *tqd) {
 int trudpPacketQueueDelete(trudpPacketQueue *tq, trudpPacketQueueData *tqd) {
     return teoQueueDelete(tq->q, trudpPacketQueueDataToQueueData(tqd));
 }
+
+/**
+ * Remove element from Packet map
+ *
+ * @param tq Pointer to trudpPacketMap
+ * @param id Packet id to delete it
+ *
+ * @return Zero at success
+ */
 int trudpPacketMapDelete(trudpPacketMap *tq, uint32_t id) {
-    return teoMapDelete(tq->q, &id, sizeof(&id));
+    return teoMapDelete(tq->q, &id, sizeof(id));
 }
+
 /**
  * Move element to the end of list
  *
@@ -162,17 +197,34 @@ trudpPacketQueueData *trudpPacketQueueAdd(trudpPacketQueue *tq, void *packet,
 
     return tqd;
 }
-uint32_t *trudpPacketMapAdd(trudpPacketMap *tq,
-        void *packet, size_t packet_length, uint64_t expected_time) {
-    uint32_t id = trudpPacketGetId((trudpPacket*) packet);
 
-    size_t data_len = sizeof(trudpPacketQueueData) + packet_length;
-    trudpPacketQueueData *tqd = malloc(data_len);
+/**
+ * Add packet to Packet map
+ *
+ * @param tq Pointer to trudpPacketMap
+ * @param packet Packet to add to map
+ * @param packet_length Packet length
+ * @param expected_time Packet expected time
+ *
+ * @return Pointer to added packet id or NULL at error
+ */
+uint32_t *trudpPacketMapAdd(trudpPacketMap *tq, void *packet, 
+        size_t packet_length, uint64_t expected_time) {
+
+    // Fill data
+    size_t tqd_len = sizeof(trudpPacketQueueData) + packet_length;
+    trudpPacketQueueData *tqd = malloc(tqd_len);
     memcpy(tqd->packet, packet, packet_length);
     tqd->expected_time = expected_time;
     tqd->packet_length = packet_length;
     tqd->retrieves = 0;
-    return (uint32_t*)teoMapAdd(tq->q, &id, sizeof(&id), tqd, data_len);
+
+    // Add
+    uint32_t id = trudpPacketGetId((trudpPacket*) packet);
+    uint32_t *pid = teoMapAdd(tq->q, &id, sizeof(id), tqd, tqd_len);
+    free(tqd);
+
+    return pid; 
 }
 
 /**
@@ -210,9 +262,18 @@ trudpPacketQueueData *trudpPacketQueueFindById(trudpPacketQueue *tq,
 
     return rv;
 }
+
+/**
+ * Find Packet map data by Id
+ *
+ * @param tq Pointer to trudpPacketMap
+ * @param id Id to find in map
+ *
+ * @return Pointer to trudpPacketQueueData or NULL if not found
+ */
 trudpPacketQueueData *trudpPacketMapFindById(trudpPacketMap *tq, uint32_t id) {
     trudpPacketQueueData *rv = teoMapGet(tq->q, &id, sizeof(&id), NULL);
-    return rv;
+    return rv != (void*)-1 ? rv : NULL;
 }
 
 /**

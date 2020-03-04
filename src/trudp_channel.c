@@ -791,10 +791,9 @@ size_t q_size = trudpReceiveQueueSize(tcd->receiveQueue);
         break;
       }
 
-      // Save outrunning packet to receiveQueue
-      if (_trudpGetSeqIdDistance(tcd->receiveExpectedId, trudpPacketGetId(packet)) > 0 &&
-                !trudpReceiveQueueFindById(tcd->receiveQueue,
-                                          trudpPacketGetId(packet))) {
+        // Save outrunning packet to receiveQueue
+        if (_trudpGetSeqIdDistance(tcd->receiveExpectedId, trudpPacketGetId(packet)) > 0 &&
+                !trudpReceiveQueueFindById(tcd->receiveQueue, trudpPacketGetId(packet))) {
 
         trudpReceiveQueueAdd(tcd->receiveQueue, packet, packet_length, 0);
         tcd->outrunning_cnt++; // Increment outrunning count
