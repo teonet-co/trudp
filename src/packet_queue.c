@@ -94,6 +94,9 @@ int trudpPacketQueueFree(trudpPacketQueue *tq) {
 size_t trudpPacketQueueSize(trudpPacketQueue *tq) {
     return teoQueueSize(tq->q);
 }
+size_t trudpPacketMapSize(trudpPacketMap *tq) {
+    return teoMapSize(tq->q);
+}
 
 trudpPacketQueueData *trudpPacketQueueAdd(trudpPacketQueue *tq,
         void *packet, size_t packet_length, uint64_t expected_time);
@@ -116,7 +119,9 @@ teoQueueData *trudpPacketQueueDataToQueueData(trudpPacketQueueData *tqd) {
 int trudpPacketQueueDelete(trudpPacketQueue *tq, trudpPacketQueueData *tqd) {
     return teoQueueDelete(tq->q, trudpPacketQueueDataToQueueData(tqd));
 }
-int trudpPacketMapDelete(trudpPacketMap *tq, trudpPacketQueueData *tqd);
+int trudpPacketMapDelete(trudpPacketMap *tq, uint32_t id) {
+    return teoMapDelete(tq->q, &id, sizeof(&id));
+}
 /**
  * Move element to the end of list
  *
@@ -157,6 +162,18 @@ trudpPacketQueueData *trudpPacketQueueAdd(trudpPacketQueue *tq, void *packet,
 
     return tqd;
 }
+uint32_t *trudpPacketMapAdd(trudpPacketMap *tq,
+        void *packet, size_t packet_length, uint64_t expected_time) {
+    uint32_t id = trudpPacketGetId((trudpPacket*) packet);
+
+    size_t data_len = sizeof(trudpPacketQueueData) + packet_length;
+    trudpPacketQueueData *tqd = malloc(data_len);
+    memcpy(tqd->packet, packet, packet_length);
+    tqd->expected_time = expected_time;
+    tqd->packet_length = packet_length;
+    tqd->retrieves = 0;
+    return (uint32_t*)teoMapAdd(tq->q, &id, sizeof(&id), tqd, data_len);
+}
 
 /**
  * Find Packet queue data by Id
@@ -191,6 +208,10 @@ trudpPacketQueueData *trudpPacketQueueFindById(trudpPacketQueue *tq,
     printf("trudpPacketQueueFindById %" PRId64 " %d\n", teotimeGetTimePassedMs(saved_time), __LINE__);
   }
 
+    return rv;
+}
+trudpPacketQueueData *trudpPacketMapFindById(trudpPacketMap *tq, uint32_t id) {
+    trudpPacketQueueData *rv = teoMapGet(tq->q, &id, sizeof(&id), NULL);
     return rv;
 }
 

@@ -87,8 +87,11 @@ size_t trudpReceiveQueueSize(trudpReceiveQueue *sq) {
  * @return Pointer to added trudpReceiveQueueData
  */
 
-trudpReceiveQueueData *trudpReceiveQueueAdd(trudpReceiveQueue *sq, void *packet,
+uint32_t *trudpReceiveQueueAdd(trudpReceiveQueue *sq, void *packet,
         size_t packet_length, uint64_t expected_time) {
+    uint32_t *id = malloc(sizeof(uint32_t));
+    *id = 1;
+    return id;
     return trudpPacketMapAdd(sq, packet, packet_length, expected_time);
 }
 
@@ -101,9 +104,8 @@ trudpReceiveQueueData *trudpReceiveQueueAdd(trudpReceiveQueue *sq, void *packet,
  * @return Zero at success
  */
 
-int trudpReceiveQueueDelete(trudpReceiveQueue *tq,
-        trudpReceiveQueueData *tqd) {
-    return trudpPacketMapDelete(tq, tqd);
+int trudpReceiveQueueDelete(trudpReceiveQueue *tq, uint32_t id) {
+    return trudpPacketMapDelete(tq, id);
 }
 
 /**
