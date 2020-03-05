@@ -130,8 +130,8 @@ trudpSendQueueData *trudpSendQueueGetFirst(trudpSendQueue *sq) {
 /**
  * Get send queue timeout
  *
- * @param sc Pointer to trudpSendQueue
- * @param ts Current time
+ * @param sq Pointer to trudpSendQueue
+ * @param current_t Current time
  *
  * @return Send queue timeout (may by 0) or UINT32_MAX if send queue is empty
  */
