@@ -29,10 +29,10 @@
  * Created on July 27, 2016, 11:11 AM
  */
 
-#ifdef USE_LIBEV
-
 #ifndef TRUDP_EV_H
 #define TRUDP_EV_H
+
+#ifdef USE_LIBEV
 
 #include <ev.h>
 
@@ -62,6 +62,6 @@ TRUDP_API void trudpSendQueueCbStart(trudpProcessSendQueueData *psd,
 }
 #endif
 
-#endif /* TRUDP_EV_H */
-
 #endif
+
+#endif /* TRUDP_EV_H */
