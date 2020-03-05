@@ -31,7 +31,9 @@ void trudpSetOption_DBG_dumpDataPacketHeaders(bool enable) {
 }
 
 // Send trudp ping every 10 sec
-static const int64_t keepaliveFirstPingDefault_us = KEEPALIVE_PING_DELAY;
+enum {
+    keepaliveFirstPingDefault_us = KEEPALIVE_PING_DELAY,
+};
 
 extern int64_t trudpOpt_CORE_keepaliveFirstPingDelay_us;
 int64_t trudpOpt_CORE_keepaliveFirstPingDelay_us = keepaliveFirstPingDefault_us;
@@ -50,7 +52,9 @@ void trudpSetOption_CORE_keepaliveFirstPingDelayMs(int64_t delay) {
 }
 
 // Retry trudp ping every sec in case we didn't get reply for first
-static const int64_t keepaliveNextPingDefault_us = 1000000;
+enum {
+    keepaliveNextPingDefault_us = 1000000,
+};
 
 extern int64_t trudpOpt_CORE_keepaliveNextPingDelay_us;
 int64_t trudpOpt_CORE_keepaliveNextPingDelay_us = keepaliveNextPingDefault_us;
@@ -69,7 +73,9 @@ void trudpSetOption_CORE_keepaliveNextPingDelayMs(int64_t delay) {
 }
 
 // Disconnect after timeout since last received packet (14.39 sec)
-static const int64_t disconnectTimeoutDefault_us = MAX_LAST_RECEIVE;
+enum {
+    disconnectTimeoutDefault_us = MAX_LAST_RECEIVE,
+};
 
 extern int64_t trudpOpt_CORE_disconnectTimeoutDelay_us;
 int64_t trudpOpt_CORE_disconnectTimeoutDelay_us = disconnectTimeoutDefault_us;
