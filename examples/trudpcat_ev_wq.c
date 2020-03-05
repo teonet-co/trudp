@@ -179,18 +179,18 @@ static void debug(char *fmt, ...)
  *
  * @param td Pointer to trudpData
  */
-static void showStatistic(trudpData *td, options *o, void *user_data) {
+static void showStatistic(trudpData *td, options *opts, void *user_data) {
 
-    if(o->show_statistic) {
+    if(opts->show_statistic) {
         cls();
-        char *stat_str = ksnTRUDPstatShowStr(td, o->show_statistic_page);
+        char *stat_str = ksnTRUDPstatShowStr(td, opts->show_statistic_page);
         if(stat_str) {
             puts(stat_str);
             free(stat_str);
         }
     }
 
-    else if(o->show_send_queue) {
+    else if(opts->show_send_queue) {
         trudpChannelData *tcd = (trudpChannelData*)teoMapGetFirst(td->map, 0);
         if(tcd != (void*)-1) {
 
@@ -211,8 +211,8 @@ static void showStatistic(trudpData *td, options *o, void *user_data) {
         else { cls(); puts("Queues have not been created..."); }
     }
 
-    else if(o->show_snake) {
-        //if(!run_snake()) o->show_snake = 0;
+    else if(opts->show_snake) {
+        //if(!run_snake()) opts->show_snake = 0;
     }
 
     // Check key !!!
@@ -222,13 +222,13 @@ static void showStatistic(trudpData *td, options *o, void *user_data) {
 
         switch(ch) {
             // Show Debug
-            case 'd': o->debug  = !o->debug; break;
+            case 'd': opts->debug  = !opts->debug; break;
             // Show Statistic
-            case 'S': o->show_statistic  = !o->show_statistic;  o->show_send_queue = 0; o->show_snake = 0; break;
+            case 'S': opts->show_statistic  = !opts->show_statistic;  opts->show_send_queue = 0; opts->show_snake = 0; break;
             // Show Queues
-            case 'Q': o->show_send_queue = !o->show_send_queue; o->show_statistic = 0; o->show_snake = 0;  break;
+            case 'Q': opts->show_send_queue = !opts->show_send_queue; opts->show_statistic = 0; opts->show_snake = 0;  break;
             // Show Snake game
-            case 's': o->show_snake = !o->show_snake;           o->show_send_queue = 0; o->show_statistic = 0; break;
+            case 's': opts->show_snake = !opts->show_snake;           opts->show_send_queue = 0; opts->show_statistic = 0; break;
             #if USE_LIBEV
             // Quit application
             case 'q': ev_break(user_data, EVBREAK_ALL);         break;
@@ -236,10 +236,10 @@ static void showStatistic(trudpData *td, options *o, void *user_data) {
             // Send reset to all connected
             case 'r': trudpSendResetAll(td);                    break;
             // Don't send data
-            case 'x': o->dont_send_data = !o->dont_send_data;   break;
+            case 'x': opts->dont_send_data = !opts->dont_send_data;   break;
             // Statistic Pages
-            case 'n': case 'N': if(o->show_statistic && o->show_statistic_page < teoMapSize(td->map)/NUMBER_CHANNELS_IN_CLI_PAGE -1 + (teoMapSize(td->map)%NUMBER_CHANNELS_IN_CLI_PAGE & 1) ) o->show_statistic_page++; break;
-            case 'p': case 'P': if(o->show_statistic && o->show_statistic_page) o->show_statistic_page--; break;
+            case 'n': case 'N': if(opts->show_statistic && opts->show_statistic_page < teoMapSize(td->map)/NUMBER_CHANNELS_IN_CLI_PAGE -1 + (teoMapSize(td->map)%NUMBER_CHANNELS_IN_CLI_PAGE & 1) ) opts->show_statistic_page++; break;
+            case 'p': case 'P': if(opts->show_statistic && opts->show_statistic_page) opts->show_statistic_page--; break;
         }
     }
 }
