@@ -400,7 +400,7 @@ char *ksnTRUDPstatShowStr(trudpData *td, int page) {
             tbl_str = sformatMessage(tbl_str,
                 "%s%3d "_ANSI_BROWN"%-24.*s"_ANSI_NONE" %8d %11.3f %10.3f  %9.3f /%9.3f %8d %11.3f %10.3f %8d %8d(%d%%) %8d(%d%%) %6d %6d %6d\n",
                 tbl_str, i + 1,
-                key_len, key,
+                (int32_t)key_len, key,
                 tcd->stat.packets_send,
                 //(double)(1.0 * tcd->stat.send_speed / 1024.0),
                 (double)tcd->stat.packets_send / ((tsf - tcd->stat.started) / 1000000.0),
@@ -416,9 +416,9 @@ char *ksnTRUDPstatShowStr(trudpData *td, int page) {
                 tcd->stat.packets_send ? 100 * tcd->stat.packets_attempt / tcd->stat.packets_send : 0,
                 tcd->stat.packets_receive_dropped,
                 tcd->stat.packets_receive ? 100 * tcd->stat.packets_receive_dropped / tcd->stat.packets_receive : 0,
-                sendQueueSize,
-                writeQueueSize,
-                receiveQueueSize
+                (int32_t)sendQueueSize,
+                (int32_t)writeQueueSize,
+                (int32_t)receiveQueueSize
             );
             if ( tcd->stat.triptime_last / 1000.0 > 500) {
                 char *stat_sq_str = trudpStatShowQueueStr(tcd, 0);
@@ -477,7 +477,6 @@ char *ksnTRUDPstatShowStr(trudpData *td, int page) {
         , i
         , page+1
         , totalStat.packets_send
-        , (double)(1.0 * totalStat.send_speed / 1024.0)
         , (double)(1.0 * totalStat.send_speed / 1024.0)
         , totalStat.send_total
         , totalStat.triptime_last / 1000.0

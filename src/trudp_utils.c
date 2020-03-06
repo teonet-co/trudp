@@ -60,7 +60,8 @@ char *trudpMakeKey(char *addr, int port, int channel, size_t *key_length)
 
     static char buf[MAX_KEY_LENGTH];
     memset(buf, 0, MAX_KEY_LENGTH);
-    size_t kl = snprintf(buf, MAX_KEY_LENGTH, "%s:%u:%u", addr, port, channel);
+    size_t kl = snprintf(buf, MAX_KEY_LENGTH, "%s:%u:%u", addr, (uint32_t)port,
+                         (uint32_t)channel);
     if(key_length) *key_length = min(kl + (8 - kl % 8), MAX_KEY_LENGTH);
 
     return buf;
