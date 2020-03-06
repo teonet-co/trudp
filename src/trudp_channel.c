@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2016-2018 Kirill Scherba <kirill@scherba.ru>.
+ * Copyright 2016-2020 Kirill Scherba <kirill@scherba.ru>.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -385,11 +385,7 @@ static void _trudpChannelSetLastReceived(trudpChannelData *tcd) {
 static void _trudpChannelSendACK(trudpChannelData *tcd, trudpPacket* packet) {
 
   trudpPacket* ack_packet = trudpPacketACKcreateNew(packet);
-#if !USE_WRITE_QUEUE
   trudpSendEvent(tcd, PROCESS_SEND, ack_packet, trudpPacketACKlength(), NULL);
-#else
-  trudpWriteQueueAdd(tcd->writeQueue, ack_packet, NULL, trudpPacketACKlength());
-#endif
   trudpPacketCreatedFree(ack_packet);
   _trudpChannelSetLastReceived(tcd);
 }
@@ -403,11 +399,7 @@ static void _trudpChannelSendACK(trudpChannelData *tcd, trudpPacket* packet) {
 static void _trudpChannelSendACKtoRESET(trudpChannelData *tcd, trudpPacket* packet) {
 
   trudpPacket* ack_packet = trudpPacketACKtoRESETcreateNew(packet);
-#if !USE_WRITE_QUEUE
   trudpSendEvent(tcd, PROCESS_SEND, ack_packet, trudpPacketACKlength(), NULL);
-#else
-  trudpWriteQueueAdd(tcd->writeQueue, ack_packet, NULL, trudpPacketACKlength());
-#endif
   trudpPacketCreatedFree(ack_packet);
   _trudpChannelSetLastReceived(tcd);
 }
@@ -421,13 +413,8 @@ static void _trudpChannelSendACKtoRESET(trudpChannelData *tcd, trudpPacket* pack
 static void _trudpChannelSendACKtoPING(trudpChannelData *tcd, trudpPacket* packet) {
 
   trudpPacket* ack_packet = trudpPacketACKtoPINGcreateNew(packet);
-#if !USE_WRITE_QUEUE
   trudpSendEvent(tcd, PROCESS_SEND, ack_packet,
                  trudpPacketGetPacketLength(packet), NULL);
-#else
-  trudpWriteQueueAdd(tcd->writeQueue, NULL, ack_packet,
-                     trudpPacketGetPacketLength);
-#endif
   trudpPacketCreatedFree(ack_packet);
   _trudpChannelSetLastReceived(tcd);
 }
@@ -445,15 +432,10 @@ void trudpChannelSendRESET(trudpChannelData *tcd, void *data,
   if (tcd) {
     trudpSendEvent(tcd, SEND_RESET, data, data_length, NULL);
 
-    void *packetRESET =
-        trudpPacketRESETcreateNew(_trudpChannelGetNewId(tcd), tcd->channel);
-#if !USE_WRITE_QUEUE
+    void *packetRESET = trudpPacketRESETcreateNew(_trudpChannelGetNewId(tcd), 
+                  tcd->channel);
     trudpSendEvent(tcd, PROCESS_SEND, packetRESET, trudpPacketRESETlength(),
-                   NULL);
-#else
-    trudpWriteQueueAdd(tcd->writeQueue, packetRESET, NULL,
-                       trudpPacketRESETlength());
-#endif
+                  NULL);
     trudpPacketCreatedFree(packetRESET);
   }
 }
@@ -871,13 +853,9 @@ int trudpChannelSendQueueProcess(trudpChannelData *tcd, uint64_t ts,
 
     trudpPacket* tq_packet = trudpPacketQueueDataGetPacket(tqd);
 
-// Resend data
-#if !USE_WRITE_QUEUE
+    // Resend data
     trudpPacketUpdateTimestamp(tq_packet);
     trudpSendEvent(tcd, PROCESS_SEND, tq_packet, tqd->packet_length, NULL);
-#else
-    trudpWriteQueueAdd(tcd->writeQueue, NULL, tq_packet, tqd->packet_length);
-#endif
 
     // Disconnect at max retrieves
     //        goto skip_disconnect_on_max_retrieves;
