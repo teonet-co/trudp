@@ -255,6 +255,17 @@ void trudpProcessReceived(trudpData *td, void *data, size_t data_length) {
     }
 }
 
+int64_t teotimeGetCurrentTimeMs();
+int64_t teotimeGetTimePassedMs();
+#define TIME_LOG(NAME) \
+  { \
+    int64_t time = teotimeGetTimePassedMs(saved_time); \
+    if (time > 3) { \
+      /* printf(NAME " %" PRId64 " %d\n", time, __LINE__); */ \
+      printf(NAME " %ldms %d\n", time, __LINE__); \
+    } \
+  }
+
 /**
  * Send the same data to all connected peers
  *
@@ -286,10 +297,7 @@ size_t trudpSendDataToAll(trudpData *td, void *data, size_t data_length) {
             //}
         }
     }
-  int64_t time = teotimeGetTimePassedMs(saved_time);
-  if (time > 3) {
-    printf("trudpSendDataToAll %" PRId64 " %d\n", teotimeGetTimePassedMs(saved_time), __LINE__);
-  }
+    TIME_LOG("trudpSendDataToAll");
 
     return rv;
 }
@@ -332,10 +340,7 @@ size_t trudpProcessKeepConnection(trudpData *td) {
         }
     }
 
-  int64_t time = teotimeGetTimePassedMs(saved_time);
-  if (time > 3) {
-    printf("trudpProcessKeepConnection %" PRId64 " %d\n", teotimeGetTimePassedMs(saved_time), __LINE__);
-  }
+    TIME_LOG("trudpProcessKeepConnection");
     return rv;
 }
 
@@ -362,10 +367,6 @@ static size_t trudpGetReceiveQueueMax(trudpData *td) {
         if(size > rv) rv = size;
     }
 
-  int64_t time = teotimeGetTimePassedMs(saved_time);
-  if (time > 3) {
-    printf("trudpGetReceiveQueueMax %" PRId64 " %d\n", teotimeGetTimePassedMs(saved_time), __LINE__);
-  }
     return rv;
 }
 #endif
@@ -463,10 +464,8 @@ uint32_t trudpGetSendQueueTimeout(trudpData *td, uint64_t current_time) {
         if(timeout_sq < min_timeout_sq) min_timeout_sq = timeout_sq;
         if(!min_timeout_sq) break;
     }
-  int64_t time = teotimeGetTimePassedMs(saved_time);
-  if (time > 3) {
-    printf("trudpGetSendQueueTimeout %" PRId64 " %d\n", teotimeGetTimePassedMs(saved_time), __LINE__);
-  }
+
+    TIME_LOG("trudpGetSendQueueTimeout");
 
     return min_timeout_sq;
 }
@@ -490,10 +489,6 @@ static size_t trudp_SendQueueSize(trudpData *td) {
         trudpChannelData *tcd = (trudpChannelData *)teoMapIteratorElementData(el, NULL);
         sz += trudpSendQueueSize(tcd->sendQueue);
     }
-  int64_t time = teotimeGetTimePassedMs(saved_time);
-  if (time > 3) {
-    printf("trudp_SendQueueSize %" PRId64 " %d\n", teotimeGetTimePassedMs(saved_time), __LINE__);
-  }
 
     return sz;
 }
@@ -531,10 +526,8 @@ int trudpProcessSendQueue(trudpData *td, uint64_t *next_et) {
     } while(retval == -1 || (retval > 0 && min_expected_time <= ts));
 
     if(next_et) *next_et = (min_expected_time != UINT64_MAX) ? min_expected_time : 0;
-  int64_t time = teotimeGetTimePassedMs(saved_time);
-  if (time > 3) {
-    printf("trudpProcessSendQueue %" PRId64 " %d\n", teotimeGetTimePassedMs(saved_time), __LINE__);
-  }
+
+    TIME_LOG("trudpProcessSendQueue");
 
     return rv;
 }
@@ -593,10 +586,8 @@ size_t trudpProcessWriteQueue(trudpData *td) {
     }
 
     if(!retval) td->writeQueueIdx = 0;
-  int64_t time = teotimeGetTimePassedMs(saved_time);
-  if (time > 3) {
-    printf("trudpProcessSendQueue %" PRId64 " %d\n", teotimeGetTimePassedMs(saved_time), __LINE__);
-  }
+    
+    TIME_LOG("trudpProcessWriteQueue");
 
     return retval;
 }

@@ -60,8 +60,7 @@ void trudpReceiveQueueDestroy(trudpReceiveQueue *rq) {
  */
 
 int trudpReceiveQueueFree(trudpReceiveQueue *rq) {
-    trudpPacketMapDestroy(rq);
-    return 0;
+    return trudpPacketMapFree(rq);
 }
 
 /**

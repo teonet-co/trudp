@@ -100,6 +100,20 @@ int trudpPacketQueueFree(trudpPacketQueue *tq) {
 }
 
 /**
+ * Remove all elements from Packet map
+ *
+ * @param tq Pointer to trudpPacketMap
+ * @return Zero at success
+ */
+int trudpPacketMapFree(trudpPacketMap *tq) {
+    if(tq && tq->q) {
+        teoMapClear(tq->q);
+        return 0;
+    }
+    return -1;
+}
+
+/**
  * Get number of elements in Packet queue
  *
  * @param tq
@@ -239,7 +253,7 @@ uint32_t *trudpPacketMapAdd(trudpPacketMap *tq, void *packet,
 trudpPacketQueueData *trudpPacketQueueFindById(trudpPacketQueue *tq,
         uint32_t id) {
 
-  int64_t saved_time = teotimeGetCurrentTimeMs();
+    int64_t saved_time = teotimeGetCurrentTimeMs();
     trudpPacketQueueData *rv = NULL;
 
     teoQueueIterator it;
@@ -255,10 +269,11 @@ trudpPacketQueueData *trudpPacketQueueFindById(trudpPacketQueue *tq,
             break;
         }
     }
-  int64_t time = teotimeGetTimePassedMs(saved_time);
-  if (time >= 2) {
-    printf("trudpPacketQueueFindById %" PRId64 " %d\n", teotimeGetTimePassedMs(saved_time), __LINE__);
-  }
+
+    int64_t time = teotimeGetTimePassedMs(saved_time);
+    if (time > 3) {
+        printf("trudpPacketQueueFindById %ld %d\n", teotimeGetTimePassedMs(saved_time), __LINE__);
+    }
 
     return rv;
 }
@@ -272,7 +287,7 @@ trudpPacketQueueData *trudpPacketQueueFindById(trudpPacketQueue *tq,
  * @return Pointer to trudpPacketQueueData or NULL if not found
  */
 trudpPacketQueueData *trudpPacketMapFindById(trudpPacketMap *tq, uint32_t id) {
-    trudpPacketQueueData *rv = teoMapGet(tq->q, &id, sizeof(&id), NULL);
+    trudpPacketQueueData *rv = teoMapGet(tq->q, &id, sizeof(id), NULL);
     return rv != (void*)-1 ? rv : NULL;
 }
 

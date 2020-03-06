@@ -87,6 +87,7 @@ void trudpPacketMapDestroy(trudpPacketMap *tq);
  * @return Zero at success
  */
 int trudpPacketQueueFree(trudpPacketQueue *tq);
+int trudpPacketMapFree(trudpPacketMap *tq);
 
 
 /**
