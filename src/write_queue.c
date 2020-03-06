@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2016-2018 Kirill Scherba <kirill@scherba.ru>.
+ * Copyright 2016-2020 Kirill Scherba <kirill@scherba.ru>.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -37,12 +37,12 @@
  *
  * @return Pointer to trudpWriteQueue
  */
-
 trudpWriteQueue *trudpWriteQueueNew() {
     trudpWriteQueue *wq = (trudpWriteQueue *)malloc(sizeof(trudpWriteQueue));
     wq->q = teoQueueNew();
     return wq;
 }
+
 /**
  * Destroy Write queue
  *
@@ -55,6 +55,7 @@ void trudpWriteQueueDestroy(trudpWriteQueue *wq) {
         free(wq);
     }
 }
+
 /**
  * Remove all elements from Write queue
  *
@@ -65,6 +66,7 @@ void trudpWriteQueueDestroy(trudpWriteQueue *wq) {
 int trudpWriteQueueFree(trudpWriteQueue *wq) {
     return wq && wq->q ? teoQueueFree(wq->q) : -1;
 }
+
 /**
  * Get number of elements in Write queue
  *
@@ -76,8 +78,7 @@ int trudpWriteQueueFree(trudpWriteQueue *wq) {
 size_t trudpWriteQueueSize(trudpWriteQueue *wq) {
     return wq ? teoQueueSize(wq->q) : -1;
 }
-trudpWriteQueueData *trudpWriteQueueAdd(trudpWriteQueue *wq, void *packet,
-        void *packet_ptr, size_t packet_length);
+
 /**
  * Get pointer to first element data
  *
@@ -89,6 +90,7 @@ trudpWriteQueueData *trudpWriteQueueAdd(trudpWriteQueue *wq, void *packet,
 trudpWriteQueueData *trudpWriteQueueGetFirst(trudpWriteQueue *wq) {
     return (trudpWriteQueueData *) (wq->q->first ? wq->q->first->data : NULL);
 }
+
 /**
  * Remove first element from Write queue
  *
@@ -96,7 +98,6 @@ trudpWriteQueueData *trudpWriteQueueGetFirst(trudpWriteQueue *wq) {
  *
  * @return Zero at success
  */
-
 int trudpWriteQueueDeleteFirst(trudpWriteQueue *wq) {
     return teoQueueDeleteFirst(wq->q);
 }

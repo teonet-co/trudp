@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2016 Kirill Scherba <kirill@scherba.ru>.
+ * Copyright 2016-2020 Kirill Scherba <kirill@scherba.ru>.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -35,6 +35,7 @@
 #include "teobase/types.h"
 
 #include "teoccl/queue.h"
+#include "teoccl/map.h"
 
 #include "packet.h"
 
@@ -44,7 +45,8 @@ extern "C" {
 
 typedef struct trudpPacketQueue {
 
-    teoQueue *q;
+    teoQueue *q;    // queue to store packets
+    teoMap   *idx;  // index(map) to serch by id in queue
 
 } trudpPacketQueue;
 
