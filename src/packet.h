@@ -84,8 +84,6 @@ typedef enum trudpPacketType {
 
 TRUDP_API uint32_t trudpGetTimestamp();
 TRUDP_API uint32_t trudpPacketGetId(trudpPacket *packet);
-// This is dangerous and should not be used.
-//TRUDP_API void *trudpPacketGetPacket(void *data);
 TRUDP_API trudpPacketType trudpPacketGetType(trudpPacket *packet);
 TRUDP_API size_t trudpPacketGetPacketLength(trudpPacket *packet);
 
@@ -94,7 +92,7 @@ trudpPacket* trudpPacketACKcreateNew(trudpPacket* packet);
 size_t trudpPacketACKlength();
 trudpPacket* trudpPacketACKtoPINGcreateNew(trudpPacket* packet);
 trudpPacket* trudpPacketACKtoRESETcreateNew(trudpPacket* packet);
-trudpPacket* trudpPacketCheck(void *data, size_t packet_length);
+trudpPacket* trudpPacketCheck(uint8_t* data, size_t packet_length);
 void trudpPacketCreatedFree(trudpPacket* packet);
 trudpPacket* trudpPacketDATAcreateNew(uint32_t id, unsigned int channel, void *data,
                                size_t data_length, size_t *packetLength);

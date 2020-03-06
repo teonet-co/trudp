@@ -66,7 +66,7 @@ extern bool trudpOpt_DBG_echoKeepalivePing;
  * @param event_cb Event callback
  * @param user_data User data which will send to most library function
  *
- * @return New istance of trudpData
+ * @return New instance of trudpData
  */
 trudpData *trudpInit(int fd, int port, trudpEventCb event_cb, void *user_data) {
 
@@ -85,12 +85,8 @@ trudpData *trudpInit(int fd, int port, trudpEventCb event_cb, void *user_data) {
     // Set event callback
     trudp->evendCb = event_cb;
 
-    // Set trudpData label
-    trudp->trudp_data_label[0] = 0x77557755;
-    trudp->trudp_data_label[1] = 0x55775577;
-
     // Send INITIALIZE event
-    trudpSendEvent((void*)trudp, INITIALIZE, NULL, 0, NULL);
+    trudpSendGlobalEvent(trudp, INITIALIZE, NULL, 0, NULL);
 
     return trudp;
 }
@@ -101,9 +97,8 @@ trudpData *trudpInit(int fd, int port, trudpEventCb event_cb, void *user_data) {
  * @param td Pointer to trudpData
  */
 void trudpDestroy(trudpData* td) {
-
-    if(td) {
-        trudpSendEvent((void*)td, DESTROY, NULL, 0, NULL);
+    if (td != NULL) {
+        trudpSendGlobalEvent(td, DESTROY, NULL, 0, NULL);
         teoMapDestroy(td->map);
         free(td);
     }
@@ -112,47 +107,53 @@ void trudpDestroy(trudpData* td) {
 /**
  * Execute trudpEventCb callback
  *
- * @param t_pointer Pointer to trudpData or to trudpChannelData
+ * @param tcd Pointer to trudpChannelData
  * @param event
  * @param data
  * @param data_length
  * @param reserved - reserved, not used
  */
-void trudpSendEvent(void *t_pointer, int event, void *data,
-        size_t data_length, void *reserved) {
+void trudpSendEvent(trudpChannelData* tcd, int event, void* data,
+        size_t data_length, void* reserved) {
+    trudpData *td = (trudpData*)tcd->td;
 
-    trudpData *td = (trudpData *)t_pointer;
-
-    if(td->trudp_data_label[0] == 0x77557755 &&
-       td->trudp_data_label[1] == 0x55775577) {
-
-        trudpEventCb cb = td->evendCb;
-        if(cb != NULL) cb(t_pointer, event, data, data_length, td->user_data);
+    trudpEventCb cb = td->evendCb;
+    if (cb != NULL) {
+        cb((void*)tcd, event, data, data_length, td->user_data);
     }
-    else {
+}
 
-        trudpChannelData *tcd = (trudpChannelData *) t_pointer;
-
-        trudpEventCb cb = TD(tcd)->evendCb;
-        if(cb != NULL) cb((void*)tcd, event, data, data_length, TD(tcd)->user_data);
+/**
+ * Execute trudpEventCb callback
+ *
+ * @param td Pointer to trudpData
+ * @param event
+ * @param data
+ * @param data_length
+ * @param reserved - reserved, not used
+ */
+void trudpSendGlobalEvent(trudpData* td, int event, void* data,
+        size_t data_length, void* reserved) {
+    trudpEventCb cb = td->evendCb;
+    if (cb != NULL) {
+        cb((void*)td, event, data, data_length, td->user_data);
     }
 }
 
 /**
  * Execute evetrudpEventCbnt callback with event GOT_DATA when data packet received
  *
- * @param t_pointer Pointer to trudpChannelData
+ * @param tcd Pointer to trudpChannelData
  * @param packet Pointer to received packet
  * @param data_length [out] Packets data length (NULL if not need to return it
  *
  * @return  Pointer to packet data
  */
-void *trudpSendEventGotData(void *t_pointer, trudpPacket *packet,
+void *trudpSendEventGotData(trudpChannelData* tcd, trudpPacket *packet,
         size_t *data_length) {
-
     void *data = trudpPacketGetData(packet);
     size_t data_len = trudpPacketGetDataLength(packet);
-    trudpSendEvent(t_pointer, GOT_DATA, packet, data_len, NULL);
+    trudpSendEvent(tcd, GOT_DATA, packet, data_len, NULL);
 
     if (data_length != NULL) {
         *data_length = data_len;
@@ -168,7 +169,7 @@ void *trudpSendEventGotData(void *t_pointer, trudpPacket *packet,
  */
 void trudpChannelDestroyAll(trudpData *td) {
     size_t counter = teoMapSize(td->map);
-    while (counter) {
+    while (counter != 0) {
         size_t data_len = 0;
         trudpChannelData *tcd = (trudpChannelData *)teoMapGetFirst(td->map, &data_len);
         trudpChannelDestroy(tcd);
@@ -182,14 +183,17 @@ void trudpChannelDestroyAll(trudpData *td) {
  * @param td Pointer to trudpData
  * @param addr String with IP address
  * @param port Port number
- * @param channel Cannel number 0-15
+ * @param channel Channel number 0-15
  */
 void trudpChannelDestroyAddr(trudpData *td, char *addr, int port, int channel) {
-
         size_t key_length;
         char *key = trudpMakeKey(addr, port, channel, &key_length);
+
         trudpChannelData *tcd = (trudpChannelData *)teoMapGet(td->map, key, key_length, NULL);
-        if(tcd && tcd != (void *)-1) trudpChannelDestroy(tcd);
+        
+        if (tcd != NULL && tcd != (void *)-1) {
+            trudpChannelDestroy(tcd);
+        }
 }
 
 // ===========================================================================
@@ -215,15 +219,26 @@ void trudpSendResetAll(trudpData *td) {
     }
 }
 
-int trudpIsPacketPing(void *data, size_t packet_length) {
-    if(trudpPacketCheck(data, packet_length)) {
-        int type = trudpPacketGetType(data);
-        if(type == TRU_PING) {
-            return 1;
+/**
+ * Check that buffer contains valid trudp packet and packet is ping packet.
+ * 
+ * @param data Buffer with received data
+ * @param packet_length The length of received data in the buffer
+ * 
+ * @return true if buffer contains valid trudp ping packet, false otherwise
+ */
+bool trudpIsPacketPing(uint8_t* data, size_t packet_length) {
+    trudpPacket* packet = trudpPacketCheck(data, packet_length);
+    
+    if (packet != NULL) {
+        int type = trudpPacketGetType(packet);
+        
+        if (type == TRU_PING) {
+            return true;
         }
     }
 
-    return 0;
+    return false;
 }
 
 /**
@@ -233,8 +248,7 @@ int trudpIsPacketPing(void *data, size_t packet_length) {
  * @param data Received data
  * @param data_length The length in bytes of received data
  */
-void trudpProcessReceived(trudpData *td, void *data, size_t data_length) {
-
+void trudpProcessReceived(trudpData* td, uint8_t* data, size_t data_length) {
     struct sockaddr_in remaddr; // remote address
 
     socklen_t addr_len = sizeof(remaddr);

@@ -32,11 +32,6 @@
 #include <string.h>
 #include <fcntl.h>
 
-// C11 present
-#if __STDC_VERSION__ >= 201112L
-//extern int inet_aton (const char *__cp, struct in_addr *__inp) __THROW;
-#endif
-
 #include "udp.h"
 #include "trudp_utils.h"
 #include "trudp_options.h"
@@ -215,16 +210,15 @@ int trudpUdpBindRaw(int *port, int allow_port_increment_f) {
 /**
  * Simple UDP recvfrom wrapper
  *
- * @param fd
- * @param buffer
- * @param buffer_size
- * @param remaddr
- * @param addr_length
- * @return
+ * @param fd Socket descriptor
+ * @param buffer Buffer to store received data
+ * @param buffer_size The size of buffer
+ * @param remaddr Remote address to receive from
+ * @param addr_length The length of @a remaddr argument
+ * @return The amount of bytes received or -1 on error
  */
-ssize_t trudpUdpRecvfrom(int fd, void *buffer, size_t buffer_size,
-        __SOCKADDR_ARG remaddr, socklen_t *addr_length) {
-
+ssize_t trudpUdpRecvfrom(int fd, uint8_t* buffer, size_t buffer_size,
+        __SOCKADDR_ARG remaddr, socklen_t* addr_length) {
     int flags = 0;
 
     // Read UDP data
@@ -288,26 +282,24 @@ static int _trudpUdpIsWritable(int sd, uint32_t timeOut) {
 /**
  * Simple UDP sendto wrapper
  *
- * @param fd File descriptor
- * @param buffer
- * @param buffer_size
- * @param remaddr
- * @param addrlen
- * @return
+ * @param fd Socket descriptor
+ * @param buffer Buffer with data to send
+ * @param buffer_size The size of data to send
+ * @param remaddr Address to send data to
+ * @param addrlen The length of @a remaddr argument
+ * @return The amount of bytes sent or -1 on error
  */
- ssize_t trudpUdpSendto(int fd, void *buffer, size_t buffer_size,
-        __CONST_SOCKADDR_ARG remaddr, socklen_t addrlen) {
-
+ ssize_t trudpUdpSendto(int fd, const uint8_t* buffer, size_t buffer_size,
+        __CONST_SOCKADDR_ARG remaddr, socklen_t addr_length) {
     CLTRACK(trudpOpt_DBG_sendto, "TrUdp", "Sending %u bytes using sendto().",
              (uint32_t)buffer_size);
-
     ssize_t sendlen = 0;
 
     //if(waitSocketWriteAvailable(fd, 1000000) > 0) {
 
     // Write UDP data
     int flags = 0;
-    sendlen = sendto(fd, buffer, buffer_size, flags, remaddr, addrlen);
+    sendlen = sendto(fd, buffer, buffer_size, flags, remaddr, addr_length);
     //}
 
     if (sendlen == -1) {

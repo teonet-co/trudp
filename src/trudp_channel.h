@@ -180,7 +180,7 @@ TRUDP_API void trudpChannelSendRESET(trudpChannelData *tcd, void* data, size_t d
  */
 TRUDP_API void trudp_ChannelSendReset(trudpChannelData *tcd);
 
-TRUDP_API void *trudpChannelProcessReceivedPacket(trudpChannelData *tcd, void *data,
+TRUDP_API void *trudpChannelProcessReceivedPacket(trudpChannelData *tcd, uint8_t *data,
         size_t packet_length, size_t *data_length);
 size_t trudpChannelSendPING(trudpChannelData *tcd, void *data, size_t data_length);
 uint32_t trudpChannelSendQueueGetTimeout(trudpChannelData *tcd,

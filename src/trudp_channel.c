@@ -613,7 +613,7 @@ size_t trudpChannelSendData(trudpChannelData *tcd, void *data,
  *         *data_length, if packet is not TR-UDP packet it's sent to client as
  * is
  */
-void *trudpChannelProcessReceivedPacket(trudpChannelData *tcd, void *data,
+void *trudpChannelProcessReceivedPacket(trudpChannelData *tcd, uint8_t *data,
                                         size_t packet_length,
                                         size_t *data_length) {
 
