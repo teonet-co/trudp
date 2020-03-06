@@ -37,7 +37,8 @@ void timed_queue() {
     size_t packetLength, data_length = strlen(data) + 1;
     uint32_t packet_id = GET_ID();
     trudpPacket* packetDATA = trudpPacketDATAcreateNew(packet_id, 0, data, data_length, &packetLength);
-    CU_ASSERT_PTR_NOT_NULL_FATAL(trudpPacketCheck(packetDATA, packetLength));
+    uint8_t* packet_buffer = (uint8_t*)packetDATA;
+    CU_ASSERT_PTR_NOT_NULL_FATAL(trudpPacketCheck(packet_buffer, packetLength));
     CU_ASSERT_EQUAL(trudpPacketGetId(packetDATA), packet_id);
 
     // Create 2 DATA packet
@@ -45,7 +46,8 @@ void timed_queue() {
     size_t packetLength2, data_length2 = strlen(data2) + 1;
     uint32_t packet_id2 = GET_ID();
     trudpPacket* packetDATA2 = trudpPacketDATAcreateNew(packet_id2, 0, data2, data_length2, &packetLength2);
-    CU_ASSERT_PTR_NOT_NULL_FATAL(trudpPacketCheck(packetDATA2, packetLength2));
+    uint8_t* packet2_buffer = (uint8_t*)packetDATA2;
+    CU_ASSERT_PTR_NOT_NULL_FATAL(trudpPacketCheck(packet2_buffer, packetLength2));
     CU_ASSERT_EQUAL(trudpPacketGetId(packetDATA2), packet_id2);
 
     // Add 1 DATA packet to timed queue

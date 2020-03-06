@@ -28,9 +28,10 @@
  */
 
 #include <stdio.h>
+#include <stdint.h>
 #include <stdarg.h>
-#include <unistd.h>
 #include <pthread.h>
+#include <unistd.h>
 
 #include "trudp.h"
 #include "packet.h"
@@ -48,7 +49,7 @@ static int connected_flag = 0;
 const int DELAY = 500000; // uSec
 
 // Read buffer
-static char *buffer;
+static uint8_t* buffer;
 
 enum debug_mode {
     DEBUG_MSG = 1,
@@ -395,7 +396,7 @@ static void* trudp_process_thread(void *tru_p) {
 trudp_data_t *trudp_init(trudp_options *o) {
 
     // Create read buffer
-    buffer = malloc(o->buf_size);
+    buffer = (uint8_t*)malloc(o->buf_size);
 
     int fd = trudpUdpBindRaw(&o->local_port_i, 1);
     if(fd <= 0) {
