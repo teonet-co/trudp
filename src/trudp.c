@@ -299,7 +299,7 @@ size_t trudpSendDataToAll(trudpData *td, void *data, size_t data_length) {
             // drop packets if send queue > 100 \todo move it to Send Data
             // function or something else
             //if(trudpSendQueueSize(tcd->sendQueue) < 100) {
-                if(trudpChannelSendData(tcd, data, data_length) < 0) break;
+                trudpChannelSendData(tcd, data, data_length);
                 rv++;
             //}
         }
