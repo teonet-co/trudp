@@ -27,9 +27,11 @@
  * Created on June 15, 2016, 12:56 AM
  */
 
+#include "write_queue.h"
+
 #include <stdlib.h>
 #include <string.h>
-#include "write_queue.h"
+
 /**
  * Create new Write queue
  *
@@ -98,7 +100,6 @@ trudpWriteQueueData *trudpWriteQueueGetFirst(trudpWriteQueue *wq) {
 int trudpWriteQueueDeleteFirst(trudpWriteQueue *wq) {
     return teoQueueDeleteFirst(wq->q);
 }
-
 
 /**
  * Add packet to Write queue

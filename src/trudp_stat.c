@@ -27,11 +27,14 @@
  * Created on June 11, 2016, 4:41 PM
  */
 
+#include "trudp_stat.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "trudp_stat.h"
+#include "teobase/types.h"
+
 #include "utils_r.h"
 #include "trudp_utils.h"
 

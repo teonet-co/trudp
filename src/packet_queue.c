@@ -26,11 +26,13 @@
  * Packet queue: extended queue module used as TR-UDP send and receive queue
  */
 
+#include "packet_queue.h"
+
 #include <stdlib.h>
-#include <stdint.h>
 #include <string.h>
 
-#include "packet_queue.h"
+#include "teobase/types.h"
+
 #include "packet.h"
 
 // Local functions
@@ -75,7 +77,7 @@ int trudpPacketQueueFree(trudpPacketQueue *tq) {
 /**
  * Get number of elements in Packet queue
  *
- * @param tq
+ * @param tq Pointer to trudpPacketQueue
  *
  * @return Number of elements in TR-UPD queue
  */

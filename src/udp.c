@@ -26,17 +26,19 @@
  * UDP client server helper module
  */
 
+#include "udp.h"
+
 #include <errno.h>
 #include <stdio.h>
-#include <stdint.h>
 #include <string.h>
 #include <fcntl.h>
 
-#include "udp.h"
-#include "trudp_utils.h"
-#include "trudp_options.h"
+#include "teobase/types.h"
 
 #include "teobase/logging.h"
+
+#include "trudp_utils.h"
+#include "trudp_options.h"
 
 // Global teocli options
 extern bool trudpOpt_DBG_sendto;

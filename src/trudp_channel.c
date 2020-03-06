@@ -24,16 +24,16 @@
 
 // Channel functions ==========================================================
 
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
+#include "trudp_channel.h"
+
 #include <stdlib.h>
 #include <string.h>
+
+#include "teobase/types.h"
 
 #include "teoccl/memory.h"
 #include "teobase/logging.h"
 
-#include "trudp_channel.h"
 #include "trudp_stat.h"
 #include "trudp_utils.h"
 

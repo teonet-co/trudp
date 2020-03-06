@@ -31,7 +31,8 @@
 #define PACKET_QUEUE_H
 
 #include <stdlib.h>
-#include <stdint.h>
+
+#include "teobase/types.h"
 
 #include "teoccl/queue.h"
 

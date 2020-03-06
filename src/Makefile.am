@@ -72,6 +72,7 @@ teobase_HEADERS = \
 	$(top_srcdir)/libs/teobase/include/teobase/platform.h \
 	$(top_srcdir)/libs/teobase/include/teobase/socket.h \
 	$(top_srcdir)/libs/teobase/include/teobase/time.h \
+	$(top_srcdir)/libs/teobase/include/teobase/types.h \
 	$(top_srcdir)/libs/teobase/include/teobase/windows.h \
 	\
 	$(top_srcdir)/libs/teoccl/include/teoccl/array_list.h \

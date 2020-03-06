@@ -32,11 +32,9 @@
 #ifndef TRUDP_CHANNEL_H
 #define TRUDP_CHANNEL_H
 
-#include <stdint.h>
-#include <stdbool.h>
-#include <stddef.h>
+#include "teobase/platform.h" // For TEONET_OS_x
 
-#if defined(HAVE_MINGW) || defined(_WIN32)
+#if defined(TEONET_OS_WINDOWS)
 
 #define WIN32_LEAN_AND_MEAN
 // TODO: Stop using deprecated functions and remove this define.
@@ -44,23 +42,16 @@
 #include <winsock2.h>
 typedef int socklen_t;
 
-# define __SOCKADDR_ARG		struct sockaddr *__restrict
-# define __CONST_SOCKADDR_ARG	const struct sockaddr *
-
-#ifndef _SSIZE_T_DEFINED
-#ifdef  _WIN64
-typedef unsigned __int64    ssize_t;
-#else
-typedef _W64 unsigned int   ssize_t;
-#endif
-#define _SSIZE_T_DEFINED
-#endif
+# define __SOCKADDR_ARG struct sockaddr *__restrict
+# define __CONST_SOCKADDR_ARG const struct sockaddr *
 
 #else
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #endif
+
+#include "teobase/types.h"
 
 #include "trudp_api.h"
 #include "trudp_const.h"

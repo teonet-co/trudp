@@ -3,8 +3,7 @@
 #ifndef TRUDP_OPTIONS_H
 #define TRUDP_OPTIONS_H
 
-#include <stdbool.h>
-#include <stdint.h>
+#include "teobase/types.h"
 
 #include "trudp_api.h"
 

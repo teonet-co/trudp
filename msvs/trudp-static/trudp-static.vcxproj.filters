@@ -155,5 +155,8 @@
     <ClInclude Include="..\..\src\write_queue.h">
       <Filter>trudp</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\libs\teobase\include\teobase\types.h">
+      <Filter>teobase</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

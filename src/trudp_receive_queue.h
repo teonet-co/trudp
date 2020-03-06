@@ -32,6 +32,7 @@
 #define TRUDP_RECEIVE_QUEUE_H
 
 #include <stdlib.h>
+
 #include "packet_queue.h"
 
 /**
@@ -54,14 +55,14 @@ extern "C" {
  * @return Pointer to trudpPacketQueue
  */
 
-trudpReceiveQueue *trudpReceiveQueueNew(); 
+trudpReceiveQueue *trudpReceiveQueueNew();
 /**
  * Destroy Receive queue
  *
  * @param rq Pointer to trudpReceiveQueue
  */
 
-void trudpReceiveQueueDestroy(trudpReceiveQueue *rq); 
+void trudpReceiveQueueDestroy(trudpReceiveQueue *rq);
 /**
  * Remove all elements from Receive queue
  *
@@ -78,7 +79,7 @@ int trudpReceiveQueueFree(trudpReceiveQueue *rq);
  * @return Number of elements in TR-UPD send queue
  */
 
-size_t trudpReceiveQueueSize(trudpReceiveQueue *sq); 
+size_t trudpReceiveQueueSize(trudpReceiveQueue *sq);
 /**
  * Add packet to Receive queue
  *
@@ -119,4 +120,3 @@ trudpReceiveQueueData *trudpReceiveQueueFindById(trudpReceiveQueue *sq,
 #endif
 
 #endif /* TRUDP_RECEIVE_QUEUE_H */
-

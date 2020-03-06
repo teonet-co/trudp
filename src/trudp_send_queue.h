@@ -30,8 +30,7 @@
 #ifndef TRUDP_SEND_QUEUE_H
 #define TRUDP_SEND_QUEUE_H
 
-#include <stddef.h>
-#include <stdint.h>
+#include "teobase/types.h"
 
 #include "packet_queue.h"
 
@@ -79,7 +78,7 @@ void trudpSendQueueDestroy(trudpSendQueue *sq);
  * @return Number of elements in TR-UPD send queue
  */
 
-size_t trudpSendQueueSize(trudpSendQueue *sq); 
+size_t trudpSendQueueSize(trudpSendQueue *sq);
 /**
  * Add packet to Send queue
  *
@@ -102,7 +101,7 @@ trudpSendQueueData *trudpSendQueueAdd(trudpSendQueue *sq, void *packet,
  * @return Zero at success
  */
 
-int trudpSendQueueDelete(trudpSendQueue *sq, trudpSendQueueData *sqd); 
+int trudpSendQueueDelete(trudpSendQueue *sq, trudpSendQueueData *sqd);
 /**
  * Find Send queue data by Id
  *
@@ -112,7 +111,7 @@ int trudpSendQueueDelete(trudpSendQueue *sq, trudpSendQueueData *sqd);
  * @return Pointer to trudpSendQueueData or NULL if not found
  */
 
-trudpSendQueueData *trudpSendQueueFindById(trudpSendQueue *sq, uint32_t id); 
+trudpSendQueueData *trudpSendQueueFindById(trudpSendQueue *sq, uint32_t id);
 /**
  * Get first element from Send Queue
  *

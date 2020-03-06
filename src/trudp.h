@@ -27,10 +27,10 @@
 #ifndef TR_UDP_H
 #define TR_UDP_H
 
-#include <stdbool.h>
-#include <stdint.h>
+#include "teobase/types.h"
 
 #include "teoccl/map.h"
+
 #include "packet_queue.h"
 #include "write_queue.h"
 #include "packet.h"
