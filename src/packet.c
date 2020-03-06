@@ -317,13 +317,13 @@ static void _trudpHeaderPINGcreate(trudpPacket* packet, uint32_t id,
 /**
  * Check TR-UDP packet (header)
  *
- * @param data Pointer to trudpHeader (to packet)
+ * @param data Pointer to buffer with received packet
  * @param packet_length Length of packet with trudp header
  *
  * @return Return true if packet is valid
  *
  */
-trudpPacket* trudpPacketCheck(void *data, size_t packet_length) {
+trudpPacket* trudpPacketCheck(uint8_t* data, size_t packet_length) {
   if (packet_length < sizeof(trudpHeader)) {
     return NULL;
   }
@@ -528,20 +528,6 @@ static inline void _trudpPacketSetChannel(trudpPacket *packet, int channel) {
 void *trudpPacketGetData(trudpPacket *packet) {
   return (char *)packet + sizeof(trudpHeader);
 }
-
-/**
- * Get pointer to packet from it's data
- *
- * @param data Pointer to packet data
- * @return Pointer to packet
- */
-// This is dangerous and should not be used.
-/*
-void *trudpPacketGetPacket(void *data) {
-
-  return (char *)data - sizeof(trudpHeader);
-}
-*/
 
 /**
  * Get packet data length
