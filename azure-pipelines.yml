@@ -30,7 +30,7 @@ jobs:
     submodules: true
   - task: MSBuild@1
     inputs:
-      solution: 'msvs/rudp.sln' 
+      solution: 'msvs/trudp.sln' 
       platform: x64
       configuration: Release
       msbuildArguments: -target:trudp-static
