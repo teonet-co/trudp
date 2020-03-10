@@ -3,7 +3,9 @@ jobs:
   pool:
     vmImage: 'ubuntu-18.04'
   steps:
-  - bash: 'apt update && apt install -y libev-dev libcunit1-dev cpputest'
+  - checkout: self
+    submodules: true
+  - bash: 'sudo apt update && sudo apt install -y libev-dev libcunit1-dev cpputest'
   - bash: './autogen.sh'
   - bash: './configure CPPFLAGS=-DNDEBUG'
   - bash: 'make'
@@ -12,6 +14,8 @@ jobs:
   pool:
     vmImage: 'windows-2019'
   steps:
+  - checkout: self
+    submodules: true
   - task: MSBuild@1
     inputs:
       solution: 'msvs/trudp.sln' 
@@ -22,6 +26,8 @@ jobs:
   pool:
     vmImage: 'windows-2019'
   steps:
+  - checkout: self
+    submodules: true
   - task: MSBuild@1
     inputs:
       solution: 'msvs/rudp.sln' 
@@ -32,6 +38,8 @@ jobs:
   pool:
     vmImage: 'windows-2019'
   steps:
+  - checkout: self
+    submodules: true
   - task: MSBuild@1
     inputs:
       solution: 'msvs/trudp.sln' 
@@ -42,6 +50,8 @@ jobs:
   pool:
     vmImage: 'windows-2019'
   steps:
+  - checkout: self
+    submodules: true
   - task: MSBuild@1
     inputs:
       solution: 'msvs/trudp.sln' 
