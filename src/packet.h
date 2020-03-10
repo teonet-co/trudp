@@ -32,8 +32,7 @@
 #ifndef PACKET_H
 #define PACKET_H
 
-#include <stdint.h>
-#include <stddef.h>
+#include "teobase/types.h"
 
 #include "trudp_api.h"
 

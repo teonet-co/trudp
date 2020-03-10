@@ -27,16 +27,17 @@
  * Created on May 31, 2016, 1:44 AM
  */
 
-#include <stdbool.h>
-#include <stdint.h>
+#include "trudp.h"
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 
+#include "teobase/types.h"
+
 #include "teoccl/memory.h"
 #include "teobase/logging.h"
 
-#include "trudp.h"
 #include "trudp_channel.h"
 #include "trudp_utils.h"
 
@@ -190,7 +191,7 @@ void trudpChannelDestroyAddr(trudpData *td, char *addr, int port, int channel) {
         char *key = trudpMakeKey(addr, port, channel, &key_length);
 
         trudpChannelData *tcd = (trudpChannelData *)teoMapGet(td->map, key, key_length, NULL);
-        
+
         if (tcd != NULL && tcd != (void *)-1) {
             trudpChannelDestroy(tcd);
         }
@@ -221,18 +222,18 @@ void trudpSendResetAll(trudpData *td) {
 
 /**
  * Check that buffer contains valid trudp packet and packet is ping packet.
- * 
+ *
  * @param data Buffer with received data
  * @param packet_length The length of received data in the buffer
- * 
+ *
  * @return true if buffer contains valid trudp ping packet, false otherwise
  */
 bool trudpIsPacketPing(uint8_t* data, size_t packet_length) {
     trudpPacket* packet = trudpPacketCheck(data, packet_length);
-    
+
     if (packet != NULL) {
         int type = trudpPacketGetType(packet);
-        
+
         if (type == TRU_PING) {
             return true;
         }

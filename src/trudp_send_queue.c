@@ -28,6 +28,9 @@
  */
 
 #include "trudp_send_queue.h"
+
+#include "teobase/types.h"
+
 /**
  * Create new Send queue
  *

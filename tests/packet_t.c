@@ -29,7 +29,8 @@ void create_headers() {
     size_t packetLength, data_length = strlen(data) + 1;
     uint32_t packetDATAid = GET_ID();
     trudpPacket* packetDATA = trudpPacketDATAcreateNew(packetDATAid, 0, data, data_length, &packetLength);
-    CU_ASSERT_PTR_NOT_NULL_FATAL(trudpPacketCheck(packetDATA, packetLength));
+    uint8_t* packetDATA_buffer = (uint8_t*)packetDATA;
+    CU_ASSERT_PTR_NOT_NULL_FATAL(trudpPacketCheck(packetDATA_buffer, packetLength));
 
     // Check getter functions
     CU_ASSERT_EQUAL(packetDATAid, trudpPacketGetId(packetDATA));
@@ -39,12 +40,14 @@ void create_headers() {
     CU_ASSERT(trudpPacketGetTimestamp(packetDATA) <= trudpGetTimestamp());
 
     // Create & check ACK packet
-    void *packetACK = trudpPacketACKcreateNew(packetDATA);
-    CU_ASSERT_PTR_NOT_NULL_FATAL(trudpPacketCheck(packetACK, trudpPacketACKlength()));
+    trudpPacket* packetACK = trudpPacketACKcreateNew(packetDATA);
+    uint8_t* packetACK_buffer = (uint8_t*)packetACK;
+    CU_ASSERT_PTR_NOT_NULL_FATAL(trudpPacketCheck(packetACK_buffer, trudpPacketACKlength()));
 
     // Create & check RESET packet
-    void *packetRESET = trudpPacketRESETcreateNew(GET_ID(),0);
-    CU_ASSERT_PTR_NOT_NULL_FATAL(trudpPacketCheck(packetRESET, trudpPacketRESETlength()));
+    trudpPacket *packetRESET = trudpPacketRESETcreateNew(GET_ID(),0);
+    uint8_t* packetRESET_buffer = (uint8_t*)packetRESET;
+    CU_ASSERT_PTR_NOT_NULL_FATAL(trudpPacketCheck(packetRESET_buffer, trudpPacketRESETlength()));
 
     // Free packets
     trudpPacketCreatedFree(packetRESET);

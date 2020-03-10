@@ -1,10 +1,11 @@
-#include <stdbool.h>
-#include <stdint.h>
+#include "trudp_options.h"
+
 #include <stdlib.h>
+
+#include "teobase/types.h"
 
 #include "teobase/logging.h"
 
-#include "trudp_options.h"
 #include "trudp_const.h"
 
 extern bool trudpOpt_DBG_sendto;

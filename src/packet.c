@@ -26,12 +26,13 @@
  * TR-UDP Header and Packet functions module
  */
 
-#include <stdint.h>
+#include "packet.h"
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 
-#include "packet.h"
+#include "teobase/types.h"
 
 #include "teobase/time.h"
 

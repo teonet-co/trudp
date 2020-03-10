@@ -24,14 +24,15 @@
 
 // Utilities functions ========================================================
 
+#include "trudp_utils.h"
+
+#include <stdarg.h>
+#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdarg.h>
-#include <stdint.h>
-#include <string.h>
-//#include <time.h>
 
-#include "trudp_utils.h"
+#include "teobase/types.h"
+
 #include "trudp_const.h"
 
 #if defined(HAVE_MINGW) || defined(_WIN32)
@@ -173,6 +174,5 @@ uint64_t modSubU(uint64_t arg_a, uint64_t arg_b, uint64_t mod_) {
     int64_t sub = (arg_a % mod_) + mod_ - (arg_b % mod_);
     return (uint64_t)(sub % mod_);
 }
-
 
 #undef min

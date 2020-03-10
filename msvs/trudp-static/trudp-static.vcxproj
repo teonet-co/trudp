@@ -47,6 +47,7 @@
     <ClInclude Include="..\..\libs\teobase\include\teobase\platform.h" />
     <ClInclude Include="..\..\libs\teobase\include\teobase\socket.h" />
     <ClInclude Include="..\..\libs\teobase\include\teobase\time.h" />
+    <ClInclude Include="..\..\libs\teobase\include\teobase\types.h" />
     <ClInclude Include="..\..\libs\teobase\include\teobase\windows.h" />
     <ClInclude Include="..\..\libs\teoccl\include\teoccl\array_list.h" />
     <ClInclude Include="..\..\libs\teoccl\include\teoccl\hash.h" />

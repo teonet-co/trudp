@@ -118,5 +118,3 @@ trudpReceiveQueueData *trudpReceiveQueueFindById(trudpReceiveQueue *sq,
         uint32_t id) {
     return trudpPacketQueueFindById(sq, id);
 }
-
-

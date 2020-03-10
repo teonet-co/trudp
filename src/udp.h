@@ -32,8 +32,9 @@
 #ifndef UDP_H
 #define UDP_H
 
-#if defined(HAVE_MINGW) || defined(_WIN32)
+#include "teobase/platform.h" // For TEONET_OS_x
 
+#if defined(TEONET_OS_WINDOWS)
     #define WIN32_LEAN_AND_MEAN
     // TODO: Stop using deprecated functions and remove this define.
     #define _WINSOCK_DEPRECATED_NO_WARNINGS
@@ -44,21 +45,20 @@
     #define __SOCKADDR_ARG struct sockaddr *__restrict
     #define __CONST_SOCKADDR_ARG const struct sockaddr *
 
-    #ifndef _SSIZE_T_DEFINED
-    typedef intptr_t ssize_t;
-    #define _SSIZE_T_DEFINED
     #endif
-#elif defined(__ANDROID__) || defined(__APPLE__)
+#if defined(TEONET_OS_ANDROID) || defined(TEONET_OS_IOS) || defined(TEONET_OS_MACOS)
     #define __SOCKADDR_ARG struct sockaddr *__restrict
     #define __CONST_SOCKADDR_ARG const struct sockaddr *
     #include <netdb.h>
     #include <arpa/inet.h>
     #include <sys/socket.h>
-#elif defined(__linux__) && defined(__x86_64__)
+#elif defined(TEONET_OS_LINUX)
     #include <netdb.h>
     #include <arpa/inet.h>
     #include <sys/socket.h>
 #endif
+
+#include "teobase/types.h"
 
 #include "trudp_api.h"
 

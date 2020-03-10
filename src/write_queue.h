@@ -30,7 +30,7 @@
 #ifndef WRITE_QUEUE_H
 #define WRITE_QUEUE_H
 
-#include <stdint.h>
+#include "teobase/types.h"
 
 #include "teoccl/queue.h"
 
@@ -68,8 +68,8 @@ trudpWriteQueue *trudpWriteQueueNew();
  * @param wq Pointer to trudpWriteQueue
  */
 
-void trudpWriteQueueDestroy(trudpWriteQueue *wq); 
-  
+void trudpWriteQueueDestroy(trudpWriteQueue *wq);
+
 /**
  * Remove all elements from Write queue
  *
@@ -115,4 +115,3 @@ int trudpWriteQueueDeleteFirst(trudpWriteQueue *wq);
 #endif
 
 #endif /* WRITE_QUEUE_H */
-

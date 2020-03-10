@@ -30,12 +30,13 @@
 #ifndef TRUDP_UTILS_H
 #define TRUDP_UTILS_H
 
-#include <stddef.h>
 #include <time.h>
 
 #if defined(__linux__)
 #include <sys/time.h>
 #endif
+
+#include "teobase/types.h"
 
 #ifdef __cplusplus
 extern "C" {

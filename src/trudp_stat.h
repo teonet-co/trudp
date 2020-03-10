@@ -32,6 +32,8 @@
 
 #include <string.h>
 
+#include "teobase/types.h"
+
 #include "trudp.h"
 #include "trudp_api.h"
 
