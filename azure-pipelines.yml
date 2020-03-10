@@ -1,0 +1,60 @@
+jobs:
+- job: build_linux
+  pool:
+    vmImage: 'ubuntu-18.04'
+  steps:
+  - checkout: self
+    submodules: true
+  - bash: 'sudo apt update && sudo apt install -y libev-dev libcunit1-dev cpputest'
+  - bash: './autogen.sh'
+  - bash: './configure CPPFLAGS=-DNDEBUG'
+  - bash: 'make'
+  - bash: 'make test'
+- job: build_windows_x86_static
+  pool:
+    vmImage: 'windows-2019'
+  steps:
+  - checkout: self
+    submodules: true
+  - task: MSBuild@1
+    inputs:
+      solution: 'msvs/trudp.sln'
+      platform: x86
+      configuration: Release
+      msbuildArguments: -target:trudp-static
+- job: build_windows_x86_64_static
+  pool:
+    vmImage: 'windows-2019'
+  steps:
+  - checkout: self
+    submodules: true
+  - task: MSBuild@1
+    inputs:
+      solution: 'msvs/trudp.sln'
+      platform: x64
+      configuration: Release
+      msbuildArguments: -target:trudp-static
+- job: build_windows_x86_dynamic
+  pool:
+    vmImage: 'windows-2019'
+  steps:
+  - checkout: self
+    submodules: true
+  - task: MSBuild@1
+    inputs:
+      solution: 'msvs/trudp.sln'
+      platform: x86
+      configuration: Release
+      msbuildArguments: -target:trudp-dynamic
+- job: build_windows_x86_64_dynamic
+  pool:
+    vmImage: 'windows-2019'
+  steps:
+  - checkout: self
+    submodules: true
+  - task: MSBuild@1
+    inputs:
+      solution: 'msvs/trudp.sln'
+      platform: x64
+      configuration: Release
+      msbuildArguments: -target:trudp-dynamic
