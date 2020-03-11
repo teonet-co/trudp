@@ -357,9 +357,8 @@ void network_select_loop(trudp_data_t *tru, int timeout) {
             // Process received packet
             if(recvlen > 0) {
                 pthread_mutex_lock(&tru->mutex);
-                size_t data_length;
                 trudpChannelData *tcd = trudpGetChannelCreate(td, (__SOCKADDR_ARG)&remaddr, 0);
-                trudpChannelProcessReceivedPacket(tcd, buffer, recvlen, &data_length);
+                trudpChannelProcessReceivedPacket(tcd, buffer, recvlen);
                 pthread_mutex_unlock(&tru->mutex);
             }
         }
