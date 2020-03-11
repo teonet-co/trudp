@@ -20,7 +20,7 @@ jobs:
       - run: echo $CIRCLE_TAG
       
       # Install dependences   
-      - run: apt update && apt install -y libev-dev libcunit1-dev cpputest
+      - run: apt update && apt install -y libev-dev
       # Make  
       - run: ./autogen.sh
       - run: ./configure CPPFLAGS=-DNDEBUG && make
@@ -50,7 +50,7 @@ jobs:
       - run: echo $CIRCLE_TAG
 
       # Install dependences   
-      - run: apt update && apt install -y libev-dev libcunit1-dev cpputest
+      - run: apt update && apt install -y libev-dev
       # Make  
       - run: ./autogen.sh
       - run: ./configure CPPFLAGS=-DNDEBUG && make

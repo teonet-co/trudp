@@ -5,7 +5,7 @@ jobs:
   steps:
   - checkout: self
     submodules: true
-  - bash: 'sudo apt update && sudo apt install -y libev-dev libcunit1-dev cpputest'
+  - bash: 'sudo apt update && sudo apt install -y libev-dev'
   - bash: './autogen.sh'
   - bash: './configure CPPFLAGS=-DNDEBUG'
   - bash: 'make'
