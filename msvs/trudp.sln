@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "trudp-static", "trudp-stati
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "trudp-dynamic", "trudp-dynamic\trudp-dynamic.vcxproj", "{1094FB2E-1F26-4DB2-B204-1A0C4ED472F6}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "trudp-test-static", "trudp-test-static\trudp-test-static.vcxproj", "{8ECF9DD8-665F-4CEC-B2BD-38D24FEA6013}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -31,6 +33,14 @@ Global
 		{1094FB2E-1F26-4DB2-B204-1A0C4ED472F6}.Release|x64.Build.0 = Release|x64
 		{1094FB2E-1F26-4DB2-B204-1A0C4ED472F6}.Release|x86.ActiveCfg = Release|Win32
 		{1094FB2E-1F26-4DB2-B204-1A0C4ED472F6}.Release|x86.Build.0 = Release|Win32
+		{8ECF9DD8-665F-4CEC-B2BD-38D24FEA6013}.Debug|x64.ActiveCfg = Debug|x64
+		{8ECF9DD8-665F-4CEC-B2BD-38D24FEA6013}.Debug|x64.Build.0 = Debug|x64
+		{8ECF9DD8-665F-4CEC-B2BD-38D24FEA6013}.Debug|x86.ActiveCfg = Debug|Win32
+		{8ECF9DD8-665F-4CEC-B2BD-38D24FEA6013}.Debug|x86.Build.0 = Debug|Win32
+		{8ECF9DD8-665F-4CEC-B2BD-38D24FEA6013}.Release|x64.ActiveCfg = Release|x64
+		{8ECF9DD8-665F-4CEC-B2BD-38D24FEA6013}.Release|x64.Build.0 = Release|x64
+		{8ECF9DD8-665F-4CEC-B2BD-38D24FEA6013}.Release|x86.ActiveCfg = Release|Win32
+		{8ECF9DD8-665F-4CEC-B2BD-38D24FEA6013}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

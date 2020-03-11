@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="cheat">
+      <UniqueIdentifier>{958a70d5-ec45-4856-b2cb-4d3e6aa6ac43}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\tests\cheat\cheat.h">
+      <Filter>cheat</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\tests\main_t.c" />
+  </ItemGroup>
+</Project>
