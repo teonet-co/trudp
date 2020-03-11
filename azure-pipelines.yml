@@ -22,6 +22,16 @@ jobs:
       platform: x86
       configuration: Release
       msbuildArguments: -target:trudp-static
+  - task: MSBuild@1
+    inputs:
+      solution: 'msvs/trudp.sln'
+      platform: x86
+      configuration: Release
+      msbuildArguments: -target:trudp-test-static
+  - task: CmdLine@2
+    inputs:
+      script: 'msvs\Release\trudp-test-static.exe'
+      failOnStderr: true
 - job: build_windows_x86_64_static
   pool:
     vmImage: 'windows-2019'
@@ -34,6 +44,16 @@ jobs:
       platform: x64
       configuration: Release
       msbuildArguments: -target:trudp-static
+  - task: MSBuild@1
+    inputs:
+      solution: 'msvs/trudp.sln'
+      platform: x64
+      configuration: Release
+      msbuildArguments: -target:trudp-test-static
+  - task: CmdLine@2
+    inputs:
+      script: 'msvs\x64\Release\trudp-test-static.exe'
+      failOnStderr: true
 - job: build_windows_x86_dynamic
   pool:
     vmImage: 'windows-2019'
