@@ -15,10 +15,10 @@ AM_CXXFLAGS = \
 
 AM_LDFLAGS = -L../src/.libs 
 
-LIBS =../src/.libs/libtrudp.a -lcunit -lev 
+LIBS =../src/.libs/libtrudp.a -lev 
 noinst_PROGRAMS = trudp_tst
 
-trudp_tst_SOURCES = main_t.c packet_queue_t.c packet_t.c tr-udp_t.c
+trudp_tst_SOURCES = main_t.c
 
 testsdir = $(datarootdir)/doc/@PACKAGE@/tests
 tests_DATA = $(trudp_tst_SOURCES)
