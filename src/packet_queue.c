@@ -40,9 +40,6 @@ static trudpPacketQueueData *_trudpPacketQueueAddTime(trudpPacketQueue *tq,
 trudpPacketQueueData *trudpPacketQueueFindByTime(trudpPacketQueue *tq, uint64_t t);
 #endif
 
-// Local macros
-#define PACKET_ID trudpPacketGetId(trudpPacketQueueDataGetPacket(tqd))
-
 /**
  * Create new Packet queue
  *
@@ -73,8 +70,10 @@ void trudpPacketQueueDestroy(trudpPacketQueue *tq) {
  * @return Zero at success
  */
 int trudpPacketQueueFree(trudpPacketQueue *tq) {
+    if(!tq) return 1;
     teoMapClear(tq->idx);
-    return tq && tq->q ? teoQueueFree(tq->q) : -1;
+    teoQueueFree(tq->q);
+    return 0;
 }
 
 /**
@@ -109,7 +108,7 @@ teoQueueData *trudpPacketQueueDataToQueueData(
 int trudpPacketQueueDelete(trudpPacketQueue *tq,
     trudpPacketQueueData *tqd) {
 
-    uint32_t id = PACKET_ID;
+    uint32_t id = trudpPacketGetId(trudpPacketQueueDataGetPacket(tqd));
     teoMapDelete(tq->idx, &id, sizeof(id));
 
     return teoQueueDelete(tq->q, trudpPacketQueueDataToQueueData(tqd));
@@ -154,7 +153,7 @@ trudpPacketQueueData *trudpPacketQueueAdd(trudpPacketQueue *tq, void *packet,
     tqd->retrieves = 0;
 
     // Add queue data to index
-    uint32_t id = PACKET_ID;
+    uint32_t id = trudpPacketGetId(trudpPacketQueueDataGetPacket(tqd));
     teoMapAdd(tq->idx, &id, sizeof(id), &tqd, sizeof(tqd));
 
     return tqd;
