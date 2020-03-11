@@ -159,13 +159,13 @@ static void _trudpChannelFree(trudpChannelData *tcd) {
  * @param channel
  * @return
  */
-trudpChannelData *trudpChannelNew(void *parent, char *remote_address,
+trudpChannelData *trudpChannelNew(struct trudpData *td, char *remote_address,
                                   int remote_port_i, int channel) {
 
   trudpChannelData tcd;
   memset(&tcd, 0, sizeof(tcd));
 
-  tcd.td = parent;
+  tcd.td = td;
   tcd.sendQueue = trudpSendQueueNew();
   tcd.writeQueue = trudpWriteQueueNew();
   tcd.receiveQueue = trudpReceiveQueueNew();
@@ -180,7 +180,7 @@ trudpChannelData *trudpChannelNew(void *parent, char *remote_address,
   _trudpChannelSetDefaults(&tcd);
   tcd.fd = 0;
 
-  // Add cannel to map
+  // Add channel to map
   size_t channel_key_length;
   char *channel_key =
       trudpMakeKey(trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd.remaddr, NULL),
@@ -190,7 +190,7 @@ trudpChannelData *trudpChannelNew(void *parent, char *remote_address,
   memcpy(tcd.channel_key, channel_key, channel_key_length);
   tcd.channel_key_length = channel_key_length;
 
-  trudpChannelData *tcd_return = _trudpChannelAddToMap(parent, &tcd);
+  trudpChannelData *tcd_return = _trudpChannelAddToMap(td, &tcd);
 
   return tcd_return;
 }
