@@ -26,6 +26,12 @@
  * UDP client server helper module
  */
 
+#if defined(_MSC_VER)
+#if !defined(_CRT_SECURE_NO_WARNINGS)
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+#endif
+
 #include "udp.h"
 
 #include <errno.h>

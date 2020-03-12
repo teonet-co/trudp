@@ -159,13 +159,13 @@ static void _trudpChannelFree(trudpChannelData *tcd) {
  * @param channel
  * @return
  */
-trudpChannelData *trudpChannelNew(void *parent, char *remote_address,
+trudpChannelData *trudpChannelNew(struct trudpData *td, char *remote_address,
                                   int remote_port_i, int channel) {
 
   trudpChannelData tcd;
   memset(&tcd, 0, sizeof(tcd));
 
-  tcd.td = parent;
+  tcd.td = td;
   tcd.sendQueue = trudpSendQueueNew();
   tcd.writeQueue = trudpWriteQueueNew();
   tcd.receiveQueue = trudpReceiveQueueNew();
@@ -180,7 +180,7 @@ trudpChannelData *trudpChannelNew(void *parent, char *remote_address,
   _trudpChannelSetDefaults(&tcd);
   tcd.fd = 0;
 
-  // Add cannel to map
+  // Add channel to map
   size_t channel_key_length;
   char *channel_key =
       trudpMakeKey(trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd.remaddr, NULL),
@@ -190,7 +190,7 @@ trudpChannelData *trudpChannelNew(void *parent, char *remote_address,
   memcpy(tcd.channel_key, channel_key, channel_key_length);
   tcd.channel_key_length = channel_key_length;
 
-  trudpChannelData *tcd_return = _trudpChannelAddToMap(parent, &tcd);
+  trudpChannelData *tcd_return = _trudpChannelAddToMap(td, &tcd);
 
   return tcd_return;
 }
@@ -432,7 +432,7 @@ void trudpChannelSendRESET(trudpChannelData *tcd, void *data,
   if (tcd) {
     trudpSendEvent(tcd, SEND_RESET, data, data_length, NULL);
 
-    void *packetRESET = trudpPacketRESETcreateNew(_trudpChannelGetNewId(tcd), 
+    void *packetRESET = trudpPacketRESETcreateNew(_trudpChannelGetNewId(tcd),
                   tcd->channel);
     trudpSendEvent(tcd, PROCESS_SEND, packetRESET, trudpPacketRESETlength(),
                   NULL);
@@ -589,20 +589,15 @@ size_t trudpChannelSendData(trudpChannelData *tcd, void *data,
  * @param tcd Pointer to trudpChannelData
  * @param packet Pointer to received packet
  * @param packet_length Packet length
- * @param data_length Pointer to variable to return packets data length
  *
- * @return Pointer to received data, NULL available, length of data saved to
- *         *data_length, if packet is not TR-UDP packet it's sent to client as
- * is
+ * @return 1 when Trudp packet is processed, 0 if packet is not a Trudp packet,
+ * -1 on invalid Trudp packet
  */
-void *trudpChannelProcessReceivedPacket(trudpChannelData *tcd, uint8_t *data,
-                                        size_t packet_length,
-                                        size_t *data_length) {
-
-  void *received_data = NULL;
-  *data_length = 0;
-
+int trudpChannelProcessReceivedPacket(trudpChannelData *tcd, uint8_t *data,
+                                        size_t packet_length) {
   trudpPacket* packet = trudpPacketCheck(data, packet_length);
+
+  int result = 1;
 
   // Check and process TR-UDP packet
   if (packet != NULL) {
@@ -720,7 +715,7 @@ void *trudpChannelProcessReceivedPacket(trudpChannelData *tcd, uint8_t *data,
       if (trudpPacketGetId(packet) == tcd->receiveExpectedId) {
 
         // Send Got Data event
-        received_data = trudpSendEventGotData(tcd, packet, data_length);
+        trudpSendEventGotData(tcd, packet);
 
         // Proceed to next expected id
         tcd->receiveExpectedId = _trudpGetNextSeqId(tcd->receiveExpectedId);
@@ -731,7 +726,7 @@ void *trudpChannelProcessReceivedPacket(trudpChannelData *tcd, uint8_t *data,
           trudpPacket* rq_packet = trudpPacketQueueDataGetPacket(rqd);
 
           // Send Got Data event
-          received_data = trudpSendEventGotData(tcd, rq_packet, data_length);
+          trudpSendEventGotData(tcd, rq_packet);
 
           // Delete element from received queue
           trudpReceiveQueueDelete(tcd->receiveQueue, rqd);
@@ -798,7 +793,7 @@ void *trudpChannelProcessReceivedPacket(trudpChannelData *tcd, uint8_t *data,
     // An undefined type of packet (skip it)
     default: {
       // Return error code
-      received_data = (void *)-1;
+        result = -1;
 
     } break;
     }
@@ -806,11 +801,10 @@ void *trudpChannelProcessReceivedPacket(trudpChannelData *tcd, uint8_t *data,
   // Packet is not TR-UDP packet
   else {
     trudpSendEvent(tcd, GOT_DATA_NO_TRUDP, data, packet_length, NULL);
-    received_data = data;
-    *data_length = packet_length;
+      result = 0;
   }
 
-  return received_data;
+  return result;
 }
 
 // Send queue functions ======================================================

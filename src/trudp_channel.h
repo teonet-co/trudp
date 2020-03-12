@@ -107,6 +107,9 @@ typedef struct trudpStatChannelData {
 
 } trudpStatChannelData;
 
+// Forward declare trudpData to use it in trudpChannelData.
+struct trudpData;
+
 /**
  * TR-UDP channel Data Structure
  */
@@ -128,7 +131,7 @@ typedef struct trudpChannelData {
     bool zero_tolerance_f;           ///< behave tolerant to init packets
 
     // Link to parent trudpData
-    void *td; ///< Pointer to trudpData
+    struct trudpData *td; ///< Pointer to trudpData
 
     // UDP connection depended variables
     struct sockaddr_in remaddr; ///< Remote address
@@ -159,8 +162,8 @@ extern "C" {
 
 TRUDP_API void trudpChannelDestroy(trudpChannelData *tcd);
 TRUDP_API char *trudpChannelMakeKey(trudpChannelData *tcd);
-TRUDP_API trudpChannelData *trudpChannelNew(void *td, char *remote_address,
-        int remote_port_i, int channel);
+TRUDP_API trudpChannelData *trudpChannelNew(struct trudpData *td,
+        char *remote_address, int remote_port_i, int channel);
 TRUDP_API size_t trudpChannelSendData(trudpChannelData *tcd, void *data,
   size_t data_length);
 TRUDP_API void trudpChannelSendRESET(trudpChannelData *tcd, void* data, size_t data_length);
@@ -171,8 +174,8 @@ TRUDP_API void trudpChannelSendRESET(trudpChannelData *tcd, void* data, size_t d
  */
 TRUDP_API void trudp_ChannelSendReset(trudpChannelData *tcd);
 
-TRUDP_API void *trudpChannelProcessReceivedPacket(trudpChannelData *tcd, uint8_t *data,
-        size_t packet_length, size_t *data_length);
+TRUDP_API int trudpChannelProcessReceivedPacket(trudpChannelData *tcd, uint8_t *data,
+        size_t packet_length);
 size_t trudpChannelSendPING(trudpChannelData *tcd, void *data, size_t data_length);
 uint32_t trudpChannelSendQueueGetTimeout(trudpChannelData *tcd,
         uint64_t current_t);

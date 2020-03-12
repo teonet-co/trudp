@@ -146,21 +146,11 @@ void trudpSendGlobalEvent(trudpData* td, int event, void* data,
  *
  * @param tcd Pointer to trudpChannelData
  * @param packet Pointer to received packet
- * @param data_length [out] Packets data length (NULL if not need to return it
- *
- * @return  Pointer to packet data
  */
-void *trudpSendEventGotData(trudpChannelData* tcd, trudpPacket *packet,
-        size_t *data_length) {
+void trudpSendEventGotData(trudpChannelData* tcd, trudpPacket *packet) {
     void *data = trudpPacketGetData(packet);
     size_t data_len = trudpPacketGetDataLength(packet);
     trudpSendEvent(tcd, GOT_DATA, packet, data_len, NULL);
-
-    if (data_length != NULL) {
-        *data_length = data_len;
-    }
-
-    return data;
 }
 
 /**
@@ -262,10 +252,10 @@ void trudpProcessReceived(trudpData* td, uint8_t* data, size_t data_length) {
 
     // Process received packet
     if(recvlen > 0) {
-        size_t packet_data_length;
-
         trudpChannelData *tcd = trudpGetChannelCreate(td, (__CONST_SOCKADDR_ARG) &remaddr, 0);
-        if(tcd == (void *)-1 || trudpChannelProcessReceivedPacket(tcd, data, recvlen, &packet_data_length) == (void *)-1) {
+        // FIXME: non trudp data it's return value == 0, not -1. Investigate why
+        // it works and fix appropriately
+        if(tcd == (void *)-1 || trudpChannelProcessReceivedPacket(tcd, data, recvlen) == -1) {
             if(tcd == (void *)-1) {
                 printf("!!! can't PROCESS_RECEIVE_NO_TRUDP\n");
             } else {

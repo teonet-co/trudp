@@ -254,8 +254,7 @@ TRUDP_API void trudpChannelDestroyAll(trudpData *td);
 TRUDP_API trudpChannelData *trudpGetChannel(trudpData *td, __CONST_SOCKADDR_ARG addr,
         int channel);
 
-void *trudpSendEventGotData(trudpChannelData* tcd, trudpPacket *packet,
-          size_t *data_length);
+TRUDP_INTERNAL void trudpSendEventGotData(trudpChannelData *tcd, trudpPacket *packet);
 TRUDP_API bool trudpIsPacketPing(uint8_t* data, size_t packet_length);
 
 const char * STRING_trudpEvent(trudpEvent val);

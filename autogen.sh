@@ -23,5 +23,3 @@ autoreconf --verbose --install --force
 
 echo Removing autom4te.cache
 rm -rf autom4te.cache
-
-
