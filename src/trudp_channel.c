@@ -590,8 +590,8 @@ size_t trudpChannelSendData(trudpChannelData *tcd, void *data,
  * @param packet Pointer to received packet
  * @param packet_length Packet length
  *
- * @return 1 if packet is processed, 0 id packet is not a trudp packet, -1 on
- * invalid trudp packet
+ * @return 1 when Trudp packet is processed, 0 if packet is not a Trudp packet,
+ * -1 on invalid Trudp packet
  */
 int trudpChannelProcessReceivedPacket(trudpChannelData *tcd, uint8_t *data,
                                         size_t packet_length) {

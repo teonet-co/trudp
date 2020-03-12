@@ -12,6 +12,14 @@ identifiers starting with cheat_test_, cheat_wrapped_ or cheat_unwrapped_ for
 external use.
 */
 
+/*
+Original version 1.0.4.
+https://github.com/Tuplanolla/cheat/releases/tag/1.0.4
+
+File have some modifications labeled with following comment:
+//NOTE: THIS IS MODIFIED IN PROJECT
+*/
+
 #ifndef CHEAT_H
 #define CHEAT_H
 

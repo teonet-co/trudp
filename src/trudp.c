@@ -253,6 +253,8 @@ void trudpProcessReceived(trudpData* td, uint8_t* data, size_t data_length) {
     // Process received packet
     if(recvlen > 0) {
         trudpChannelData *tcd = trudpGetChannelCreate(td, (__CONST_SOCKADDR_ARG) &remaddr, 0);
+        // FIXME: non trudp data it's return value == 0, not -1. Investigate why
+        // it works and fix appropriately
         if(tcd == (void *)-1 || trudpChannelProcessReceivedPacket(tcd, data, recvlen) == -1) {
             if(tcd == (void *)-1) {
                 printf("!!! can't PROCESS_RECEIVE_NO_TRUDP\n");
