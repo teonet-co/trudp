@@ -156,9 +156,9 @@ int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr,
  * @param port Pointer to port to get port integer
  * @return Pointer to address string
  */
- char *trudpUdpGetAddr(__CONST_SOCKADDR_ARG remaddr, int *port) {
+ const char *trudpUdpGetAddr(__CONST_SOCKADDR_ARG remaddr, int *port) {
 
-    char *addr = inet_ntoa(((struct sockaddr_in*)remaddr)->sin_addr); // IP to string
+    const char *addr = inet_ntoa(((struct sockaddr_in*)remaddr)->sin_addr); // IP to string
     if(port) *port = ntohs(((struct sockaddr_in*)remaddr)->sin_port); // Port to integer
 
     return addr;

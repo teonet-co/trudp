@@ -161,9 +161,9 @@ extern "C" {
 #endif
 
 TRUDP_API void trudpChannelDestroy(trudpChannelData *tcd);
-TRUDP_API char *trudpChannelMakeKey(trudpChannelData *tcd);
+TRUDP_API const char *trudpChannelMakeKey(trudpChannelData *tcd);
 TRUDP_API trudpChannelData *trudpChannelNew(struct trudpData *td,
-        char *remote_address, int remote_port_i, int channel);
+        const char *remote_address, int remote_port_i, int channel);
 TRUDP_API size_t trudpChannelSendData(trudpChannelData *tcd, void *data,
   size_t data_length);
 TRUDP_API void trudpChannelSendRESET(trudpChannelData *tcd, void* data, size_t data_length);

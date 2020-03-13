@@ -386,7 +386,7 @@ char *ksnTRUDPstatShowStr(trudpData *td, int page) {
 
         size_t key_len;
         teoMapElementData *el = teoMapIteratorElement(&it);
-        char *key = teoMapIteratorElementKey(el, &key_len);
+        char *key = (char*)teoMapIteratorElementKey(el, &key_len);
         trudpChannelData *tcd = (trudpChannelData *)
                                 teoMapIteratorElementData(el, NULL);
 
@@ -428,7 +428,7 @@ char *ksnTRUDPstatShowStr(trudpData *td, int page) {
                 if(stat_sq_str) {
 
                     int port;
-                    char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd->remaddr, &port);
+                    const char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd->remaddr, &port);
                     printf("--------------------------------------------------------------\n"
                             "TR-UDP channel %s:%d:%d queues:\n\n",
                             addr, port, tcd->channel);

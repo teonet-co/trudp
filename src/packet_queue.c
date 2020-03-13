@@ -111,7 +111,7 @@ int trudpPacketQueueDelete(trudpPacketQueue *tq,
     trudpPacketQueueData *tqd) {
 
     uint32_t id = trudpPacketGetId(trudpPacketQueueDataGetPacket(tqd));
-    teoMapDelete(tq->idx, &id, sizeof(id));
+    teoMapDelete(tq->idx, (uint8_t*)&id, sizeof(id));
 
     return teoQueueDelete(tq->q, trudpPacketQueueDataToQueueData(tqd));
 }
@@ -156,7 +156,7 @@ trudpPacketQueueData *trudpPacketQueueAdd(trudpPacketQueue *tq, void *packet,
 
     // Add queue data to index
     uint32_t id = trudpPacketGetId(trudpPacketQueueDataGetPacket(tqd));
-    teoMapAdd(tq->idx, &id, sizeof(id), &tqd, sizeof(tqd));
+    teoMapAdd(tq->idx, (uint8_t*)&id, sizeof(id), (uint8_t*)&tqd, sizeof(tqd));
 
     return tqd;
 }
@@ -173,8 +173,8 @@ trudpPacketQueueData *trudpPacketQueueFindById(trudpPacketQueue *tq,
         uint32_t id) {
 
     size_t data_len;
-    void *data = teoMapGet(tq->idx, &id, sizeof(id), &data_len);
-    if(data == (void*)-1) return NULL;
+    uint8_t *data = teoMapGet(tq->idx, (uint8_t*)&id, sizeof(id), &data_len);
+    if(data == (uint8_t*)-1) return NULL;
     return *((trudpPacketQueueData **) data);
 }
 

@@ -85,8 +85,8 @@ void trudp_ChannelSendReset(trudpChannelData *tcd) {
 static trudpChannelData *_trudpChannelAddToMap(trudpData *td,
                                                trudpChannelData *tcd) {
 
-  return teoMapAdd(td->map, tcd->channel_key, tcd->channel_key_length,
-                   tcd, sizeof(trudpChannelData));
+  return (trudpChannelData*)teoMapAdd(td->map, (uint8_t*)tcd->channel_key,
+    tcd->channel_key_length, (uint8_t*)tcd, sizeof(trudpChannelData));
 }
 
 /**
@@ -159,7 +159,7 @@ static void _trudpChannelFree(trudpChannelData *tcd) {
  * @param channel
  * @return
  */
-trudpChannelData *trudpChannelNew(struct trudpData *td, char *remote_address,
+trudpChannelData *trudpChannelNew(struct trudpData *td, const char *remote_address,
                                   int remote_port_i, int channel) {
 
   trudpChannelData tcd;
@@ -182,7 +182,7 @@ trudpChannelData *trudpChannelNew(struct trudpData *td, char *remote_address,
 
   // Add channel to map
   size_t channel_key_length;
-  char *channel_key =
+  const char *channel_key =
       trudpMakeKey(trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd.remaddr, NULL),
                    remote_port_i, channel, &channel_key_length);
 
@@ -221,7 +221,7 @@ void trudpChannelDestroy(trudpChannelData *tcd) {
 
   char *channel_key = tcd->channel_key;
 
-  teoMapDelete(TD(tcd)->map, channel_key, tcd->channel_key_length);
+  teoMapDelete(TD(tcd)->map, (uint8_t*)channel_key, tcd->channel_key_length);
 
   free(channel_key);
 }
@@ -293,11 +293,11 @@ static uint32_t _trudpChannelGetId(trudpChannelData *tcd) {
  *
  * @return Static buffer with key ip:port:channel
  */
-char *trudpChannelMakeKey(trudpChannelData *tcd) {
+const char *trudpChannelMakeKey(trudpChannelData *tcd) {
 
   int port;
   size_t key_length;
-  char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd->remaddr, &port);
+  const char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd->remaddr, &port);
   return trudpMakeKey(addr, port, tcd->channel, &key_length);
 }
 

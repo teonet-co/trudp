@@ -148,7 +148,6 @@ void trudpSendGlobalEvent(trudpData* td, int event, void* data,
  * @param packet Pointer to received packet
  */
 void trudpSendEventGotData(trudpChannelData* tcd, trudpPacket *packet) {
-    void *data = trudpPacketGetData(packet);
     size_t data_len = trudpPacketGetDataLength(packet);
     trudpSendEvent(tcd, GOT_DATA, packet, data_len, NULL);
 }
@@ -176,11 +175,11 @@ void trudpChannelDestroyAll(trudpData *td) {
  * @param port Port number
  * @param channel Channel number 0-15
  */
-void trudpChannelDestroyAddr(trudpData *td, char *addr, int port, int channel) {
+void trudpChannelDestroyAddr(trudpData *td, const char *addr, int port, int channel) {
         size_t key_length;
-        char *key = trudpMakeKey(addr, port, channel, &key_length);
+        const char *key = trudpMakeKey(addr, port, channel, &key_length);
 
-        trudpChannelData *tcd = (trudpChannelData *)teoMapGet(td->map, key, key_length, NULL);
+        trudpChannelData *tcd = (trudpChannelData *)teoMapGet(td->map, (const uint8_t*)key, key_length, NULL);
 
         if (tcd != NULL && tcd != (void *)-1) {
             trudpChannelDestroy(tcd);
@@ -378,13 +377,13 @@ static size_t trudpGetReceiveQueueMax(trudpData *td) {
  *
  * @return Pointer to trudpChannelData or (void*)-1 if not found
  */
-trudpChannelData *trudpGetChannelAddr(trudpData *td, char *addr,
+trudpChannelData *trudpGetChannelAddr(trudpData *td, const char *addr,
         int port, int channel) {
 
     size_t data_length, key_length;
-    char *key = trudpMakeKey(addr, port, channel, &key_length);
-    trudpChannelData *tcd = (trudpChannelData *)teoMapGet(td->map, key,
-        key_length, &data_length);
+    const char *key = trudpMakeKey(addr, port, channel, &key_length);
+    trudpChannelData *tcd = (trudpChannelData *)teoMapGet(td->map,
+        (const uint8_t*)key, key_length, &data_length);
 
     return tcd;
 }
@@ -402,7 +401,7 @@ trudpChannelData *trudpGetChannel(trudpData *td, __CONST_SOCKADDR_ARG addr,
         int channel) {
 
     int port;
-    char *addr_str = trudpUdpGetAddr(addr, &port);
+    const char *addr_str = trudpUdpGetAddr(addr, &port);
 
     return trudpGetChannelAddr(td, addr_str, port, channel);
 }
@@ -421,7 +420,7 @@ trudpChannelData *trudpGetChannel(trudpData *td, __CONST_SOCKADDR_ARG addr,
 trudpChannelData *trudpGetChannelCreate(trudpData *td, __CONST_SOCKADDR_ARG addr, int channel) {
 
     int port;
-    char *addr_str = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)addr, &port);
+    const char *addr_str = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)addr, &port);
     trudpChannelData *tcd = trudpGetChannelAddr(td, addr_str, port, channel);
 
     if(tcd == (void*)-1) {
