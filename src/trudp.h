@@ -152,14 +152,6 @@ typedef enum trudpEvent {
      */
     PROCESS_RECEIVE,
 
-    /** Process received not TR-UDP data
-     * @param tcd Pointer to trudpData
-     * @param data Pointer to receive buffer
-     * @param data_length Receive buffer length
-     * @param user_data NULL
-     */
-    PROCESS_RECEIVE_NO_TRUDP,
-
     /** Process send data
      * @param data Pointer to send data
      * @param data_length Length of send
