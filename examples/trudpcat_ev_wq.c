@@ -502,7 +502,7 @@ static trudpChannelData *connectToPeer(trudpData *td) {
  */
 static void host_cb(EV_P_ ev_io *w, int revents) {
 
-    trudpSendGlobalEvent(w->data, PROCESS_RECEIVE, buffer, o.buf_size, NULL);
+    trudpSendEvent(w->data, PROCESS_RECEIVE, buffer, o.buf_size, NULL);
 }
 
 /**

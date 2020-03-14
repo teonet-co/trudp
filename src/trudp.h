@@ -231,9 +231,9 @@ typedef struct trudpData {
 TRUDP_API trudpData *trudpInit(int fd, int port, trudpEventCb event_cb,
             void *user_data);
 TRUDP_API void trudpDestroy(trudpData* td);
-TRUDP_API void trudpSendEvent(trudpChannelData* tcd, int event, void *data,
+TRUDP_API void trudpChannelSendEvent(trudpChannelData* tcd, int event, void *data,
             size_t data_length, void *reserved);
-TRUDP_API void trudpSendGlobalEvent(trudpData* td, int event, void *data,
+TRUDP_API void trudpSendEvent(trudpData* td, int event, void *data,
             size_t data_length, void *reserved);
 TRUDP_API trudpChannelData *trudpGetChannelCreate(trudpData *td,
             __CONST_SOCKADDR_ARG addr, int channel);
@@ -254,7 +254,7 @@ TRUDP_API void trudpChannelDestroyAll(trudpData *td);
 TRUDP_API trudpChannelData *trudpGetChannel(trudpData *td, __CONST_SOCKADDR_ARG addr,
         int channel);
 
-TRUDP_INTERNAL void trudpSendEventGotData(trudpChannelData *tcd, trudpPacket *packet);
+TRUDP_INTERNAL void trudpChannelSendEventGotData(trudpChannelData *tcd, trudpPacket *packet);
 TRUDP_API bool trudpIsPacketPing(uint8_t* data, size_t packet_length);
 
 const char * STRING_trudpEvent(trudpEvent val);
