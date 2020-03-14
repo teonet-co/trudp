@@ -1,6 +1,9 @@
 # TR-UDP library: Teonet Real time communications over UDP protocol
 
-[![CircleCI](https://circleci.com/gh/teonet-co/trudp.svg?style=svg)](https://circleci.com/gh/teonet-co/trudp)
+[![CircleCI](https://circleci.com/gh/teonet-co/trudp/tree/develop.svg?style=shield)](https://circleci.com/gh/teonet-co/trudp)
+[![Build Status](https://dev.azure.com/teonet-co/trudp/_apis/build/status/teonet-co.trudp?branchName=develop)](https://dev.azure.com/teonet-co/trudp/_build/latest?definitionId=1&branchName=develop)
+[![Total alerts](https://img.shields.io/lgtm/alerts/g/teonet-co/trudp.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/teonet-co/trudp/alerts/)
+[![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/teonet-co/trudp.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/teonet-co/trudp/context:cpp)
 
 ## 1. Description
 
