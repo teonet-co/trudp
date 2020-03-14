@@ -45,12 +45,6 @@ extern "C" {
 #endif
 
 /**
- * Get pointer to trudpData from trudpChannelData
- */
-#define TD(tcd) ((trudpData*)tcd->td)
-#define TD_P(td) ((trudpData*)td)
-
-/**
  * Data received/send callback
  */
 typedef void (*trudpDataCb)(void *tcd, void *data, size_t data_length, void *user_data);

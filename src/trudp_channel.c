@@ -134,8 +134,8 @@ static void _trudpChannelSetDefaults(trudpChannelData *tcd) {
  */
 static void _trudpChannelFree(trudpChannelData *tcd) {
 
-  TD(tcd)->stat.sendQueue.size_current -= trudpSendQueueSize(tcd->sendQueue);
-  TD(tcd)->stat.writeQueue.size_current -= trudpWriteQueueSize(tcd->writeQueue);
+  tcd->td->stat.sendQueue.size_current -= trudpSendQueueSize(tcd->sendQueue);
+  tcd->td->stat.writeQueue.size_current -= trudpWriteQueueSize(tcd->writeQueue);
 
   if (tcd->read_buffer != NULL) {
     free(tcd->read_buffer);
@@ -221,7 +221,7 @@ void trudpChannelDestroy(trudpChannelData *tcd) {
 
   char *channel_key = tcd->channel_key;
 
-  teoMapDelete(TD(tcd)->map, (uint8_t*)channel_key, tcd->channel_key_length);
+  teoMapDelete(tcd->td->map, (uint8_t*)channel_key, tcd->channel_key_length);
 
   free(channel_key);
 }
@@ -469,11 +469,11 @@ static uint64_t _trudpChannelCalculateExpectedTime(trudpChannelData *tcd,
  * @param tcd Pointer to trudpChannelData
  */
 static void _trudpChannelIncrementStatSendQueueSize(trudpChannelData *tcd) {
-  TD(tcd)->stat.sendQueue.size_current++;
+  tcd->td->stat.sendQueue.size_current++;
 }
 
 static void _trudpChannelIncrementStatWriteQueueSize(trudpChannelData *tcd) {
-  TD(tcd)->stat.writeQueue.size_current++;
+  tcd->td->stat.writeQueue.size_current++;
 }
 
 /**
@@ -519,7 +519,7 @@ static size_t _trudpChannelSendPacket(trudpChannelData *tcd,
         tcd->stat.packets_send++; // Send packets statistic
     }
     //    else if(save_to_send_queue)
-    //    trudp_start_send_queue_cb(TD(tcd)->psq_data, 0);
+    //    trudp_start_send_queue_cb(tcd->td->psq_data, 0);
 
     return packetLength;
 }
@@ -621,7 +621,7 @@ int trudpChannelProcessReceivedPacket(trudpChannelData *tcd, uint8_t *data,
         // Remove packet from send queue
         send_data_length = trudpPacketGetDataLength(sq_packet);
         trudpSendQueueDelete(tcd->sendQueue, sqd);
-        TD(tcd)->stat.sendQueue.size_current--;
+        tcd->td->stat.sendQueue.size_current--;
 
         if (trudpWriteQueueSize(tcd->writeQueue) > 0) {
           trudpWriteQueueData *wqd_first =
@@ -630,7 +630,7 @@ int trudpChannelProcessReceivedPacket(trudpChannelData *tcd, uint8_t *data,
                                   wqd_first->packet_length, 1);
           free(wqd_first->packet_ptr);
           trudpWriteQueueDeleteFirst(tcd->writeQueue);
-          TD(tcd)->stat.writeQueue.size_current--;
+          tcd->td->stat.writeQueue.size_current--;
         }
       }
 
@@ -862,7 +862,7 @@ int trudpChannelSendQueueProcess(trudpChannelData *tcd, uint64_t ts,
     //                (ts - tqd->retrieves_start) / 1000000.0);
     //            trudpExecEventCallback(tcd, DISCONNECTED, key, strlen(key) +
     //            1,
-    //                TD(tcd)->user_data, TD(tcd)->evendCb);
+    //                tcd->td->user_data, tcd->td->evendCb);
     //
     //            trudpDestroyChannel(tcd);
     //

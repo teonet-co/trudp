@@ -523,7 +523,7 @@ CHEAT_TEST(trudp_send_process_received_packet,
         cheat_assert(send_result > 0);
     }
 
-    char *stat_str = ksnTRUDPstatShowStr(TD(tcd_A), 0);
+    char *stat_str = ksnTRUDPstatShowStr(tcd_A->td, 0);
     puts(stat_str);
     free(stat_str);
 
