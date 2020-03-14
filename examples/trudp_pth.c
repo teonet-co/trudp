@@ -256,7 +256,7 @@ static void event_cb(void *tcd_pointer, int event, void *data, size_t data_lengt
 
                 int port,type;
                 uint32_t id = trudpPacketGetId(data);
-                char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd->remaddr, &port);
+                const char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd->remaddr, &port);
                 if(!(type = trudpPacketGetType(data))) {
                     debug(tru, DEBUG_MSG,  "send %d bytes, id=%u, to %s:%d, %.3f(%.3f) ms\n",
                         (int)data_length, id, addr, port,
