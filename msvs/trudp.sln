@@ -8,6 +8,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "trudp-dynamic", "trudp-dynamic\trudp-dynamic.vcxproj", "{1094FB2E-1F26-4DB2-B204-1A0C4ED472F6}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "trudp-test-static", "trudp-test-static\trudp-test-static.vcxproj", "{8ECF9DD8-665F-4CEC-B2BD-38D24FEA6013}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D8A989A0-08F5-49D7-9AD3-BD2C9E7E0147} = {D8A989A0-08F5-49D7-9AD3-BD2C9E7E0147}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
