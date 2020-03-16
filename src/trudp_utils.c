@@ -56,7 +56,7 @@
  *
  * @return Static buffer with key ip:port:channel
  */
-char *trudpMakeKey(char *addr, int port, int channel, size_t *key_length)
+const char *trudpMakeKey(const char *addr, int port, int channel, size_t *key_length)
 {
 
     static char buf[MAX_KEY_LENGTH];
