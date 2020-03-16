@@ -87,7 +87,7 @@ trudpData *trudpInit(int fd, int port, trudpEventCb event_cb, void *user_data) {
     trudp->evendCb = event_cb;
 
     // Send INITIALIZE event
-    trudpSendGlobalEvent(trudp, INITIALIZE, NULL, 0, NULL);
+    trudpSendEvent(trudp, INITIALIZE, NULL, 0, NULL);
 
     return trudp;
 }
@@ -99,7 +99,7 @@ trudpData *trudpInit(int fd, int port, trudpEventCb event_cb, void *user_data) {
  */
 void trudpDestroy(trudpData* td) {
     if (td != NULL) {
-        trudpSendGlobalEvent(td, DESTROY, NULL, 0, NULL);
+        trudpSendEvent(td, DESTROY, NULL, 0, NULL);
         teoMapDestroy(td->map);
         free(td);
     }
@@ -114,7 +114,7 @@ void trudpDestroy(trudpData* td) {
  * @param data_length
  * @param reserved - reserved, not used
  */
-void trudpSendEvent(trudpChannelData* tcd, int event, void* data,
+void trudpChannelSendEvent(trudpChannelData* tcd, int event, void* data,
         size_t data_length, void* reserved) {
     trudpData *td = (trudpData*)tcd->td;
 
@@ -133,7 +133,7 @@ void trudpSendEvent(trudpChannelData* tcd, int event, void* data,
  * @param data_length
  * @param reserved - reserved, not used
  */
-void trudpSendGlobalEvent(trudpData* td, int event, void* data,
+void trudpSendEvent(trudpData* td, int event, void* data,
         size_t data_length, void* reserved) {
     trudpEventCb cb = td->evendCb;
     if (cb != NULL) {
@@ -147,9 +147,9 @@ void trudpSendGlobalEvent(trudpData* td, int event, void* data,
  * @param tcd Pointer to trudpChannelData
  * @param packet Pointer to received packet
  */
-void trudpSendEventGotData(trudpChannelData* tcd, trudpPacket *packet) {
+void trudpChannelSendEventGotData(trudpChannelData* tcd, trudpPacket *packet) {
     size_t data_len = trudpPacketGetDataLength(packet);
-    trudpSendEvent(tcd, GOT_DATA, packet, data_len, NULL);
+    trudpChannelSendEvent(tcd, GOT_DATA, packet, data_len, NULL);
 }
 
 /**
@@ -258,7 +258,7 @@ void trudpProcessReceived(trudpData* td, uint8_t* data, size_t data_length) {
             if(tcd == (void *)-1) {
                 printf("!!! can't PROCESS_RECEIVE_NO_TRUDP\n");
             } else {
-                trudpSendEvent(tcd, PROCESS_RECEIVE_NO_TRUDP, data, recvlen, NULL);
+                trudpChannelSendEvent(tcd, PROCESS_RECEIVE_NO_TRUDP, data, recvlen, NULL);
             }
         }
     }
@@ -428,7 +428,7 @@ trudpChannelData *trudpGetChannelCreate(trudpData *td, __CONST_SOCKADDR_ARG addr
     }
 
     if (tcd != (void*)-1 && !tcd->connected_f) {
-        trudpSendEvent(tcd, CONNECTED, NULL, 0, NULL);
+        trudpChannelSendEvent(tcd, CONNECTED, NULL, 0, NULL);
         tcd->connected_f = 1; // MUST BE AFTER EVENT!
     }
 
