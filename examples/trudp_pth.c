@@ -245,9 +245,9 @@ static void event_cb(void *tcd_pointer, int event, void *data, size_t data_lengt
         // @param user_data NULL
         case PROCESS_SEND: {
 
-            //if(isWritable(TD(tcd)->fd, timeout) > 0) {
+            //if(isWritable(tcd->td->fd, timeout) > 0) {
             // Send to UDP
-            trudpUdpSendto(TD(tcd)->fd, data, data_length,
+            trudpUdpSendto(tcd->td->fd, data, data_length,
                     (__CONST_SOCKADDR_ARG) &tcd->remaddr, sizeof(tcd->remaddr));
             //}
 

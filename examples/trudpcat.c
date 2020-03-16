@@ -161,7 +161,7 @@ static void processDataCb(void *td_ptr, void *data, size_t data_length,
     }
     else {
         // Show statistic window
-        //showStatistic(TD(tcd));
+        //showStatistic(tcd->td);
     }
     debug("\n");
 }
@@ -196,9 +196,9 @@ static void sendPacketCb(void *tcd_ptr, void *packet, size_t packet_length,
 
     trudpChannelData *tcd = (trudpChannelData *)tcd_ptr;
 
-    //if(isWritable(TD(tcd)->fd, timeout) > 0) {   
+    //if(isWritable(tcd->td->fd, timeout) > 0) {   
     // Send to UDP
-    trudpUdpSendto(TD(tcd)->fd, packet, packet_length,
+    trudpUdpSendto(tcd->td->fd, packet, packet_length,
             (__CONST_SOCKADDR_ARG) &tcd->remaddr, sizeof(tcd->remaddr));
     //}
 
