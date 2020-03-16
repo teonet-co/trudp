@@ -44,6 +44,7 @@
 
 #include "teobase/logging.h"
 #include "teobase/platform.h"
+#include "teobase/socket.h"
 
 #include "trudp_utils.h"
 #include "trudp_options.h"
@@ -61,7 +62,6 @@ extern trudpUdpDataReceivedCallback_t trudpOpt_STAT_udpDataReceivedCallback;
 
 // Local functions
 static void _trudpUdpHostToIp(struct sockaddr_in *remaddr, const char *server);
-static void _trudpUdpSetNonblock(int fd);
 static void _trudpCallUdpDataSentCallback(int bytes_sent);
 static void _trudpCallUdpDataReceivedCallback(int bytes_received);
 #ifdef RESERVED
@@ -70,36 +70,6 @@ static int  _trudpUdpIsWritable(int sd, uint32_t timeOut);
 static ssize_t _trudpUdpReadEventLoop(int fd, void *buffer, size_t buffer_size,
         __SOCKADDR_ARG remaddr, socklen_t *addr_length, int timeout);
 #endif
-
-/**
- * Set socket or FD to non blocking mode
- *
- * @param fd
- */
-static void _trudpUdpSetNonblock(int fd) {
-
-    #if defined(HAVE_MINGW) || defined(_WIN32) || defined(_WIN64)
-    //-------------------------
-    // Set the socket I/O mode: In this case FIONBIO
-    // enables or disables the blocking mode for the
-    // socket based on the numerical value of iMode.
-    // If iMode = 0, blocking is enabled;
-    // If iMode != 0, non-blocking mode is enabled.
-
-    int iResult;
-    u_long iMode = 1;
-
-    iResult = ioctlsocket(fd, FIONBIO, &iMode);
-    if (iResult != NO_ERROR)
-      printf("ioctlsocket failed with error: %ld\n", iResult);
-
-    #else
-    int flags;
-
-    flags = fcntl(fd, F_GETFL, 0);
-    fcntl(fd, F_SETFL, flags | O_NONBLOCK);
-    #endif
-}
 
 /**
  * Convert host name to IP
@@ -231,8 +201,11 @@ int trudpUdpBindRaw(int *port, int allow_port_increment_f) {
 
         // Bind successfully
         else {
-            if(!*port) trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&addr, port);
-            _trudpUdpSetNonblock(fd);
+            if (!*port) {
+                trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&addr, port);
+            }
+
+            teosockSetBlockingMode(fd, TEOSOCK_NON_BLOCKING_MODE);
             break;
         }
     }
