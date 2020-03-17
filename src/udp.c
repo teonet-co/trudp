@@ -35,6 +35,7 @@
 #include "udp.h"
 
 #include <errno.h>
+#include <inttypes.h>
 #include <stdio.h>
 #include <string.h>
 #include <fcntl.h>
@@ -42,12 +43,16 @@
 #include "teobase/types.h"
 
 #include "teobase/logging.h"
+#include "teobase/platform.h"
 
 #include "trudp_utils.h"
 #include "trudp_options.h"
 
 // Global teocli options
 extern bool trudpOpt_DBG_sendto;
+extern bool trudpOpt_DBG_dumpUdpData;
+extern trudpUdpDataSentCallback_t trudpOpt_STAT_udpDataSentCallback;
+extern trudpUdpDataReceivedCallback_t trudpOpt_STAT_udpDataReceivedCallback;
 
 // UDP / UDT functions
 #define _trudpUdpSocket(domain, type, protocol) socket(domain, type, protocol)
@@ -57,6 +62,8 @@ extern bool trudpOpt_DBG_sendto;
 // Local functions
 static void _trudpUdpHostToIp(struct sockaddr_in *remaddr, const char *server);
 static void _trudpUdpSetNonblock(int fd);
+static void _trudpCallUdpDataSentCallback(int bytes_sent);
+static void _trudpCallUdpDataReceivedCallback(int bytes_received);
 #ifdef RESERVED
 static int  _trudpUdpIsReadable(int sd, uint32_t timeOut);
 static int  _trudpUdpIsWritable(int sd, uint32_t timeOut);
@@ -115,6 +122,24 @@ static void _trudpUdpHostToIp(struct sockaddr_in *remaddr, const char *server) {
         } else {
             memcpy(&remaddr->sin_addr, hostp->h_addr_list[0], sizeof(remaddr->sin_addr));
         }
+    }
+}
+
+void _trudpCallUdpDataSentCallback(int bytes_sent) {
+    trudpUdpDataSentCallback_t callback_copy =
+        trudpOpt_STAT_udpDataSentCallback;
+
+    if (callback_copy != NULL) {
+        callback_copy(bytes_sent);
+    }
+}
+
+void _trudpCallUdpDataReceivedCallback(int bytes_received) {
+    trudpUdpDataReceivedCallback_t callback_copy =
+        trudpOpt_STAT_udpDataReceivedCallback;
+
+    if (callback_copy != NULL) {
+        callback_copy(bytes_received);
     }
 }
 
@@ -233,6 +258,49 @@ ssize_t trudpUdpRecvfrom(int fd, uint8_t* buffer, size_t buffer_size,
     ssize_t recvlen = recvfrom(fd, buffer, buffer_size, flags,
             (__SOCKADDR_ARG)remaddr, addr_length);
 
+    if (recvlen == -1) {
+#if defined(TEONET_OS_WINDOWS)
+        int recv_errno = WSAGetLastError();
+#else
+        int recv_errno = errno;
+#endif
+
+#if defined(TEONET_OS_WINDOWS)
+        if (recv_errno != WSAEWOULDBLOCK) {
+#else
+        // EWOULDBLOCK may be not defined or may have same value as EAGAIN.
+#if defined(EWOULDBLOCK) && EWOULDBLOCK != EAGAIN
+        if (recv_errno != EAGAIN && recv_errno != EWOULDBLOCK) {
+#else
+        if (recv_errno != EAGAIN) {
+#endif
+#endif
+            // TODO: Use thread safe error formatting function.
+            // TODO: On Windows use correct error formatting function.
+            LTRACK_E("TrUdp",
+                "Receiving data using recvfrom() failed with error %" PRId32
+                ": %s", recv_errno, strerror(recv_errno));
+        }
+    } else if (recvlen == 0) {
+        LTRACK_E("TrUdp", "Receiving data using recvfrom() returned 0 (connection closed).");
+    } else {
+        if (trudpOpt_DBG_dumpUdpData) {
+            char hexdump[32];
+            if (buffer != NULL && buffer_size > 0) {
+                dump_bytes(hexdump, sizeof(hexdump), buffer, recvlen);
+            } else {
+                strcpy(hexdump, "(null)");
+            }
+
+            dump_bytes(hexdump, sizeof(hexdump), buffer, recvlen);
+            LTRACK("TrUdp",
+                   "Received %u bytes using recvfrom() starting with %s",
+                   (uint32_t)recvlen, hexdump);
+        }
+
+        _trudpCallUdpDataReceivedCallback(recvlen);
+    }
+
     return recvlen;
 }
 
@@ -301,6 +369,19 @@ static int _trudpUdpIsWritable(int sd, uint32_t timeOut) {
         __CONST_SOCKADDR_ARG remaddr, socklen_t addr_length) {
     CLTRACK(trudpOpt_DBG_sendto, "TrUdp", "Sending %u bytes using sendto().",
              (uint32_t)buffer_size);
+
+    if (trudpOpt_DBG_dumpUdpData) {
+        char hexdump[32];
+        if (buffer != NULL && buffer_size > 0) {
+            dump_bytes(hexdump, sizeof(hexdump), buffer, buffer_size);
+        } else {
+            strcpy(hexdump, "(null)");
+        }
+
+        LTRACK("TrUdp", "Sending %u bytes using sendto() starting with %s",
+               (uint32_t)buffer_size, hexdump);
+    }
+
     ssize_t sendlen = 0;
 
     //if(waitSocketWriteAvailable(fd, 1000000) > 0) {
@@ -311,14 +392,22 @@ static int _trudpUdpIsWritable(int sd, uint32_t timeOut) {
     //}
 
     if (sendlen == -1) {
-        int err = errno;
+#if defined(TEONET_OS_WINDOWS)
+        int recv_errno = WSAGetLastError();
+#else
+        int recv_errno = errno;
+#endif
+        // TODO: Use thread safe error formatting function.
+        // TODO: On Windows use correct error formatting function.
         LTRACK_E("TrUdp",
-                 "Sending %u bytes using sendto() failed with error %d.",
-                 (uint32_t)buffer_size, err);
+                 "Sending %u bytes using sendto() failed with error %" PRId32 ": %s",
+                 (uint32_t)buffer_size, recv_errno, strerror(recv_errno));
     } else if ((size_t)sendlen != buffer_size) {
         LTRACK_E("TrUdp",
                  "Sending using sendto() sent only %u bytes of %u.",
                  (uint32_t)sendlen, (uint32_t)buffer_size);
+    } else {
+        _trudpCallUdpDataSentCallback(sendlen);
     }
 
     return sendlen;

@@ -93,3 +93,29 @@ void trudpSetOption_CORE_disconnectTimeoutDelayMs(int64_t timeout_ms) {
     LTRACK_I("Trudp", "Changed disconnect timeout to %fsec",
              trudpOpt_CORE_disconnectTimeoutDelay_us / 1000000.0f);
 }
+
+extern bool trudpOpt_DBG_dumpUdpData;
+bool trudpOpt_DBG_dumpUdpData = false;
+
+// Enable dumping of received and sent packets.
+void trudpSetOption_DBG_dumpUdpData(bool enable) {
+    trudpOpt_DBG_dumpUdpData = enable;
+}
+
+extern trudpUdpDataSentCallback_t trudpOpt_STAT_udpDataSentCallback;
+trudpUdpDataSentCallback_t trudpOpt_STAT_udpDataSentCallback = NULL;
+
+// Set callback function that get called when data sent to udp socket.
+void trudpSetOption_STAT_udpBytesSentCallback(
+        trudpUdpDataSentCallback_t callback) {
+    trudpOpt_STAT_udpDataSentCallback = callback;
+}
+
+extern trudpUdpDataReceivedCallback_t trudpOpt_STAT_udpDataReceivedCallback;
+trudpUdpDataReceivedCallback_t trudpOpt_STAT_udpDataReceivedCallback = NULL;
+
+// Set callback function that get called when data received from udp socket.
+void trudpSetOption_STAT_udpBytesReceivedCallback(
+        trudpUdpDataReceivedCallback_t callback) {
+    trudpOpt_STAT_udpDataReceivedCallback = callback;
+}

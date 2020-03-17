@@ -63,6 +63,39 @@ TRUDP_API void trudpSetOption_CORE_keepaliveNextPingDelayMs(int64_t delay);
  */
 TRUDP_API void trudpSetOption_CORE_disconnectTimeoutDelayMs(int64_t timeout_ms);
 
+/**
+ * Enable dumping of received and sent packets.
+ *
+ * @param enable - if true, enable dump.
+ */
+TRUDP_API void trudpSetOption_DBG_dumpUdpData(bool enable);
+
+/**
+ * Callback function type for @a trudpSetOption_STAT_udpBytesSentCallback.
+ */
+typedef void (*trudpUdpDataSentCallback_t)(int bytes);
+
+/**
+ * Set callback function that get called when data sent to udp socket.
+ * Default value is NULL.
+ *
+ * @param callback callback function.
+ */
+TRUDP_API void trudpSetOption_STAT_udpBytesSentCallback(trudpUdpDataSentCallback_t callback);
+
+/**
+ * Callback function type for @a trudpSetOption_STAT_udpBytesReceivedCallback.
+ */
+typedef void (*trudpUdpDataReceivedCallback_t)(int bytes);
+
+/**
+ * Set callback function that get called when data received from udp socket.
+ * Default value is NULL.
+ *
+ * @param callback callback function.
+ */
+TRUDP_API void trudpSetOption_STAT_udpBytesReceivedCallback(trudpUdpDataReceivedCallback_t callback);
+
 #ifdef __cplusplus
 }
 #endif
