@@ -206,6 +206,10 @@ typedef struct trudpStatData {
 typedef struct trudpData {
 
     teoMap *map; ///< Channels map (key: ip:port:channel)
+
+    uint64_t expected_max_time;
+    char *channel_key;
+
     void* psq_data; ///< Send queue process data (used in external event loop)
     void* user_data; ///< User data
     int port; ///< Port
@@ -244,6 +248,7 @@ TRUDP_API void trudpChannelDestroyAddr(trudpData *td, const char *addr, int port
   int channel);
 TRUDP_API trudpChannelData *trudpGetChannelAddr(trudpData *td, const char *addr, int port,
         int channel);
+TRUDP_API void trudpChannelDestroyChannel(trudpData *td, trudpChannelData *tcd);
 TRUDP_API void trudpChannelDestroyAll(trudpData *td);
 TRUDP_API trudpChannelData *trudpGetChannel(trudpData *td, __CONST_SOCKADDR_ARG addr,
         int channel);
