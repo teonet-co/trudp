@@ -466,23 +466,6 @@ trudpChannelData *trudpGetChannelCreate(trudpData *td, __CONST_SOCKADDR_ARG addr
  * @return Minimum timeout or UINT32_MAX if send queue is empty
  */
 uint32_t trudpGetSendQueueTimeout(trudpData *td, uint64_t current_time) {
-/*
-    teoMapIterator it;
-    teoMapElementData *el;
-    uint32_t min_timeout_sq = UINT32_MAX;
-
-    teoMapIteratorReset(&it, td->map);
-    while((el = teoMapIteratorNext(&it))) {
-        trudpChannelData *tcd = (trudpChannelData *)teoMapIteratorElementData(el, NULL);
-        uint32_t timeout_sq = trudpChannelSendQueueGetTimeout(tcd, current_time);
-        if(timeout_sq < min_timeout_sq) min_timeout_sq = timeout_sq;
-        if(!min_timeout_sq) break;
-    }
-
-    uint32_t timeout_sq_1 = td->expected_max_time > current_time ? td->expected_max_time - current_time : 0;
-    printf("%u  %u\n", timeout_sq_1, min_timeout_sq);
-    return min_timeout_sq;
-*/
     if (td->expected_max_time == UINT64_MAX) {
         return UINT32_MAX;
     }
