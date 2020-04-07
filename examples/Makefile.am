@@ -16,7 +16,7 @@ AM_CXXFLAGS = \
 
 AM_LDFLAGS = -L../src/.libs
 
-LIBS =../src/.libs/libtrudp.a -lev 
+LIBS =../src/.libs/libtrudp.a -lev
 
 trudp2p_LDFLAGS = $(AM_LDFLAGS) -pthread
 

@@ -149,3 +149,14 @@ uint32_t trudpSendQueueGetTimeout(trudpSendQueue *sq, uint64_t current_t) {
 
     return timeout_sq;
 }
+
+uint64_t trudpSendQueueGetExpectedTime(trudpSendQueue *sq) {
+        // Get sendQueue timeout
+    uint64_t channel_expected_time = UINT64_MAX;
+    if(sq->q->first) {
+        trudpPacketQueueData *pqd = (trudpPacketQueueData *) sq->q->first->data;
+        channel_expected_time = pqd->expected_time;
+    }
+
+    return channel_expected_time;
+}

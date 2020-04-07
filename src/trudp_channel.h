@@ -183,6 +183,7 @@ int trudpChannelSendQueueProcess(trudpChannelData *tcd, uint64_t ts,
         uint64_t *next_expected_time);
 int trudpChannelCheckDisconnected(trudpChannelData *tcd, uint64_t ts);
 size_t trudpChannelWriteQueueProcess(trudpChannelData *tcd);
+TRUDP_API void trudpRecalculateExpectedSendTime(struct trudpData *td);
 
 #ifdef __cplusplus
 }

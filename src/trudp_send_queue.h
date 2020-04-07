@@ -123,7 +123,7 @@ trudpSendQueueData *trudpSendQueueFindById(trudpSendQueue *sq, uint32_t id);
 trudpSendQueueData *trudpSendQueueGetFirst(trudpSendQueue *sq);
 
 uint32_t trudpSendQueueGetTimeout(trudpSendQueue *sq, uint64_t current_t);
-
+uint64_t trudpSendQueueGetExpectedTime(trudpSendQueue *sq);
 #ifdef __cplusplus
 }
 #endif

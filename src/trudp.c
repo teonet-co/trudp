@@ -79,6 +79,9 @@ trudpData *trudpInit(int fd, int port, trudpEventCb event_cb, void *user_data) {
     trudp->port = port;
     trudp->fd = fd;
 
+    trudp->expected_max_time = UINT64_MAX;
+    trudp->channel_key = NULL;
+
     // Initialize statistic data
     trudpStatInit(trudp);
     trudp->started = teoGetTimestampFull();
@@ -152,6 +155,22 @@ void trudpChannelSendEventGotData(trudpChannelData* tcd, trudpPacket *packet) {
     trudpChannelSendEvent(tcd, GOT_DATA, packet, data_len, NULL);
 }
 
+
+void trudpChannelDestroyChannel(trudpData *td, trudpChannelData *tcd) {
+	bool recalculate_expected_time = false;
+	
+	if (td->channel_key == tcd->channel_key) {
+		recalculate_expected_time = true;
+		td->expected_max_time = UINT64_MAX;
+		td->channel_key = NULL;
+	}
+	
+	trudpChannelDestroy(tcd);
+	
+	if (recalculate_expected_time) {
+		trudpRecalculateExpectedSendTime(td);
+	}
+}
 /**
  * Destroy all trudp channels
  *
@@ -159,6 +178,8 @@ void trudpChannelSendEventGotData(trudpChannelData* tcd, trudpPacket *packet) {
  */
 void trudpChannelDestroyAll(trudpData *td) {
     size_t counter = teoMapSize(td->map);
+    td->expected_max_time = UINT64_MAX;
+    td->channel_key = NULL;
     while (counter != 0) {
         size_t data_len = 0;
         trudpChannelData *tcd = (trudpChannelData *)teoMapGetFirst(td->map, &data_len);
@@ -176,16 +197,15 @@ void trudpChannelDestroyAll(trudpData *td) {
  * @param channel Channel number 0-15
  */
 void trudpChannelDestroyAddr(trudpData *td, const char *addr, int port, int channel) {
-        size_t key_length;
-        const char *key = trudpMakeKey(addr, port, channel, &key_length);
+    size_t key_length;
+    const char *key = trudpMakeKey(addr, port, channel, &key_length);
 
-        trudpChannelData *tcd = (trudpChannelData *)teoMapGet(td->map, (const uint8_t*)key, key_length, NULL);
+    trudpChannelData *tcd = (trudpChannelData *)teoMapGet(td->map, (const uint8_t*)key, key_length, NULL);
 
-        if (tcd != NULL && tcd != (void *)-1) {
-            trudpChannelDestroy(tcd);
-        }
+    if (tcd != NULL && tcd != (void *)-1) {
+        trudpChannelDestroyChannel(td, tcd);
+    }
 }
-
 // ===========================================================================
 
 
@@ -446,20 +466,12 @@ trudpChannelData *trudpGetChannelCreate(trudpData *td, __CONST_SOCKADDR_ARG addr
  * @return Minimum timeout or UINT32_MAX if send queue is empty
  */
 uint32_t trudpGetSendQueueTimeout(trudpData *td, uint64_t current_time) {
-
-    teoMapIterator it;
-    teoMapElementData *el;
-    uint32_t min_timeout_sq = UINT32_MAX;
-
-    teoMapIteratorReset(&it, td->map);
-    while((el = teoMapIteratorNext(&it))) {
-        trudpChannelData *tcd = (trudpChannelData *)teoMapIteratorElementData(el, NULL);
-        uint32_t timeout_sq = trudpChannelSendQueueGetTimeout(tcd, current_time);
-        if(timeout_sq < min_timeout_sq) min_timeout_sq = timeout_sq;
-        if(!min_timeout_sq) break;
+    if (td->expected_max_time == UINT64_MAX) {
+        return UINT32_MAX;
     }
 
-    return min_timeout_sq;
+    uint32_t timeout_sq = td->expected_max_time > current_time ? td->expected_max_time - current_time : 0;
+    return timeout_sq;
 }
 
 #ifdef RESERVED

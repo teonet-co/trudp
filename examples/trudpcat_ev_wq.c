@@ -37,6 +37,123 @@
 #include <string.h>
 #include <time.h>
 
+/*  
+    500 clients, 10 packet per second. server CPU usage < 70%
+Samples: 39K of event 'cycles', 2750 Hz, Event count (approx.): 2252498416 lost: 0/0 drop: 0/0
+Overhead  Shared Object          Symbol
+  23,38%  trudpcat_ev_wq         [.] trudpSendQueueGetTimeout
+  16,36%  trudpcat_ev_wq         [.] teoMapIteratorNext
+   9,53%  trudpcat_ev_wq         [.] teoQueueIteratorNext
+   8,99%  trudpcat_ev_wq         [.] teoMapIteratorElementData
+   5,49%  trudpcat_ev_wq         [.] trudpChannelSendQueueGetTimeout
+   3,58%  trudpcat_ev_wq         [.] teoQueueIteratorReset
+   3,17%  trudpcat_ev_wq         [.] trudpGetSendQueueTimeout
+   1,77%  trudpcat_ev_wq         [.] trudpChannelSendQueueProcess
+   1,74%  trudpcat_ev_wq         [.] trudpPacketQueueSize
+   1,53%  [kernel]               [k] do_syscall_64
+   1,08%  trudpcat_ev_wq         [.] teoQueueSize
+   0,78%  [kernel]               [k] psi_task_change
+   0,59%  [kernel]               [k] syscall_return_via_sysret
+   0,57%  trudpcat_ev_wq         [.] trudpProcessSendQueue
+   0,53%  [kernel]               [k] entry_SYSCALL_64
+   0,53%  trudpcat_ev_wq         [.] trudpPacketQueueGetFirst
+   0,53%  trudpcat_ev_wq         [.] _teoMapGet
+*/
+/*
+    500 clients, 5 packet per second. server CPU usage < 50%
+Samples: 28K of event 'cycles', 2750 Hz, Event count (approx.): 10607868522 lost: 0/0 drop: 0/0
+Overhead  Shared Object          Symbol
+  25,08%  trudpcat_ev_wq         [.] trudpSendQueueGetTimeout
+  16,17%  trudpcat_ev_wq         [.] teoMapIteratorNext
+   9,80%  trudpcat_ev_wq         [.] teoMapIteratorElementData
+   9,68%  trudpcat_ev_wq         [.] teoQueueIteratorNext
+   5,59%  trudpcat_ev_wq         [.] trudpChannelSendQueueGetTimeout
+   3,53%  trudpcat_ev_wq         [.] trudpGetSendQueueTimeout
+   3,12%  trudpcat_ev_wq         [.] teoQueueIteratorReset
+   1,53%  [kernel]               [k] do_syscall_64
+   0,75%  [kernel]               [k] psi_task_change
+   0,53%  trudpcat_ev_wq         [.] trudpPacketQueueSize
+   0,50%  [kernel]               [k] entry_SYSCALL_64
+   0,50%  [kernel]               [k] _raw_spin_l
+*/
+/*
+    700 clients, 5 packet per second. server CPU usage < 80%
+Samples: 60K of event 'cycles', 2750 Hz, Event count (approx.): 27753898250 lost: 0/0 drop: 0/0
+Overhead  Shared Object          Symbol
+  24,55%  trudpcat_ev_wq         [.] trudpSendQueueGetTimeout
+  15,40%  trudpcat_ev_wq         [.] teoMapIteratorNext
+  10,34%  trudpcat_ev_wq         [.] teoMapIteratorElementData
+   8,70%  trudpcat_ev_wq         [.] teoQueueIteratorNext
+   5,59%  trudpcat_ev_wq         [.] trudpChannelSendQueueGetTimeout
+   3,87%  trudpcat_ev_wq         [.] trudpChannelSendQueueProcess
+   3,34%  trudpcat_ev_wq         [.] trudpPacketQueueSize
+   3,28%  trudpcat_ev_wq         [.] teoQueueIteratorReset
+   2,89%  trudpcat_ev_wq         [.] trudpGetSendQueueTimeout
+   2,04%  trudpcat_ev_wq         [.] teoQueueSize
+   1,14%  trudpcat_ev_wq         [.] trudpPacketQueueGetFirst
+   1,13%  [kernel]               [k] do_syscall_64
+   1,13%  trudpcat_ev_wq         [.] trudpProcessSendQueue
+   0,58%  trudpcat_ev_wq         [.] trudpChannelCheckDisconnected
+   0,46%  [kernel]               [k] psi_task_change
+   0,43%  trudpcat_ev_wq         [.] trudpSendQueueGetFirst
+   0,38%  [kernel]               [k] syscall_return_via_sysret
+   0,34%  trudpcat_ev_wq         [.] trudpSendQueueSize
+   0,34%  [kernel]               [k] entry_SYSCALL_64
+   0,33%  [kernel]               [k] __wake_up_common
+   0,32%  trudpcat_ev_wq         [.] _teoMapGet
+*/
+/*
+    700 clients, 3-4 packet per second. server CPU usage < 70%
+Samples: 212K of event 'cycles', 2750 Hz, Event count (approx.): 32681400508 lost: 0/0 drop: 0/0
+Overhead  Shared Object          Symbol
+  26,03%  trudpcat_ev_wq         [.] trudpSendQueueGetTimeout                                                                                                              ◆
+  14,58%  trudpcat_ev_wq         [.] teoMapIteratorNext                                                                                                                    ▒
+  10,53%  trudpcat_ev_wq         [.] teoQueueIteratorNext                                                                                                                  ▒
+  10,17%  trudpcat_ev_wq         [.] teoMapIteratorElementData                                                                                                             ▒
+   5,38%  trudpcat_ev_wq         [.] trudpChannelSendQueueGetTimeout                                                                                                       ▒
+   3,21%  trudpcat_ev_wq         [.] trudpGetSendQueueTimeout                                                                                                              ▒
+   3,19%  trudpcat_ev_wq         [.] teoQueueIteratorReset                                                                                                                 ▒
+   2,41%  trudpcat_ev_wq         [.] trudpPacketQueueSize                                                                                                                  ▒
+   2,40%  trudpcat_ev_wq         [.] trudpChannelSendQueueProcess                                                                                                          ▒
+   1,31%  trudpcat_ev_wq         [.] teoQueueSize                                                                                                                          ▒
+   1,18%  [kernel]               [k] do_syscall_64                                                                                                                         ▒
+   0,74%  trudpcat_ev_wq         [.] trudpProcessSendQueue                                                                                                                 ▒
+   0,69%  trudpcat_ev_wq         [.] trudpPacketQueueGetFirst                                                                                                              ▒
+   0,54%  [kernel]               [k] psi_task_change                                                                                                                       ▒
+   0,42%  trudpcat_ev_wq         [.] trudpChannelCheckDisconnected                                                                                                         ▒
+   0,38%  [kernel]               [k] _raw_spin_lock_irqsave                                                                                                                ▒
+   0,37%  [kernel]               [k] syscall_return_via_sysret                                                                                                             ▒
+   0,37%  [kernel]               [k] ep_poll_callback                                                                                                                      ▒
+   0,36%  [kernel]               [k] entry_SYSCALL_64                                                                                                                      ▒
+   0,35%  trudpcat_ev_wq         [.] _teoMapGet  
+*/
+/*
+    1 client, 60k packet per second. server CPU usage  ~90%
+Samples: 35K of event 'cycles', 2750 Hz, Event count (approx.): 14140468522 lost: 0/0 drop: 0/0
+Overhead  Shared Object          Symbol
+   9,98%  [kernel]               [k] do_syscall_64
+   8,73%  trudpcat_ev_wq         [.] teoMapIteratorNext
+   6,91%  trudpcat_ev_wq         [.] teoQueueIteratorNext
+   3,41%  trudpcat_ev_wq         [.] teoQueueIteratorReset
+   3,22%  [kernel]               [k] entry_SYSCALL_64
+   3,01%  [kernel]               [k] syscall_return_via_sysret
+   1,27%  [kernel]               [k] __ip_append_data.isra.0
+   1,23%  libc-2.30.so           [.] _IO_default_xsputn
+   1,08%  trudpcat_ev_wq         [.] _teoMapGet
+*/
+
+/*
+    1 client, 30k packet per second. server CPU usage  ~60%
+Samples: 155K of event 'cycles', 2750 Hz, Event count (approx.): 26305821585 lost: 0/0 drop: 0/0
+Overhead  Shared Object          Symbol
+  10,04%  [kernel]               [k] do_syscall_64
+   8,35%  trudpcat_ev_wq         [.] teoMapIteratorNext
+   6,76%  trudpcat_ev_wq         [.] teoQueueIteratorNext
+   3,43%  trudpcat_ev_wq         [.] teoQueueIteratorReset
+   3,10%  [kernel]               [k] syscall_return_via_sysret
+   2,90%  [kernel]               [k] entry_SYSCALL_64
+   1,09%  trudpcat_ev_wq         [.] _teoMapGet
+*/
 // C11 present
 #if __STDC_VERSION__ >= 201112L
 extern int usleep (__useconds_t __useconds);
@@ -51,7 +168,7 @@ extern int usleep (__useconds_t __useconds);
 #define APP_VERSION "0.0.19"
 
 // Application constants
-#define SEND_MESSAGE_AFTER_MIN 100 // 9 /* 16667 */ // uSec (mSec * 1000)
+#define SEND_MESSAGE_AFTER_MIN 50000 // 9 /* 16667 */ // uSec (mSec * 1000)
 #define SEND_MESSAGE_AFTER  SEND_MESSAGE_AFTER_MIN
 #define RECONNECT_AFTER 3000000 // uSec (mSec * 1000)
 #define SHOW_STATISTIC_AFTER 500000 // uSec (mSec * 1000)
@@ -428,7 +545,6 @@ static void eventCb(void *tcd_pointer, int event, void *data, size_t data_length
         // @param data_length Length of send
         // @param user_data NULL
         case PROCESS_SEND: {
-
             //if(isWritable(tcd->td->fd, timeout) > 0) {
             // Send to UDP
             trudpUdpSendto(tcd->td->fd, data, data_length,
@@ -770,7 +886,6 @@ static void usage(char *name) {
  * @return
  */
 int main(int argc, char** argv) {
-
     // Show logo
     fprintf(stderr,
             "TR-UDP two node connect sample application ver " APP_VERSION "\n"

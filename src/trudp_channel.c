@@ -476,6 +476,11 @@ static void _trudpChannelIncrementStatWriteQueueSize(trudpChannelData *tcd) {
   tcd->td->stat.writeQueue.size_current++;
 }
 
+static void _updateMainExpectedTimeAndChannel(trudpChannelData *tcd, uint64_t new_expected_time) {
+    tcd->td->expected_max_time = new_expected_time;
+    tcd->td->channel_key = tcd->channel_key;
+}
+
 /**
  * Send packet
  *
@@ -500,9 +505,11 @@ static size_t _trudpChannelSendPacket(trudpChannelData *tcd,
     // Save packet to send queue
     if (save_to_send_queue) {
         if (sendNowFlag) {
-            trudpSendQueueAdd(
-                tcd->sendQueue, packet, packetLength,
-                _trudpChannelCalculateExpectedTime(tcd, teoGetTimestampFull(), 0));
+            uint64_t expected_time = _trudpChannelCalculateExpectedTime(tcd, teoGetTimestampFull(), 0);
+            if (tcd->td->expected_max_time > expected_time) {
+                _updateMainExpectedTimeAndChannel(tcd, expected_time);
+            }
+            trudpSendQueueAdd(tcd->sendQueue, packet, packetLength, expected_time);
             _trudpChannelIncrementStatSendQueueSize(tcd);
         } else {
             void *packetCopy = ccl_malloc(packetLength);
@@ -622,6 +629,18 @@ int trudpChannelProcessReceivedPacket(trudpChannelData *tcd, uint8_t *data,
         send_data_length = trudpPacketGetDataLength(sq_packet);
         trudpSendQueueDelete(tcd->sendQueue, sqd);
         tcd->td->stat.sendQueue.size_current--;
+
+        if (tcd->td->channel_key == tcd->channel_key) {
+            trudpRecalculateExpectedSendTime(tcd->td);
+        } else {
+            if (tcd->td->expected_max_time == UINT64_MAX) {
+                LTRACK_E("TrudpChannel", "expected_max_time so BIG, while we got ack from channel %s", tcd->channel_key);
+            }
+            uint64_t expected_time = trudpSendQueueGetExpectedTime(tcd->sendQueue);
+            if (tcd->td->expected_max_time > expected_time) {
+                _updateMainExpectedTimeAndChannel(tcd, expected_time);
+            }
+        }
 
         if (trudpWriteQueueSize(tcd->writeQueue) > 0) {
           trudpWriteQueueData *wqd_first =
@@ -834,7 +853,9 @@ int trudpChannelSendQueueProcess(trudpChannelData *tcd, uint64_t ts,
     // Change records expected time
     tqd->expected_time =
         _trudpChannelCalculateExpectedTime(tcd, ts, tqd->retrieves);
-
+    if (tcd->td->expected_max_time > tqd->expected_time) {
+        _updateMainExpectedTimeAndChannel(tcd, tqd->expected_time);
+    }
     // Move record to the end of Queue \todo or don't move record to the end of
     // queue because it should be send first
     // trudpPacketQueueMoveToEnd(tcd->sendQueue, tqd);
@@ -850,26 +871,6 @@ int trudpChannelSendQueueProcess(trudpChannelData *tcd, uint64_t ts,
     // Resend data
     trudpPacketUpdateTimestamp(tq_packet);
     trudpChannelSendEvent(tcd, PROCESS_SEND, tq_packet, tqd->packet_length, NULL);
-
-    // Disconnect at max retrieves
-    //        goto skip_disconnect_on_max_retrieves;
-    //        if(tqd->retrieves > MAX_RETRIEVES ||
-    //           ts - tqd->retrieves_start > MAX_TRIPTIME_MIDDLE ) {
-    //
-    //            char *key = trudpMakeKeyCannel(tcd);
-    //            // \todo Send event
-    //            fprintf(stderr, "Disconnect channel %s, wait: %.6f\n", key,
-    //                (ts - tqd->retrieves_start) / 1000000.0);
-    //            trudpExecEventCallback(tcd, DISCONNECTED, key, strlen(key) +
-    //            1,
-    //                tcd->td->user_data, tcd->td->evendCb);
-    //
-    //            trudpDestroyChannel(tcd);
-    //
-    //            //exit(-1);
-    //            return -1;
-    //        }
-    //        skip_disconnect_on_max_retrieves: ;
   }
 
   // Disconnect channel at long last receive
@@ -923,4 +924,30 @@ size_t trudpChannelWriteQueueProcess(trudpChannelData *tcd) {
   }
 
   return retval;
+}
+
+
+// Forward declare trudpData.Need some code-reorganize
+void trudpRecalculateExpectedSendTime(struct trudpData *td) {
+    teoMapIterator it;
+    teoMapElementData *el;
+    uint64_t min_time = UINT64_MAX;
+    char *min_channel_key = NULL;
+    uint64_t current_time = teoGetTimestampFull();
+    teoMapIteratorReset(&it, td->map);
+    while((el = teoMapIteratorNext(&it))) {
+        trudpChannelData *tcd = (trudpChannelData *)teoMapIteratorElementData(el, NULL);
+        uint64_t expected_time = trudpSendQueueGetExpectedTime(tcd->sendQueue);
+
+        if (expected_time <= current_time) {
+            min_time = current_time;
+            min_channel_key = tcd->channel_key;
+            break;
+        } else if (expected_time < min_time) {
+            min_time = expected_time;
+            min_channel_key = tcd->channel_key;
+        }
+    }
+    td->expected_max_time = min_time;
+    td->channel_key = min_channel_key;
 }

@@ -84,7 +84,13 @@ void trudpSendQueueCbStart(trudpProcessSendQueueData *psd,
     }
 
     // If next_expected_time (net) or GetSendQueueTimeout
-    if((tt = (next_et != UINT64_MAX) ? next_et : trudpGetSendQueueTimeout(psd->td, ts)) != UINT32_MAX) {
+    if (next_et != UINT64_MAX) {
+        tt = next_et;
+    } else {
+        tt = trudpGetSendQueueTimeout(psd->td, ts);
+    }
+
+    if(tt != UINT32_MAX) {
 
         double tt_d = tt / 1000000.0;
         if(tt_d == 0.0) tt_d = 0.0001;

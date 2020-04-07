@@ -1,6 +1,5 @@
 lib_LTLIBRARIES = libtrudp.la
 
-
 AM_CFLAGS = -fno-strict-aliasing \
 	-fPIC \
 	-DUSE_LIBEV \
