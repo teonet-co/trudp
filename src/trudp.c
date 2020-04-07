@@ -156,30 +156,6 @@ void trudpChannelSendEventGotData(trudpChannelData* tcd, trudpPacket *packet) {
 }
 
 
-void trudpRecalculateExpectedSendTime(trudpData *td) {
-	teoMapIterator it;
-	teoMapElementData *el;
-	uint64_t min_time = UINT64_MAX;
-	char *min_channel_key = NULL;
-	uint64_t current_time = teoGetTimestampFull();
-	teoMapIteratorReset(&it, td->map);
-	while((el = teoMapIteratorNext(&it))) {
-		trudpChannelData *tcd = (trudpChannelData *)teoMapIteratorElementData(el, NULL);
-		uint64_t expected_time = trudpSendQueueGetExpectedTime(tcd->sendQueue);
-
-		if (expected_time <= current_time) {
-			min_time = current_time;
-			min_channel_key = tcd->channel_key;
-			break;
-		} else if (expected_time < min_time) {
-			min_time = expected_time;
-			min_channel_key = tcd->channel_key;
-		}
-	}
-	td->expected_max_time = min_time;
-	td->channel_key = min_channel_key;
-}
-
 void trudpChannelDestroyChannel(trudpData *td, trudpChannelData *tcd) {
 	bool recalculate_expected_time = false;
 	

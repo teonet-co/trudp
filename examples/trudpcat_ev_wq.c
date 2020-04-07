@@ -36,8 +36,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <time.h>
-//#include <gperftools/profiler.h>
-#include <signal.h>
+
 /*  
     500 clients, 10 packet per second. server CPU usage < 70%
 Samples: 39K of event 'cycles', 2750 Hz, Event count (approx.): 2252498416 lost: 0/0 drop: 0/0
@@ -173,7 +172,7 @@ extern int usleep (__useconds_t __useconds);
 #define SEND_MESSAGE_AFTER  SEND_MESSAGE_AFTER_MIN
 #define RECONNECT_AFTER 3000000 // uSec (mSec * 1000)
 #define SHOW_STATISTIC_AFTER 500000 // uSec (mSec * 1000)
-static int count_packet = 0;
+
 // Application options structure
 typedef struct options {
 
@@ -546,11 +545,6 @@ static void eventCb(void *tcd_pointer, int event, void *data, size_t data_length
         // @param data_length Length of send
         // @param user_data NULL
         case PROCESS_SEND: {
-//            ++count_packet;
-//            if (count_packet % 100000 == 0) {
-//                printf("Flush profile\n");
-//                ProfilerFlush();
-//            }
             //if(isWritable(tcd->td->fd, timeout) > 0) {
             // Send to UDP
             trudpUdpSendto(tcd->td->fd, data, data_length,
@@ -884,13 +878,6 @@ static void usage(char *name) {
 	exit(1);
 }
 
-void INThandler(int sig)
-{
-//    printf("Catch CTRL-C SIGNAL !!!\n");
-//    ProfilerStop();
-    exit(0);
-}
-
 /**
  * Main application function
  *
@@ -899,8 +886,6 @@ void INThandler(int sig)
  * @return
  */
 int main(int argc, char** argv) {
-//    ProfilerStart("trudp_profiler");
-    signal(SIGINT, INThandler); 
     // Show logo
     fprintf(stderr,
             "TR-UDP two node connect sample application ver " APP_VERSION "\n"
