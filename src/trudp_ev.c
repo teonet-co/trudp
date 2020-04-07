@@ -30,7 +30,7 @@
  *
  * Created on July 27, 2016, 11:11 AM
  */
-#define USE_LIBEV
+
 #ifdef USE_LIBEV
 
 //#include <stdio.h>
