@@ -507,6 +507,7 @@ static size_t _trudpChannelSendPacket(trudpChannelData *tcd,
         if (sendNowFlag) {
             uint64_t expected_time = _trudpChannelCalculateExpectedTime(tcd, teoGetTimestampFull(), 0);
             if (tcd->td->expected_max_time > expected_time) {
+                LTRACK_I("          >", "_trudpChannelSendPacket expected_time=%lu", expected_time);
                 _updateMainExpectedTimeAndChannel(tcd, expected_time);
             }
             trudpSendQueueAdd(tcd->sendQueue, packet, packetLength, expected_time);
@@ -546,6 +547,7 @@ size_t trudpChannelSendPING(trudpChannelData *tcd, void *data,
       _trudpChannelGetId(tcd), tcd->channel, data, data_length, &packetLength);
 
   // Send data
+  LTRACK_I("         >", "trudpChannelSendPING");
   size_t rv = _trudpChannelSendPacket(tcd, packet, packetLength, 0);
 
   // Free created packet
@@ -580,6 +582,7 @@ size_t trudpChannelSendData(trudpChannelData *tcd, void *data,
                                data_length, &packetLength);
 
   // Send data
+  LTRACK_I("         >", "trudpChannelSendData");
   rv = _trudpChannelSendPacket(tcd, packet, packetLength, 1);
 
   // Free created packet
@@ -632,12 +635,14 @@ int trudpChannelProcessReceivedPacket(trudpChannelData *tcd, uint8_t *data,
 
         if (tcd->td->channel_key == tcd->channel_key) {
             trudpRecalculateExpectedSendTime(tcd->td);
+            LTRACK_I("          >", "trudpRecalculateExpectedSendTime expected_time=%lu", tcd->td->expected_max_time);
         } else {
             if (tcd->td->expected_max_time == UINT64_MAX) {
                 LTRACK_E("TrudpChannel", "expected_max_time so BIG, while we got ack from channel %s", tcd->channel_key);
             }
             uint64_t expected_time = trudpSendQueueGetExpectedTime(tcd->sendQueue);
             if (tcd->td->expected_max_time > expected_time) {
+                LTRACK_I("          >", "trudpChannelProcessReceivedPacket expected_time=%lu", expected_time);
                 _updateMainExpectedTimeAndChannel(tcd, expected_time);
             }
         }
@@ -645,6 +650,8 @@ int trudpChannelProcessReceivedPacket(trudpChannelData *tcd, uint8_t *data,
         if (trudpWriteQueueSize(tcd->writeQueue) > 0) {
           trudpWriteQueueData *wqd_first =
               trudpWriteQueueGetFirst(tcd->writeQueue);
+          LTRACK_I("         >", "From tcd->writeQueue");
+
           _trudpChannelSendPacket(tcd, wqd_first->packet_ptr,
                                   wqd_first->packet_length, 1);
           free(wqd_first->packet_ptr);
@@ -854,7 +861,14 @@ int trudpChannelSendQueueProcess(trudpChannelData *tcd, uint64_t ts,
     tqd->expected_time =
         _trudpChannelCalculateExpectedTime(tcd, ts, tqd->retrieves);
     if (tcd->td->expected_max_time > tqd->expected_time) {
+        LTRACK_I("          >", "trudpChannelSendQueueProcess expected_time=%lu", tqd->expected_time);
         _updateMainExpectedTimeAndChannel(tcd, tqd->expected_time);
+      LTRACK_I("          >", "trudpChannelSendQueueProcess RECALC expected_time=%lu", tcd->td->expected_max_time);
+    } else {
+        LTRACK_I("          >",
+                 "trudpChannelSendQueueProcess dont update "
+                 "tcd->td->expected_max_time=%lu - tqd->expected_time=%lu = %lu",
+                 tcd->td->expected_max_time, tqd->expected_time, tcd->td->expected_max_time - tqd->expected_time);
     }
     // Move record to the end of Queue \todo or don't move record to the end of
     // queue because it should be send first
@@ -871,6 +885,10 @@ int trudpChannelSendQueueProcess(trudpChannelData *tcd, uint64_t ts,
     // Resend data
     trudpPacketUpdateTimestamp(tq_packet);
     trudpChannelSendEvent(tcd, PROCESS_SEND, tq_packet, tqd->packet_length, NULL);
+  } else {
+      LTRACK_I("          >",
+               "trudpChannelSendQueueProcess dont process SendQ=%lu tqd=%p",
+               trudpSendQueueSize(tcd->sendQueue), tqd);
   }
 
   // Disconnect channel at long last receive
