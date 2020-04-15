@@ -863,6 +863,9 @@ int trudpChannelSendQueueProcess(trudpChannelData *tcd, uint64_t ts,
     if (tcd->td->expected_max_time > tqd->expected_time) {
         LTRACK_I("          >", "trudpChannelSendQueueProcess expected_time=%lu", tqd->expected_time);
         _updateMainExpectedTimeAndChannel(tcd, tqd->expected_time);
+    
+    } else if (tcd->td->channel_key == tcd->channel_key) {
+      trudpRecalculateExpectedSendTime(tcd->td);
       LTRACK_I("          >", "trudpChannelSendQueueProcess RECALC expected_time=%lu", tcd->td->expected_max_time);
     } else {
         LTRACK_I("          >",
