@@ -444,21 +444,21 @@ void trudpChannelSendRESET(trudpChannelData *tcd, void *data,
  * Calculate ACK Expected Time
  *
  * @param tcd Pointer to trudpChannelData
- * @param current_time Current time (nSec)
+ * @param current_time_usec Current time (uSec)
  * @param retransmit This is retransmitted
  *
  * @return Current time plus
  */
 static uint64_t _trudpChannelCalculateExpectedTime(trudpChannelData *tcd,
-                                                   uint64_t current_time,
+                                                   uint64_t current_time_usec,
                                                    int retransmit) {
 
   // int rtt = tcd->triptimeMiddle + RTT * (retransmit);
   // int rtt = tcd->triptimeMiddle + (RTT/10);// * (retransmit?0.5:0);
-  int rtt = tcd->triptimeMiddle + RTT;
+  uint32_t rtt = tcd->triptimeMiddle + RTT;
   if (rtt > MAX_RTT)
     rtt = MAX_RTT;
-  uint64_t expected_time = current_time + rtt;
+  uint64_t expected_time = current_time_usec + rtt;
 
   return expected_time;
 }
@@ -855,6 +855,8 @@ int trudpChannelSendQueueProcess(trudpChannelData *tcd, uint64_t ts,
         _trudpChannelCalculateExpectedTime(tcd, ts, tqd->retrieves);
     if (tcd->td->expected_max_time > tqd->expected_time) {
         _updateMainExpectedTimeAndChannel(tcd, tqd->expected_time);
+    } else if (tcd->td->channel_key == tcd->channel_key) {
+      trudpRecalculateExpectedSendTime(tcd->td);
     }
     // Move record to the end of Queue \todo or don't move record to the end of
     // queue because it should be send first
