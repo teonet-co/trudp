@@ -302,29 +302,35 @@ const char *trudpChannelMakeKey(trudpChannelData *tcd) {
 }
 
 /**
- * Check that channel is disconnected and send DISCONNECTED event
- *
+ * Check that channel is disconnected
  * @param tcd Pointer to trudpChannelData
  * @param ts Current timestamp
- * @return -1 if disconnected event was sent, 0 otherwise
+ * @return -1 if channel should be disconnected, 0 otherwise
  */
 int trudpChannelCheckDisconnected(trudpChannelData *tcd, uint64_t ts) {
 
   // Disconnect channel at long last receive
   if (tcd->lastReceived &&
       ts - tcd->lastReceived > trudpOpt_CORE_disconnectTimeoutDelay_us) {
-
-    //        log_info("TrUdp", "trudpChannelSendEvent DISCONNECTED in
-    //        trudpChannelCheckDisconnected");
-
-    // Send disconnect event
-    uint32_t lastReceived = ts - tcd->lastReceived;
-    trudpChannelSendEvent(tcd, DISCONNECTED, &lastReceived, sizeof(lastReceived),
-                   NULL);
     return -1;
   }
+
   return 0;
 }
+
+/**
+ * Send DISCONNECTED event for channel
+ *
+ * @param tcd Pointer to trudpChannelData
+ * @param ts Current timestamp
+ */
+void trudpChannelSendDisconnectedEvent(trudpChannelData *tcd, uint64_t ts) {
+  // Send disconnect event
+  uint32_t lastReceived = ts - tcd->lastReceived;
+  trudpChannelSendEvent(tcd, DISCONNECTED, &lastReceived, sizeof(lastReceived),
+                 NULL);
+}
+
 
 // Process received packet ====================================================
 
@@ -841,7 +847,6 @@ int trudpChannelProcessReceivedPacket(trudpChannelData *tcd, uint8_t *data,
  */
 int trudpChannelSendQueueProcess(trudpChannelData *tcd, uint64_t ts,
                                  uint64_t *next_expected_time) {
-
   int rv = 0;
   trudpSendQueueData *tqd = NULL;
 
@@ -853,11 +858,7 @@ int trudpChannelSendQueueProcess(trudpChannelData *tcd, uint64_t ts,
     // Change records expected time
     tqd->expected_time =
         _trudpChannelCalculateExpectedTime(tcd, ts, tqd->retrieves);
-    if (tcd->td->expected_max_time > tqd->expected_time) {
-        _updateMainExpectedTimeAndChannel(tcd, tqd->expected_time);
-    } else if (tcd->td->channel_key == tcd->channel_key) {
-      trudpRecalculateExpectedSendTime(tcd->td);
-    }
+
     // Move record to the end of Queue \todo or don't move record to the end of
     // queue because it should be send first
     // trudpPacketQueueMoveToEnd(tcd->sendQueue, tqd);
@@ -875,31 +876,16 @@ int trudpChannelSendQueueProcess(trudpChannelData *tcd, uint64_t ts,
     trudpChannelSendEvent(tcd, PROCESS_SEND, tq_packet, tqd->packet_length, NULL);
   }
 
-  // Disconnect channel at long last receive
-  if (trudpChannelCheckDisconnected(tcd, ts) == -1) {
-
-    tqd = NULL;
-    rv = -1;
-  } else {
-
 // \todo Reset this channel at long retransmit
 #if RESET_AT_LONG_RETRANSMIT
-    if (ts - tqd->retrieves_start > trudpOpt_CORE_disconnectTimeoutDelay_us) {
-      trudpChannelSendRESET(tcd, NULL, 0);
-    } else {
-#endif
-// Get next value \todo if don't move than not need to re-get it
-// tqd = trudpPacketQueueGetFirst(tcd->sendQueue);
-#if RESET_AT_LONG_RETRANSMIT
-    }
-#endif
+  if (ts - tqd->retrieves_start > trudpOpt_CORE_disconnectTimeoutDelay_us) {
+    trudpChannelSendRESET(tcd, NULL, 0);
   }
+#endif
 
   // If record exists
-  if (next_expected_time) {
-    if (rv != -1)
-      tqd = trudpSendQueueGetFirst(tcd->sendQueue);
-    *next_expected_time = tqd ? tqd->expected_time : 0;
+  if (next_expected_time != NULL) {
+    *next_expected_time = tqd != NULL ? tqd->expected_time : UINT64_MAX;
   }
 
   return rv;

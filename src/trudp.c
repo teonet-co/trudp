@@ -35,6 +35,7 @@
 
 #include "teobase/types.h"
 
+#include "teoccl/array_list.h"
 #include "teoccl/memory.h"
 #include "teobase/logging.h"
 
@@ -342,7 +343,8 @@ size_t trudpProcessKeepConnection(trudpData *td) {
                 uint32_t sinceReceived = ts - tcd->lastReceived;
                 uint32_t sincePing = ts - tcd->lastSentPing;
                 if (sinceReceived > trudpOpt_CORE_keepaliveFirstPingDelay_us) {
-                    if(trudpChannelCheckDisconnected(tcd, ts) == -1) {
+                    if (trudpChannelCheckDisconnected(tcd, ts) == -1) {
+                        trudpChannelSendDisconnectedEvent(tcd, ts);
                         rv = -1;
                         break;
                     }
@@ -506,28 +508,59 @@ static size_t trudp_SendQueueSize(trudpData *td) {
  * @return Number of resend packets
  */
 int trudpProcessSendQueue(trudpData *td, uint64_t *next_et) {
+    int rv = 0;
 
-    int retval, rv = 0;
-    uint64_t ts = teoGetTimestampFull(), min_expected_time, next_expected_time;
+    uint64_t ts = teoGetTimestampFull();
+    uint64_t min_expected_time = UINT64_MAX;
+    char* min_expected_time_channel = NULL;
+
+    ccl_array_list_t *disconnected_channels = NULL;
+
     teoMapIterator it;
-    do {
-        retval = 0;
-        teoMapElementData *el;
-        min_expected_time = UINT64_MAX;
+    teoMapIteratorReset(&it, td->map);
+    while (teoMapIteratorNext(&it)) {
+        teoMapElementData *el = teoMapIteratorElement(&it);
+        trudpChannelData *tcd = (trudpChannelData *)teoMapIteratorElementData(el, NULL);
 
-        teoMapIteratorReset(&it, td->map);
+        if (trudpChannelCheckDisconnected(tcd, ts) == -1) {
+            // Delayed creation of list with disconnected channels.
+            if (disconnected_channels == NULL) {
+                disconnected_channels = cclArrayListNew(NULL);
+            }
 
-        while((el = teoMapIteratorNext(&it))) {
-            trudpChannelData *tcd = (trudpChannelData *)teoMapIteratorElementData(el, NULL);
-            retval = trudpChannelSendQueueProcess(tcd, ts, &next_expected_time);
-            if(retval < 0) break;
-            if(retval > 0) rv += retval;
-            if(next_expected_time && next_expected_time < min_expected_time)
+            cclArrayListAdd(disconnected_channels, tcd);
+        } else {
+            uint64_t next_expected_time = 0;
+
+            do {
+                int sent_packets = trudpChannelSendQueueProcess(tcd, ts, &next_expected_time);
+                rv += sent_packets;
+            } while (next_expected_time <= ts);
+
+            if(next_expected_time < min_expected_time) {
                 min_expected_time = next_expected_time;
+                min_expected_time_channel = tcd->channel_key;
+            }
         }
-    } while(retval == -1 || (retval > 0 && min_expected_time <= ts));
+    }
 
-    if(next_et) *next_et = (min_expected_time != UINT64_MAX) ? min_expected_time : 0;
+    if (disconnected_channels != NULL) {
+        size_t channels_to_disconnect = cclArrayListLength(disconnected_channels);
+
+        for (size_t i = 0; i < channels_to_disconnect; ++i) {
+            trudpChannelData* tcd = (trudpChannelData*)cclArrayListGetIdx(disconnected_channels, i);
+            trudpChannelSendDisconnectedEvent(tcd, ts);
+        }
+
+        cclArrayListFree(disconnected_channels);
+    }
+
+    td->expected_max_time = min_expected_time;
+    td->channel_key = min_expected_time_channel;
+
+    if (next_et != NULL) {
+        *next_et = (min_expected_time != UINT64_MAX) ? min_expected_time : 0;
+    } 
 
     return rv;
 }
