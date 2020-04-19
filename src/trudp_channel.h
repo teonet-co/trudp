@@ -124,7 +124,7 @@ typedef struct trudpChannelData {
 
     trudpWriteQueue *writeQueue; ///< Pointer to write queue trudpWriteQueue
 
-    uint32_t receiveExpectedId; ///< Excpected receive Id
+    uint32_t receiveExpectedId; ///< Expected receive Id
     trudpReceiveQueue *receiveQueue; ///< Pointer to receive queue trudpReceiveQueue
     int outrunning_cnt; ///< Receive queue outrunning count
     uint64_t lastReceived; ///< Last received time
