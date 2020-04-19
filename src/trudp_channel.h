@@ -67,7 +67,7 @@ typedef int socklen_t;
 typedef struct trudpLast10_data {
 
     uint32_t triptime; ///< Packet triptime
-    uint32_t size_b; ///< Size of backet in bites
+    uint32_t size_b; ///< Size of packet in bytes
     uint32_t ts; ///< Packet time
 
 } trudpLast10_data;
@@ -124,8 +124,8 @@ typedef struct trudpChannelData {
 
     trudpWriteQueue *writeQueue; ///< Pointer to write queue trudpWriteQueue
 
-    uint32_t receiveExpectedId; ///< Ecpected recive Id
-    trudpReceiveQueue *receiveQueue; ///< Pointer to recive queue trudpReceiveQueue
+    uint32_t receiveExpectedId; ///< Excpected receive Id
+    trudpReceiveQueue *receiveQueue; ///< Pointer to receive queue trudpReceiveQueue
     int outrunning_cnt; ///< Receive queue outrunning count
     uint64_t lastReceived; ///< Last received time
     bool zero_tolerance_f;           ///< behave tolerant to init packets
