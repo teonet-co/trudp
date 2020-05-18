@@ -798,14 +798,14 @@ int trudpChannelProcessReceivedPacket(trudpChannelData *tcd, uint8_t *data,
       //                log_info("TrUdp", "trudpChannelSendEvent GOT_RESET in
       //                trudpChannelProcessReceivedPacket");
 
-      // Send Got Reset event
-      trudpChannelSendEvent(tcd, GOT_RESET, NULL, 0, NULL);
-
       // Create ACK to RESET packet and send it back to sender
       _trudpChannelSendACKtoRESET(tcd, packet);
 
       // Reset TR-UDP
       _trudpChannelReset(tcd);
+
+      // Send Got Reset event
+      trudpChannelSendEvent(tcd, GOT_RESET, NULL, 0, NULL);
 
     } break;
 
