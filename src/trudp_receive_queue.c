@@ -46,11 +46,7 @@ trudpReceiveQueue *trudpReceiveQueueNew() {
  */
 
 void trudpReceiveQueueDestroy(trudpReceiveQueue *rq) {
-    if(rq) {
-        teoMapDestroy(rq->idx);
-        teoQueueDestroy(rq->q);
-        free(rq);
-    }
+    trudpPacketQueueDestroy((trudpPacketQueue *)rq);
 }
 
 /**
