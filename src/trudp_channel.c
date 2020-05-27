@@ -210,7 +210,7 @@ static void _trudpChannelReset(trudpChannelData *tcd) {
  * @param tcd Pointer to trudpChannelData
  */
 void trudpChannelDestroy(trudpChannelData *tcd) {
-  //    log_info("TrUdp", "trudpChannelSendEvent DISCONNECTED in trudpChannelDestroy");
+  //log_info("TrUdp", "trudpChannelSendEvent DISCONNECTED in trudpChannelDestroy");
 
   trudpChannelSendEvent(tcd, DISCONNECTED, NULL, 0, NULL);
   _trudpChannelFree(tcd);
