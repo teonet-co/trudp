@@ -270,15 +270,17 @@ void trudpProcessReceived(trudpData* td, uint8_t* data, size_t data_length) {
     }
 
     // Process received packet
-    if(recvlen > 0) {
+    if (recvlen > 0) {
+        // Non-trudp data is sent to channel 0.
         trudpChannelData *tcd = trudpGetChannelCreate(td, (__CONST_SOCKADDR_ARG) &remaddr, 0);
-        // FIXME: non trudp data it's return value == 0, not -1. Investigate why
-        // it works and fix appropriately
-        if(tcd == (void *)-1 || trudpChannelProcessReceivedPacket(tcd, data, recvlen) == -1) {
-            if(tcd == (void *)-1) {
-                printf("!!! can't PROCESS_RECEIVE_NO_TRUDP\n");
-            } else {
-                trudpChannelSendEvent(tcd, PROCESS_RECEIVE_NO_TRUDP, data, recvlen, NULL);
+
+        if (tcd == (void *)-1) {
+            LTRACK_E("Trudp", "Failed to process received data.");
+        } else {
+            int process_result = trudpChannelProcessReceivedPacket(tcd, data, recvlen);
+
+            if (process_result == -1) {
+                LTRACK_I("Trudp", "Received Trudp packet have unknown type.");
             }
         }
     }
@@ -644,8 +646,6 @@ const char *STRING_trudpEvent(trudpEvent val) {
       return "GOT_DATA";
     case PROCESS_RECEIVE:
       return "PROCESS_RECEIVE";
-    case PROCESS_RECEIVE_NO_TRUDP:
-      return "PROCESS_RECEIVE_NO_TRUDP";
     case PROCESS_SEND:
       return "PROCESS_SEND";
     case GOT_DATA_NO_TRUDP:
