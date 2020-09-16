@@ -170,6 +170,7 @@ trudpChannelData *trudpChannelNew(struct trudpData *td, const char *remote_addre
   tcd.writeQueue = trudpWriteQueueNew();
   tcd.receiveQueue = trudpReceiveQueueNew();
   tcd.addrlen = sizeof(tcd.remaddr);
+  LTRACK_E("trudpChannelNew", "Addr=%s, port=%d", remote_address, remote_port_i);
   trudpUdpMakeAddr(remote_address, remote_port_i, (__SOCKADDR_ARG)&tcd.remaddr,
                    &tcd.addrlen);
   tcd.channel = channel;

@@ -259,7 +259,7 @@ bool trudpIsPacketPing(uint8_t* data, size_t packet_length) {
  * @param data_length The length in bytes of received data
  */
 void trudpProcessReceived(trudpData* td, uint8_t* data, size_t data_length) {
-    struct sockaddr_in remaddr; // remote address
+    struct sockaddr_storage remaddr; // remote address
 
     socklen_t addr_len = sizeof(remaddr);
     ssize_t recvlen = trudpUdpRecvfrom(td->fd, data, data_length,
@@ -432,7 +432,7 @@ trudpChannelData *trudpGetChannel(trudpData *td, __CONST_SOCKADDR_ARG addr,
  * not exists
  *
  * @param td Pointer to trudpData
- * @param addr Pointer to sockaddr_in remote address
+ * @param addr Pointer to sockaddr_storage remote address
  * @param channel TR-UDP channel
  *
  * @return Pointer to trudpChannelData or (void*)-1 at error
