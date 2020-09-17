@@ -950,8 +950,13 @@ int main(int argc, char** argv) {
 
     // 0) Bind UDP port and get FD (start listening at port)
     int port = atoi(o.local_port);
-    int fd = trudpUdpBindRaw(&port, 1);
-    if(fd <= 0) die("Can't bind UDP port ...\n");
+    int fd;
+    if(o.listen) {
+        fd = trudpUdpBindRaw(NULL, &port, 1);
+    } else {
+        fd = trudpUdpBindRaw(o.remote_address, &port, 1);
+    }
+    if(fd <= 0) die("Can't bind UDP port. fd=%d\n", fd);
     else fprintf(stderr, "Start listening at port %d\n", port);
 
     // 1) Initialize TR-UDP
