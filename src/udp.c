@@ -110,21 +110,21 @@ static void _trudpUdpSetNonblock(int fd) {
  * @param server
  */
 static void _trudpUdpHostToIp(struct sockaddr_in *remaddr, const char *server) {
-    int result = inet_pton(AF_INET, server, &remaddr->sin_addr);
+    // int result = inet_pton(AF_INET, server, &remaddr->sin_addr);
 
-    if (result != -1) {
-        /* When passing the host name of the server as a */
-        /* parameter to this program, use the gethostbyname() */
-        /* function to retrieve the address of the host server. */
-        /***************************************************/
-        /* get host address */
-        struct hostent *hostp = gethostbyname(server);
-        if (hostp == NULL) {
-            // ...
-        } else {
-            memcpy(&remaddr->sin_addr, hostp->h_addr_list[0], sizeof(remaddr->sin_addr));
-        }
-    }
+    // if (result != -1) {
+    //     /* When passing the host name of the server as a */
+    //     /* parameter to this program, use the gethostbyname() */
+    //     /* function to retrieve the address of the host server. */
+    //     /***************************************************/
+    //     /* get host address */
+    //     struct hostent *hostp = gethostbyname(server);
+    //     if (hostp == NULL) {
+    //         // ...
+    //     } else {
+    //         memcpy(&remaddr->sin_addr, hostp->h_addr_list[0], sizeof(remaddr->sin_addr));
+    //     }
+    // }
 }
 
 void _trudpCallUdpDataSentCallback(int bytes_sent) {
@@ -156,7 +156,6 @@ void _trudpCallUdpDataReceivedCallback(int bytes_received) {
  * @return
  */
 int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr, socklen_t *addr_length) {
-    LTRACK_E("trudpUdpMakeAddr", "Addr=%s, port=%d", addr, port);
     struct addrinfo hints, *res;
     char port_ch[10];
     sprintf(port_ch, "%d", port);
@@ -167,7 +166,7 @@ int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr, socklen
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_DGRAM;
     hints.ai_flags = AI_PASSIVE;
-    hints.ai_protocol = IPPROTO_UDP;
+    //hints.ai_protocol = IPPROTO_UDP;
     hints.ai_canonname = NULL;
     hints.ai_addr = NULL;
     hints.ai_next = NULL;
@@ -197,10 +196,11 @@ int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr, socklen
  const char *trudpUdpGetAddr(__CONST_SOCKADDR_ARG remaddr, int *port) {
     char host[NI_MAXHOST], service[NI_MAXSERV];
     socklen_t remaddr_len = sizeof(struct sockaddr_storage);
-    int s = getnameinfo(remaddr, remaddr_len, host, NI_MAXHOST, service, NI_MAXSERV, NI_NUMERICSERV);
+    int s = getnameinfo(remaddr, remaddr_len, host, NI_MAXHOST, service, NI_MAXSERV, NI_NUMERICHOST|NI_NUMERICSERV);
 
-    char *addr = malloc(strlen(host)+1);
-    strncpy(addr, host, strlen(addr)+1);
+    size_t addr_len = strlen(host)+1;
+    char *addr = malloc(addr_len);
+    memcpy(addr, host, addr_len);
     if(port) *port = atoi(service);
 
     return (const char *)addr;
@@ -214,11 +214,11 @@ int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr, socklen
  * @return File descriptor or error if return value < 0:
  *         -1 - cannot create socket; -2 - can't bind on port
  */
-int trudpUdpBindRaw(int *port, int allow_port_increment_f) {
+int trudpUdpBindRaw(const char *host, int *port, int allow_port_increment_f) {
     struct addrinfo hints;
     struct addrinfo *rp;
+    struct addrinfo *res;
     memset(&hints, '\0', sizeof(struct addrinfo));
-    hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_DGRAM;
     hints.ai_flags = AI_PASSIVE;
     hints.ai_protocol = IPPROTO_UDP;
@@ -231,13 +231,15 @@ int trudpUdpBindRaw(int *port, int allow_port_increment_f) {
     // Bind the socket to any valid IP address and a specific port, increment
     // port if busy
     for (int i = 0;;) {
-        struct addrinfo *res;
         char port_ch[10];
         sprintf(port_ch, "%d", *port);
 
-        s = getaddrinfo(NULL, port_ch, &hints, &res);
+        hints.ai_family = !host ? AF_INET6 : AF_UNSPEC;
+        s = getaddrinfo(host, port_ch, &hints, &res);
+
         if (s != 0) {
             fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(s));
+            freeaddrinfo(res);
             return -3;
         }
 
@@ -246,6 +248,12 @@ int trudpUdpBindRaw(int *port, int allow_port_increment_f) {
             if (fd == -1) continue;
 
             if (_trudpUdpBind(fd, rp->ai_addr, rp->ai_addrlen) == 0) {
+                LTRACK_I("trudpUdpBindRaw SUCCESS", "Family=%d, SockType=%d, port=%d",rp->ai_family, rp->ai_socktype, rp->ai_protocol);
+                if (!host) {
+                    int off = 0;
+                    setsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY, (void *)&off, sizeof(off));
+                }
+
                 _trudpUdpSetNonblock(fd);
                 goto success_bind;
             }
@@ -254,16 +262,17 @@ int trudpUdpBindRaw(int *port, int allow_port_increment_f) {
         }
 
         ++(*port);
-        freeaddrinfo(res);
 
         if(allow_port_increment_f && i++ < NUMBER_OF_TRY_PORTS) {
             continue;
         } else {
+            freeaddrinfo(res);
             return -2;
         }
     }
 
 success_bind:
+    freeaddrinfo(res);
     return fd;
 }
 
