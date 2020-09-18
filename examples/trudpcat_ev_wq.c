@@ -956,8 +956,12 @@ int main(int argc, char** argv) {
     } else {
         fd = trudpUdpBindRaw(o.remote_address, &port, 1);
     }
-    if(fd <= 0) die("Can't bind UDP port. fd=%d\n", fd);
-    else fprintf(stderr, "Start listening at port %d\n", port);
+    if(fd <= 0) {
+        die("Can't bind UDP port. fd=%d\n", fd);
+    } else {
+        fprintf(stderr, "Start listening at port %d\n", port);
+        trudpUdpSetNonblock(fd);
+    }
 
     // 1) Initialize TR-UDP
     trudpData *td = trudpInit(fd, port, eventCb, NULL);
