@@ -63,7 +63,6 @@ extern trudpUdpDataReceivedCallback_t trudpOpt_STAT_udpDataReceivedCallback;
 
 // Local functions
 static void _trudpUdpHostToIp(struct sockaddr_in *remaddr, const char *server);
-static void _trudpUdpSetNonblock(int fd);
 static void _trudpCallUdpDataSentCallback(int bytes_sent);
 static void _trudpCallUdpDataReceivedCallback(int bytes_received);
 #ifdef RESERVED
@@ -78,7 +77,7 @@ static ssize_t _trudpUdpReadEventLoop(int fd, void *buffer, size_t buffer_size,
  *
  * @param fd
  */
-static void _trudpUdpSetNonblock(int fd) {
+void trudpUdpSetNonblock(int fd) {
 
     #if defined(HAVE_MINGW) || defined(_WIN32) || defined(_WIN64)
     //-------------------------
@@ -254,7 +253,6 @@ int trudpUdpBindRaw(const char *host, int *port, int allow_port_increment_f) {
                     setsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY, (void *)&off, sizeof(off));
                 }
 
-                _trudpUdpSetNonblock(fd);
                 goto success_bind;
             }
 
