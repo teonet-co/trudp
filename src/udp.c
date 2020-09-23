@@ -160,12 +160,12 @@ int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr, socklen
     sprintf(port_ch, "%d", port);
 
     memset(&hints, 0, sizeof(hints));
-    *addr_length = sizeof(remaddr);
+    //*addr_length = sizeof(remaddr);
     memset(remaddr, '\0', *addr_length);
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_DGRAM;
     hints.ai_flags = AI_PASSIVE;
-    //hints.ai_protocol = IPPROTO_UDP;
+    hints.ai_protocol = IPPROTO_UDP;
     hints.ai_canonname = NULL;
     hints.ai_addr = NULL;
     hints.ai_next = NULL;
