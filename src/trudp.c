@@ -447,6 +447,8 @@ trudpChannelData *trudpGetChannelCreate(trudpData *td, __CONST_SOCKADDR_ARG addr
         tcd = trudpChannelNew(td, addr_str, port, channel);
     }
 
+    free((char *)addr_str);
+
     if (tcd != (void*)-1 && !tcd->connected_f) {
         trudpChannelSendEvent(tcd, CONNECTED, NULL, 0, NULL);
         tcd->connected_f = 1; // MUST BE AFTER EVENT!
