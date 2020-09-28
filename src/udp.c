@@ -75,7 +75,7 @@ static ssize_t _trudpUdpReadEventLoop(int fd, void *buffer, size_t buffer_size,
  *
  * @param fd
  */
-void trudpUdpSetNonblock(int fd) {
+void trudpUdpSetNonblock(int fd) { // deprecated
 
     #if defined(HAVE_MINGW) || defined(_WIN32) || defined(_WIN64)
     //-------------------------
