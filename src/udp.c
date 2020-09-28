@@ -61,7 +61,6 @@ extern trudpUdpDataReceivedCallback_t trudpOpt_STAT_udpDataReceivedCallback;
 #define NUMBER_OF_TRY_PORTS 1000
 
 // Local functions
-static void _trudpUdpHostToIp(struct sockaddr_in *remaddr, const char *server);
 static void _trudpCallUdpDataSentCallback(int bytes_sent);
 static void _trudpCallUdpDataReceivedCallback(int bytes_received);
 #ifdef RESERVED
@@ -101,29 +100,6 @@ void trudpUdpSetNonblock(int fd) {
     #endif
 }
 
-/**
- * Convert host name to IP
- *
- * @param remaddr
- * @param server
- */
-static void _trudpUdpHostToIp(struct sockaddr_in *remaddr, const char *server) {
-    // int result = inet_pton(AF_INET, server, &remaddr->sin_addr);
-
-    // if (result != -1) {
-    //     /* When passing the host name of the server as a */
-    //     /* parameter to this program, use the gethostbyname() */
-    //     /* function to retrieve the address of the host server. */
-    //     /***************************************************/
-    //     /* get host address */
-    //     struct hostent *hostp = gethostbyname(server);
-    //     if (hostp == NULL) {
-    //         // ...
-    //     } else {
-    //         memcpy(&remaddr->sin_addr, hostp->h_addr_list[0], sizeof(remaddr->sin_addr));
-    //     }
-    // }
-}
 
 void _trudpCallUdpDataSentCallback(int bytes_sent) {
     trudpUdpDataSentCallback_t callback_copy =
@@ -153,13 +129,12 @@ void _trudpCallUdpDataReceivedCallback(int bytes_received) {
  * @param addr_length
  * @return
  */
-int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr, socklen_t *addr_length) {
+int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr) {
     struct addrinfo hints, *res;
     char port_ch[10];
     sprintf(port_ch, "%d", port);
 
     memset(&hints, 0, sizeof(hints));
-    memset(remaddr, 0, *addr_length);
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_DGRAM;
     hints.ai_flags = AI_PASSIVE;
@@ -178,8 +153,6 @@ int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr, socklen
 
     freeaddrinfo(res);
 
-    // _trudpUdpHostToIp((struct sockaddr_in*)remaddr, addr);
-
     return 0;
 }
 
@@ -195,9 +168,9 @@ int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr, socklen
     socklen_t remaddr_len = sizeof(struct sockaddr_storage);
     int s = getnameinfo(remaddr, remaddr_len, host, sizeof(host), service, NI_MAXSERV, NI_NUMERICHOST|NI_NUMERICSERV);
     (void)s;// \TODO: need to handle the error code
-    size_t addr_len = strlen(host)+1;
-    char *addr = malloc(addr_len);
-    memcpy(addr, host, addr_len);
+
+    char *addr = strndup(host, NI_MAXHOST);
+
     if(port) *port = atoi(service);
 
     return (const char *)addr;
