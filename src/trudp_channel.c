@@ -191,7 +191,6 @@ trudpChannelData *trudpChannelNew(struct trudpData *td, const char *remote_addre
   tcd.channel_key_length = channel_key_length;
 
   trudpChannelData *tcd_return = _trudpChannelAddToMap(td, &tcd);
-
   return tcd_return;
 }
 
@@ -210,8 +209,6 @@ static void _trudpChannelReset(trudpChannelData *tcd) {
  * @param tcd Pointer to trudpChannelData
  */
 void trudpChannelDestroy(trudpChannelData *tcd) {
-  //log_info("TrUdp", "trudpChannelSendEvent DISCONNECTED in trudpChannelDestroy");
-
   trudpChannelSendEvent(tcd, DISCONNECTED, NULL, 0, NULL);
   _trudpChannelFree(tcd);
   tcd->fd = 0;
@@ -220,9 +217,7 @@ void trudpChannelDestroy(trudpChannelData *tcd) {
   trudpReceiveQueueDestroy(tcd->receiveQueue);
 
   char *channel_key = tcd->channel_key;
-
   teoMapDelete(tcd->td->map, (uint8_t*)channel_key, tcd->channel_key_length);
-
   free(channel_key);
 }
 
@@ -383,7 +378,6 @@ static void _trudpChannelSetLastReceived(trudpChannelData *tcd) {
  * @param packet Pointer to received packet
  */
 static void _trudpChannelSendACK(trudpChannelData *tcd, trudpPacket* packet) {
-
   trudpPacket* ack_packet = trudpPacketACKcreateNew(packet);
   trudpChannelSendEvent(tcd, PROCESS_SEND, ack_packet, trudpPacketACKlength(), NULL);
   trudpPacketCreatedFree(ack_packet);
@@ -397,7 +391,6 @@ static void _trudpChannelSendACK(trudpChannelData *tcd, trudpPacket* packet) {
  * @param packet Pointer to received packet
  */
 static void _trudpChannelSendACKtoRESET(trudpChannelData *tcd, trudpPacket* packet) {
-
   trudpPacket* ack_packet = trudpPacketACKtoRESETcreateNew(packet);
   trudpChannelSendEvent(tcd, PROCESS_SEND, ack_packet, trudpPacketACKlength(), NULL);
   trudpPacketCreatedFree(ack_packet);
@@ -411,7 +404,6 @@ static void _trudpChannelSendACKtoRESET(trudpChannelData *tcd, trudpPacket* pack
  * @param packet Pointer to received packet
  */
 static void _trudpChannelSendACKtoPING(trudpChannelData *tcd, trudpPacket* packet) {
-
   trudpPacket* ack_packet = trudpPacketACKtoPINGcreateNew(packet);
   trudpChannelSendEvent(tcd, PROCESS_SEND, ack_packet,
                  trudpPacketGetPacketLength(packet), NULL);
@@ -430,13 +422,12 @@ void trudpChannelSendRESET(trudpChannelData *tcd, void *data,
                            size_t data_length) {
 
   if (tcd) {
-    trudpChannelSendEvent(tcd, SEND_RESET, data, data_length, NULL);
-
     void *packetRESET = trudpPacketRESETcreateNew(_trudpChannelGetNewId(tcd),
                   tcd->channel);
     trudpChannelSendEvent(tcd, PROCESS_SEND, packetRESET, trudpPacketRESETlength(),
                   NULL);
     trudpPacketCreatedFree(packetRESET);
+    trudpChannelSendEvent(tcd, SEND_RESET, data, data_length, NULL);
   }
 }
 
@@ -614,7 +605,6 @@ int trudpChannelProcessReceivedPacket(trudpChannelData *tcd, uint8_t *data,
 
     // ACK to DATA packet received
     case TRU_ACK: {
-
       // Find packet in send queue by id
       size_t send_data_length = 0;
       trudpSendQueueData *sqd =
@@ -660,7 +650,6 @@ int trudpChannelProcessReceivedPacket(trudpChannelData *tcd, uint8_t *data,
 
     // ACK to RESET packet received
     case TRU_ACK | TRU_RESET: {
-
       // Send event
       trudpChannelSendEvent(tcd, GOT_ACK_RESET, NULL, 0, NULL);
 
@@ -726,6 +715,7 @@ int trudpChannelProcessReceivedPacket(trudpChannelData *tcd, uint8_t *data,
         // Send event
         uint32_t id = trudpPacketGetId(packet);
         trudpChannelSendEvent(tcd, SEND_RESET, NULL, 0, NULL);
+
         trudpChannelSendRESET(tcd, &id, sizeof(id));
         break;
       }
@@ -778,9 +768,7 @@ int trudpChannelProcessReceivedPacket(trudpChannelData *tcd, uint8_t *data,
       // Reset channel if packet id = 0 and we are waiting for non-zero one
       // Don't reset in case we waiting for id=1, just skip it to mitigate case
       // the remote side did not receive our ACK for packet id=0 and sent it again
-      if ((trudpPacketGetId(packet) == 0) && !tcd->zero_tolerance_f &&
-          (tcd->receiveExpectedId != 1)) {
-
+      if ((trudpPacketGetId(packet) == 0) && !tcd->zero_tolerance_f && (tcd->receiveExpectedId != 1)) {
         // Send Send Reset event
         trudpChannelSendRESET(tcd, NULL, 0);
         break;

@@ -120,7 +120,6 @@ void trudpDestroy(trudpData* td) {
 void trudpChannelSendEvent(trudpChannelData* tcd, int event, void* data,
         size_t data_length, void* reserved) {
     trudpData *td = (trudpData*)tcd->td;
-
     trudpEventCb cb = td->evendCb;
     if (cb != NULL) {
         cb((void*)tcd, event, data, data_length, td->user_data);
@@ -224,7 +223,6 @@ void trudpSendResetAll(trudpData *td) {
     while((el = teoMapIteratorNext(&it))) {
         trudpChannelData *tcd = (trudpChannelData *)
                 teoMapIteratorElementData(el, NULL);
-
         trudpChannelSendRESET(tcd, NULL, 0);
     }
 }
@@ -422,7 +420,6 @@ trudpChannelData *trudpGetChannel(trudpData *td, __CONST_SOCKADDR_ARG addr,
 
     int port;
     const char *addr_str = trudpUdpGetAddr(addr, &port);
-
     return trudpGetChannelAddr(td, addr_str, port, channel);
 }
 // \TODO: need channel alive function
