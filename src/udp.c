@@ -247,7 +247,6 @@ int trudpUdpBindRaw(const char *host, int *port, int allow_port_increment_f) {
             if (fd == -1) continue;
 
             if (_trudpUdpBind(fd, rp->ai_addr, rp->ai_addrlen) == 0) {
-                LTRACK_I("trudpUdpBindRaw SUCCESS", "Family=%d, SockType=%d, port=%d",rp->ai_family, rp->ai_socktype, rp->ai_protocol);
                 if (!host) {
                     int off = 0;
                     setsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY, (void *)&off, sizeof(off));
