@@ -170,8 +170,8 @@ int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr, socklen
     hints.ai_addr = NULL;
     hints.ai_next = NULL;
 
-    int status;
-    if (status = getaddrinfo(addr, port_ch, &hints, &res) != 0) {
+    int status = getaddrinfo(addr, port_ch, &hints, &res);
+    if (status != 0) {
         fprintf(stderr, "trudpUdpMakeAddr:%d getaddrinfo: %s\n", __LINE__, gai_strerror(status));
         return -1;
     }
