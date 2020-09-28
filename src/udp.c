@@ -39,11 +39,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <fcntl.h>
-#include <unistd.h>
 #include <stdlib.h>
 
+#include "teobase/socket.h"
 #include "teobase/types.h"
-
 #include "teobase/logging.h"
 #include "teobase/platform.h"
 
@@ -160,8 +159,7 @@ int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr, socklen
     sprintf(port_ch, "%d", port);
 
     memset(&hints, 0, sizeof(hints));
-    //*addr_length = sizeof(remaddr);
-    memset(remaddr, '\0', *addr_length);
+    memset(remaddr, 0, *addr_length);
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_DGRAM;
     hints.ai_flags = AI_PASSIVE;
@@ -255,7 +253,7 @@ int trudpUdpBindRaw(const char *host, int *port, int allow_port_increment_f) {
                 goto success_bind;
             }
 
-            close(fd);
+            teosockClose(fd);
         }
 
         ++(*port);
