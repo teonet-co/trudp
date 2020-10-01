@@ -119,6 +119,7 @@ void _trudpCallUdpDataReceivedCallback(int bytes_received) {
     }
 }
 
+
 /**
  * Make address from the IPv4 numbers-and-dots notation and integer port number
  * into binary form
@@ -135,9 +136,9 @@ int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr) {
     sprintf(port_ch, "%d", port);
 
     memset(&hints, 0, sizeof(hints));
-    hints.ai_family = AF_UNSPEC;
+    hints.ai_family = AF_INET6;
     hints.ai_socktype = SOCK_DGRAM;
-    hints.ai_flags = AI_PASSIVE;
+    hints.ai_flags = AI_V4MAPPED;
     hints.ai_protocol = IPPROTO_UDP;
     hints.ai_canonname = NULL;
     hints.ai_addr = NULL;
@@ -187,7 +188,7 @@ int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr) {
  * @return File descriptor or error if return value < 0:
  *         -1 - cannot create socket; -2 - can't bind on port
  */
-int trudpUdpBindRaw(const char *host, int *port, int allow_port_increment_f) {
+int trudpUdpBindRaw(int *port, int allow_port_increment_f) {
     struct addrinfo hints;
     struct addrinfo *rp;
     struct addrinfo *res;
@@ -207,8 +208,8 @@ int trudpUdpBindRaw(const char *host, int *port, int allow_port_increment_f) {
         char port_ch[10];
         sprintf(port_ch, "%d", *port);
 
-        hints.ai_family = !host ? AF_INET6 : AF_UNSPEC;
-        s = getaddrinfo(host, port_ch, &hints, &res);
+        hints.ai_family = AF_INET6;
+        s = getaddrinfo(NULL, port_ch, &hints, &res);
 
         if (s != 0) {
             fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(s));
@@ -221,10 +222,9 @@ int trudpUdpBindRaw(const char *host, int *port, int allow_port_increment_f) {
             if (fd == -1) continue;
 
             if (_trudpUdpBind(fd, rp->ai_addr, rp->ai_addrlen) == 0) {
-                if (!host) {
-                    int off = 0;
-                    setsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY, (void *)&off, sizeof(off));
-                }
+
+                int off = 0;
+                setsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY, (void *)&off, sizeof(off));
 
                 goto success_bind;
             }
