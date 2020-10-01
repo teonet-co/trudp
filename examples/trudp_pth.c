@@ -397,12 +397,7 @@ trudp_data_t *trudp_init(trudp_options *o) {
     // Create read buffer
     buffer = (uint8_t*)malloc(o->buf_size);
 
-    int fd;
-    if(o->listen) {
-        fd = trudpUdpBindRaw(NULL, &o->local_port_i, 1);
-    } else {
-        fd = trudpUdpBindRaw(o->remote_address, &o->local_port_i, 1);
-    }
+    int fd = trudpUdpBindRaw(&o->local_port_i, 1);
 
     if(fd <= 0) {
         fprintf(stderr,  "Can't bind %d UDP port ...\n", o->local_port_i);

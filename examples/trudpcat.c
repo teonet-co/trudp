@@ -462,12 +462,8 @@ int main_select(int argc, char** argv) {
 
     // Bind UDP port and get FD (start listening at port)
     int port = atoi(o_local_port);
-    int fd;
-    if(o.listen) {
-        fd = trudpUdpBindRaw(NULL, &port, 1);
-    } else {
-        fd = trudpUdpBindRaw(o.remote_address, &port, 1);
-    }
+    int fd = trudpUdpBindRaw(&port, 1);
+
     if(fd <= 0) die("Can't bind UDP port ...\n");
     else fprintf(stderr, "Start listening at port %d\n", port);
 
