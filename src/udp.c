@@ -130,7 +130,7 @@ void _trudpCallUdpDataReceivedCallback(int bytes_received) {
  * @param addr_length
  * @return
  */
-int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr) {
+int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr, socklen_t *len) {
     struct addrinfo hints, *res;
     char port_ch[10];
     sprintf(port_ch, "%d", port);
@@ -149,7 +149,8 @@ int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr) {
         fprintf(stderr, "trudpUdpMakeAddr:%d getaddrinfo: %s\n", __LINE__, gai_strerror(status));
         return -1;
     }
-
+    *len = res->ai_addrlen;
+    memset(remaddr, 0, *len);
     memcpy(remaddr, res->ai_addr, res->ai_addrlen);
 
     freeaddrinfo(res);
@@ -173,9 +174,12 @@ int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr) {
 
     size_t addr_len = strlen(host)+1;
     char *addr = malloc(addr_len);
+    memset(addr, '\0', addr_len);
     memcpy(addr, host, addr_len);
 
-    if(port) *port = atoi(service);
+    if(port) {
+        *port = atoi(service);
+    }
 
     return (const char *)addr;
 }

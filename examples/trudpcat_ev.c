@@ -39,6 +39,9 @@
 
 // C11 present
 #if __STDC_VERSION__ >= 201112L
+#ifdef __APPLE__
+#define __useconds_t useconds_t
+#endif
 extern int usleep (__useconds_t __useconds);
 #endif
 #include "snake.h"

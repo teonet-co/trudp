@@ -156,6 +156,9 @@ Overhead  Shared Object          Symbol
 */
 // C11 present
 #if __STDC_VERSION__ >= 201112L
+#ifdef __APPLE__
+#define __useconds_t useconds_t
+#endif
 extern int usleep (__useconds_t __useconds);
 #endif
 #include "snake.h"
@@ -244,7 +247,7 @@ static trudpProcessSendQueueData psd;
 #endif
 
 // Application options
-static options o = { 0, 0, 0, 0, 0, 0, 0, 0, 4096, NULL, NULL, NULL, NULL, 0 };
+static options o = { 1, 0, 0, 0, 0, 0, 0, 0, 4096, NULL, NULL, NULL, NULL, 0 };
 
 #if USE_SELECT
 // Application exit code and flags
@@ -548,7 +551,7 @@ static void eventCb(void *tcd_pointer, int event, void *data, size_t data_length
             //if(isWritable(tcd->td->fd, timeout) > 0) {
             // Send to UDP
             trudpUdpSendto(tcd->td->fd, data, data_length,
-                    (__CONST_SOCKADDR_ARG) &tcd->remaddr, sizeof(tcd->remaddr));
+                    (__CONST_SOCKADDR_ARG) &tcd->remaddr, tcd->addrlen);
             //}
 
             // Debug message
