@@ -130,6 +130,26 @@ void _trudpCallUdpDataReceivedCallback(int bytes_received) {
  * @param addr_length
  * @return
  */
+
+// Convert a struct sockaddr address to a string, IPv4 and IPv6:
+
+char *get_ip_str(const struct sockaddr *sa, char *s, size_t maxlen) {
+    switch (sa->sa_family) {
+    case AF_INET:
+        inet_ntop(AF_INET, &(((struct sockaddr_in *)sa)->sin_addr), s, maxlen);
+        break;
+
+    case AF_INET6:
+        inet_ntop(AF_INET6, &(((struct sockaddr_in6 *)sa)->sin6_addr), s,
+                  maxlen);
+        break;
+
+    default: strncpy(s, "Unknown AF", maxlen); return NULL;
+    }
+
+    return s;
+}
+
 int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr, socklen_t *len) {
     struct addrinfo hints, *res;
     char port_ch[10];
@@ -149,6 +169,11 @@ int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr, socklen
         fprintf(stderr, "trudpUdpMakeAddr:%d getaddrinfo: %s\n", __LINE__, gai_strerror(status));
         return -1;
     }
+
+    LTRACK_I("trudpUdpMakeAddr", "addr: %s, port: %d", addr, port);
+    LTRACK_I("trudpUdpMakeAddr", " len: %d; family: %d, next: %p", (int)res->ai_addrlen,
+             res->ai_family, res->ai_next);
+
     *len = res->ai_addrlen;
     memset(remaddr, 0, *len);
     memcpy(remaddr, res->ai_addr, res->ai_addrlen);
@@ -373,7 +398,7 @@ static int _trudpUdpIsWritable(int sd, uint32_t timeOut) {
  * @param buffer Buffer with data to send
  * @param buffer_size The size of data to send
  * @param remaddr Address to send data to
- * @param addrlen The length of @a remaddr argument
+ * @param addr_length The length of @a remaddr argument
  * @return The amount of bytes sent or -1 on error
  */
  ssize_t trudpUdpSendto(int fd, const uint8_t* buffer, size_t buffer_size,
@@ -396,6 +421,12 @@ static int _trudpUdpIsWritable(int sd, uint32_t timeOut) {
     ssize_t sendlen = 0;
 
     //if(waitSocketWriteAvailable(fd, 1000000) > 0) {
+
+    char addr[150];
+    get_ip_str(remaddr, addr, 150);
+
+    LTRACK_I("trudpUdpSendto", "addr: %s; len: %d; family: %d", addr,
+             addr_length, remaddr->sa_family);
 
     // Write UDP data
     int flags = 0;
