@@ -235,13 +235,24 @@ int trudpUdpBindRaw_cli(const char* addr, int *port, int allow_port_increment_f)
 
     int fd, s;
 
+    unsigned char out[sizeof(struct in6_addr)];
+    int rc = inet_pton(AF_INET, addr, out);
+    if (rc == 1) { /* valid IPv4 */
+        hints.ai_family = AF_INET;
+    } else {
+        rc = inet_pton(AF_INET6, addr, out);
+        if (rc == 1) { /* valid IPv6 */
+            hints.ai_family = AF_INET6;
+        }
+    }
+
     // Bind the socket to any valid IP address and a specific port, increment
     // port if busy
     for (int i = 0;;) {
         char port_ch[10];
         sprintf(port_ch, "%d", *port);
 
-        s = getaddrinfo(addr, port_ch, &hints, &res);
+        s = getaddrinfo(NULL, port_ch, &hints, &res);
 
         if (s != 0) {
             fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(s));
