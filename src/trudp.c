@@ -259,7 +259,7 @@ bool trudpIsPacketPing(uint8_t* data, size_t packet_length) {
 void trudpProcessReceived(trudpData* td, uint8_t* data, size_t data_length) {
     struct sockaddr_storage remaddr; // remote address
 
-    socklen_t addr_len;
+    socklen_t addr_len = sizeof(remaddr);
     ssize_t recvlen = trudpUdpRecvfrom(td->fd, data, data_length,
             (__SOCKADDR_ARG)&remaddr, &addr_len);
 

@@ -802,7 +802,7 @@ static void network_select_loop(trudpData *td, int timeout) {
         if(FD_ISSET(td->fd, &rfds)) {
 
             struct sockaddr_in remaddr; // remote address
-            socklen_t addr_len;
+            socklen_t addr_len = sizeof(remaddr);
             ssize_t recvlen = trudpUdpRecvfrom(td->fd, buffer, o.buf_size,
                     (__SOCKADDR_ARG)&remaddr, &addr_len);
 
@@ -834,7 +834,7 @@ static void network_loop(trudpData *td) {
 
     // Read from UDP
     struct sockaddr_in remaddr; // remote address
-    socklen_t addr_len;
+    socklen_t addr_len = sizeof(remaddr);
     ssize_t recvlen = trudpUdpRecvfrom(td->fd, buffer, o.buf_size,
             (__SOCKADDR_ARG)&remaddr, &addr_len);
 
@@ -953,7 +953,12 @@ int main(int argc, char** argv) {
 
     // 0) Bind UDP port and get FD (start listening at port)
     int port = atoi(o.local_port);
-    int fd = trudpUdpBindRaw(&port, 1);
+    int fd = -1;
+    if (o.listen) {
+        fd = trudpUdpBindRaw(&port, 1);
+    } else {
+        fd = trudpUdpBindRaw_cli(o.remote_address, &port, 1);
+    }
 
     if(fd <= 0) {
         die("Can't bind UDP port. fd=%d\n", fd);

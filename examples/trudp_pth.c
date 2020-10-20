@@ -350,7 +350,7 @@ void network_select_loop(trudp_data_t *tru, int timeout) {
         if(FD_ISSET(td->fd, &rfds)) {
 
             struct sockaddr_in remaddr; // remote address
-            socklen_t addr_len;
+            socklen_t addr_len = sizeof(remaddr);
             ssize_t recvlen = trudpUdpRecvfrom(td->fd, buffer, /*o.buf_size*/ 4096,
                     (__SOCKADDR_ARG)&remaddr, &addr_len);
 
