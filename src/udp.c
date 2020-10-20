@@ -190,11 +190,11 @@ int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr, socklen
  * @param[out] port Pointer to port to get port integer
  * @return Pointer to address string(must be freed)
  */
- const char *trudpUdpGetAddr(__CONST_SOCKADDR_ARG remaddr, int *port) {
+ const char *trudpUdpGetAddr(__CONST_SOCKADDR_ARG remaddr, socklen_t remaddr_len, int *port) {
     char host[NI_MAXHOST] = { 0 };
     char service[NI_MAXSERV] = { 0 };
-    socklen_t remaddr_len = sizeof(struct sockaddr_storage);
-    int s = getnameinfo(remaddr, remaddr_len, host, sizeof(host), service, NI_MAXSERV, NI_NUMERICHOST|NI_NUMERICSERV);
+    socklen_t remaddr_len1 = sizeof(struct sockaddr_storage);
+    int s = getnameinfo(remaddr, remaddr_len1, host, sizeof(host), service, NI_MAXSERV, NI_NUMERICHOST|NI_NUMERICSERV);
     (void)s;// \TODO: need to handle the error code
 
     size_t addr_len = strlen(host)+1;

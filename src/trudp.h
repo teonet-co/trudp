@@ -234,7 +234,7 @@ TRUDP_API void trudpChannelSendEvent(trudpChannelData* tcd, int event, void *dat
 TRUDP_API void trudpSendEvent(trudpData* td, int event, void *data,
             size_t data_length, void *reserved);
 TRUDP_API trudpChannelData *trudpGetChannelCreate(trudpData *td,
-            __CONST_SOCKADDR_ARG addr, int channel);
+            __CONST_SOCKADDR_ARG addr, socklen_t addr_len, int channel);
 TRUDP_API size_t trudpProcessKeepConnection(trudpData *td);
 TRUDP_API void trudpProcessReceived(trudpData* td, uint8_t* data, size_t data_length);
 TRUDP_API size_t trudpSendDataToAll(trudpData *td, void *data, size_t data_length);
@@ -250,7 +250,7 @@ TRUDP_API trudpChannelData *trudpGetChannelAddr(trudpData *td, const char *addr,
         int channel);
 TRUDP_API void trudpChannelDestroyChannel(trudpData *td, trudpChannelData *tcd);
 TRUDP_API void trudpChannelDestroyAll(trudpData *td);
-TRUDP_API trudpChannelData *trudpGetChannel(trudpData *td, __CONST_SOCKADDR_ARG addr,
+TRUDP_API trudpChannelData *trudpGetChannel(trudpData *td, __CONST_SOCKADDR_ARG addr, socklen_t addr_len,
         int channel);
 
 TRUDP_INTERNAL void trudpChannelSendEventGotData(trudpChannelData *tcd, trudpPacket *packet);

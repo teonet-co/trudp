@@ -69,7 +69,7 @@ extern "C" {
 TRUDP_API ssize_t trudpUdpSendto(int fd, const uint8_t* buffer, size_t buffer_size,
         __CONST_SOCKADDR_ARG remaddr, socklen_t addr_length);
 TRUDP_API int trudpUdpBindRaw(int *port, int allow_port_increment_f);
-TRUDP_API const char *trudpUdpGetAddr(__CONST_SOCKADDR_ARG remaddr, int *port);
+TRUDP_API const char *trudpUdpGetAddr(__CONST_SOCKADDR_ARG remaddr, socklen_t remaddr_len, int *port);
 
 TRUDP_API ssize_t trudpUdpRecvfrom(int fd, uint8_t* buffer, size_t buffer_size,
         __SOCKADDR_ARG remaddr, socklen_t *addr_length);
