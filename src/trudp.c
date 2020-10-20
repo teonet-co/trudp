@@ -263,13 +263,13 @@ void trudpProcessReceived(trudpData* td, uint8_t* data, size_t data_length) {
     ssize_t recvlen = trudpUdpRecvfrom(td->fd, data, data_length,
             (__SOCKADDR_ARG)&remaddr, &addr_len);
 
-    if (trudpIsPacketPing(data, recvlen) && trudpGetChannel(td, (__CONST_SOCKADDR_ARG) &remaddr, 0) == (void *)-1) {
+    if (trudpIsPacketPing(data, recvlen) && trudpGetChannel(td, (__CONST_SOCKADDR_ARG) &remaddr, addr_len, 0) == (void *)-1) {
         return;
     }
 
     // Process received packet
     if(recvlen > 0) {
-        trudpChannelData *tcd = trudpGetChannelCreate(td, (__CONST_SOCKADDR_ARG) &remaddr, 0);
+        trudpChannelData *tcd = trudpGetChannelCreate(td, (__CONST_SOCKADDR_ARG) &remaddr, addr_len, 0);
         // FIXME: non trudp data it's return value == 0, not -1. Investigate why
         // it works and fix appropriately
         if(tcd == (void *)-1 || trudpChannelProcessReceivedPacket(tcd, data, recvlen) == -1) {
@@ -415,11 +415,11 @@ trudpChannelData *trudpGetChannelAddr(trudpData *td, const char *addr,
  *
  * @return Pointer to trudpChannelData or (void*)-1 if not found
  */
-trudpChannelData *trudpGetChannel(trudpData *td, __CONST_SOCKADDR_ARG addr,
+trudpChannelData *trudpGetChannel(trudpData *td, __CONST_SOCKADDR_ARG addr, socklen_t addr_len,
         int channel) {
 
     int port;
-    const char *addr_str = trudpUdpGetAddr(addr, &port);
+    const char *addr_str = trudpUdpGetAddr(addr, addr_len, &port);
     return trudpGetChannelAddr(td, addr_str, port, channel);
 }
 // \TODO: need channel alive function
@@ -434,10 +434,10 @@ trudpChannelData *trudpGetChannel(trudpData *td, __CONST_SOCKADDR_ARG addr,
  *
  * @return Pointer to trudpChannelData or (void*)-1 at error
  */
-trudpChannelData *trudpGetChannelCreate(trudpData *td, __CONST_SOCKADDR_ARG addr, int channel) {
-
+trudpChannelData *trudpGetChannelCreate(trudpData *td, __CONST_SOCKADDR_ARG addr, socklen_t addr_len, int channel) {
+ 
     int port;
-    const char *addr_str = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)addr, &port);
+    const char *addr_str = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)addr, addr_len, &port);
     trudpChannelData *tcd = trudpGetChannelAddr(td, addr_str, port, channel);
 
     if(tcd == (void*)-1) {

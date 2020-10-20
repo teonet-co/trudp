@@ -428,7 +428,7 @@ char *ksnTRUDPstatShowStr(trudpData *td, int page) {
                 if(stat_sq_str) {
 
                     int port;
-                    const char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd->remaddr, &port);
+                    const char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd->remaddr, tcd->addrlen, &port);
                     printf("--------------------------------------------------------------\n"
                             "TR-UDP channel %s:%d:%d queues:\n\n",
                             addr, port, tcd->channel);

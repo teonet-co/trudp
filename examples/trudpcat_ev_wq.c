@@ -559,7 +559,7 @@ static void eventCb(void *tcd_pointer, int event, void *data, size_t data_length
 
                 int port,type;
                 uint32_t id = trudpPacketGetId(data);
-                const char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd->remaddr, &port);
+                const char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd->remaddr, tcd->addrlen, &port);
                 if(!(type = trudpPacketGetType(data))) {
                     debug("send %d bytes, id=%u, to %s:%d, %.3f(%.3f) ms\n",
                         (int)data_length, id, addr, port,
@@ -808,7 +808,7 @@ static void network_select_loop(trudpData *td, int timeout) {
 
             // Process received packet
             if(recvlen > 0) {
-                trudpChannelData *tcd = trudpGetChannelCreate(td, (__SOCKADDR_ARG)&remaddr, 0);
+                trudpChannelData *tcd = trudpGetChannelCreate(td, (__SOCKADDR_ARG)&remaddr, addr_len, 0);
                 trudpChannelProcessReceivedPacket(tcd, buffer, recvlen);
             }
         }
@@ -840,7 +840,7 @@ static void network_loop(trudpData *td) {
 
     // Process received packet
     if(recvlen > 0) {
-        trudpChannelData *tcd = trudpGetChannelCreate(td, (__SOCKADDR_ARG)&remaddr, 0);
+        trudpChannelData *tcd = trudpGetChannelCreate(td, (__SOCKADDR_ARG)&remaddr, addr_len, 0);
         trudpChannelProcessReceivedPacket(tcd, buffer, recvlen);
     }
 
@@ -953,7 +953,12 @@ int main(int argc, char** argv) {
 
     // 0) Bind UDP port and get FD (start listening at port)
     int port = atoi(o.local_port);
-    int fd = trudpUdpBindRaw(&port, 1);
+    int fd = -1;
+    if (o.listen) {
+        fd = trudpUdpBindRaw(&port, 1);
+    } else {
+        fd = trudpUdpBindRaw_cli(o.remote_address, &port, 1);
+    }
 
     if(fd <= 0) {
         die("Can't bind UDP port. fd=%d\n", fd);

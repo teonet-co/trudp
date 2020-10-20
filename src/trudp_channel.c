@@ -180,7 +180,7 @@ trudpChannelData *trudpChannelNew(struct trudpData *td, const char *remote_addre
 
   // Add channel to map
   size_t channel_key_length;
-  const char *addr_ch = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd.remaddr, NULL);
+  const char *addr_ch = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd.remaddr, tcd.addrlen, NULL);
   const char *channel_key = trudpMakeKey(addr_ch, remote_port_i, channel, &channel_key_length);
 
   LTRACK_I("trudpChannelNew", "addr_ch: %s, key: %s", addr_ch, channel_key);
@@ -293,7 +293,7 @@ const char *trudpChannelMakeKey(trudpChannelData *tcd) {
 
   int port;
   size_t key_length;
-  const char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd->remaddr, &port);
+  const char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd->remaddr, tcd->addrlen, &port);
   return trudpMakeKey(addr, port, tcd->channel, &key_length);
 }
 

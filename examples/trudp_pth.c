@@ -248,7 +248,7 @@ static void event_cb(void *tcd_pointer, int event, void *data, size_t data_lengt
             //if(isWritable(tcd->td->fd, timeout) > 0) {
             // Send to UDP
             trudpUdpSendto(tcd->td->fd, data, data_length,
-                    (__CONST_SOCKADDR_ARG) &tcd->remaddr, sizeof(tcd->remaddr));
+                    (__CONST_SOCKADDR_ARG) &tcd->remaddr, tcd->addrlen);
             //}
 
             // Debug message
@@ -256,7 +256,7 @@ static void event_cb(void *tcd_pointer, int event, void *data, size_t data_lengt
 
                 int port,type;
                 uint32_t id = trudpPacketGetId(data);
-                const char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd->remaddr, &port);
+                const char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd->remaddr, tcd->addrlen, &port);
                 if(!(type = trudpPacketGetType(data))) {
                     debug(tru, DEBUG_MSG,  "send %d bytes, id=%u, to %s:%d, %.3f(%.3f) ms\n",
                         (int)data_length, id, addr, port,
@@ -357,7 +357,7 @@ void network_select_loop(trudp_data_t *tru, int timeout) {
             // Process received packet
             if(recvlen > 0) {
                 pthread_mutex_lock(&tru->mutex);
-                trudpChannelData *tcd = trudpGetChannelCreate(td, (__SOCKADDR_ARG)&remaddr, 0);
+                trudpChannelData *tcd = trudpGetChannelCreate(td, (__SOCKADDR_ARG)&remaddr, addr_len, 0);
                 trudpChannelProcessReceivedPacket(tcd, buffer, recvlen);
                 pthread_mutex_unlock(&tru->mutex);
             }

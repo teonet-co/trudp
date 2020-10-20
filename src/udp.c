@@ -156,9 +156,9 @@ int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr, socklen
     sprintf(port_ch, "%d", port);
 
     memset(&hints, 0, sizeof(hints));
-    hints.ai_family = AF_INET6;
+    hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_DGRAM;
-    hints.ai_flags = AI_V4MAPPED;
+    hints.ai_flags = AI_V4MAPPED | AI_ADDRCONFIG;
     hints.ai_protocol = IPPROTO_UDP;
     hints.ai_canonname = NULL;
     hints.ai_addr = NULL;
@@ -166,7 +166,7 @@ int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr, socklen
 
     int status = getaddrinfo(addr, port_ch, &hints, &res);
     if (status != 0) {
-        fprintf(stderr, "trudpUdpMakeAddr:%d getaddrinfo: %s\n", __LINE__, gai_strerror(status));
+        LTRACK_E("trudpUdpMakeAddr", "getnameinfo: %s", gai_strerror(status));
         return -1;
     }
 
@@ -190,11 +190,14 @@ int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr, socklen
  * @param[out] port Pointer to port to get port integer
  * @return Pointer to address string(must be freed)
  */
- const char *trudpUdpGetAddr(__CONST_SOCKADDR_ARG remaddr, int *port) {
+ const char *trudpUdpGetAddr(__CONST_SOCKADDR_ARG remaddr, socklen_t remaddr_len, int *port) {
     char host[NI_MAXHOST] = { 0 };
     char service[NI_MAXSERV] = { 0 };
-    socklen_t remaddr_len = sizeof(struct sockaddr_storage);
+
     int s = getnameinfo(remaddr, remaddr_len, host, sizeof(host), service, NI_MAXSERV, NI_NUMERICHOST|NI_NUMERICSERV);
+    if (s != 0) {
+        LTRACK_E("trudpUdpGetAddr", "getnameinfo: %s", gai_strerror(s));
+    }
     (void)s;// \TODO: need to handle the error code
 
     size_t addr_len = strlen(host)+1;
@@ -210,7 +213,70 @@ int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr, socklen
 }
 
 /**
- * Create and bind UDP socket for client/server
+ * Create and bind UDP socket for CLIENT
+ *
+ * @param[in,out] port Pointer to Port number
+ * @param[in] allow_port_increment_f Allow port increment flag
+ * @return File descriptor or error if return value < 0:
+ *         -1 - cannot create socket; -2 - can't bind on port
+ */
+int trudpUdpBindRaw_cli(const char* addr, int *port, int allow_port_increment_f) {
+    struct addrinfo hints;
+    struct addrinfo *rp;
+    struct addrinfo *res;
+    memset(&hints, '\0', sizeof(struct addrinfo));
+    hints.ai_socktype = SOCK_DGRAM;
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_flags = AI_PASSIVE;
+    hints.ai_protocol = IPPROTO_UDP;
+    hints.ai_canonname = NULL;
+    hints.ai_addr = NULL;
+    hints.ai_next = NULL;
+
+    int fd, s;
+
+    // Bind the socket to any valid IP address and a specific port, increment
+    // port if busy
+    for (int i = 0;;) {
+        char port_ch[10];
+        sprintf(port_ch, "%d", *port);
+
+        s = getaddrinfo(addr, port_ch, &hints, &res);
+
+        if (s != 0) {
+            fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(s));
+            freeaddrinfo(res);
+            return -3;
+        }
+
+        for (rp = res; rp != NULL; rp = rp->ai_next) {
+            fd = _trudpUdpSocket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
+            if (fd == -1) continue;
+
+            if (_trudpUdpBind(fd, rp->ai_addr, rp->ai_addrlen) == 0) {
+                goto success_bind;
+            }
+
+            teosockClose(fd);
+        }
+
+        ++(*port);
+
+        if(allow_port_increment_f && i++ < NUMBER_OF_TRY_PORTS) {
+            continue;
+        } else {
+            freeaddrinfo(res);
+            return -2;
+        }
+    }
+
+success_bind:
+    freeaddrinfo(res);
+    return fd;
+}
+
+/**
+ * Create and bind UDP socket for SERVER
  *
  * @param[in,out] port Pointer to Port number
  * @param[in] allow_port_increment_f Allow port increment flag
@@ -293,7 +359,6 @@ ssize_t trudpUdpRecvfrom(int fd, uint8_t* buffer, size_t buffer_size,
     // Read UDP data
     ssize_t recvlen = recvfrom(fd, buffer, buffer_size, flags,
             (__SOCKADDR_ARG)remaddr, addr_length);
-
     if (recvlen == -1) {
 #if defined(TEONET_OS_WINDOWS)
         int recv_errno = WSAGetLastError();
