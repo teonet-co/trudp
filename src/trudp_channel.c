@@ -182,9 +182,6 @@ trudpChannelData *trudpChannelNew(struct trudpData *td, const char *remote_addre
   size_t channel_key_length;
   const char *addr_ch = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd.remaddr, tcd.addrlen, NULL);
   const char *channel_key = trudpMakeKey(addr_ch, remote_port_i, channel, &channel_key_length);
-
-  LTRACK_I("trudpChannelNew", "addr_ch: %s, key: %s", addr_ch, channel_key);
-
   free((char*)addr_ch);
 
   tcd.channel_key = ccl_malloc(channel_key_length);
