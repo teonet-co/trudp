@@ -216,7 +216,7 @@ int trudpUdpBindRaw_cli(const char* addr, int *port, int allow_port_increment_f)
         hints.ai_family = AF_INET;
     } else {
         struct sockaddr_in6 sa6;
-        rc = inet_pton(AF_INET6, addr, &(sa.sin6_addr));
+        rc = inet_pton(AF_INET6, addr, &(sa6.sin6_addr));
         if (rc == 1) { /* valid IPv6 */
             hints.ai_family = AF_INET6;
         }
