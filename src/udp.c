@@ -235,12 +235,13 @@ int trudpUdpBindRaw_cli(const char* addr, int *port, int allow_port_increment_f)
 
     int fd, s;
 
-    unsigned char out[sizeof(struct in6_addr)];
-    int rc = inet_pton(AF_INET, addr, out);
+    struct sockaddr_in sa;
+    int rc = inet_pton(AF_INET, addr, &(sa.sin_addr));
     if (rc == 1) { /* valid IPv4 */
         hints.ai_family = AF_INET;
     } else {
-        rc = inet_pton(AF_INET6, addr, out);
+        struct sockaddr_in6 sa6;
+        rc = inet_pton(AF_INET6, addr, &(sa.sin6_addr));
         if (rc == 1) { /* valid IPv6 */
             hints.ai_family = AF_INET6;
         }
