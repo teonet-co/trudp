@@ -157,15 +157,15 @@ void trudpChannelSendEventGotData(trudpChannelData* tcd, trudpPacket *packet) {
 
 void trudpChannelDestroyChannel(trudpData *td, trudpChannelData *tcd) {
 	bool recalculate_expected_time = false;
-	
+
 	if (td->channel_key == tcd->channel_key) {
 		recalculate_expected_time = true;
 		td->expected_max_time = UINT64_MAX;
 		td->channel_key = NULL;
 	}
-	
+
 	trudpChannelDestroy(tcd);
-	
+
 	if (recalculate_expected_time) {
 		trudpRecalculateExpectedSendTime(td);
 	}
@@ -258,7 +258,6 @@ bool trudpIsPacketPing(uint8_t* data, size_t packet_length) {
  */
 void trudpProcessReceived(trudpData* td, uint8_t* data, size_t data_length) {
     struct sockaddr_storage remaddr; // remote address
-
     socklen_t addr_len = sizeof(remaddr);
 
     size_t recvlen = 0;
@@ -440,7 +439,7 @@ trudpChannelData *trudpGetChannel(trudpData *td, __CONST_SOCKADDR_ARG addr, sock
  * @return Pointer to trudpChannelData or (void*)-1 at error
  */
 trudpChannelData *trudpGetChannelCreate(trudpData *td, __CONST_SOCKADDR_ARG addr, socklen_t addr_len, int channel) {
- 
+
     int port;
     const char *addr_str = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)addr, addr_len, &port);
     trudpChannelData *tcd = trudpGetChannelAddr(td, addr_str, port, channel);
