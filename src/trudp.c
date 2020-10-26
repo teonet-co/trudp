@@ -260,15 +260,20 @@ void trudpProcessReceived(trudpData* td, uint8_t* data, size_t data_length) {
     struct sockaddr_storage remaddr; // remote address
 
     socklen_t addr_len = sizeof(remaddr);
-    ssize_t recvlen = trudpUdpRecvfrom(td->fd, data, data_length,
-            (__SOCKADDR_ARG)&remaddr, &addr_len);
 
-    if (trudpIsPacketPing(data, recvlen) && trudpGetChannel(td, (__CONST_SOCKADDR_ARG) &remaddr, addr_len, 0) == (void *)-1) {
-        return;
-    }
+    size_t recvlen = 0;
+    int error_code = 0;
+
+    teosockRecvfromResult recvfrom_result = trudpUdpRecvfrom(td->fd, data, data_length,
+            (__SOCKADDR_ARG)&remaddr, &addr_len, &recvlen, &error_code);
 
     // Process received packet
-    if(recvlen > 0) {
+    // TODO: Handle errors in recvfrom.
+    if (recvfrom_result == TEOSOCK_RECVFROM_DATA_RECEIVED) {
+        if (trudpIsPacketPing(data, recvlen) && trudpGetChannel(td, (__CONST_SOCKADDR_ARG) &remaddr, addr_len, 0) == (void *)-1) {
+            return;
+        }
+
         trudpChannelData *tcd = trudpGetChannelCreate(td, (__CONST_SOCKADDR_ARG) &remaddr, addr_len, 0);
         // FIXME: non trudp data it's return value == 0, not -1. Investigate why
         // it works and fix appropriately

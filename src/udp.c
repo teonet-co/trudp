@@ -339,57 +339,34 @@ success_bind:
  * @param addr_length The length of @a remaddr argument
  * @return The amount of bytes received or -1 on error
  */
-ssize_t trudpUdpRecvfrom(int fd, uint8_t* buffer, size_t buffer_size,
-        __SOCKADDR_ARG remaddr, socklen_t* addr_length) {
-    int flags = 0;
+teosockRecvfromResult trudpUdpRecvfrom(
+    int fd, uint8_t *buffer, size_t buffer_size, __SOCKADDR_ARG remaddr,
+    socklen_t *addr_length, size_t *received_length, int *error) {
+    if (received_length == NULL) {
+        return TEOSOCK_RECVFROM_UNKNOWN_ERROR;
+    }
 
-    // Read UDP data
-    ssize_t recvlen = recvfrom(fd, buffer, buffer_size, flags,
-            (__SOCKADDR_ARG)remaddr, addr_length);
-    if (recvlen == -1) {
-#if defined(TEONET_OS_WINDOWS)
-        int recv_errno = WSAGetLastError();
-#else
-        int recv_errno = errno;
-#endif
+    teosockRecvfromResult recvfrom_result = teosockRecvfrom(fd, buffer, buffer_size, remaddr, addr_length, received_length, error);
 
-#if defined(TEONET_OS_WINDOWS)
-        if (recv_errno != WSAEWOULDBLOCK) {
-#else
-        // EWOULDBLOCK may be not defined or may have same value as EAGAIN.
-#if defined(EWOULDBLOCK) && EWOULDBLOCK != EAGAIN
-        if (recv_errno != EAGAIN && recv_errno != EWOULDBLOCK) {
-#else
-        if (recv_errno != EAGAIN) {
-#endif
-#endif
-            // TODO: Use thread safe error formatting function.
-            // TODO: On Windows use correct error formatting function.
-            LTRACK_E("TrUdp",
-                "Receiving data using recvfrom() failed with error %" PRId32
-                ": %s", recv_errno, strerror(recv_errno));
-        }
-    } else if (recvlen == 0) {
-        LTRACK_E("TrUdp", "Receiving data using recvfrom() returned 0 (connection closed).");
-    } else {
+    if (recvfrom_result == TEOSOCK_RECVFROM_DATA_RECEIVED) {
         if (trudpOpt_DBG_dumpUdpData) {
             char hexdump[32];
             if (buffer != NULL && buffer_size > 0) {
-                dump_bytes(hexdump, sizeof(hexdump), buffer, recvlen);
+                dump_bytes(hexdump, sizeof(hexdump), buffer, *received_length);
             } else {
                 strcpy(hexdump, "(null)");
             }
 
-            dump_bytes(hexdump, sizeof(hexdump), buffer, recvlen);
+            dump_bytes(hexdump, sizeof(hexdump), buffer, *received_length);
             LTRACK("TrUdp",
                    "Received %u bytes using recvfrom() starting with %s",
-                   (uint32_t)recvlen, hexdump);
+                   (uint32_t)(*received_length), hexdump);
         }
 
-        _trudpCallUdpDataReceivedCallback(recvlen);
+        _trudpCallUdpDataReceivedCallback(*received_length);
     }
 
-    return recvlen;
+    return recvfrom_result;
 }
 
 #ifdef RESERVED

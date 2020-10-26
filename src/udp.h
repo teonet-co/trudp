@@ -33,6 +33,7 @@
 #define UDP_H
 
 #include "teobase/platform.h" // For TEONET_OS_x
+#include "teobase/socket.h"
 
 #if defined(TEONET_OS_WINDOWS)
     #define WIN32_LEAN_AND_MEAN
@@ -72,8 +73,9 @@ TRUDP_API int trudpUdpBindRaw(int *port, int allow_port_increment_f);
 TRUDP_API int trudpUdpBindRaw_cli(const char* addr, int *port, int allow_port_increment_f);
 TRUDP_API const char *trudpUdpGetAddr(__CONST_SOCKADDR_ARG remaddr, socklen_t remaddr_len, int *port);
 
-TRUDP_API ssize_t trudpUdpRecvfrom(int fd, uint8_t* buffer, size_t buffer_size,
-        __SOCKADDR_ARG remaddr, socklen_t *addr_length);
+TRUDP_API teosockRecvfromResult trudpUdpRecvfrom(
+    int fd, uint8_t *buffer, size_t buffer_size, __SOCKADDR_ARG remaddr,
+    socklen_t *addr_length, size_t *received_length, int *error);
 TRUDP_API int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr, socklen_t *len);
 TRUDP_API void trudpUdpSetNonblock(int fd); // deprecated
 
