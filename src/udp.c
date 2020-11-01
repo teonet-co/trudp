@@ -294,7 +294,6 @@ int trudpUdpBindRaw(int *port, int allow_port_increment_f) {
 
         if (s != 0) {
             fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(s));
-            freeaddrinfo(res);
             return -3;
         }
 
