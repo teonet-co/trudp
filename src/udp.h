@@ -32,6 +32,12 @@
 #ifndef UDP_H
 #define UDP_H
 
+#if defined(TEONET_OS_LINUX)
+// For NI_MAXHOST and NI_MAXSERV in glibc 2.8 and later.
+#define _GNU_SOURCE
+#define _DEFAULT_SOURCE
+#endif
+
 #include "teobase/platform.h" // For TEONET_OS_x
 #include "teobase/socket.h"
 
