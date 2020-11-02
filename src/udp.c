@@ -26,7 +26,13 @@
  * UDP client server helper module
  */
 
-#if defined(_MSC_VER)
+#include "teobase/platform.h" // For TEONET_OS_x
+
+#if defined(TEONET_OS_LINUX)
+// For NI_MAXHOST and NI_MAXSERV in Glibc 2.8 and later.
+#define _GNU_SOURCE
+#define _DEFAULT_SOURCE
+#elif defined(TEONET_OS_WINDOWS)
 #if !defined(_CRT_SECURE_NO_WARNINGS)
 #define _CRT_SECURE_NO_WARNINGS
 #endif
