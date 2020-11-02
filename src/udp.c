@@ -156,8 +156,9 @@ int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr, socklen
         return -1;
     }
     *len = res->ai_addrlen;
-    memset(remaddr, 0, *len);
-    memcpy(remaddr, res->ai_addr, res->ai_addrlen);
+    // TODO: Cast to (sockaddr *) is needed when _GNU_SOURCE is defined.
+    memset((struct sockaddr *)remaddr, 0, *len);
+    memcpy((struct sockaddr *)remaddr, res->ai_addr, res->ai_addrlen);
 
     freeaddrinfo(res);
 
@@ -175,7 +176,8 @@ int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr, socklen
     char host[NI_MAXHOST] = { 0 };
     char service[NI_MAXSERV] = { 0 };
 
-    int s = getnameinfo(remaddr, remaddr_len, host, sizeof(host), service, NI_MAXSERV, NI_NUMERICHOST|NI_NUMERICSERV);
+    // TODO: Cast to (sockaddr *) is needed when _GNU_SOURCE is defined.
+    int s = getnameinfo((const struct sockaddr *)remaddr, remaddr_len, host, sizeof(host), service, NI_MAXSERV, NI_NUMERICHOST|NI_NUMERICSERV);
     if (s != 0) {
         LTRACK_E("trudpUdpGetAddr", "getnameinfo: %s", gai_strerror(s));
     }
@@ -350,7 +352,8 @@ teosockRecvfromResult trudpUdpRecvfrom(
         return TEOSOCK_RECVFROM_UNKNOWN_ERROR;
     }
 
-    teosockRecvfromResult recvfrom_result = teosockRecvfrom(fd, buffer, buffer_size, remaddr, addr_length, received_length, error);
+    // TODO: Cast to (sockaddr *) is needed when _GNU_SOURCE is defined.
+    teosockRecvfromResult recvfrom_result = teosockRecvfrom(fd, buffer, buffer_size, (struct sockaddr *)remaddr, addr_length, received_length, error);
 
     if (recvfrom_result == TEOSOCK_RECVFROM_DATA_RECEIVED) {
         if (trudpOpt_DBG_dumpUdpData) {
