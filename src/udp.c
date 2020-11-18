@@ -144,7 +144,12 @@ int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr, socklen
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_DGRAM;
+#if defined(TEONET_OS_ANDROID)
+    // Android does not support AI_V4MAPPED.
+    hints.ai_flags = AI_ADDRCONFIG;
+#else
     hints.ai_flags = AI_V4MAPPED | AI_ADDRCONFIG;
+#endif
     hints.ai_protocol = IPPROTO_UDP;
     hints.ai_canonname = NULL;
     hints.ai_addr = NULL;
