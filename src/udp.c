@@ -363,7 +363,6 @@ teosockRecvfromResult trudpUdpRecvfrom(
                 strcpy(hexdump, "(null)");
             }
 
-            dump_bytes(hexdump, sizeof(hexdump), buffer, *received_length);
             LTRACK("TrUdp",
                    "Received %u bytes using recvfrom() starting with %s",
                    (uint32_t)(*received_length), hexdump);
