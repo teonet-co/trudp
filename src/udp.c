@@ -25,13 +25,11 @@
 /**
  * UDP client server helper module
  */
-
 #include "teobase/platform.h" // For TEONET_OS_x
 
 #if defined(TEONET_OS_LINUX)
-// For NI_MAXHOST and NI_MAXSERV in Glibc 2.8 and later.
-#define _GNU_SOURCE
-#define _DEFAULT_SOURCE
+// For NI_MAXHOST and NI_MAXSERV in Glibc 2.19 and later.
+#include <features.h>
 #elif defined(TEONET_OS_WINDOWS)
 #if !defined(_CRT_SECURE_NO_WARNINGS)
 #define _CRT_SECURE_NO_WARNINGS
@@ -50,7 +48,6 @@
 #include "teobase/socket.h"
 #include "teobase/types.h"
 #include "teobase/logging.h"
-#include "teobase/platform.h"
 
 #include "trudp_utils.h"
 #include "trudp_options.h"
@@ -162,8 +159,8 @@ int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr, socklen
     }
     *len = res->ai_addrlen;
     // TODO: Cast to (sockaddr *) is needed when _GNU_SOURCE is defined.
-    memset((struct sockaddr *)remaddr, 0, *len);
-    memcpy((struct sockaddr *)remaddr, res->ai_addr, res->ai_addrlen);
+    memset(remaddr, 0, *len);
+    memcpy(remaddr, res->ai_addr, res->ai_addrlen);
 
     freeaddrinfo(res);
 
@@ -182,7 +179,7 @@ int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr, socklen
     char service[NI_MAXSERV] = { 0 };
 
     // TODO: Cast to (sockaddr *) is needed when _GNU_SOURCE is defined.
-    int s = getnameinfo((const struct sockaddr *)remaddr, remaddr_len, host, sizeof(host), service, NI_MAXSERV, NI_NUMERICHOST|NI_NUMERICSERV);
+    int s = getnameinfo(remaddr, remaddr_len, host, sizeof(host), service, NI_MAXSERV, NI_NUMERICHOST|NI_NUMERICSERV);
     if (s != 0) {
         LTRACK_E("trudpUdpGetAddr", "getnameinfo: %s", gai_strerror(s));
     }

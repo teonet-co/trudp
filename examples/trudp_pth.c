@@ -351,9 +351,12 @@ void network_select_loop(trudp_data_t *tru, int timeout) {
 
             struct sockaddr_in remaddr; // remote address
             socklen_t addr_len = sizeof(remaddr);
-            ssize_t recvlen = trudpUdpRecvfrom(td->fd, buffer, /*o.buf_size*/ 4096,
-                    (__SOCKADDR_ARG)&remaddr, &addr_len);
-
+            size_t recvlen = 0;
+            int error_code = 0;
+            teosockRecvfromResult recvfrom_result = trudpUdpRecvfrom(td->fd, buffer, /*o.buf_size*/ 4096,
+                    (__SOCKADDR_ARG)&remaddr, &addr_len, &recvlen, &error_code);
+            // \TODO: !!! need reqrite all examples. see teonet_l0_client.c:trudpNetworkSelectLoop:1013
+            (void) recvfrom_result;
             // Process received packet
             if(recvlen > 0) {
                 pthread_mutex_lock(&tru->mutex);
