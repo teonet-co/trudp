@@ -156,6 +156,9 @@ Overhead  Shared Object          Symbol
 */
 // C11 present
 #if __STDC_VERSION__ >= 201112L
+#ifdef __APPLE__
+#define __useconds_t useconds_t
+#endif
 extern int usleep (__useconds_t __useconds);
 #endif
 #include "snake.h"
@@ -244,7 +247,7 @@ static trudpProcessSendQueueData psd;
 #endif
 
 // Application options
-static options o = { 0, 0, 0, 0, 0, 0, 0, 0, 4096, NULL, NULL, NULL, NULL, 0 };
+static options o = { 1, 0, 0, 0, 0, 0, 0, 0, 4096, NULL, NULL, NULL, NULL, 0 };
 
 #if USE_SELECT
 // Application exit code and flags
@@ -548,7 +551,7 @@ static void eventCb(void *tcd_pointer, int event, void *data, size_t data_length
             //if(isWritable(tcd->td->fd, timeout) > 0) {
             // Send to UDP
             trudpUdpSendto(tcd->td->fd, data, data_length,
-                    (__CONST_SOCKADDR_ARG) &tcd->remaddr, sizeof(tcd->remaddr));
+                    (__CONST_SOCKADDR_ARG) &tcd->remaddr, tcd->addrlen);
             //}
 
             // Debug message
@@ -556,7 +559,7 @@ static void eventCb(void *tcd_pointer, int event, void *data, size_t data_length
 
                 int port,type;
                 uint32_t id = trudpPacketGetId(data);
-                const char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd->remaddr, &port);
+                const char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd->remaddr, tcd->addrlen, &port);
                 if(!(type = trudpPacketGetType(data))) {
                     debug("send %d bytes, id=%u, to %s:%d, %.3f(%.3f) ms\n",
                         (int)data_length, id, addr, port,
@@ -805,7 +808,7 @@ static void network_select_loop(trudpData *td, int timeout) {
 
             // Process received packet
             if(recvlen > 0) {
-                trudpChannelData *tcd = trudpGetChannelCreate(td, (__SOCKADDR_ARG)&remaddr, 0);
+                trudpChannelData *tcd = trudpGetChannelCreate(td, (__SOCKADDR_ARG)&remaddr, addr_len, 0);
                 trudpChannelProcessReceivedPacket(tcd, buffer, recvlen);
             }
         }
@@ -837,7 +840,7 @@ static void network_loop(trudpData *td) {
 
     // Process received packet
     if(recvlen > 0) {
-        trudpChannelData *tcd = trudpGetChannelCreate(td, (__SOCKADDR_ARG)&remaddr, 0);
+        trudpChannelData *tcd = trudpGetChannelCreate(td, (__SOCKADDR_ARG)&remaddr, addr_len, 0);
         trudpChannelProcessReceivedPacket(tcd, buffer, recvlen);
     }
 
@@ -950,9 +953,19 @@ int main(int argc, char** argv) {
 
     // 0) Bind UDP port and get FD (start listening at port)
     int port = atoi(o.local_port);
-    int fd = trudpUdpBindRaw(&port, 1);
-    if(fd <= 0) die("Can't bind UDP port ...\n");
-    else fprintf(stderr, "Start listening at port %d\n", port);
+    int fd = -1;
+    if (o.listen) {
+        fd = trudpUdpBindRaw(&port, 1);
+    } else {
+        fd = trudpUdpBindRaw_cli(o.remote_address, &port, 1);
+    }
+
+    if(fd <= 0) {
+        die("Can't bind UDP port. fd=%d\n", fd);
+    } else {
+        fprintf(stderr, "Start listening at port %d\n", port);
+        trudpUdpSetNonblock(fd);
+    }
 
     // 1) Initialize TR-UDP
     trudpData *td = trudpInit(fd, port, eventCb, NULL);

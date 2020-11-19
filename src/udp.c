@@ -25,8 +25,12 @@
 /**
  * UDP client server helper module
  */
+#include "teobase/platform.h" // For TEONET_OS_x
 
-#if defined(_MSC_VER)
+#if defined(TEONET_OS_LINUX)
+// For NI_MAXHOST and NI_MAXSERV in Glibc 2.19 and later.
+#include <features.h>
+#elif defined(TEONET_OS_WINDOWS)
 #if !defined(_CRT_SECURE_NO_WARNINGS)
 #define _CRT_SECURE_NO_WARNINGS
 #endif
@@ -39,11 +43,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <fcntl.h>
+#include <stdlib.h>
 
+#include "teobase/socket.h"
 #include "teobase/types.h"
-
 #include "teobase/logging.h"
-#include "teobase/platform.h"
 
 #include "trudp_utils.h"
 #include "trudp_options.h"
@@ -60,8 +64,6 @@ extern trudpUdpDataReceivedCallback_t trudpOpt_STAT_udpDataReceivedCallback;
 #define NUMBER_OF_TRY_PORTS 1000
 
 // Local functions
-static void _trudpUdpHostToIp(struct sockaddr_in *remaddr, const char *server);
-static void _trudpUdpSetNonblock(int fd);
 static void _trudpCallUdpDataSentCallback(int bytes_sent);
 static void _trudpCallUdpDataReceivedCallback(int bytes_received);
 #ifdef RESERVED
@@ -76,7 +78,7 @@ static ssize_t _trudpUdpReadEventLoop(int fd, void *buffer, size_t buffer_size,
  *
  * @param fd
  */
-static void _trudpUdpSetNonblock(int fd) {
+void trudpUdpSetNonblock(int fd) { // deprecated
 
     #if defined(HAVE_MINGW) || defined(_WIN32) || defined(_WIN64)
     //-------------------------
@@ -101,29 +103,6 @@ static void _trudpUdpSetNonblock(int fd) {
     #endif
 }
 
-/**
- * Convert host name to IP
- *
- * @param remaddr
- * @param server
- */
-static void _trudpUdpHostToIp(struct sockaddr_in *remaddr, const char *server) {
-    int result = inet_pton(AF_INET, server, &remaddr->sin_addr);
-
-    if (result != -1) {
-        /* When passing the host name of the server as a */
-        /* parameter to this program, use the gethostbyname() */
-        /* function to retrieve the address of the host server. */
-        /***************************************************/
-        /* get host address */
-        struct hostent *hostp = gethostbyname(server);
-        if (hostp == NULL) {
-            // ...
-        } else {
-            memcpy(&remaddr->sin_addr, hostp->h_addr_list[0], sizeof(remaddr->sin_addr));
-        }
-    }
-}
 
 void _trudpCallUdpDataSentCallback(int bytes_sent) {
     trudpUdpDataSentCallback_t callback_copy =
@@ -143,6 +122,7 @@ void _trudpCallUdpDataReceivedCallback(int bytes_received) {
     }
 }
 
+
 /**
  * Make address from the IPv4 numbers-and-dots notation and integer port number
  * into binary form
@@ -153,23 +133,35 @@ void _trudpCallUdpDataReceivedCallback(int bytes_received) {
  * @param addr_length
  * @return
  */
-int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr,
-        socklen_t *addr_length) {
+int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr, socklen_t *len) {
+    struct addrinfo hints, *res;
+    char port_ch[10];
+    sprintf(port_ch, "%d", port);
 
-    if(*addr_length < sizeof(struct sockaddr_in)) return -3;
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_DGRAM;
+#if defined(TEONET_OS_ANDROID)
+    // Android does not support AI_V4MAPPED.
+    hints.ai_flags = AI_ADDRCONFIG;
+#else
+    hints.ai_flags = AI_V4MAPPED | AI_ADDRCONFIG;
+#endif
+    hints.ai_protocol = IPPROTO_UDP;
+    hints.ai_canonname = NULL;
+    hints.ai_addr = NULL;
+    hints.ai_next = NULL;
 
-    *addr_length = sizeof(struct sockaddr_in); // length of addresses
-    memset((void *)remaddr, 0, *addr_length);
-    ((struct sockaddr_in*)remaddr)->sin_family = AF_INET;
-    ((struct sockaddr_in*)remaddr)->sin_port = htons(port);
-//    #ifndef HAVE_MINGW
-//    if(inet_aton(addr, &((struct sockaddr_in*)remaddr)->sin_addr) == 0) {
-//        return(-2);
-//    }
-//    #else
-    //((struct sockaddr_in*)remaddr)->sin_addr.s_addr = inet_addr(addr);
-    _trudpUdpHostToIp((struct sockaddr_in*)remaddr, addr);
-//    #endif
+    int status = getaddrinfo(addr, port_ch, &hints, &res);
+    if (status != 0) {
+        LTRACK_E("trudpUdpMakeAddr", "getnameinfo: %s", gai_strerror(status));
+        return -1;
+    }
+    *len = res->ai_addrlen;
+    memset(remaddr, 0, *len);
+    memcpy(remaddr, res->ai_addr, res->ai_addrlen);
+
+    freeaddrinfo(res);
 
     return 0;
 }
@@ -177,20 +169,108 @@ int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr,
 /**
  * Get address and port from address structure
  *
- * @param remaddr
- * @param port Pointer to port to get port integer
- * @return Pointer to address string
+ * @param[in] remaddr
+ * @param[out] port Pointer to port to get port integer
+ * @return Pointer to address string(must be freed)
  */
- const char *trudpUdpGetAddr(__CONST_SOCKADDR_ARG remaddr, int *port) {
+ const char *trudpUdpGetAddr(__CONST_SOCKADDR_ARG remaddr, socklen_t remaddr_len, int *port) {
+    char host[NI_MAXHOST] = { 0 };
+    char service[NI_MAXSERV] = { 0 };
 
-    const char *addr = inet_ntoa(((struct sockaddr_in*)remaddr)->sin_addr); // IP to string
-    if(port) *port = ntohs(((struct sockaddr_in*)remaddr)->sin_port); // Port to integer
+    int s = getnameinfo(remaddr, remaddr_len, host, sizeof(host), service, NI_MAXSERV, NI_NUMERICHOST|NI_NUMERICSERV);
+    if (s != 0) {
+        LTRACK_E("trudpUdpGetAddr", "getnameinfo: %s", gai_strerror(s));
+    }
+    (void)s;// \TODO: need to handle the error code
 
-    return addr;
+    size_t addr_len = strlen(host)+1;
+    char *addr = malloc(addr_len);
+    memset(addr, '\0', addr_len);
+    memcpy(addr, host, addr_len);
+
+    if(port) {
+        *port = atoi(service);
+    }
+
+    return (const char *)addr;
 }
 
 /**
- * Create and bind UDP socket for client/server
+ * Create and bind UDP socket for CLIENT
+ *
+ * @param[in,out] port Pointer to Port number
+ * @param[in] allow_port_increment_f Allow port increment flag
+ * @return File descriptor or error if return value < 0:
+ *         -1 - cannot create socket; -2 - can't bind on port
+ */
+int trudpUdpBindRaw_cli(const char* addr, int *port, int allow_port_increment_f) {
+    struct addrinfo hints;
+    struct addrinfo *rp;
+    struct addrinfo *res;
+    memset(&hints, '\0', sizeof(struct addrinfo));
+    hints.ai_socktype = SOCK_DGRAM;
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_flags = AI_PASSIVE;
+    hints.ai_protocol = IPPROTO_UDP;
+    hints.ai_canonname = NULL;
+    hints.ai_addr = NULL;
+    hints.ai_next = NULL;
+
+    int fd, s;
+
+    struct sockaddr_in sa;
+    int rc = inet_pton(AF_INET, addr, &(sa.sin_addr));
+    if (rc == 1) { /* valid IPv4 */
+        hints.ai_family = AF_INET;
+    } else {
+        struct sockaddr_in6 sa6;
+        rc = inet_pton(AF_INET6, addr, &(sa6.sin6_addr));
+        if (rc == 1) { /* valid IPv6 */
+            hints.ai_family = AF_INET6;
+        }
+    }
+
+    // Bind the socket to any valid IP address and a specific port, increment
+    // port if busy
+    for (int i = 0;;) {
+        char port_ch[10];
+        sprintf(port_ch, "%d", *port);
+
+        s = getaddrinfo(NULL, port_ch, &hints, &res);
+
+        if (s != 0) {
+            fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(s));
+            return -3;
+        }
+
+        for (rp = res; rp != NULL; rp = rp->ai_next) {
+            fd = _trudpUdpSocket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
+            if (fd == -1) continue;
+
+            if (_trudpUdpBind(fd, rp->ai_addr, rp->ai_addrlen) == 0) {
+                goto success_bind;
+            }
+
+            teosockClose(fd);
+        }
+
+        ++(*port);
+
+        if(allow_port_increment_f && i++ < NUMBER_OF_TRY_PORTS) {
+            continue;
+        } else {
+            freeaddrinfo(res);
+            return -2;
+        }
+    }
+
+success_bind:
+    freeaddrinfo(res);
+    return fd;
+}
+
+/**
+ * Create and bind UDP socket for SERVER
  *
  * @param[in,out] port Pointer to Port number
  * @param[in] allow_port_increment_f Allow port increment flag
@@ -198,45 +278,60 @@ int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr,
  *         -1 - cannot create socket; -2 - can't bind on port
  */
 int trudpUdpBindRaw(int *port, int allow_port_increment_f) {
-    struct sockaddr_in addr;	// Our address
+    struct addrinfo hints;
+    struct addrinfo *rp;
+    struct addrinfo *res;
+    memset(&hints, '\0', sizeof(struct addrinfo));
+    hints.ai_socktype = SOCK_DGRAM;
+    hints.ai_flags = AI_PASSIVE;
+    hints.ai_protocol = IPPROTO_UDP;
+    hints.ai_canonname = NULL;
+    hints.ai_addr = NULL;
+    hints.ai_next = NULL;
 
-    // Create an UDP socket
-    int fd = _trudpUdpSocket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-    if(fd < 0) {
-        perror("cannot create socket\n");
-        return -1;
-    }
-
-    memset((char *)&addr, 0, sizeof(addr));
-    addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    int fd, s;
 
     // Bind the socket to any valid IP address and a specific port, increment
     // port if busy
-    for(int i=0;;) {
+    for (int i = 0;;) {
+        char port_ch[10];
+        sprintf(port_ch, "%d", *port);
 
-        addr.sin_port = htons(*port);
+        hints.ai_family = AF_INET6;
+        s = getaddrinfo(NULL, port_ch, &hints, &res);
 
-        // Try to bind
-        if(_trudpUdpBind(fd, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-            fprintf(
-                stderr,
-                "can't bind on port %d, try next port number ...\n",
-                *port
-            );
-            (*port)++;
-            if(allow_port_increment_f && i++ < NUMBER_OF_TRY_PORTS) continue;
-            else return -2;
+        if (s != 0) {
+            fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(s));
+            return -3;
         }
 
-        // Bind successfully
-        else {
-            if(!*port) trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&addr, port);
-            _trudpUdpSetNonblock(fd);
-            break;
+        for (rp = res; rp != NULL; rp = rp->ai_next) {
+            fd = _trudpUdpSocket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
+            if (fd == -1) continue;
+
+            if (_trudpUdpBind(fd, rp->ai_addr, rp->ai_addrlen) == 0) {
+
+                int off = 0;
+                setsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY, (void *)&off, sizeof(off));
+
+                goto success_bind;
+            }
+
+            teosockClose(fd);
+        }
+
+        ++(*port);
+
+        if(allow_port_increment_f && i++ < NUMBER_OF_TRY_PORTS) {
+            continue;
+        } else {
+            freeaddrinfo(res);
+            return -2;
         }
     }
 
+success_bind:
+    freeaddrinfo(res);
     return fd;
 }
 
@@ -250,58 +345,34 @@ int trudpUdpBindRaw(int *port, int allow_port_increment_f) {
  * @param addr_length The length of @a remaddr argument
  * @return The amount of bytes received or -1 on error
  */
-ssize_t trudpUdpRecvfrom(int fd, uint8_t* buffer, size_t buffer_size,
-        __SOCKADDR_ARG remaddr, socklen_t* addr_length) {
-    int flags = 0;
+teosockRecvfromResult trudpUdpRecvfrom(
+    int fd, uint8_t *buffer, size_t buffer_size, __SOCKADDR_ARG remaddr,
+    socklen_t *addr_length, size_t *received_length, int *error) {
+    if (received_length == NULL) {
+        return TEOSOCK_RECVFROM_UNKNOWN_ERROR;
+    }
 
-    // Read UDP data
-    ssize_t recvlen = recvfrom(fd, buffer, buffer_size, flags,
-            (__SOCKADDR_ARG)remaddr, addr_length);
+    teosockRecvfromResult recvfrom_result = teosockRecvfrom(fd, buffer, buffer_size, remaddr, addr_length, received_length, error);
 
-    if (recvlen == -1) {
-#if defined(TEONET_OS_WINDOWS)
-        int recv_errno = WSAGetLastError();
-#else
-        int recv_errno = errno;
-#endif
-
-#if defined(TEONET_OS_WINDOWS)
-        if (recv_errno != WSAEWOULDBLOCK) {
-#else
-        // EWOULDBLOCK may be not defined or may have same value as EAGAIN.
-#if defined(EWOULDBLOCK) && EWOULDBLOCK != EAGAIN
-        if (recv_errno != EAGAIN && recv_errno != EWOULDBLOCK) {
-#else
-        if (recv_errno != EAGAIN) {
-#endif
-#endif
-            // TODO: Use thread safe error formatting function.
-            // TODO: On Windows use correct error formatting function.
-            LTRACK_E("TrUdp",
-                "Receiving data using recvfrom() failed with error %" PRId32
-                ": %s", recv_errno, strerror(recv_errno));
-        }
-    } else if (recvlen == 0) {
-        LTRACK_E("TrUdp", "Receiving data using recvfrom() returned 0 (connection closed).");
-    } else {
+    if (recvfrom_result == TEOSOCK_RECVFROM_DATA_RECEIVED) {
         if (trudpOpt_DBG_dumpUdpData) {
             char hexdump[32];
             if (buffer != NULL && buffer_size > 0) {
-                dump_bytes(hexdump, sizeof(hexdump), buffer, recvlen);
+                dump_bytes(hexdump, sizeof(hexdump), buffer, *received_length);
             } else {
                 strcpy(hexdump, "(null)");
             }
 
-            dump_bytes(hexdump, sizeof(hexdump), buffer, recvlen);
+            dump_bytes(hexdump, sizeof(hexdump), buffer, *received_length);
             LTRACK("TrUdp",
                    "Received %u bytes using recvfrom() starting with %s",
-                   (uint32_t)recvlen, hexdump);
+                   (uint32_t)(*received_length), hexdump);
         }
 
-        _trudpCallUdpDataReceivedCallback(recvlen);
+        _trudpCallUdpDataReceivedCallback(*received_length);
     }
 
-    return recvlen;
+    return recvfrom_result;
 }
 
 #ifdef RESERVED

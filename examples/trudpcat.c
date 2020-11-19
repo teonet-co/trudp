@@ -199,12 +199,12 @@ static void sendPacketCb(void *tcd_ptr, void *packet, size_t packet_length,
     //if(isWritable(tcd->td->fd, timeout) > 0) {   
     // Send to UDP
     trudpUdpSendto(tcd->td->fd, packet, packet_length,
-            (__CONST_SOCKADDR_ARG) &tcd->remaddr, sizeof(tcd->remaddr));
+            (__CONST_SOCKADDR_ARG) &tcd->remaddr, tcd->addrlen);
     //}
 
     int port,type;
     uint32_t id = trudpPacketGetId(packet);
-    const char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd->remaddr, &port);
+    const char *addr = trudpUdpGetAddr((__CONST_SOCKADDR_ARG)&tcd->remaddr, tcd->addrlen, &port);
     if(!(type = trudpPacketGetType(packet))) {
         debug("send %d bytes, id=%u, to %s:%d, %.3f(%.3f) ms\n",
             (int)packet_length, id, addr, port,
@@ -463,6 +463,7 @@ int main_select(int argc, char** argv) {
     // Bind UDP port and get FD (start listening at port)
     int port = atoi(o_local_port);
     int fd = trudpUdpBindRaw(&port, 1);
+
     if(fd <= 0) die("Can't bind UDP port ...\n");
     else fprintf(stderr, "Start listening at port %d\n", port);
 

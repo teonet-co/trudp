@@ -134,7 +134,7 @@ typedef struct trudpChannelData {
     struct trudpData *td; ///< Pointer to trudpData
 
     // UDP connection depended variables
-    struct sockaddr_in remaddr; ///< Remote address
+    struct sockaddr_storage remaddr; ///< Remote address
     socklen_t addrlen;          ///< Remote address length
     int connected_f;            ///< Connected (remote address valid)
     int channel;                ///< TR-UDP channel
