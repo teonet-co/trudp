@@ -158,7 +158,6 @@ int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr, socklen
         return -1;
     }
     *len = res->ai_addrlen;
-    // TODO: Cast to (sockaddr *) is needed when _GNU_SOURCE is defined.
     memset(remaddr, 0, *len);
     memcpy(remaddr, res->ai_addr, res->ai_addrlen);
 
@@ -178,7 +177,6 @@ int trudpUdpMakeAddr(const char *addr, int port, __SOCKADDR_ARG remaddr, socklen
     char host[NI_MAXHOST] = { 0 };
     char service[NI_MAXSERV] = { 0 };
 
-    // TODO: Cast to (sockaddr *) is needed when _GNU_SOURCE is defined.
     int s = getnameinfo(remaddr, remaddr_len, host, sizeof(host), service, NI_MAXSERV, NI_NUMERICHOST|NI_NUMERICSERV);
     if (s != 0) {
         LTRACK_E("trudpUdpGetAddr", "getnameinfo: %s", gai_strerror(s));
