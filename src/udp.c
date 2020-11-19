@@ -352,8 +352,7 @@ teosockRecvfromResult trudpUdpRecvfrom(
         return TEOSOCK_RECVFROM_UNKNOWN_ERROR;
     }
 
-    // TODO: Cast to (sockaddr *) is needed when _GNU_SOURCE is defined.
-    teosockRecvfromResult recvfrom_result = teosockRecvfrom(fd, buffer, buffer_size, (struct sockaddr *)remaddr, addr_length, received_length, error);
+    teosockRecvfromResult recvfrom_result = teosockRecvfrom(fd, buffer, buffer_size, remaddr, addr_length, received_length, error);
 
     if (recvfrom_result == TEOSOCK_RECVFROM_DATA_RECEIVED) {
         if (trudpOpt_DBG_dumpUdpData) {
